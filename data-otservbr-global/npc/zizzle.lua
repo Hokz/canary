@@ -95,6 +95,8 @@ local function creatureSayCallback(npc, creature, type, message)
 			else
 				npcHandler:say({ "Now go to the north of Sleeping Dragon room, {dont need talk} with he!" }, npc, creature)
 			end
+		else
+			npcHandler:say("I have no new orderz for you right now, {alliez}. Come back later.", npc, creature)
 		end
 	elseif MsgContains(message, "yes") then
 		if npcHandler:getTopic(playerId) == 1 then
