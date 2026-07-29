@@ -143,6 +143,9 @@ local function creatureSayCallback(npc, creature, type, message)
 	elseif MsgContains(message, "flatter") and player:getStorageValue(TheNewFrontier.Mission05.WyrdinKeyword) == 3 and player:getStorageValue(TheNewFrontier.Mission05.Wyrdin) == 1 then
 		npcHandler:say("Hm, you are right, we are at the forefront of knowledge and innovation. Our dwarven friends could learn much from one of our representatives.", npc, creature)
 		player:setStorageValue(TheNewFrontier.Mission05.Wyrdin, 3)
+	elseif MsgContains(message, "reason") and player:getStorageValue(TheNewFrontier.Mission05.WyrdinKeyword) == 4 and player:getStorageValue(TheNewFrontier.Mission05.Wyrdin) == 1 then
+		npcHandler:say("Hm, I suppose a scholarly outpost so close to the mines would keep the academy well supplied with fresh research. Very well, I'll send a representative.", npc, creature)
+		player:setStorageValue(TheNewFrontier.Mission05.Wyrdin, 3)
 	else
 		if player:getStorageValue(TheNewFrontier.Questline) == 14 and player:getStorageValue(TheNewFrontier.Mission05.Wyrdin) == 1 then
 			npcHandler:say("Wrong Word.", npc, creature)
