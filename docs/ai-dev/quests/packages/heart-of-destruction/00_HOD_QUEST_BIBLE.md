@@ -1,6 +1,17 @@
 # 00 — Heart of Destruction Quest Bible
 
-Package: HOD-02. Read-only audit against `data-otservbr-global/` on branch `ai-dev/hod-02-quest-bible-contracts` (based on `main` @ `baba6c0d7`, which already includes the HOD-01 World Devourer cooldown fix from PR #4).
+Package: HOD-02, updated by HOD-03. Read-only audit against `data-otservbr-global/` on branch `ai-dev/hod-02-quest-bible-contracts` (based on `main` @ `baba6c0d7`, which already includes the HOD-01 World Devourer cooldown fix from PR #4).
+
+## HOD-03 update summary
+
+HOD-03 incorporated a much more detailed owner-provided functional reference (level/premium requirements, exact reward list, exact Messenger of Heaven keyword chain, exact Yana dialogue, per-boss mechanic descriptions, the World Devourer "destructive charges" system, and mount/egg drop notes). Two significant corrections to HOD-02's findings resulted:
+
+1. **The reward chest is fully correct, not partially missing.** All 7 item names were cross-referenced against `items.xml` and match the reference exactly (Spying Eye, Vibrant Egg, Folded Void Carpet, Mysterious Remains, 20 Crystal Coins, 5 Gold Tokens, Energetic Backpack container). "Powerful imbuement access" was never missing from the chest — it's correctly handled as a separate post-quest NPC interaction (Yana), matching the reference's own structure. See [[06_HOD_REWARD_CONTRACT]].
+2. **`actions_devourer_access.lua` is not a bug.** Item 23686 is named "devourer core" in `items.xml`, confirming this file correctly implements the reference's "Player can also use Devourer Core to reset the cooldown" mechanic. HOD-02's "possibly inverted logic" flag is retracted. See [[05_HOD_BOSS_MECHANICS_CONTRACT]].
+
+New genuine gap found this pass: **Yana's "worth" dialogue branch was an unfinished draft** — the file contains a literal `-- to do: check if Heart of Destruction was killed` comment, meaning the completion check was never implemented, the imbuement list was incomplete (3 of 8 items), and a stray Lua comment marker (`--`) had leaked into the player-visible string. This was fixed in this package — see [[09_HOD_SAFE_FIXES_APPLIED]].
+
+New genuine gap confirmed missing: the **"5 destructive charges" World Devourer entry-gate system** described in the reference (separate from the cooldown/Devourer Core mechanics) does not exist anywhere in the codebase — no charge-counter storage, no "higher minion of destruction" kill tracking. Documented as a future package, not implemented here (would require new mechanic design, excluded from this package's safe-fix scope).
 
 ## Reference status
 

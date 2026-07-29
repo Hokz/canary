@@ -28,8 +28,20 @@ The **storage keys that would back each mission** can be reasonably inferred fro
 |---|---|
 | Quest name (as shown in Quest Log) | Exact text |
 | Mission list (count, names, order) | Exact text, per mission |
-| Per-mission state descriptions | Exact text, per state |
+| Per-mission state descriptions | Exact text, per state (one piece now available — see below) |
 | Whether vortex-route progress (if implemented later) should appear as its own mission or sub-state | Design decision |
+
+## HOD-03 update — one exact mission-state text now available
+
+The owner supplied exact text for the World Devourer re-entry state:
+
+> *"To face the heart of destruction again, you have to gather destructive charges to enter its lair. You gain charges by killing any higher minion of destruction. You have gathered X of 5 charges."*
+
+**Not implemented in HOD-03**, for two reasons:
+1. This text describes the **"5 destructive charges" entry-gate mechanic**, which is separate from (and currently absent alongside) the cooldown/Devourer Core system already implemented — see [[03_HOD_STORAGE_CONTRACT]] and [[05_HOD_BOSS_MECHANICS_CONTRACT]] for the corrected understanding of what's already implemented (cooldown + Devourer Core reset item) versus what's still missing (the charge-accumulation gate itself). Displaying this exact text without the underlying charge system existing would show players an instruction for a mechanic that doesn't function.
+2. A single populated mission state isn't enough to safely create a valid catalog module — `data/lib/core/quests/catalog.lua`'s `buildCatalog()` validates the whole quest structure (unique `missionId`s, `startStorageId`, etc.), and the other 7+ mission states (quest start, first three boss missions, Eradicator/Outburst, World Devourer itself) still have no exact text.
+
+This exact text is preserved here so it isn't lost, and is ready to use verbatim once (a) the charge-accumulation mechanic is implemented (a future package) and (b) enough of the remaining mission states are supplied to build a complete, valid catalog module.
 
 ## Risk level
 

@@ -35,14 +35,37 @@ Read in full. Same pattern: only `FocusModule`, no `creatureSayCallback`, no key
 **Risk: Medium** — unclear whether this NPC is load-bearing for the quest at all.
 **Contract placeholder — `OWNER_REFERENCE_REQUIRED`:** whether this NPC has any dialogue role in the quest, and if so, what.
 
-## Keyword contract
+## Keyword contract (updated HOD-03)
 
-Per the owner's rule: *"Keywords required by common quest spoilers must be accepted exactly."* No keyword list has been provided or found in-repo for either Messenger of Heaven NPC. This section is a placeholder to be filled in once reference text is available:
+The owner has now supplied the **exact required keyword chain** (player-side only — Messenger of Heaven's own spoken lines between each keyword are still not available):
 
-| Keyword | Source | Expected response | Status |
-|---|---|---|---|
-| *(none confirmed)* | — | — | `OWNER_REFERENCE_REQUIRED` |
+**Full chain**: `Hi → Matter → Damage → Stopped → Destroying → Heart of Destruction → Strong → Yes`
+**Short alternative chain**: `Hi → Strong → Yes`
 
-## What this contract does NOT claim
+| Player keyword | NPC response text | Status |
+|---|---|---|
+| Hi | Unknown | `OWNER_REFERENCE_REQUIRED` |
+| Matter | Unknown | `OWNER_REFERENCE_REQUIRED` |
+| Damage | Unknown | `OWNER_REFERENCE_REQUIRED` |
+| Stopped | Unknown | `OWNER_REFERENCE_REQUIRED` |
+| Destroying | Unknown | `OWNER_REFERENCE_REQUIRED` |
+| Heart of Destruction | Unknown | `OWNER_REFERENCE_REQUIRED` |
+| Strong | Unknown | `OWNER_REFERENCE_REQUIRED` |
+| Yes (final) | Unknown — should trigger cave/vortex access grant | `OWNER_REFERENCE_REQUIRED` |
 
-This document does not assert that Messenger of Heaven dialogue is "broken" in the sense of a regression — it asserts the dialogue was **never implemented**, based on the complete absence of any callback registration. This is a missing-content finding, not a bug-fix target, and per the package rules is explicitly **not** a safe fix candidate (writing dialogue without reference text would be inventing it, which is disallowed).
+**Why this still wasn't implemented in HOD-03**: per the package rule (*"Do not invent Messenger of Heaven dialogue... implement keyword acceptance only if... no exact long dialogue is required; otherwise mark OWNER_REFERENCE_REQUIRED"*), having only the player's half of an 8-step conversation is not enough to safely implement the NPC's side. Writing plausible-sounding filler responses for 7 unknown NPC lines would be inventing dialogue, which is explicitly disallowed. **This is now the single most valuable piece of reference text to obtain next** — with Messenger of Heaven's actual spoken lines, HOD-04 (or later) could implement this fully in one pass, following the same proven topic-chain pattern already used elsewhere in this codebase (e.g., `henricus.lua`, `zizzle.lua`).
+
+## Yana — full current state (HOD-03: FIXED this package)
+
+`data-otservbr-global/npc/yana.lua`. Distinct from the two Messenger of Heaven NPCs — Yana is the post-World-Devourer imbuement/token vendor.
+
+**Before HOD-03**: the file contained a literal developer TODO comment (`-- to do: check if Heart of Destruction was killed`) directly above the "worth" keyword handler, meaning the completion check was **never implemented** — every player, regardless of progress, got the same "here's what you need to do" instructional text. That text also only listed 3 of the reference's 8 imbuements, and contained a stray Lua comment marker (`--'Powerful Vampirism'`) that would have displayed literally to players. No `MESSAGE_GREET` was set at all.
+
+**Fixed this package**, using the owner's exact provided dialogue and the existing, already-proven `player:hasAchievement(...)` pattern (used identically elsewhere in the codebase, e.g. `iskan.lua:60`) to gate the branch:
+- Added `MESSAGE_GREET`: *"Blessings, |PLAYERNAME|! How may I help you? Do you wish to trade some tokens, prove your worth to receive powerful imbuements, or do you need some information?"* — exact owner text, `|PLAYERNAME|` substituted for the reference's literal "Player" placeholder, consistent with this codebase's greeting convention.
+- "worth" keyword now branches on `player:hasAchievement("Ender of the End")`:
+  - **True**: exact owner text — *"I see, you disrupted the Heart of Destruction, defeated the World Devourer and bought our world some time. You are truly worthy. ..."* followed by *"You are granted the power to imbue 'Powerful Strike', 'Powerful Epiphany', 'Powerful Void', 'Powerful Vampirism', 'Power Lich Shroud', 'Power Reap', 'Power Dragon Hide' and 'Power Scorch'."*
+  - **False**: the pre-existing repo teaser line, with the stray `--` syntax glitch removed and the imbuement list completed to the same 8-item set (previously listed only 3) — this is a factual-accuracy correction to existing repo text, not new invented content, since the full 8-item list is the same list the owner authorized for the success case.
+- **No mechanical "access grant" was added.** Checked `data/XML/imbuements.xml` — the "Powerful" imbuement tier is a plain price/percent/duration `<base>` definition (id 3), not gated by any per-player storage or flag anywhere in the engine. There is nothing to mechanically "unlock" — Yana's dialogue is confirmed to be narrative/flavor gating only, matching the reference's own framing ("granted the power to imbue," not "granted a new capability the engine didn't already allow"). Not inventing a new access-control mechanism was a deliberate scope decision, consistent with avoiding unproven boss/mechanic rewrites.
+
+**Status: Implemented (was: broken/incomplete).** **Risk: Low** — text-and-conditional-only change, using an already-proven API pattern, exact owner-authorized text throughout.

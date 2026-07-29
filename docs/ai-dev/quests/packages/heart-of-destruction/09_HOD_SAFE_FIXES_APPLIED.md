@@ -1,6 +1,37 @@
-# 09 — Heart of Destruction Safe Fixes Applied (HOD-02)
+# 09 — Heart of Destruction Safe Fixes Applied
 
-## Outcome: no new code fixes applied in this package
+## HOD-03 update: one code fix applied
+
+**File changed**: `data-otservbr-global/npc/yana.lua`
+
+**What was wrong**: the "worth" dialogue branch contained a literal developer TODO (`-- to do: check if Heart of Destruction was killed`) and never actually checked whether the player had completed the quest — every player got the same generic instructional text regardless of progress. That text also enumerated only 3 of the reference's 8 "Powerful" imbuements, and contained a stray Lua comment marker (`--'Powerful Vampirism'`) that would have rendered literally in the player-visible string. No greeting message was configured at all.
+
+**Why this passed the safe-fix bar** (package rule #10 — *"implement or correct Yana dialogue only if existing Yana/imbuement logic clearly supports it and the exact dialogue above is enough"*):
+1. The "worth" keyword branch already existed — this is a correction, not new dialogue invention.
+2. The exact success-case text was provided verbatim by the owner.
+3. The completion check uses `player:hasAchievement("Ender of the End")` — an already-proven pattern used identically elsewhere in this codebase (`iskan.lua:60`), not a new mechanism.
+4. Confirmed via `data/XML/imbuements.xml` that "Powerful" is a plain price/duration tier with no per-player access flag anywhere in the engine — so no new "grant access" mechanic needed to be invented; the fix is purely dialogue + a proven read-only check.
+5. Fully testable with clear player steps (talk to Yana, say "worth," before and after defeating World Devourer).
+
+**What was NOT touched**: the "trade"/"tokens" gold-token shop flow (unrelated, pre-existing, working feature); no new storage was created; no imbuement-granting mechanism was invented.
+
+**Risk**: Low. See [[01_HOD_NPC_DIALOGUE_CONTRACT]] for the full before/after text and [[07_HOD_QA_GAMEPLAY_CHECKLIST]] §6b for the verification steps.
+
+## HOD-03 update: two HOD-02 findings corrected (no code change needed)
+
+- **Reward chest** (`actions_reward.lua`): all 7 item names verified against `items.xml` — exact match to the owner's reference. No fix needed; HOD-02's "unverified identity" note is resolved. See [[06_HOD_REWARD_CONTRACT]].
+- **`actions_devourer_access.lua`**: item 23686 confirmed named "devourer core," matching the reference's documented reset-cooldown mechanic exactly. HOD-02's "possibly inverted logic" flag is retracted — no fix needed. See [[05_HOD_BOSS_MECHANICS_CONTRACT]].
+
+## HOD-03 update: confirmed still missing, not attempted (would exceed safe-fix scope)
+
+- Messenger of Heaven dialogue — exact keyword chain now known, but the NPC's own spoken lines are still unavailable; inventing them is explicitly disallowed.
+- The "5 destructive charges" World Devourer entry gate — a genuinely new mechanic (kill-tracked counter across monster types, spend-on-entry check), not a fix to existing code.
+- Questlog catalog entry — one exact mission-state text is now banked, but a valid catalog module needs the other ~7 states' text too.
+- The 45-minute vs. 30-minute×N final-battle timing discrepancy — needs live-testing to even confirm as a real issue before any change is considered.
+
+---
+
+## HOD-02 baseline: no new code fixes applied in that package
 
 This package's primary deliverable is documentation (the Quest Bible + 7 contracts). Every finding surfaced during the audit was checked against the package's 7-condition safe-fix test:
 

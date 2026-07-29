@@ -2,6 +2,12 @@
 
 Per package rules: comparison only, no reward implementation in this package.
 
+**HOD-03 correction**: HOD-02 could not confirm the exact identity of 4 reward items (23512, 23538, 23536, 23509) and flagged "powerful imbuement access" as missing from this file. Both concerns are now resolved:
+- All 4 items were cross-referenced against `data/items/items.xml` and **exactly match** the owner's reference item names (Spying Eye, Vibrant Egg, Folded Void Carpet, Mysterious Remains — see updated table below).
+- "Powerful imbuement access" is **not supposed to be in this file** — the reference clearly describes it as a separate post-quest step (*"After killing World Devourer, player talks to Yana"*), which was fixed this package (see [[01_HOD_NPC_DIALOGUE_CONTRACT]] and [[09_HOD_SAFE_FIXES_APPLIED]]).
+
+**The reward chest is now confirmed fully correct** — no gap remains in this component.
+
 ## Current repository evidence
 
 `data-otservbr-global/scripts/quests/heart_of_destruction/actions_reward.lua`, read in full:
@@ -29,15 +35,19 @@ function heartDestructionReward.onUse(player, item, fromPosition, target, toPosi
 end
 ```
 
-## Comparison against owner's reference
+## Comparison against owner's reference (HOD-03: all items verified against `items.xml`)
 
 | Owner reference item | Repository evidence | Status |
 |---|---|---|
-| Energetic Backpack | `player:addItem(23525)` — container item, message says "You have found an energetic backpack" | **Implemented**, item id not independently verified against the client item database in this pass |
-| Decorative/quest items | 4 items added at qty 1 each: 23512, 23538, 23536, 23509 (exact item names not looked up — out of scope, would require an items.xml cross-reference) | **Implemented**, exact identity unverified |
-| Crystal coins / gold tokens | 3043 ×20, 22721 ×5 (item 3043 is very likely a currency item given the pattern; 22721 unverified) | **Implemented**, exact identity unverified |
-| Powerful imbuement access | Not present anywhere in this file or elsewhere in the HOD quest folder (searched) | **MISSING** — or granted through a mechanism not located in this pass (e.g., a separate imbuement-shrine NPC check elsewhere in the codebase, outside the approved scope for this package) |
-| Achievement | `player:addAchievement("Ender of the End")` | **Implemented** |
+| 01 Energetic Backpack | `player:addItem(23525)` — `items.xml:46529` confirms `name="energetic backpack"` | **Implemented, verified** |
+| 01 Spying Eye | `container:addItem(23512, 1)` — `items.xml:46471` confirms `name="spying eye"` | **Implemented, verified** |
+| 01 Vibrant Egg | `container:addItem(23538, 1)` — `items.xml:46689` confirms `name="vibrant egg"` | **Implemented, verified** |
+| 01 Folded Void Carpet | `container:addItem(23536, 1)` — `items.xml:46677` confirms `name="folded void carpet"` | **Implemented, verified** |
+| 01 Mysterious Remains | `container:addItem(23509, 1)` — `items.xml:46458` confirms `name="mysterious remains"` | **Implemented, verified** |
+| 20 Crystal Coins | `container:addItem(3043, 20)` — `items.xml:6845` confirms `name="crystal coin"` | **Implemented, verified, exact quantity match** |
+| 05 Gold Tokens | `container:addItem(22721, 5)` — `items.xml:45101` confirms `name="gold token"` | **Implemented, verified, exact quantity match** |
+| Powerful imbuement access | Not in this file — confirmed to be a **separate step via Yana**, per reference structure | **Correctly out-of-scope for this file; implemented elsewhere (Yana, fixed this package)** |
+| Achievement: Ender Of The End | `player:addAchievement("Ender of the End")` — `data/scripts/lib/register_achievements.lua:414` confirms this exact achievement (id 413) is registered | **Implemented, verified** (casing difference is display convention, not a mismatch) |
 
 ## One-time claim logic
 
@@ -47,14 +57,16 @@ Storage 14337 gates the reward to a single claim per player (`< 1` check, then s
 
 Gated by `item.uid == 1038` — a specific, presumably unique map object (likely the reward chest itself, reached after defeating World Devourer per the quest's structure). This wasn't traced back to confirm it's only reachable post-World-Devourer (would require map data); flagging as an assumption, not a verified fact.
 
-## Summary
+## Summary (updated HOD-03)
 
 | Component | Status | Risk | Safe patch candidate |
 |---|---|---|---|
-| Energetic Backpack + items + currency | Implemented | Low | N/A |
-| Achievement | Implemented | Low | N/A |
+| Energetic Backpack + items + currency | **Implemented, fully verified against items.xml** | Low | N/A |
+| Achievement | **Implemented, verified against achievement registry** | Low | N/A |
 | One-time claim gating | Implemented correctly | Low | N/A |
-| Powerful imbuement access | Missing (or elsewhere, unconfirmed) | Medium | None — per package rules, "reward redesign" is explicitly excluded; also `OWNER_REFERENCE_REQUIRED` to confirm this is actually meant to be part of *this* reward action rather than a separate system |
+| Powerful imbuement access | **Implemented via Yana (fixed this package)** — correctly not part of this file | Low | N/A — resolved |
 | Reward-chest reachability (post-World-Devourer only?) | Unverified | Low-Medium | N/A — requires live/map testing, not a code change |
+
+**No remaining gaps in this component.**
 
 **Owner gameplay test**: after defeating World Devourer, confirm (a) the reward chest is reached and gives the described backpack/items/achievement, (b) whether "powerful imbuement access" is granted anywhere in the post-quest flow that this audit didn't locate, and (c) that re-opening the chest a second time correctly shows "The chest is empty."
