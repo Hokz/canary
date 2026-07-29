@@ -59,6 +59,8 @@ HOD-03 could only document the player-side keyword chain; the owner has now supp
 
 **"yes" — deliberately left silent, not invented.** The owner's reference confirms `yes` is the final step of the shortcut chain, but provides no exact spoken response for it (only `strong`'s line has confirmed text, and the full-chain transcript doesn't show a "yes" step at all). Per the "do not invent" rule, `yes` is implemented as a recognized keyword that closes the conversation (resets topic to 0) **without any invented NPC line**. If the owner supplies exact text for this step, it can be added in a follow-up in one line.
 
+**HOD-05 re-check**: per HOD-05's explicit instruction to only implement "yes" behavior if current repo evidence clearly proves an expected storage/action, this was re-investigated. No such evidence was found — no portal, movement, or catalog script anywhere in the codebase reads a storage that "yes" could plausibly be expected to set (same conclusion, same evidence chain as [[04_HOD_PORTAL_ACCESS_CONTRACT]]'s original finding, re-confirmed rather than assumed stale). The silent topic-reset remains correct and unchanged.
+
 **Case sensitivity**: matching uses `MsgContains`, the same case-insensitive-by-convention helper used throughout this codebase (e.g., `henricus.lua`, `zizzle.lua`) — consistent with the package's case-insensitivity allowance.
 
 **Storage/access behavior**: none implemented. Investigation (this package) confirmed no existing portal/access code checks any storage that Messenger of Heaven could plausibly set — see [[04_HOD_PORTAL_ACCESS_CONTRACT]] for the full evidence chain. Dialogue-only implementation, per package rule 7.

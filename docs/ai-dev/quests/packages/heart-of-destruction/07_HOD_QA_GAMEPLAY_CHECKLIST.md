@@ -60,10 +60,14 @@ These are raw numeric storages (see [[03_HOD_STORAGE_CONTRACT]]), settable via s
 - **Expected after this fix**: the exact congratulatory text ("I see, you disrupted the Heart of Destruction...") followed by the full 8-imbuement grant line.
 - [ ] Greet Yana normally ("hi") and confirm the new greeting text displays.
 
-### 6c. World Devourer — total encounter time budget (HOD-03, discrepancy noted)
-- [ ] Time the full final battle from pulling the final lever through defeating World Devourer.
-- **Expected per reference**: 45 minutes total for the whole sequence (Hunger + Destruction + Rage + World Devourer).
-- **Expected per code**: three independent 30-minute sub-arena timers plus a separate 30-minute World Devourer room timer — not necessarily the same as a unified 45-minute clock. Report the actual time available before being removed for taking too long, if you can safely observe it.
+### 6c. World Devourer — total encounter time budget (HOD-05: mechanism now precisely known)
+- [ ] Time the mini-boss phase separately from the World Devourer phase: how long from pulling the final lever until all 3 mini-bosses (Hunger/Destruction/Rage) are dead, and separately how long you have once World Devourer itself begins.
+- **Expected per reference**: 45 minutes total for the whole sequence.
+- **Expected per code (HOD-05 confirmed)**: up to 30 minutes for the mini-boss phase, then a **fresh, separate** up-to-30-minutes for the World Devourer phase — two sequential windows, not one 45-minute clock. If you actually observe roughly 30+30, that confirms our reading of the code; report back either way.
+
+### 6d. Storage rename regression check (HOD-05 — internal change, should be invisible)
+- [ ] Run through the full final battle (all 3 mini-bosses, then World Devourer) end to end at least once.
+- **Why**: this package renamed 4 internal storage numbers to named constants (team-tracking for Hunger/Destruction/Rage, and the reward-claimed flag) — values were not changed, but please confirm the mini-boss room rotation, exit-cleanup, and reward chest all still behave exactly as before. Any deviation here would indicate a typo in the rename, not a reference-parity issue.
 
 ### 7. World Devourer — cooldown duration (post-PR#4 confirmation)
 - [ ] Trigger the World Devourer encounter (pull the final lever) and check your boss cooldown for World Devourer immediately after.

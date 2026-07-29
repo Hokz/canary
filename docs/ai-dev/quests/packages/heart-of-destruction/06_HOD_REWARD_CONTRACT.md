@@ -8,6 +8,8 @@ Per package rules: comparison only, no reward implementation in this package.
 
 **The reward chest is now confirmed fully correct** — no gap remains in this component.
 
+**HOD-05 note**: the reward-claimed flag (storage `14337`) was renamed to `Storage.HeartOfDestructionFinalBattle.RewardClaimed` as part of this package's storage-hygiene pass — value unchanged, purely a naming/registry improvement. See [[03_HOD_STORAGE_CONTRACT]]. No other change to this component; reward priority item was otherwise out of scope for HOD-05 per the owner's instruction to leave it untouched unless a clear bug is found (none was).
+
 ## Current repository evidence
 
 `data-otservbr-global/scripts/quests/heart_of_destruction/actions_reward.lua`, read in full:

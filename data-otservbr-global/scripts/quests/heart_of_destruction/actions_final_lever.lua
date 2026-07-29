@@ -1,8 +1,8 @@
 --[[
-Storages:
-The Hunger = 14334
-The Destruction = 14335
-The Rage = 14336
+Storages (centrally registered as Storage.HeartOfDestructionFinalBattle):
+The Hunger = 14334 (HungerTeam)
+The Destruction = 14335 (DestructionTeam)
+The Rage = 14336 (RageTeam)
 ]]
 --
 -- FUNCTIONS
@@ -48,7 +48,7 @@ local function doCheckArea()
 
 	for _, online in ipairs(Game.getPlayers()) do
 		if online:isPlayer() then
-			if online:getStorageValue(14334) >= 1 or online:getStorageValue(14335) >= 1 or online:getStorageValue(14336) >= 1 then
+			if online:getStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam) >= 1 or online:getStorageValue(Storage.HeartOfDestructionFinalBattle.DestructionTeam) >= 1 or online:getStorageValue(Storage.HeartOfDestructionFinalBattle.RageTeam) >= 1 then
 				return true
 			end
 		end
@@ -149,23 +149,23 @@ local function changeArea()
 		for _, online in ipairs(Game.getPlayers()) do
 			if online:isPlayer() then
 				-- Teleport players from The Hunger to The Rage
-				if online:getStorageValue(14334) >= 1 then
-					online:setStorageValue(14334, -1)
-					online:setStorageValue(14336, 1)
+				if online:getStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam) >= 1 then
+					online:setStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam, -1)
+					online:setStorageValue(Storage.HeartOfDestructionFinalBattle.RageTeam, 1)
 					online:teleportTo({ x = 32299, y = 31372, z = 14 })
 					online:say("A polarity shift moves you into another part of the heart of destruction.", TALKTYPE_MONSTER_SAY)
 					Position({ x = 32299, y = 31372, z = 14 }):sendMagicEffect(11)
 					-- Teleport players from The Destruction to The Hunger
-				elseif online:getStorageValue(14335) >= 1 then
-					online:setStorageValue(14335, -1)
-					online:setStorageValue(14334, 1)
+				elseif online:getStorageValue(Storage.HeartOfDestructionFinalBattle.DestructionTeam) >= 1 then
+					online:setStorageValue(Storage.HeartOfDestructionFinalBattle.DestructionTeam, -1)
+					online:setStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam, 1)
 					online:teleportTo({ x = 32244, y = 31372, z = 14 })
 					online:say("A polarity shift moves you into another part of the heart of destruction.", TALKTYPE_MONSTER_SAY)
 					Position({ x = 32244, y = 31372, z = 14 }):sendMagicEffect(11)
 					-- Teleport players from The Rage to The Destruction
-				elseif online:getStorageValue(14336) >= 1 then
-					online:setStorageValue(14336, -1)
-					online:setStorageValue(14335, 1)
+				elseif online:getStorageValue(Storage.HeartOfDestructionFinalBattle.RageTeam) >= 1 then
+					online:setStorageValue(Storage.HeartOfDestructionFinalBattle.RageTeam, -1)
+					online:setStorageValue(Storage.HeartOfDestructionFinalBattle.DestructionTeam, 1)
 					online:teleportTo({ x = 32271, y = 31316, z = 14 })
 					online:say("A polarity shift moves you into another part of the heart of destruction.", TALKTYPE_MONSTER_SAY)
 					Position({ x = 32271, y = 31316, z = 14 }):sendMagicEffect(11)
@@ -183,18 +183,18 @@ local function changeArea()
 		stopEvent(areaDevourer4)
 		for _, online in ipairs(Game.getPlayers()) do
 			if online:isPlayer() then
-				if online:getStorageValue(14334) >= 1 then
-					online:setStorageValue(14334, -1)
+				if online:getStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam) >= 1 then
+					online:setStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam, -1)
 					online:unregisterEvent("DevourerStorage")
 					online:teleportTo({ x = 32271, y = 31357, z = 14 })
 					Position({ x = 32271, y = 31357, z = 14 }):sendMagicEffect(11)
-				elseif online:getStorageValue(14335) >= 1 then
-					online:setStorageValue(14335, -1)
+				elseif online:getStorageValue(Storage.HeartOfDestructionFinalBattle.DestructionTeam) >= 1 then
+					online:setStorageValue(Storage.HeartOfDestructionFinalBattle.DestructionTeam, -1)
 					online:unregisterEvent("DevourerStorage")
 					online:teleportTo({ x = 32272, y = 31357, z = 14 })
 					Position({ x = 32272, y = 31357, z = 14 }):sendMagicEffect(11)
-				elseif online:getStorageValue(14336) >= 1 then
-					online:setStorageValue(14336, -1)
+				elseif online:getStorageValue(Storage.HeartOfDestructionFinalBattle.RageTeam) >= 1 then
+					online:setStorageValue(Storage.HeartOfDestructionFinalBattle.RageTeam, -1)
 					online:unregisterEvent("DevourerStorage")
 					online:teleportTo({ x = 32273, y = 31357, z = 14 })
 					Position({ x = 32273, y = 31357, z = 14 }):sendMagicEffect(11)
@@ -422,7 +422,7 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 						config.hungerPositions[i]:sendMagicEffect(CONST_ME_POFF)
 						teamHunger:teleportTo(config.hungerNewPos)
 						teamHunger:setBossCooldown("World Devourer", os.time() + 13 * 24 * 60 * 60 + 20 * 60 * 60)
-						teamHunger:setStorageValue(14334, 1) --storage Hunger
+						teamHunger:setStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam, 1) --storage Hunger
 						teamHunger:registerEvent("DevourerStorage")
 					end
 
@@ -431,7 +431,7 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 						config.destructionPositions[i]:sendMagicEffect(CONST_ME_POFF)
 						teamDestruction:teleportTo(config.destructionNewPos)
 						teamDestruction:setBossCooldown("World Devourer", os.time() + 13 * 24 * 60 * 60 + 20 * 60 * 60)
-						teamDestruction:setStorageValue(14335, 1) --storage Destruction
+						teamDestruction:setStorageValue(Storage.HeartOfDestructionFinalBattle.DestructionTeam, 1) --storage Destruction
 						teamDestruction:registerEvent("DevourerStorage")
 					end
 
@@ -440,7 +440,7 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 						config.ragePositions[i]:sendMagicEffect(CONST_ME_POFF)
 						teamRage:teleportTo(config.rageNewPos)
 						teamRage:setBossCooldown("World Devourer", os.time() + 13 * 24 * 60 * 60 + 20 * 60 * 60)
-						teamRage:setStorageValue(14336, 1) --storage Rage
+						teamRage:setStorageValue(Storage.HeartOfDestructionFinalBattle.RageTeam, 1) --storage Rage
 						teamRage:registerEvent("DevourerStorage")
 					end
 

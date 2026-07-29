@@ -79,6 +79,14 @@ Not fully traced to a specific outdoor map location in this pass (would require 
 
 **Status: Implemented, matches reference.** **Risk: Low** for the gating logic itself. The cooldown *duration* was already corrected in PR #4 (HOD-01); confirmed present on this branch (inherited from `main`, verified via `git log` showing `4114e4e77`/`baba6c0d7` in this branch's history — not reapplied, per your instruction).
 
+**HOD-05 re-verification (per its explicit investigation checklist)**:
+- ✅ Enforces cooldown — `player:canFightBoss("World Devourer")` check confirmed present.
+- ✅ Checks Eradicator + Outburst completion — storages 14330/14332 confirmed checked.
+- ❌ Does **not** check "5 destructive charges" — confirmed absent, correctly so, since that mechanic doesn't exist anywhere in the codebase (see [[05_HOD_BOSS_MECHANICS_CONTRACT]]). Adding a charges check here without the corresponding kill-tracking/spend system would lock every player out of World Devourer entirely — explicitly avoided.
+- ✅ Devourer Core bypass supported — via the separate `actions_devourer_access.lua` action (item 23686), not through this portal file; confirmed unchanged since HOD-03.
+
+No code change was needed or made to this file in HOD-05 — the existing checks are correct for what currently exists in the quest.
+
 ## Summary table
 
 | Component | Status | Risk | Files | Storages | Live testing needed? |
