@@ -1,5 +1,18 @@
 # 04 — Heart of Destruction Portal / Access Contract
 
+## HOD-03 update — expanded reference detail
+
+The owner's fuller reference (this pass) adds precise directional detail not previously available:
+- **Ankrahmun**: enter via the vortex **north of Ankrahmun** → Anomaly path.
+- **Svargrond**: enter via the vortex **southwest of Svargrond** → Realityquake path.
+- **Zao**: enter via the vortex **northwest of Zao Steppe** → Rupture path.
+- Access requires killing **10 creatures in that vortex region** to pass through once; **permanent** access to a route requires killing 10 creatures **from each respective location** (i.e., the one-time 10-kill unlock is per-route, not shared).
+- After the Messenger of Heaven conversation, the player should be able to access **a cave near the NPC with a Glowing Vortex** — this is the very first gate, before the three rotating city vortexes even come into play.
+- Confirms a **"central HUB"**: after defeating Anomaly, Rupture, and Realityquake, Eradicator and Outburst become accessible "through the central HUB teleport" — this matches the `movements_teleport_heart.lua` "Main Room" teleport (action id 14325) already found in HOD-02, now confirmed to be this HUB.
+- Explicit tactical note (not a bug, gameplay advice): *"It is recommended to kill the active vortex boss so the team can do 3 bosses in one trip."* — implies the *active* rotating vortex's boss should be prioritized since its access is time-limited to the current 2-hour rotation window, while the other two routes (once permanently unlocked via the 10-kill requirement) remain reachable regardless of rotation. This only makes sense if permanent unlock and the rotation are two separate, coexisting mechanics — reinforcing that both the rotation AND the per-route 10-kill permanent-unlock are intended as real, separate systems, not alternatives to each other.
+
+None of this changes the core finding from HOD-02: **the vortex rotation, the cave/Glowing Vortex first gate, and the 10-kill permanent-access system still do not exist anywhere in the current codebase.** The extra detail sharpens what a future implementation needs to build, but doesn't change the missing/implemented classification.
+
 ## 1. Quest start → outer vortex access (owner reference layer)
 
 **Owner reference expects:** talk to Messenger of Heaven → gain access progression → travel to one of three rotating vortex locations (Ankrahmun, Svargrond, Zao; rotates ~every 2 hours from server save) → kill 10 themed creatures at that location for **permanent** access to that route → route leads to the corresponding first-tier boss (Ankrahmun→Anomaly, Svargrond→Realityquake, Zao→Rupture).

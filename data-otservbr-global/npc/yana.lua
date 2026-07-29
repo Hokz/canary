@@ -185,9 +185,14 @@ local function creatureSayCallback(npc, creature, type, message)
 	if MsgContains(message, "information") then
 		npcHandler:say({ "{Tokens} are small objects made of metal or other materials. You can use them to buy superior equipment from token traders like me.", "There are several ways to obtain the tokens I'm interested in - killing certain bosses, for example. In exchange for a certain amount of tokens, I can offer you some first-class items." }, npc, creature)
 	elseif MsgContains(message, "worth") then
-		-- to do: check if Heart of Destruction was killed
-		-- after kill message: 'You disrupted the Heart of Destruction, defeated the World Devourer and bought our world some time. You have proven your worth.'
-		npcHandler:say({ "Disrupt the Heart of Destruction, fell the World Devourer to prove your worth and you will be granted the power to imbue 'Powerful Strike', 'Powerful Void' and --'Powerful Vampirism'." }, npc, creature)
+		if player:hasAchievement("Ender of the End") then
+			npcHandler:say({
+				"I see, you disrupted the Heart of Destruction, defeated the World Devourer and bought our world some time. You are truly worthy. ...",
+				"You are granted the power to imbue 'Powerful Strike', 'Powerful Epiphany', 'Powerful Void', 'Powerful Vampirism', 'Power Lich Shroud', 'Power Reap', 'Power Dragon Hide' and 'Power Scorch'.",
+			}, npc, creature)
+		else
+			npcHandler:say("Disrupt the Heart of Destruction, fell the World Devourer to prove your worth and you will be granted the power to imbue 'Powerful Strike', 'Powerful Epiphany', 'Powerful Void', 'Powerful Vampirism', 'Power Lich Shroud', 'Power Reap', 'Power Dragon Hide' and 'Power Scorch'.", npc, creature)
+		end
 	elseif MsgContains(message, "tokens") then
 		npc:openShopWindow(creature)
 		npcHandler:say("If you have any gold tokens with you, let's have a look! These are my offers.", npc, creature)
@@ -239,6 +244,8 @@ local function creatureSayCallback(npc, creature, type, message)
 	end
 	return true
 end
+
+npcHandler:setMessage(MESSAGE_GREET, "Blessings, |PLAYERNAME|! How may I help you? Do you wish to trade some tokens, prove your worth to receive powerful imbuements, or do you need some information?")
 
 npcHandler:setCallback(CALLBACK_SET_INTERACTION, onAddFocus)
 npcHandler:setCallback(CALLBACK_REMOVE_INTERACTION, onReleaseFocus)

@@ -6,9 +6,13 @@ Future PR scoping, building on [[09_FIRST_QUEST_PACKAGES_ROADMAP]] Package 9 and
 
 Merged via PR #4. 13 days 20 hours, confirmed present on `main` and inherited by this branch. No further action.
 
-## HOD-02 — This package (Quest Bible + Contracts)
+## HOD-02 — Quest Bible + Contracts (DONE)
 
-Documentation and evidence-gathering only, plus any safe fixes found (see [[09_HOD_SAFE_FIXES_APPLIED]] for the outcome — none were found to meet the strict safe-fix bar this pass).
+Documentation and evidence-gathering only; no safe fixes met the strict bar that pass (see [[09_HOD_SAFE_FIXES_APPLIED]]).
+
+## HOD-03 — This package (Reference Sync + Safe Fixes) (DONE)
+
+Incorporated a much more detailed owner reference; corrected two HOD-02 misdiagnoses (reward chest was already complete; `actions_devourer_access.lua`/Devourer Core was already correct); fixed Yana's incomplete/placeholder "worth" dialogue using exact owner-authorized text. See [[09_HOD_SAFE_FIXES_APPLIED]] for the full accounting. **HOD-07 (below) is now resolved as a byproduct of this package's correction — no longer a blocked future item.**
 
 ## HOD-03 — Messenger of Heaven dialogue (blocked on owner reference)
 
@@ -38,12 +42,17 @@ Documentation and evidence-gathering only, plus any safe fixes found (see [[09_H
 **Blocked on**: live-testing confirmation this is a practical problem worth fixing (§5 of [[07_HOD_QA_GAMEPLAY_CHECKLIST]]), and a design decision on what "participation" should mean (damage dealt? presence for X% of the fight? something else?).
 **Risk**: Medium — touches shared death-handling logic used by all three first-tier bosses at once; a careless change could break all three simultaneously.
 
-## HOD-07 — `actions_devourer_access.lua` cooldown-bypass review
+## HOD-07 — `actions_devourer_access.lua` cooldown-bypass review (RESOLVED, no longer needed)
 
-**Scope**: fix or confirm-as-intended the possibly-inverted logic in this file ([[05_HOD_BOSS_MECHANICS_CONTRACT]]).
-**Blocked on**: live-testing confirmation of current behavior (§6 of [[07_HOD_QA_GAMEPLAY_CHECKLIST]]).
-**Risk once confirmed broken**: Low — likely a small conditional fix, similar scale to the Zizzle/Wyrdin/World-Devourer-cooldown fixes.
-**Cannot start until**: the live test confirms what the item currently does and whether that's wrong.
+**Original scope**: fix or confirm-as-intended the possibly-inverted logic in this file.
+**Resolution (HOD-03)**: item 23686 is named "devourer core" in `items.xml`, and the owner's reference explicitly documents this exact reset-cooldown mechanic. No bug exists; no fix needed. Live testing (§6 of [[07_HOD_QA_GAMEPLAY_CHECKLIST]]) is still worthwhile to confirm in-game behavior matches, but this is no longer a blocked/uncertain item.
+
+## HOD-10 — "5 destructive charges" World Devourer entry gate (new, HOD-03)
+
+**Scope**: implement the charge-accumulation system described in the owner's reference — players gain charges by killing "higher minions of destruction," spend 5 to enter World Devourer, with exact questlog text already available ([[02_HOD_QUESTLOG_CONTRACT]]).
+**Blocked on**: design decisions not fully specified by the reference — which monsters count as "higher minions of destruction" (Disruption/Frenzy/Greed? the mini-bosses themselves? something else), whether charges are per-player or per-party, whether they persist across sessions.
+**Risk**: Medium-high — new storage/KV namespace, new kill-tracking creaturescript hooks across potentially many monster files, changes to the World Devourer entry check in `movements_teleport_heart.lua`.
+**Dependency**: should be scoped together with HOD-04 (questlog) since the exact re-entry message text is already available and describes this exact mechanic.
 
 ## HOD-08 — Undeclared-global hardening (largest code-quality item)
 
@@ -56,10 +65,12 @@ Documentation and evidence-gathering only, plus any safe fixes found (see [[09_H
 **Scope**: formally register the 14320-14354 range in `storages.lua` (documentation/registry only — not changing any values, per [[04_QUEST_STORAGE_REGISTRY]] Rule 4), and resolve the dual-use action-id/storage-key number collisions identified in [[03_HOD_STORAGE_CONTRACT]] §3 if any prove to be an actual (not just theoretical) risk.
 **Risk**: Low if scoped as pure registration (adding comments/table entries, not changing behavior); Medium if it extends to actually renumbering colliding values (would need to touch every file that references the renumbered key).
 
-## Suggested sequencing
+## Suggested sequencing (updated HOD-03)
 
-1. **HOD-03 and HOD-04** can start in parallel, as soon as the owner supplies reference text — both are additive, low-risk, well-understood patterns.
-2. **HOD-07** can start as soon as the live test in [[07_HOD_QA_GAMEPLAY_CHECKLIST]] §6 is done — independent of everything else.
-3. **HOD-06** after its live test (§5) confirms practical impact.
-4. **HOD-09** (registry-only variant) is safe to do any time, low priority.
-5. **HOD-05** and **HOD-08** are the largest, riskiest items — recommend deferring until HOD-03/04/06/07 are done and the owner has had a chance to weigh in on whether HOD-05's outer-access system is even wanted.
+1. **HOD-03 done.** Messenger of Heaven dialogue (formerly "HOD-03" in HOD-02's numbering, now folded into the still-open item below) remains the top priority once the owner supplies Messenger of Heaven's actual spoken lines — the exact keyword chain is already known, only the NPC's side is missing.
+2. **HOD-04 (questlog)** can start once enough mission text is supplied — one exact piece (World Devourer re-entry text) is already banked.
+3. **HOD-07 resolved** — no longer blocking anything.
+4. **HOD-06 (credit attribution)** after its live test confirms practical impact.
+5. **HOD-09** (registry-only variant) is safe to do any time, low priority.
+6. **HOD-05** (outer vortex system) and **HOD-10** (5-charges gate) are the largest, riskiest items, and HOD-10 has a natural dependency on HOD-04's questlog work since the exact re-entry text describes the charges mechanic. Recommend deferring both until the owner confirms these systems are actually wanted at all, given how much of the quest already works without them.
+7. **HOD-08** (undeclared-global hardening) — lowest urgency, do incrementally whenever capacity allows, independent of the above.
