@@ -1,5 +1,7 @@
 # 02 — Heart of Destruction Questlog Contract
 
+**HOD-04 note**: Messenger of Heaven's dialogue is now implemented (see [[01_HOD_NPC_DIALOGUE_CONTRACT]]), but it does not write any storage or advance any quest-log-relevant state — the conversation is confirmed to be flavor/lore text only, not a progression trigger. This section's findings are otherwise unchanged. See [[08_HOD_IMPLEMENTATION_BREAKDOWN]] HOD-11 (renumbered from HOD-04) for the still-pending catalog work.
+
 ## Current repository evidence
 
 - `data-otservbr-global/lib/core/quests/catalog/` — 51 catalog files (`001_...` through `051_...` plus `init.lua`). **No file references Heart of Destruction, in name or content** (confirmed via `grep -ril "HeartOfDestruction|heart_of_destruction" data-otservbr-global/lib/core/quests/catalog/` — zero matches).

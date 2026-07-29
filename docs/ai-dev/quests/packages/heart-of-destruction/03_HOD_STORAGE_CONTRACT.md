@@ -2,6 +2,8 @@
 
 Full inventory of every storage/state mechanism found referencing Heart of Destruction, across both this session and the prior gap-analysis session. Each entry includes files involved, scope (per-player vs. world-scoped), and risk.
 
+**HOD-04 note**: no new storage was added by the Messenger of Heaven dialogue implementation. A full trace confirmed no existing portal/access code (see [[04_HOD_PORTAL_ACCESS_CONTRACT]]) expects a storage from this NPC — the entire inventory below is unchanged by HOD-04.
+
 ## 1. Centrally registered — `GlobalStorage.HeartOfDestruction` (world-scoped)
 
 `data-otservbr-global/lib/core/storages.lua:3040-3054`, range 60172-60190 (60172-60183 used, 60184-60190 unused headroom).
