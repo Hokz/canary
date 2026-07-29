@@ -13,6 +13,16 @@ The owner's fuller reference (this pass) adds precise directional detail not pre
 
 None of this changes the core finding from HOD-02: **the vortex rotation, the cave/Glowing Vortex first gate, and the 10-kill permanent-access system still do not exist anywhere in the current codebase.** The extra detail sharpens what a future implementation needs to build, but doesn't change the missing/implemented classification.
 
+## HOD-04 update — confirmed no storage gate exists between Messenger of Heaven and the boss network
+
+This package needed to determine (per investigation requirements 5-8 of the HOD-04 task) whether any existing portal/access code expects a storage flag that Messenger of Heaven's dialogue should set. Full trace of the storage chain, confirming **no such expectation exists**:
+
+- The first-tier boss portals (`movements_teleport_heart.lua`, action ids `14323`/`14342`/`14344` for Anomaly/Rupture/Realityquake) check storages `14320`/`14322`/`14324` respectively, plus `player:canFightBoss(...)`.
+- Those three storages are **not** set by any NPC — they're granted by completing each path's own pre-boss minigame: `creaturescripts_overcharge_death.lua` grants `14320` after 5 Overcharge kills (Anomaly path), and the equivalent completion handlers for the Cracklers (Rupture) and Sparks (Realityquake) minigames grant `14322`/`14324` the same way (see [[03_HOD_STORAGE_CONTRACT]] and [[05_HOD_BOSS_MECHANICS_CONTRACT]] for the full minigame chain).
+- Physical entry into those minigame rooms (i.e., reaching and using the `actions_charges_lever.lua`/`actions_cracklers_lever.lua`/`actions_sparks_lever.lua` lever items) is gated **only by map geography** — whether a player can walk to the lever's position — not by any storage check in those action files.
+
+**Conclusion: the entire boss-progression chain is self-contained and storage-gates itself from the first minigame onward. Nothing in current code reads a storage that Messenger of Heaven could plausibly be expected to write.** This confirms HOD-04's dialogue-only implementation was the correct choice (package rule 7 — "if exact storage behavior is unclear, implement dialogue only and document access-storage as deferred"; here it wasn't even unclear, it was clearly absent). If the missing outer layer (cave/Glowing Vortex, rotating city vortexes, 10-kill permanent access — see §1 below) is ever built, **that** is where a Messenger-of-Heaven-granted storage would naturally belong, gating the player's first walk into the cave rather than anything already implemented today.
+
 ## 1. Quest start → outer vortex access (owner reference layer)
 
 **Owner reference expects:** talk to Messenger of Heaven → gain access progression → travel to one of three rotating vortex locations (Ankrahmun, Svargrond, Zao; rotates ~every 2 hours from server save) → kill 10 themed creatures at that location for **permanent** access to that route → route leads to the corresponding first-tier boss (Ankrahmun→Anomaly, Svargrond→Realityquake, Zao→Rupture).

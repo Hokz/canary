@@ -6,26 +6,22 @@ Per project rule: exact NPC dialogue may be used when authorized, but must never
 
 | NPC | File | Current dialogue logic |
 |---|---|---|
-| Messenger of Heaven | `data-otservbr-global/npc/messenger_of_heaven.lua` | **None** |
-| Lesser Messenger of Heaven | `data-otservbr-global/npc/lesser_messenger_of_heaven.lua` | **None** |
+| Messenger of Heaven | `data-otservbr-global/npc/messenger_of_heaven.lua` | **Implemented (HOD-04)** — full keyword chain, see below |
+| Lesser Messenger of Heaven | `data-otservbr-global/npc/lesser_messenger_of_heaven.lua` | **None** (unchanged) |
 
 No other NPC file references any Heart of Destruction storage, keyword, or quest name (confirmed via repo-wide grep for `HeartOfDestruction`-related identifiers across `data-otservbr-global/npc/`).
 
-## Messenger of Heaven — full current state
+## Messenger of Heaven — full current state (HOD-04: IMPLEMENTED)
 
-Read in full. The file registers standard NPC boilerplate (`onThink`, `onAppear`, `onDisappear`, `onMove`, `onSay`, `onCloseChannel`, all forwarding to `npcHandler`) and one module:
-```lua
-npcHandler:addModule(FocusModule:new(), npcConfig.name, true, true, true)
-```
-**There is no `creatureSayCallback`, no `npcHandler:setCallback(CALLBACK_MESSAGE_DEFAULT, ...)`, and no `keywordHandler:addKeyword(...)` call anywhere in the file.** The NPC will focus on a player who greets it (via `FocusModule`) but has no configured response to any message, including "hi." No `MESSAGE_GREET` is even set.
+**Before HOD-04**: the file registered only standard NPC boilerplate and `FocusModule`, with no `creatureSayCallback`, no `CALLBACK_MESSAGE_DEFAULT`, no keywords, and no `MESSAGE_GREET` — the NPC could not respond to anything.
 
-**Status: MISSING.**
-**Risk: High** — if this NPC is the quest's actual starting trigger, no player can start the quest through the documented path at all.
-**Contract placeholder — `OWNER_REFERENCE_REQUIRED`:**
-- Greeting text
-- Required keyword(s) to learn about / start the quest (e.g., "heart", "destruction", "mission" — unknown, do not assume)
-- Any storage/KV write that should occur on quest start
-- Whether this NPC should also explain the vortex/route mechanic (per the owner's reference, "The NPC explains the threat related to the Heart of Destruction")
+**Implemented this package**: full 13-keyword conversation tree following the established `KeywordHandler`/`NpcHandler` + topic-gated `elseif` chain pattern already used throughout this codebase (`henricus.lua`, `zizzle.lua`, `wyrdin.lua`). Full detail in the keyword contract table below.
+
+**Status: Implemented.**
+**Risk: Low** — purely additive dialogue on a previously-inert NPC; no existing behavior could regress since there was none. See [[09_HOD_SAFE_FIXES_APPLIED]] for the full safe-fix justification.
+**Still `OWNER_REFERENCE_REQUIRED`:**
+- Exact spoken text for the "yes" step of the shortcut chain (currently implemented as a silent topic-reset — see below)
+- Whether this NPC should also grant any access/storage on quest start (investigated this package — no code currently expects this; see [[04_HOD_PORTAL_ACCESS_CONTRACT]])
 
 ## Lesser Messenger of Heaven — full current state
 
@@ -35,25 +31,41 @@ Read in full. Same pattern: only `FocusModule`, no `creatureSayCallback`, no key
 **Risk: Medium** — unclear whether this NPC is load-bearing for the quest at all.
 **Contract placeholder — `OWNER_REFERENCE_REQUIRED`:** whether this NPC has any dialogue role in the quest, and if so, what.
 
-## Keyword contract (updated HOD-03)
+## Keyword contract — IMPLEMENTED (HOD-04)
 
-The owner has now supplied the **exact required keyword chain** (player-side only — Messenger of Heaven's own spoken lines between each keyword are still not available):
+HOD-03 could only document the player-side keyword chain; the owner has now supplied Messenger of Heaven's exact spoken lines for every step, and the full conversation is implemented in `data-otservbr-global/npc/messenger_of_heaven.lua`.
 
-**Full chain**: `Hi → Matter → Damage → Stopped → Destroying → Heart of Destruction → Strong → Yes`
-**Short alternative chain**: `Hi → Strong → Yes`
+**Full chain** (13 keywords, strict linear order, exact transcript order as given): `hi → alive → peril → thing → past → name → ferumbras → damage → stopped → destroying → destroying (again) → heart of destruction → strong`
+**Shortcut chain**: `hi → strong → yes` — implemented by allowing `strong` to fire from the initial post-greet state (topic 0) as well as from the natural end of the full chain (topic 11), converging on the same response and topic.
 
-| Player keyword | NPC response text | Status |
-|---|---|---|
-| Hi | Unknown | `OWNER_REFERENCE_REQUIRED` |
-| Matter | Unknown | `OWNER_REFERENCE_REQUIRED` |
-| Damage | Unknown | `OWNER_REFERENCE_REQUIRED` |
-| Stopped | Unknown | `OWNER_REFERENCE_REQUIRED` |
-| Destroying | Unknown | `OWNER_REFERENCE_REQUIRED` |
-| Heart of Destruction | Unknown | `OWNER_REFERENCE_REQUIRED` |
-| Strong | Unknown | `OWNER_REFERENCE_REQUIRED` |
-| Yes (final) | Unknown — should trigger cave/vortex access grant | `OWNER_REFERENCE_REQUIRED` |
+| Player keyword | Required topic | NPC response | Advances to |
+|---|---|---|---|
+| hi | — (greet) | "Greetings, \|PLAYERNAME\|! It's good to see you alive." (`MESSAGE_GREET`) | topic 0 |
+| alive | 0 | "With the world in peril, everyone's life is at stake." | 1 |
+| peril | 1 | "The actions of Ferumbras and the sinister minions of the thing from beyond have shattered the world. The thing is worming its way into our reality and its workings will cause further damage." | 2 |
+| thing | 2 | 2-line response (name/hold/past) | 3 |
+| past | 3 | 2-line response (Yalahari history) | 4 |
+| name | 4 | 4-line response (naming/power) | 5 |
+| ferumbras | 5 | "Probably his vain plea for ascension has brought upon him a fate worse than hell." | 6 |
+| damage | 6 | 2-line response (layers of destruction) | 7 |
+| stopped | 7 | 6-line response (avatars/incursions/Heart of Destruction) | 8 |
+| destroying (1st) | 8 | "To stop them from devouring reality, the destruction has to be stopped by destroying its heart." | 9 |
+| destroying (2nd) | 9 | 6-line response (incursions/masters/tainting) | 10 |
+| heart of destruction | 10 | 6-line response (world devourer description) | 11 |
+| strong | 0 or 11 | "Your future is still not written because the forces of uncreation are still tearing on reality. For the sake of your world, please hurry!" | 12 |
+| yes | 12 | *(no exact text provided — see below)* | 0 |
 
-**Why this still wasn't implemented in HOD-03**: per the package rule (*"Do not invent Messenger of Heaven dialogue... implement keyword acceptance only if... no exact long dialogue is required; otherwise mark OWNER_REFERENCE_REQUIRED"*), having only the player's half of an 8-step conversation is not enough to safely implement the NPC's side. Writing plausible-sounding filler responses for 7 unknown NPC lines would be inventing dialogue, which is explicitly disallowed. **This is now the single most valuable piece of reference text to obtain next** — with Messenger of Heaven's actual spoken lines, HOD-04 (or later) could implement this fully in one pass, following the same proven topic-chain pattern already used elsewhere in this codebase (e.g., `henricus.lua`, `zizzle.lua`).
+**Every response line above is the owner's exact provided text, transcribed verbatim** (including preserving the inconsistent presence/absence of trailing "..." markers exactly as given in the reference, rather than normalizing them). No line was paraphrased or invented.
+
+**"yes" — deliberately left silent, not invented.** The owner's reference confirms `yes` is the final step of the shortcut chain, but provides no exact spoken response for it (only `strong`'s line has confirmed text, and the full-chain transcript doesn't show a "yes" step at all). Per the "do not invent" rule, `yes` is implemented as a recognized keyword that closes the conversation (resets topic to 0) **without any invented NPC line**. If the owner supplies exact text for this step, it can be added in a follow-up in one line.
+
+**Case sensitivity**: matching uses `MsgContains`, the same case-insensitive-by-convention helper used throughout this codebase (e.g., `henricus.lua`, `zizzle.lua`) — consistent with the package's case-insensitivity allowance.
+
+**Storage/access behavior**: none implemented. Investigation (this package) confirmed no existing portal/access code checks any storage that Messenger of Heaven could plausibly set — see [[04_HOD_PORTAL_ACCESS_CONTRACT]] for the full evidence chain. Dialogue-only implementation, per package rule 7.
+
+## Lesser Messenger of Heaven — not modified
+
+Re-confirmed this package: `lesser_messenger_of_heaven.lua` still has zero dialogue logic, and nothing in the codebase (no shared storage, no cross-reference, no naming convention beyond the coincidental "Messenger of Heaven" substring) proves it's part of the same start flow as the main Messenger of Heaven NPC. Per the approved scope ("only if current code proves it is part of the same HOD start flow"), it was **not modified**. Still `OWNER_REFERENCE_REQUIRED` if the owner can clarify its role.
 
 ## Yana — full current state (HOD-03: FIXED this package)
 

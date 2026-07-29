@@ -15,11 +15,16 @@ These are raw numeric storages (see [[03_HOD_STORAGE_CONTRACT]]), settable via s
 
 ## Checklist
 
-### 1. Quest start — Messenger of Heaven (HOD-03: exact keyword chain now known)
-- [ ] Find and talk to the "Messenger of Heaven" NPC. Try the full reference chain exactly: `Hi → Matter → Damage → Stopped → Destroying → Heart of Destruction → Strong → Yes`, one word at a time, waiting for a response after each.
-- [ ] Also try the short chain: `Hi → Strong → Yes`.
-- **Expected per code today**: no response to anything at any step (the NPC has no dialogue configured at all — see [[01_HOD_NPC_DIALOGUE_CONTRACT]]).
-- **What we need from you — this is now the most valuable thing you can test**: if you have access to a reference server or recording where Messenger of Heaven's *actual spoken lines* are visible (not just the keywords you say), please paste them. That's the one piece of information blocking Messenger of Heaven's implementation entirely.
+### 1. Quest start — Messenger of Heaven (HOD-04: dialogue now implemented — verify it)
+- [ ] Greet the "Messenger of Heaven" NPC ("hi"). Expected: *"Greetings, [your name]! It's good to see you alive."*
+- [ ] Say the full chain, one word at a time, waiting for a response after each: `alive → peril → thing → past → name → ferumbras → damage → stopped → destroying → destroying (again) → heart of destruction → strong`. Confirm each step responds and that saying the *next* keyword out of order (e.g., skipping ahead) does nothing until you say the correct one.
+- [ ] Separately, on a fresh conversation, try the shortcut: `hi → strong`. Expected: same final response as reaching "strong" via the full chain.
+- [ ] After "strong," say "yes." Expected per code today: **no spoken response** — the conversation just resets/closes. This is intentional (no exact text was available for this step), but please flag if you have or can obtain the correct line.
+- **What we still need from you**: the exact text Messenger of Heaven should say after "yes," if you can obtain it — this is the one remaining gap in this NPC's dialogue.
+
+### 1b. Level / Premium / group requirements (unverified)
+- [ ] Confirm whether attempting to pull a first-tier boss lever below level 150 is blocked, and whether a non-Premium account is blocked from entering at all.
+- **Why this matters**: not verified against code in this pass — flagged in [[05_HOD_BOSS_MECHANICS_CONTRACT]] as needing confirmation.
 
 ### 1b. Level / Premium / group requirements (HOD-03, unverified)
 - [ ] Confirm whether attempting to pull a first-tier boss lever below level 150 is blocked, and whether a non-Premium account is blocked from entering at all.
@@ -71,9 +76,9 @@ These are raw numeric storages (see [[03_HOD_STORAGE_CONTRACT]]), settable via s
 - **Expected**: "The chest is empty."
 - [ ] Separately, check whether anything in the post-quest flow grants access to "powerful imbuements" — note where/how if you find it.
 
-### 9. Lesser Messenger of Heaven
-- [ ] If you can find this NPC (likely near the main Messenger of Heaven or inside the quest area), try talking to it the same way as step 1.
-- **Expected per code today**: same as Messenger of Heaven — no configured response.
+### 9. Lesser Messenger of Heaven (unchanged — still has no dialogue)
+- [ ] If you can find this NPC (likely near the main Messenger of Heaven or inside the quest area), try talking to it and using the same keyword chain as step 1.
+- **Expected per code today**: no response at all — unlike the main Messenger of Heaven (fixed in HOD-04), this NPC was left untouched since nothing in the codebase confirms it shares the same dialogue role. If it turns out to need the same chain, let us know.
 
 ## After testing
 

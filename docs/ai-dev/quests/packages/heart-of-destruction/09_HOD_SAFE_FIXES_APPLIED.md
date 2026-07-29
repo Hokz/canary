@@ -1,5 +1,26 @@
 # 09 — Heart of Destruction Safe Fixes Applied
 
+## HOD-04 update: one code fix applied (largest so far)
+
+**File changed**: `data-otservbr-global/npc/messenger_of_heaven.lua`
+
+**What was wrong**: the file had zero dialogue logic at all — no `creatureSayCallback`, no keyword handling, no greeting message. The NPC was completely inert.
+
+**What was implemented**: the full 13-keyword conversation tree (`hi → alive → peril → thing → past → name → ferumbras → damage → stopped → destroying → destroying (again) → heart of destruction → strong`), plus the `hi → strong → yes` shortcut, using the owner's exact provided dialogue transcribed verbatim (including preserving the reference's own inconsistent use of trailing "..." markers line-by-line, rather than normalizing them — a deliberate choice to avoid even stylistic paraphrasing).
+
+**Why this passed the safe-fix bar**:
+1. Every response line has owner-authorized exact text — no invention.
+2. The topic-gated `elseif` chain follows the exact same proven pattern already used successfully in `henricus.lua`, `zizzle.lua`, and `wyrdin.lua` — not a new pattern.
+3. Investigated and confirmed (see [[04_HOD_PORTAL_ACCESS_CONTRACT]]) that no existing portal/access code expects any storage from this NPC — so no storage write was added, avoiding an unproven mechanic change.
+4. The one gap — no exact text for "yes" — was handled by *not* inventing a line: `yes` is recognized and closes the conversation silently (topic reset to 0) rather than falling through as an error or getting a made-up response.
+5. Fully testable with clear player steps (say each keyword in order, or use the shortcut, and compare against the exact expected line).
+
+**What was NOT touched**: `lesser_messenger_of_heaven.lua` (no evidence it's part of this flow); any storage/catalog file; Yana (referenced only for pattern-consistency, not modified).
+
+**Risk**: Low. Purely additive on a previously-inert NPC — nothing could regress. See [[01_HOD_NPC_DIALOGUE_CONTRACT]] for the full before/after and [[07_HOD_QA_GAMEPLAY_CHECKLIST]] for verification steps.
+
+---
+
 ## HOD-03 update: one code fix applied
 
 **File changed**: `data-otservbr-global/npc/yana.lua`
@@ -22,9 +43,11 @@
 - **Reward chest** (`actions_reward.lua`): all 7 item names verified against `items.xml` — exact match to the owner's reference. No fix needed; HOD-02's "unverified identity" note is resolved. See [[06_HOD_REWARD_CONTRACT]].
 - **`actions_devourer_access.lua`**: item 23686 confirmed named "devourer core," matching the reference's documented reset-cooldown mechanic exactly. HOD-02's "possibly inverted logic" flag is retracted — no fix needed. See [[05_HOD_BOSS_MECHANICS_CONTRACT]].
 
-## HOD-03 update: confirmed still missing, not attempted (would exceed safe-fix scope)
+## Confirmed still missing, not attempted (would exceed safe-fix scope)
 
-- Messenger of Heaven dialogue — exact keyword chain now known, but the NPC's own spoken lines are still unavailable; inventing them is explicitly disallowed.
+- **Messenger of Heaven "yes" response text** (HOD-04) — the shortcut chain's final keyword is recognized but produces no spoken line, since no exact text was provided for it.
+- **Messenger of Heaven's possible future outer-access storage grant** (HOD-04) — investigated and confirmed no existing code expects one today; deferred until the outer vortex/cave system (if ever built) needs it.
+- `lesser_messenger_of_heaven.lua` (HOD-04) — no evidence connects it to this dialogue flow; left untouched.
 - The "5 destructive charges" World Devourer entry gate — a genuinely new mechanic (kill-tracked counter across monster types, spend-on-entry check), not a fix to existing code.
 - Questlog catalog entry — one exact mission-state text is now banked, but a valid catalog module needs the other ~7 states' text too.
 - The 45-minute vs. 30-minute×N final-battle timing discrepancy — needs live-testing to even confirm as a real issue before any change is considered.
