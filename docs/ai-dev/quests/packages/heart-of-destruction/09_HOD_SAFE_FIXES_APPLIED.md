@@ -1,5 +1,37 @@
 # 09 — Heart of Destruction Safe Fixes Applied
 
+## HOD-FULL: full autonomous implementation (largest package)
+
+**Mode change from HOD-01 through HOD-05**: the owner explicitly authorized moving past "defer anything requiring invented text or new architecture" to "implement functional progression now, mark exact text TODO, do not block the quest." Everything below was previously documented as correctly deferred under the old, stricter rules — it's implemented now because the authorization changed, not because the underlying evidence changed.
+
+### Implemented
+
+| System | Files | What changed |
+|---|---|---|
+| Outer vortex access | `globalevents_vortex_rotation.lua` (new), `movements_vortex_route_entrances.lua` (new), `creaturescripts_vortex_route_kills.lua` (new), 3 `extra_dimensional` monster files (added `monster.events`), `storages.lua` | Rotating active-vortex indicator, permanent 10-kill unlock per route, entrance gating. **Inert until 3 action ids are placed on the map** — see [[04_HOD_PORTAL_ACCESS_CONTRACT]]. |
+| Destructive charges | `creaturescripts_heart_minion_death.lua`, `movements_teleport_heart.lua`, `storages.lua` | Frenzy/Charged Disruption/Overcharged Disruption kills grant charges (capped 5); World Devourer repeat entry spends 5, using the owner's exact text as the denial message. |
+| Questlog catalog | `052_heart_of_destruction.lua` (new), `catalog/init.lua` | 7 missions, functional (TODO-marked) text, registered. |
+| Final battle timing | `actions_final_lever.lua` | Mini-boss phase timers 30→45 minutes. |
+| Messenger of Heaven "yes" | `messenger_of_heaven.lua` | Grants `CaveAccess` (gates the vortex system); short TODO-marked placeholder line instead of silence. |
+
+### Judgment calls made (disclosed, not hidden)
+
+1. **"Higher minion of destruction" = Frenzy, Charged Disruption, Overcharged Disruption.** Inferred from context (escalated forms that appear in the final battle/World Devourer fight, vs. base spawns), not exact wiki text. Documented in-code and in [[05_HOD_BOSS_MECHANICS_CONTRACT]]. Greed excluded because it's despawned via a vortex mechanic, never killed via combat, so it structurally cannot trigger a kill-credit hook.
+2. **Charges gate repeat visits only, not first-time entry.** Based on the reference's own "World Devourer repeat access" framing.
+3. **45 minutes applies to the mini-boss phase specifically**, not a combined mini-boss+World-Devourer budget. The World Devourer room's own timer was left at 30 minutes (unchanged) rather than guessed at.
+4. **No separate "cave" location.** `CaveAccess` gates the 3 vortex entrances directly, rather than inventing a fourth unmapped location for "a cave near the NPC with a Glowing Vortex."
+5. **Vortex destinations reuse existing, already-working lever-room positions** (adjacent tiles, not exact overlaps) rather than fabricated new positions — only the 3 entrance points (not the destinations) need map placement.
+
+Every judgment call above is flagged in the relevant contract doc and in [[07_HOD_QA_GAMEPLAY_CHECKLIST]] for live-testing confirmation, per the owner's own "implement functional, mark TODO" instruction.
+
+### Deliberately NOT implemented, even under this package's broad authorization
+
+- **Boss-defeat credit attribution hardening (HOD-06)** — still requires new participation-tracking architecture with no existing pattern to build on; touches all three first-tier bosses' shared death-handling at once. Judged too risky to rush without dedicated live-testing between changes, regardless of the broader authorization.
+- **Undeclared-Lua-global hardening (HOD-08)** — ~20 globals across 6 interacting files; same reasoning, explicitly flagged in every prior package as needing careful incremental work, not a bolt-on to an already-large diff.
+- **C++ `src/` changes** — none were needed. Every system above was achievable with Lua APIs already proven elsewhere in this exact quest (storages, KV-backed boss cooldowns, `CreatureEvent`, `GlobalEvent`, `MoveEvent`, the questlog catalog system).
+
+---
+
 ## HOD-05 update: one code fix applied (storage hygiene)
 
 **Files changed**: `data-otservbr-global/lib/core/storages.lua`, `actions_final_lever.lua`, `actions_reward.lua`, `creaturescripts_devourer_player_death.lua`, `movements_teleport_heart.lua`.

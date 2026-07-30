@@ -1,5 +1,32 @@
 # 04 — Heart of Destruction Portal / Access Contract
 
+## HOD-FULL update — outer vortex system implemented (code complete, map placement pending)
+
+The rotating vortex + permanent-access system previously documented as entirely missing (§1, §3 below) is now **implemented in full on the code side**. This is the single largest change in the HOD-FULL package. Summary:
+
+- **Rotation**: `globalevents_vortex_rotation.lua` — a world-scoped `GlobalStorage.HeartOfDestruction.ActiveVortex` (1=Ankrahmun, 2=Svargrond, 3=Zao) rotates randomly every 2 hours, with a startup handler that picks an initial value on server boot.
+- **Permanent access**: `creaturescripts_vortex_route_kills.lua` — registered on `Dread Intruder`, `Breach Brood`, and `Reality Reaver` (via a new `monster.events` entry added to each of their definition files under `data-otservbr-global/monster/extra_dimensional/`), tracking per-player kills (0-10) and granting a permanent per-route unlock flag at 10.
+- **Entry gating**: `movements_vortex_route_entrances.lua` — a step-in movement keyed to three new action ids (see MAP SETUP below), checking `CaveAccess` (from Messenger of Heaven — see [[01_HOD_NPC_DIALOGUE_CONTRACT]]) and then either permanent access or the currently-active rotation, teleporting the player to that route's existing minigame room entrance.
+- **New storages**: all under `Storage.Quest.U10_94.HeartOfDestruction` (previously reserved, empty) — see [[03_HOD_STORAGE_CONTRACT]].
+
+### ⚠️ MAP SETUP REQUIRED — this cannot be completed without a map editor
+
+The code above is fully written and internally consistent, but **three physical map locations do not exist yet** — nothing in this repository can place them; they require a human with the map editor. Until this is done, the vortex system is inert (dead code, safe, but non-functional).
+
+| # | What | Required action id | Behavior once placed | Destination (already real, in-game coordinates) |
+|---|---|---|---|---|
+| 1 | Vortex entrance tile/item **north of Ankrahmun** | `14361` | Step-in teleport, gated by `CaveAccess` + (permanent access or active rotation = Ankrahmun) | `Position(32093, 31327, 12)` — adjacent to the existing, working Anomaly-path Charges lever room |
+| 2 | Vortex entrance tile/item **northwest of Zao Steppe** | `14362` | Same, gated for the Zao/Rupture route | `Position(32081, 31313, 13)` — adjacent to the existing Cracklers lever room |
+| 3 | Vortex entrance tile/item **southwest of Svargrond** | `14363` | Same, gated for the Svargrond/Realityquake route | `Position(32229, 31343, 11)` — adjacent to the existing Sparks lever room |
+
+**What the map editor needs to do**: place a usable tile or item (a "vortex" graphic, if one exists in the sprite set — otherwise any walkable/steppable tile) at each of the three approximate real-world locations above, and set its **action ID** to the corresponding number in the table. No unique ID, no separate destination teleport item is needed — the destination is handled entirely in script (`movements_vortex_route_entrances.lua`), keyed only off the action id. The exact tile position within "north of Ankrahmun" / "northwest of Zao Steppe" / "southwest of Svargrond" is intentionally not more specific than the owner's own reference — pick a sensible spot; the script doesn't care exactly where, only that the action id matches.
+
+**The three destination positions are NOT placeholders** — they were taken from this repository's already-existing, already-working lever room entrances (documented in earlier HOD packages), so no map work is needed on the destination side, only the three entrance points above.
+
+### Design decision: no separate "cave" step
+
+The owner's reference describes talking to Messenger of Heaven granting access to "a cave near the NPC with a Glowing Vortex," implying a possible fourth, intermediate location before reaching the three city vortexes. **This was deliberately simplified**: rather than invent a fourth unmapped location, `CaveAccess` (granted by finishing the Messenger of Heaven conversation) directly gates all three city vortex entrances. This preserves the functional requirement ("must talk to Messenger of Heaven first") without fabricating an additional unmapped position. If the owner has an exact location for the cave itself, a follow-up can insert it as a literal fourth gate between Messenger of Heaven and the three vortexes.
+
 ## HOD-03 update — expanded reference detail
 
 The owner's fuller reference (this pass) adds precise directional detail not previously available:
@@ -32,12 +59,11 @@ This package needed to determine (per investigation requirements 5-8 of the HOD-
 - No globalevent, movement script, or storage anywhere in the `heart_of_destruction` folder implements a rotating multi-city portal. Searched explicitly for "vortex" across all globalevents and for any Heart-of-Destruction-named globalevent file — zero matches.
 - No storage or script tracks kills against Dread Intruders, Breach Broods, or Reality Reavers (the three themed creatures named in the owner's reference) anywhere in the quest folder, despite these monsters existing elsewhere in the codebase (`data-otservbr-global/monster/extra_dimensional/`).
 
-**Status: MISSING.**
-**Files involved:** none exist for this layer — this is an absence, not a bug in an existing file.
-**Storages involved:** none exist for this layer.
-**Risk: Critical for reference-parity, but Low for current playability** — the quest is fully playable today without this layer, because access into the boss-room network happens some other way (see §2). This is a "different design was implemented instead" situation, not a "this used to work and broke" situation.
-**Safe patch candidate:** none. Building this layer is new-feature implementation (a rotation globalevent, three world-map entry points, a permanent per-player kill-tracked unlock storage), explicitly excluded from this package's safe-fix scope ("new boss room system," "map/teleport placement requiring coordinates not proven").
-**Owner gameplay test:** confirm whether, on the live/reference server this project is modeling, players actually experience three separate rotating outdoor entrances — if the intended Canary design was always meant to be simpler (a fixed always-open entrance), this entire "missing" classification may be moot and should be downgraded to "intentionally simplified." This determination requires your input, not code archaeology.
+**Status: HOD-FULL — code implemented, map placement pending.** See the MAP SETUP section above.
+**Files involved:** `globalevents_vortex_rotation.lua`, `movements_vortex_route_entrances.lua`, `creaturescripts_vortex_route_kills.lua`, plus `monster.events` additions to the 3 `extra_dimensional` monster files.
+**Storages involved:** `Storage.Quest.U10_94.HeartOfDestruction.{CaveAccess,AnkrahmunKills,AnkrahmunPermanent,SvargrondKills,SvargrondPermanent,ZaoKills,ZaoPermanent}`, `GlobalStorage.HeartOfDestruction.ActiveVortex`.
+**Risk: Medium** — new code, not yet live-tested, and functionally inert until the 3 action ids are placed on the map. Once placed, this changes how players first enter the quest (previously: walk directly to a lever room; now: gated by Messenger of Heaven + vortex rotation/permanent access) — recommend thorough live testing before this is the only entry path relied upon.
+**Owner gameplay test:** once the 3 action ids are placed, confirm each vortex correctly denies entry when inactive/no permanent access, correctly teleports when active or permanently unlocked, and that the rotation actually changes which vortex is active every ~2 hours.
 
 ## 2. Actual current entry point (repository evidence)
 
@@ -49,7 +75,7 @@ Not fully traced to a specific outdoor map location in this pass (would require 
 
 ## 3. Permanent route access via themed-creature kills
 
-**Status: MISSING** — see §1. No storage, no kill-counter, no monster reference exists for this in the quest folder.
+**Status: HOD-FULL — implemented.** `creaturescripts_vortex_route_kills.lua` tracks per-player kills of Dread Intruder (Ankrahmun), Breach Brood (Svargrond), and Reality Reaver (Zao), granting permanent route access at 10 kills each. **Caveat**: these three monsters have no existing spawn anywhere on the map (confirmed — they're defined but unplaced), so this is currently unreachable content until spawns are added. This is a separate, smaller map task from the vortex entrance placement above — spawn locations were not specified by the owner's reference beyond "in that vortex region," so exact spawn points are left to the map editor's judgment near each city's vortex entrance.
 
 ## 4. First-tier boss lever access (Anomaly / Rupture / Realityquake)
 

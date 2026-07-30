@@ -2201,7 +2201,21 @@ Storage = {
 			Krailos = {},
 		},
 		U10_94 = { -- update 10.94 - Reserved Storages 45351 - 45450
-			HeartOfDestruction = {},
+			HeartOfDestruction = {
+				-- Quest start (Messenger of Heaven)
+				CaveAccess = 45351, -- granted on completing the Messenger of Heaven conversation; gates all 3 vortex entrances
+
+				-- Permanent vortex route access (per-player, per-route kill counters + unlock flags)
+				AnkrahmunKills = 45352, -- Dread Intruder kills, 0-10
+				AnkrahmunPermanent = 45353, -- Anomaly route permanently unlocked
+				SvargrondKills = 45354, -- Breach Brood kills, 0-10
+				SvargrondPermanent = 45355, -- Realityquake route permanently unlocked
+				ZaoKills = 45356, -- Reality Reaver kills, 0-10
+				ZaoPermanent = 45357, -- Rupture route permanently unlocked
+
+				-- Destructive charges (World Devourer repeat-access spend currency)
+				DestructiveCharges = 45358, -- 0-5, spent (5 at a time) on World Devourer entry
+			},
 		},
 		U11_02 = { -- update 11.02 - Reserved Storages 45451 - 45650
 			FestiveOutfits = {
@@ -3061,6 +3075,7 @@ GlobalStorage = {
 		OutburstStage = 60181,
 		OutburstHealth = 60182,
 		OutburstChargingKilled = 60183,
+		ActiveVortex = 60184, -- world-scoped: which city's vortex is currently active (1=Ankrahmun/Anomaly, 2=Svargrond/Realityquake, 3=Zao/Rupture), rotates via globalevents_vortex_rotation.lua
 	},
 	WorldBoard = {
 		NightmareIsle = {
@@ -3088,6 +3103,7 @@ GlobalStorage = {
 }
 
 startupGlobalStorages = {
+	GlobalStorage.HeartOfDestruction.ActiveVortex,
 	Storage.Quest.U7_4.TheAncientTombs.AshmunrahSwitchesGlobalStorage,
 	Storage.Quest.U7_4.TheAncientTombs.DiprathSwitchesGlobalStorage,
 	Storage.Quest.U7_4.TheAncientTombs.ThalasSwitchesGlobalStorage,

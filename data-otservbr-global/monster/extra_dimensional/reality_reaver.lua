@@ -65,6 +65,10 @@ monster.flags = {
 	canWalkOnPoison = false,
 }
 
+monster.events = {
+	"HeartOfDestructionVortexKills",
+}
+
 monster.light = {
 	level = 0,
 	color = 0,

@@ -87,10 +87,17 @@ function teleportHeart.onStepIn(creature, item, position, fromPosition)
 		end
 	elseif data.special == "worldDevourerEnter" then
 		if player:getStorageValue(14330) >= 1 and player:getStorageValue(14332) >= 1 then
-			if player:canFightBoss("World Devourer") then
-				player:teleportTo(Position(32272, 31384, 14))
-			else
+			if not player:canFightBoss("World Devourer") then
 				denyAndReturn(player, fromPosition, "It's too early for you to endure this challenge again.")
+			elseif player:hasAchievement("Ender of the End") and player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges) < 5 then
+				-- Repeat visits only (first-time entry is not gated by charges) — see 05_HOD_BOSS_MECHANICS_CONTRACT.md.
+				local charges = math.max(player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0)
+				denyAndReturn(player, fromPosition, "To face the heart of destruction again, you have to gather destructive charges to enter its lair. You gain charges by killing any higher minion of destruction. You have gathered " .. charges .. " of 5 charges.")
+			else
+				if player:hasAchievement("Ender of the End") then
+					player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges) - 5)
+				end
+				player:teleportTo(Position(32272, 31384, 14))
 			end
 		else
 			denyAndReturn(player, fromPosition, "You don't have access to this portal.")

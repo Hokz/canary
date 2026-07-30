@@ -448,9 +448,13 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 					Position(config.destructionNewPos):sendMagicEffect(11)
 					Position(config.rageNewPos):sendMagicEffect(11)
 
-					areaDevourer1 = addEvent(clearHunger, 30 * 60000)
-					areaDevourer2 = addEvent(clearDestruction, 30 * 60000)
-					areaDevourer3 = addEvent(clearRage, 30 * 60000)
+					-- 45 minutes total for the mini-boss phase (Hunger/Destruction/Rage combined), per reference.
+					-- The World Devourer room itself (areaDevourer5, below in changeArea()) keeps its own
+					-- separate 30-minute budget, since the reference doesn't specify how 45 minutes should
+					-- split between the two phases and this is the more conservative reading.
+					areaDevourer1 = addEvent(clearHunger, 45 * 60000)
+					areaDevourer2 = addEvent(clearDestruction, 45 * 60000)
+					areaDevourer3 = addEvent(clearRage, 45 * 60000)
 					areaDevourer4 = addEvent(changeArea, 30000) --mudar
 
 					--Variables
