@@ -4,6 +4,10 @@ Full inventory of every storage/state mechanism found referencing Heart of Destr
 
 **HOD-04 note**: no new storage was added by the Messenger of Heaven dialogue implementation. A full trace confirmed no existing portal/access code (see [[04_HOD_PORTAL_ACCESS_CONTRACT]]) expects a storage from this NPC — the entire inventory below is unchanged by HOD-04.
 
+**HOD-05 update — 4 storages now centrally registered (values unchanged)**: `14334` (Hunger team flag), `14335` (Destruction team flag), `14336` (Rage team flag), and `14337` (reward-claimed flag) were verified to have **zero action-id/unique-id collisions** anywhere in the quest folder (unlike most of the range documented in §3 below, which is heavily dual-use). They are now registered as `Storage.HeartOfDestructionFinalBattle.{HungerTeam,DestructionTeam,RageTeam,RewardClaimed}` in `storages.lua`, and the 4 consuming files (`actions_final_lever.lua`, `actions_reward.lua`, `creaturescripts_devourer_player_death.lua`, `movements_teleport_heart.lua`) now reference the named constants instead of bare numbers. This was a pure naming/registry change — **no runtime value changed**, confirmed by grepping for any remaining bare `14334`-`14337` reference in executable code (none found; only an updated informational comment remains).
+
+**HOD-05 investigation — why the rest of the 14320-14354 range was NOT touched**: every other number in this range was checked for the same collision-free property that made 14334-14337 safe to register, and all of them fail it — e.g., `14320` is simultaneously a lever action id (`actions_charges_lever.lua:aid(14320)`) and a storage key (granted by `creaturescripts_overcharge_death.lua`), and this dual-use pattern repeats for `14321`, `14322`/`14323`, `14325`, `14326`, `14328`, `14332`. Registering these under clean single-purpose names in `storages.lua` without first resolving the dual-use collision would misrepresent what the number actually means in context — that's a larger migration (renumbering one of the two conflicting uses), explicitly excluded from this package's "small local constant, no broad migration" scope. Deferred to a future package if the owner wants this properly untangled.
+
 ## 1. Centrally registered — `GlobalStorage.HeartOfDestruction` (world-scoped)
 
 `data-otservbr-global/lib/core/storages.lua:3040-3054`, range 60172-60190 (60172-60183 used, 60184-60190 unused headroom).
@@ -46,8 +50,8 @@ Full inventory of every storage/state mechanism found referencing Heart of Destr
 | 14328 | Sparks lever action id / Realityquake-defeated flag (dual use) | `actions_sparks_lever.lua:aid`; `creaturescripts_heart_boss_death.lua` (`bosses.realityquake.storage`) | `movements_teleport_heart.lua` (`storage3`) | Mixed |
 | 14330 | Eradicator-defeated flag | `creaturescripts_heart_boss_death.lua` (`bosses.eradicator.storage`) | `movements_teleport_heart.lua` (World Devourer gate) | Per-player (area-grant) |
 | 14332 | Outburst-defeated flag / Final lever action id (dual use) | `creaturescripts_heart_boss_death.lua` (`bosses.outburst.storage`); `actions_final_lever.lua:aid` | `movements_teleport_heart.lua` (World Devourer gate) | Mixed |
-| 14334, 14335, 14336 | Per-player "which sub-arena am I in" flags (Hunger/Destruction/Rage) during the World Devourer approach | `actions_final_lever.lua` | `actions_final_lever.lua`, `movements_teleport_heart.lua` (exit cleanup) | Per-player |
-| 14337 | Reward chest claimed flag | `actions_reward.lua` | `actions_reward.lua` | Per-player |
+| 14334, 14335, 14336 | Per-player "which sub-arena am I in" flags (Hunger/Destruction/Rage) during the World Devourer approach | `actions_final_lever.lua` | `actions_final_lever.lua`, `movements_teleport_heart.lua` (exit cleanup) | Per-player — **HOD-05: now `Storage.HeartOfDestructionFinalBattle.{HungerTeam,DestructionTeam,RageTeam}`** |
+| 14337 | Reward chest claimed flag | `actions_reward.lua` | `actions_reward.lua` | Per-player — **HOD-05: now `Storage.HeartOfDestructionFinalBattle.RewardClaimed`** |
 | 14340-14354 | Exit/main-room teleport ids (no game-state meaning, pure navigation) | `movements_teleport_heart.lua` | `movements_teleport_heart.lua` | Teleport-only |
 
 **Status: Implemented but unregistered.** **Risk: Medium-high.** Two concrete problems beyond "not in the central file":
@@ -85,6 +89,7 @@ Confirmed via direct code reading, **no `local` keyword anywhere in the declarin
 |---|---|---|---|
 | `GlobalStorage.HeartOfDestruction.*` | Implemented | Low | N/A — not broken |
 | `Storage.Quest.U10_94.HeartOfDestruction` | Reserved, empty | Medium (missing content) | No — needs owner reference text |
-| Raw `14320-14354` range | Implemented, unregistered | Medium-high | No — cross-file, needs careful live-tested migration |
+| `Storage.HeartOfDestructionFinalBattle.*` (14334-14337) | **Registered HOD-05** | Low | N/A — done |
+| Remaining raw `14320-14332`/14340-14354 range | Implemented, unregistered | Medium-high | No — dual-use collisions (action id vs. storage key), needs careful live-tested migration |
 | Undeclared Lua globals | Implemented, fragile | High | No — large, cross-file, excluded by package rules |
 | Boss cooldown KV | Implemented | Low | N/A — not broken |

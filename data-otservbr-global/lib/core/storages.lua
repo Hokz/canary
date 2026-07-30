@@ -3005,6 +3005,16 @@ Storage = {
 		OnlineCoinsGain = 150002,
 		OnlineTokensGain = 150003,
 	},
+
+	-- Heart of Destruction: final battle team tracking + reward claim (per-player).
+	-- Values unchanged from their pre-existing bare-number usage across the quest's scripts;
+	-- named here only for central visibility. Do not renumber without updating every consumer.
+	HeartOfDestructionFinalBattle = {
+		HungerTeam = 14334,
+		DestructionTeam = 14335,
+		RageTeam = 14336,
+		RewardClaimed = 14337,
+	},
 }
 
 GlobalStorage = {

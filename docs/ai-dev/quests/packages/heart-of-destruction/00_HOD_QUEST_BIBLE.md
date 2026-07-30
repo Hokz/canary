@@ -1,6 +1,22 @@
 # 00 — Heart of Destruction Quest Bible
 
-Package: HOD-02, updated by HOD-03. Read-only audit against `data-otservbr-global/` on branch `ai-dev/hod-02-quest-bible-contracts` (based on `main` @ `baba6c0d7`, which already includes the HOD-01 World Devourer cooldown fix from PR #4).
+Package: HOD-02, updated by HOD-03, HOD-04, HOD-05. Read-only audit against `data-otservbr-global/` on branch `ai-dev/hod-02-quest-bible-contracts` (based on `main` @ `baba6c0d7`, which already includes the HOD-01 World Devourer cooldown fix from PR #4).
+
+## HOD-05 update summary
+
+HOD-05 was a completion pass across the seven remaining priority areas (questlog/catalog, destructive charges, Devourer Core, World Devourer access, final battle timing, boss credit attribution, storage hygiene). Outcome: **most areas remain correctly deferred** (each blocked on either owner reference text or genuinely new mechanic design, per the package's own strict safe-fix criteria), **two areas were confirmed already-correct with fresh evidence** (Devourer Core, World Devourer access checks), and **one narrow, low-risk code improvement was applied** (storage hygiene — see below). This is a legitimate outcome, not a stall: several previously-open questions are now closed with concrete evidence instead of remaining open-ended.
+
+**Code change applied**: registered 4 previously-unregistered, collision-free storage numbers (`14334`-`14337` — the final battle's per-player team-tracking flags and the reward-claim flag) as `Storage.HeartOfDestructionFinalBattle.*` in `storages.lua`, and updated the 4 consuming files to use the named constants instead of bare numbers. Values are **unchanged** — this is a pure readability/collision-prevention improvement, not a migration. See [[03_HOD_STORAGE_CONTRACT]] and [[09_HOD_SAFE_FIXES_APPLIED]].
+
+**Confirmed already-correct (no change needed)**:
+- Devourer Core (`actions_devourer_access.lua`) — re-verified unchanged since HOD-03, still correctly implements the reference's cooldown-reset mechanic.
+- World Devourer access checks (`movements_teleport_heart.lua`) — confirmed it enforces cooldown, checks the Eradicator+Outburst completion flags, and (correctly, since the mechanic doesn't exist) does not check any "charges" value.
+
+**Confirmed still deferred, with sharper reasoning than before**:
+- Questlog/catalog entry — blocked on both missing mission text (7 of 8 states) and the missing charges mechanic that the one available exact text (charges message) depends on.
+- Destructive charges system — confirmed absent via exhaustive search (zero matches for "charges"/"higher minion"/"Devourer Core" as a mechanic beyond the item itself); requires new architecture and an undetermined monster classification ("higher minion of destruction" is not a term used anywhere in this codebase).
+- Final battle timing — confirmed the code implements **two independent 30-minute windows** (mini-boss phase, then a fresh World Devourer phase), not a single 45-minute budget; no single value change would fix this without guessing how the owner's 45 minutes should split across phases.
+- Boss credit attribution — confirmed still room-presence-based; a real fix requires new damage/participation tracking architecture, which doesn't exist anywhere in this quest today.
 
 ## HOD-03 update summary
 

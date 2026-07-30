@@ -1,5 +1,37 @@
 # 09 — Heart of Destruction Safe Fixes Applied
 
+## HOD-05 update: one code fix applied (storage hygiene)
+
+**Files changed**: `data-otservbr-global/lib/core/storages.lua`, `actions_final_lever.lua`, `actions_reward.lua`, `creaturescripts_devourer_player_death.lua`, `movements_teleport_heart.lua`.
+
+**What was done**: registered 4 raw storage numbers (`14334`, `14335`, `14336`, `14337` — the final battle's per-player Hunger/Destruction/Rage team-tracking flags and the reward-claimed flag) as named constants under a new `Storage.HeartOfDestructionFinalBattle` table in `storages.lua`, and updated every consuming file to reference the named constants instead of bare numbers.
+
+**Why this passed the safe-fix bar**:
+1. Clearly proven by current code — these 4 exact numbers and their exact usages were read in full across all 4 files.
+2. Expected behavior (they should be named/registered) is directly supported by the already-merged [[03_HOD_STORAGE_CONTRACT]] and [[04_QUEST_STORAGE_REGISTRY]], which both call unregistered magic numbers a known risk.
+3. Fully local to HOD — no other quest touches these numbers.
+4. No map, src, or NPC dialogue involved.
+5. Values are **unchanged** — verified via `grep` that no bare `14334`-`14337` reference remains in executable code, and the registered values exactly match the pre-existing usage. This is testable by simply playing through the final battle and confirming identical behavior.
+
+**Why only these 4 and not the rest of the 14320-14354 range**: every other number in that range was checked and found to have a **dual-use collision** — the same number serves as both a lever action id and a storage key in different files (e.g., `14320` is `actions_charges_lever.lua:aid(14320)` *and* the Anomaly-access storage granted by `creaturescripts_overcharge_death.lua`). Registering those under a single clean name would misrepresent what the number means depending on context, and properly resolving the collision (renumbering one of the two uses) is a migration — explicitly excluded from this package's "no broad migration" rule. Only `14334`-`14337`, verified collision-free, were touched.
+
+**Risk**: Low. Purely a naming/registry change with a mechanical, verifiable "no value changed" guarantee.
+
+## HOD-05 update: re-confirmed findings, no new code changes needed
+
+- **Devourer Core** (`actions_devourer_access.lua`) — re-verified unchanged since HOD-03 (confirmed via `git log`, no PR has touched this file since). Still correctly implements the reference's cooldown-reset mechanic. No fix needed.
+- **World Devourer access checks** (`movements_teleport_heart.lua`) — re-verified against the HOD-05 investigation checklist point by point: enforces cooldown ✅, checks Eradicator+Outburst ✅, does not check charges ✅ (correct, since charges don't exist), Devourer Core bypass supported ✅ (via the separate action). No fix needed.
+- **Messenger of Heaven "yes" response** — re-checked per HOD-05's explicit instruction to only implement if current code clearly proves an expected storage/action. No such evidence found (same conclusion as HOD-04, now re-verified rather than assumed). Left as a silent topic-reset.
+
+## HOD-05 update: confirmed still deferred, with sharper reasoning
+
+- **Questlog/catalog entry** — confirmed the catalog system's dynamic-text mechanism (`description = function(player) ... end`, already used in `034_wrath_of_the_emperor.lua`) would support the exact "X of 5 charges" text once the underlying charges storage exists — but that storage doesn't exist, so wiring the text now would silently always show 0. Deferred until the charges system (HOD-10) is built, or until enough of the other ~7 mission states' text is supplied to create a catalog entry without the charges text.
+- **Destructive charges system** — exhaustive re-search (not just a repeat of the HOD-03 grep) confirms zero trace of any partial implementation. Blocked on an undetermined monster classification ("higher minion of destruction" has no defined meaning in this codebase) — a design decision, not a code gap.
+- **Final battle timing** — upgraded from "discrepancy, unresolved" to a precisely-traced finding: the code implements two **sequential** 30-minute windows (mini-boss phase, then a fresh World Devourer phase), confirmed via the exact `stopEvent`/`addEvent` sequence in `changeArea()`. Not fixed because the reference's single 45-minute figure doesn't specify how it should split across the two phases — changing either timer would mean guessing an unstated design decision.
+- **Boss credit attribution** — re-confirmed unchanged: `creaturescripts_heart_boss_death.lua` still grants unlock credit by room-presence-at-death, and no participation/damage-tracking mechanism exists anywhere in this quest to build a safer check on top of. Still requires new tracking architecture (HOD-06).
+
+---
+
 ## HOD-04 update: one code fix applied (largest so far)
 
 **File changed**: `data-otservbr-global/npc/messenger_of_heaven.lua`
