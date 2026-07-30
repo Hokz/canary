@@ -29,9 +29,24 @@ Full inventory of every storage/state mechanism found referencing Heart of Destr
 
 **Status: Implemented, correctly registered.** **Scope: World-scoped by design** (`Game.setStorageValue`/`Game.getStorageValue`) — appropriate here since each of these keys tracks *one active boss encounter's* internal state, and the room/zone system (via `BossLever`'s `Zone("boss."..name)` occupancy check) already prevents two concurrent fights of the *same* boss. **Risk: Low** for this specific block — the single-instance-per-boss assumption is enforced elsewhere (`BossLever:onUse` rejects a second party while `zone:countPlayers() > 0`).
 
-## 2. Reserved but empty — `Storage.Quest.U10_94.HeartOfDestruction`
+## 2. `Storage.Quest.U10_94.HeartOfDestruction` — HOD-FULL: now populated
 
-`storages.lua:2204`. Empty table, range 45351-45450 available. **Status: Reserved, unused.** See [[02_HOD_QUESTLOG_CONTRACT]]. **Risk: N/A** (nothing to break; the gap is content, not correctness).
+Previously reserved and empty (range 45351-45450). **HOD-FULL populated it** with 9 new per-player storages:
+
+| Key | Value | Purpose |
+|---|---|---|
+| `CaveAccess` | 45351 | Granted on completing Messenger of Heaven's conversation; gates all 3 vortex entrances |
+| `AnkrahmunKills` | 45352 | Dread Intruder kills, 0-10 |
+| `AnkrahmunPermanent` | 45353 | Anomaly route permanently unlocked |
+| `SvargrondKills` | 45354 | Breach Brood kills, 0-10 |
+| `SvargrondPermanent` | 45355 | Realityquake route permanently unlocked |
+| `ZaoKills` | 45356 | Reality Reaver kills, 0-10 |
+| `ZaoPermanent` | 45357 | Rupture route permanently unlocked |
+| `DestructiveCharges` | 45358 | 0-5, spent 5-at-a-time on World Devourer repeat entry |
+
+All within the documented reserved range (45351-45450), all newly minted (no collision with anything). **Status: Implemented.** **Risk: Low** — clean, unused numbers, no dual-use concern (these are new, not renumbered legacy values).
+
+Also added: `GlobalStorage.HeartOfDestruction.ActiveVortex = 60184` (world-scoped, within the already-reserved 60172-60190 headroom) — the rotating vortex indicator, added to `startupGlobalStorages` so it initializes cleanly on server boot.
 
 ## 3. NOT centrally registered — raw magic numbers, `14320`-`14354`
 

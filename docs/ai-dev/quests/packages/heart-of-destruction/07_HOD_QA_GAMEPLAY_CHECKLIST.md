@@ -2,6 +2,38 @@
 
 Owner-facing test steps, following the template in [[08_QUEST_QA_CHECKLIST]]. This checklist consolidates every "requires live testing" item raised across the HOD-02 contracts — it does not require you to complete the quest, only to confirm specific, targeted behaviors so future fix packages can be scoped correctly.
 
+## HOD-FULL new systems — test these first (once map setup is done)
+
+These systems are brand new this package. **Items 1-3 require the map editor placement documented in [[04_HOD_PORTAL_ACCESS_CONTRACT]] MAP SETUP before they're testable at all** — until then, expect these specific tiles/behaviors to simply not exist in-game.
+
+### N1. Vortex entrance gating (requires map setup)
+- [ ] Before talking to Messenger of Heaven and finishing the conversation, try stepping on any of the 3 vortex entrance tiles (once placed). Expected: "The vortex does not react to you..." and you're pushed back.
+- [ ] After finishing Messenger of Heaven's conversation (through "yes"), try the vortex entrance matching whichever city is *not* currently active (check via GM tools or trial and error). Expected: "The vortex to X is dormant right now..." and pushed back.
+- [ ] Try the vortex entrance matching the currently active city. Expected: teleported to that route's existing minigame room (Charges/Cracklers/Sparks lever area).
+
+### N2. Vortex rotation (requires map setup + time, or GM storage inspection)
+- [ ] Check `GlobalStorage.HeartOfDestruction.ActiveVortex` (via GM tools) shortly after server start — should be 1, 2, or 3, never 0 or unset.
+- [ ] Wait ~2 hours (or check across multiple sessions) and confirm the value changes.
+
+### N3. Permanent vortex access via kills (requires map setup + monster spawns — see below)
+- [ ] **Prerequisite**: Dread Intruder, Breach Brood, and Reality Reaver have no map spawns yet (confirmed absent) — this specific test cannot run until spawns are added, which is a separate map task from the vortex entrances themselves.
+- [ ] Once spawned: kill 10 Dread Intruders as one character. Expected: a message about permanent access, and the Ankrahmun vortex should now work even when that city isn't the active rotation.
+
+### N4. Destructive charges (testable now — no map dependency)
+- [ ] Kill a Frenzy, a Charged Disruption, or an Overcharged Disruption (all reachable in the existing final battle / World Devourer fight). Confirm no errors occur (this hooks into the same shared `HeartMinionDeath` event already used for other final-battle bookkeeping).
+- [ ] After defeating World Devourer once (achievement "Ender of the End" obtained), try to re-enter World Devourer with fewer than 5 accumulated charges. Expected: denied with the exact message *"To face the heart of destruction again, you have to gather destructive charges to enter its lair. You gain charges by killing any higher minion of destruction. You have gathered X of 5 charges."*
+- [ ] Accumulate 5 charges and confirm entry succeeds, and that charges reset to 0 (or drop by exactly 5) afterward.
+- [ ] Confirm a **first-time** (pre-"Ender of the End") entry is NOT blocked by charges — only repeat visits should check this.
+
+### N5. Final battle timing (45 minutes)
+- [ ] Time the mini-boss phase (Hunger/Destruction/Rage) specifically — should now allow up to 45 minutes before auto-clearing, not 30. Report back if this feels wrong (e.g., if the intended split was meant to include the World Devourer phase too, rather than being mini-boss-phase-only).
+
+### N6. Messenger of Heaven "yes" (functional TODO text)
+- [ ] Complete the full keyword chain through "strong," then say "yes." Expected: a short line ("Go now. The cave nearby holds a way into the incursion...") — **not exact wiki text**, flagged as TODO — plus (invisibly) the `CaveAccess` grant that N1 depends on.
+
+### N7. Questlog (new catalog entry)
+- [ ] Open your Quest Log after starting Heart of Destruction (post Messenger of Heaven). Confirm a "Heart of Destruction" entry now appears with 7 missions, and that it advances as you defeat each boss. **Text will read as functional/generic, not polished wiki wording** — that's expected and flagged as TODO in the source file.
+
 ## Admin/tester setup notes
 
 Several checks below need a character positioned deep into the quest (e.g., already having defeated Anomaly/Rupture/Realityquake) to reach later gates. If you don't want to grind there normally, an admin/GM account can set the relevant storage directly:

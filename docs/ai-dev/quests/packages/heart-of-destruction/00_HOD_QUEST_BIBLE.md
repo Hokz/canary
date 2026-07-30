@@ -1,6 +1,23 @@
 # 00 — Heart of Destruction Quest Bible
 
-Package: HOD-02, updated by HOD-03, HOD-04, HOD-05. Read-only audit against `data-otservbr-global/` on branch `ai-dev/hod-02-quest-bible-contracts` (based on `main` @ `baba6c0d7`, which already includes the HOD-01 World Devourer cooldown fix from PR #4).
+Package: HOD-02, updated by HOD-03, HOD-04, HOD-05, HOD-FULL. Audit + implementation against `data-otservbr-global/` on branch `ai-dev/hod-full-complete-implementation` (based on `main`, which includes HOD-01 through HOD-05).
+
+## HOD-FULL update summary — full autonomous implementation pass
+
+Unlike HOD-01 through HOD-05 (which deliberately deferred anything requiring invented text or new architecture), HOD-FULL was explicitly authorized by the owner to implement functional systems now, marking exact text as TODO rather than blocking the quest. This package implements every previously-deferred system except the two that are genuinely impossible without a map editor (which now have supporting code + exact placement instructions) and one large-scale code-quality refactor that was judged too risky to rush.
+
+**Newly implemented this package**:
+- **Outer vortex access system** — rotation, permanent-access kill tracking, entrance gating. Code-complete; **needs 3 action ids placed on the map** before it's reachable (see [[04_HOD_PORTAL_ACCESS_CONTRACT]] MAP SETUP section).
+- **Destructive charges system** — Frenzy/Charged Disruption/Overcharged Disruption kills grant charges (inferred classification, documented); World Devourer repeat-entry now spends 5, using the owner's exact provided text as the denial message.
+- **Questlog catalog** — 7-mission entry created with functional (TODO-marked) text, registered and ready.
+- **Final battle timing** — mini-boss phase timers changed from 30 to 45 minutes, matching the reference's stated total (a disclosed judgment call on how the 45 minutes splits across phases).
+- **Messenger of Heaven "yes"** — now grants the vortex-gating `CaveAccess` storage, with a short TODO-marked placeholder line instead of staying silent.
+
+**Deliberately NOT implemented this package** (see [[09_HOD_SAFE_FIXES_APPLIED]] for full reasoning):
+- **Boss-defeat credit attribution hardening** (room-presence vs. participation) — still requires new tracking architecture; attempting this hastily inside an already-large package risked breaking three already-working boss fights simultaneously without live testing between changes.
+- **Undeclared-Lua-global hardening** (~20 globals across 6 files) — explicitly flagged in every prior package as needing incremental, individually-tested work; doing it inside this already-large package would compound risk on risk.
+
+No C++ `src/` changes were made or needed — every system above was achievable with the same Lua APIs already used successfully elsewhere in this quest (storages, KV cooldowns, `CreatureEvent`, `GlobalEvent`, `MoveEvent`, the catalog system).
 
 ## HOD-05 update summary
 

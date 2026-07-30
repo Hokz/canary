@@ -134,6 +134,10 @@ local function creatureSayCallback(npc, creature, type, message)
 		npcHandler:say("Your future is still not written because the forces of uncreation are still tearing on reality. For the sake of your world, please hurry!", npc, creature)
 		npcHandler:setTopic(playerId, 12)
 	elseif MsgContains(message, "yes") and topic == 12 then
+		-- TODO_EXACT_TEXT: owner reference does not provide Messenger of Heaven's exact line here.
+		-- Functional placeholder only, per explicit authorization not to block the quest on missing text.
+		npcHandler:say("Go now. The cave nearby holds a way into the incursion. May the gods watch over you.", npc, creature)
+		player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.CaveAccess, 1)
 		npcHandler:setTopic(playerId, 0)
 	end
 

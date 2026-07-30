@@ -1,5 +1,13 @@
 # 02 — Heart of Destruction Questlog Contract
 
+## HOD-FULL update — catalog entry created
+
+Per HOD-FULL's explicit authorization to implement functional progression with exact text marked TODO rather than block the quest, `data-otservbr-global/lib/core/quests/catalog/052_heart_of_destruction.lua` was created and registered in `catalog/init.lua`. 7 missions (Messenger's Warning → Anomaly → Realityquake → Rupture → Eradicator → Outburst → World Devourer), each with a `[0]`/`[1]` not-done/done state, using **original functional text**, not verbatim wiki wording (the file opens with a `TODO_EXACT_TEXT` notice that must not be removed until reviewed against real reference text). `missionId`s 20001-20007 were chosen from a clearly unused block (highest pre-existing `missionId` found repo-wide was 11000).
+
+The **one piece of exact owner-provided text** for this quest — the destructive-charges re-entry message — was deliberately **not** placed in this catalog. It's used verbatim instead as the World Devourer portal's live denial message (`movements_teleport_heart.lua`), which is a more natural fit (it's shown exactly when relevant: a repeat visit with insufficient charges) than a static quest-log mission state would be. See [[05_HOD_BOSS_MECHANICS_CONTRACT]].
+
+Mission `storageId`s reuse the existing, already-working boss-defeat flags (`14326`/`14327`/`14328`/`14330`/`14332`) and the new `Storage.HeartOfDestructionFinalBattle.RewardClaimed` / `Storage.Quest.U10_94.HeartOfDestruction.CaveAccess` — no new storages were minted solely for questlog display purposes.
+
 **HOD-04 note**: Messenger of Heaven's dialogue is now implemented (see [[01_HOD_NPC_DIALOGUE_CONTRACT]]), but it does not write any storage or advance any quest-log-relevant state — the conversation is confirmed to be flavor/lore text only, not a progression trigger. This section's findings are otherwise unchanged. See [[08_HOD_IMPLEMENTATION_BREAKDOWN]] HOD-11 (renumbered from HOD-04) for the still-pending catalog work.
 
 ## Current repository evidence

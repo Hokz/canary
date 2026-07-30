@@ -59,7 +59,13 @@ HOD-03 could only document the player-side keyword chain; the owner has now supp
 
 **"yes" — deliberately left silent, not invented.** The owner's reference confirms `yes` is the final step of the shortcut chain, but provides no exact spoken response for it (only `strong`'s line has confirmed text, and the full-chain transcript doesn't show a "yes" step at all). Per the "do not invent" rule, `yes` is implemented as a recognized keyword that closes the conversation (resets topic to 0) **without any invented NPC line**. If the owner supplies exact text for this step, it can be added in a follow-up in one line.
 
-**HOD-05 re-check**: per HOD-05's explicit instruction to only implement "yes" behavior if current repo evidence clearly proves an expected storage/action, this was re-investigated. No such evidence was found — no portal, movement, or catalog script anywhere in the codebase reads a storage that "yes" could plausibly be expected to set (same conclusion, same evidence chain as [[04_HOD_PORTAL_ACCESS_CONTRACT]]'s original finding, re-confirmed rather than assumed stale). The silent topic-reset remains correct and unchanged.
+**HOD-05 re-check**: per HOD-05's explicit instruction to only implement "yes" behavior if current repo evidence clearly proves an expected storage/action, this was re-investigated. No such evidence was found at the time — no portal, movement, or catalog script anywhere in the codebase read a storage that "yes" could plausibly be expected to set.
+
+**HOD-FULL update — now implemented, with a disclosed TODO.** That evidence gap no longer applies, because HOD-FULL *built* the vortex-access system that "yes" should gate (see [[04_HOD_PORTAL_ACCESS_CONTRACT]]). Under this package's explicit authorization to implement functional progression with exact text marked TODO rather than blocking the quest, "yes" now:
+1. Says a short, clearly-marked placeholder line (`-- TODO_EXACT_TEXT` comment directly above it in the code) — *"Go now. The cave nearby holds a way into the incursion. May the gods watch over you."* — original text, not claimed to be exact wiki wording.
+2. Sets `Storage.Quest.U10_94.HeartOfDestruction.CaveAccess = 1`, which now gates all three vortex entrance movements.
+
+This is a deliberate escalation from HOD-04/05's conservative "stay silent" stance, made only because HOD-FULL's owner instructions explicitly authorize functional-progression-with-TODO over blocking. If the owner supplies exact text, replace the placeholder line only — the storage grant logic doesn't need to change.
 
 **Case sensitivity**: matching uses `MsgContains`, the same case-insensitive-by-convention helper used throughout this codebase (e.g., `henricus.lua`, `zizzle.lua`) — consistent with the package's case-insensitivity allowance.
 
