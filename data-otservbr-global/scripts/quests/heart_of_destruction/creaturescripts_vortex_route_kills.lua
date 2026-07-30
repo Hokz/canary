@@ -5,10 +5,21 @@
 
 local HOD = Storage.Quest.U10_94.HeartOfDestruction
 
+local ankrahmunRoute = { killStorage = HOD.AnkrahmunKills, permanentStorage = HOD.AnkrahmunPermanent, routeName = "Ankrahmun" }
+local svargrondRoute = { killStorage = HOD.SvargrondKills, permanentStorage = HOD.SvargrondPermanent, routeName = "Svargrond" }
+local zaoRoute = { killStorage = HOD.ZaoKills, permanentStorage = HOD.ZaoPermanent, routeName = "Zao" }
+
+-- Base creatures plus their "Instable"/"Stabilizing" variants all count toward the same route —
+-- confirmed via review of PR #9: these variants exist as separate monster definitions
+-- (data-otservbr-global/monster/extra_dimensional/) and must credit the same 10-kill counter as
+-- their base form if map placement ends up using either or both.
 local routeByMonster = {
-	["dread intruder"] = { killStorage = HOD.AnkrahmunKills, permanentStorage = HOD.AnkrahmunPermanent, routeName = "Ankrahmun" },
-	["breach brood"] = { killStorage = HOD.SvargrondKills, permanentStorage = HOD.SvargrondPermanent, routeName = "Svargrond" },
-	["reality reaver"] = { killStorage = HOD.ZaoKills, permanentStorage = HOD.ZaoPermanent, routeName = "Zao" },
+	["dread intruder"] = ankrahmunRoute,
+	["stabilizing dread intruder"] = ankrahmunRoute,
+	["breach brood"] = svargrondRoute,
+	["instable breach brood"] = svargrondRoute,
+	["reality reaver"] = zaoRoute,
+	["stabilizing reality reaver"] = zaoRoute,
 }
 
 local vortexRouteKills = CreatureEvent("HeartOfDestructionVortexKills")
