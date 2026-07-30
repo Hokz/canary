@@ -78,6 +78,31 @@ function Zone:countPlayers(notFlag)
 	return count
 end
 
+-- Removes temporary combat debris (magic fields, corpses, loose movable/pickupable trash)
+-- left behind in the zone. Items carrying an action id or unique id are always preserved,
+-- since those are how levers, quest chests, reward containers and other quest objects are
+-- tagged in this codebase - this is the same convention scripts use to protect them elsewhere.
+function Zone:cleanTemporaryItems()
+	local removed = 0
+	for _, item in ipairs(self:getItems()) do
+		if not item:hasAttribute("aid") and not item:hasAttribute("uid") then
+			local itemType = ItemType(item:getId())
+			if itemType:isMagicField() or itemType:isCorpse() or (itemType:isMovable() and itemType:isPickupable()) then
+				item:remove()
+				removed = removed + 1
+			end
+		end
+	end
+	return removed
+end
+
+-- Standard boss-room reset: clears monsters/minions and temporary combat debris.
+-- Does not touch players - callers decide separately whether/when to remove them.
+function Zone:cleanRoom()
+	self:removeMonsters()
+	self:cleanTemporaryItems()
+end
+
 function Zone:isInZone(position)
 	local zones = position:getZones()
 	if not zones then

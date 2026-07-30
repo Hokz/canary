@@ -1,6 +1,13 @@
-function clearDevourer()
+-- Runs 60 seconds after World Devourer's death: kicks any remaining players to the same
+-- exit position used by the sibling Hunger/Destruction/Rage rooms, and removes leftover
+-- monsters/summons. Named distinctly (not `clearDevourer`) to avoid the pre-existing global
+-- function name collision with actions_final_lever.lua's own `clearDevourer` (used there for
+-- the 30-minute failsafe and for clearing stale state before a fresh attempt).
+local function finalBattleRoomCleanup()
 	local upConer = { x = 32260, y = 31336, z = 14 } -- upLeftCorner
 	local downConer = { x = 32283, y = 31360, z = 14 } -- downRightCorner
+	local exitPosition = { x = 32208, y = 31372, z = 14 }
+
 	for i = upConer.x, downConer.x do
 		for j = upConer.y, downConer.y do
 			for k = upConer.z, downConer.z do
@@ -8,9 +15,23 @@ function clearDevourer()
 				if tile then
 					local creatures = tile:getCreatures()
 					if creatures and #creatures > 0 then
-						for _, creature in pairs(creatures) do
-							if creature:isMonster() then -- éMonstro
-								creature:remove()
+						for _, creatureUid in pairs(creatures) do
+							local creature = Creature(creatureUid)
+							if creature then
+								if creature:isPlayer() then
+									creature:teleportTo(exitPosition)
+									creature:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
+								elseif creature:isMonster() then
+									creature:remove()
+								end
+							end
+						end
+					end
+					for _, item in ipairs(tile:getItems() or {}) do
+						if not item:hasAttribute("aid") and not item:hasAttribute("uid") then
+							local itemType = ItemType(item:getId())
+							if itemType:isMagicField() or itemType:isCorpse() or (itemType:isMovable() and itemType:isPickupable()) then
+								item:remove()
 							end
 						end
 					end
@@ -18,9 +39,6 @@ function clearDevourer()
 			end
 		end
 	end
-	stopEvent(areaDevourer4)
-	stopEvent(areaDevourer5)
-	stopEvent(areaDevourer6)
 end
 
 local function setStorageDevourer()
@@ -133,7 +151,12 @@ function heartBossDeath.onDeath(creature)
 			vortex:setActionId(14354)
 		end
 		setStorageDevourer()
-		clearDevourer()
+		-- Stop the failsafe timers immediately (the fight is over), but wait 60 seconds
+		-- before kicking players/removing monsters so reward and exit logic has time to run.
+		stopEvent(areaDevourer4)
+		stopEvent(areaDevourer5)
+		stopEvent(areaDevourer6)
+		addEvent(finalBattleRoomCleanup, 60 * 1000)
 	end
 	return true
 end
