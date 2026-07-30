@@ -55,7 +55,7 @@ local quest = {
 				[1] = "Zalamon now wants you to go to Deeper Banuta and get an Ancient Sceptre \z
 				that will help in the fight against the emperor. \z
 				On each floor under Deeper Banuta you collect a sceptre part from a Ghost of a Priest. \z
-				On the 4th and final floor you need to assemble the sceptre..",
+				On the 4th and final floor you need to assemble the sceptre.",
 				[2] = "After you've assembled the Snake Sceptre and fought your way back out, \z
 				head back to Zalamon and give it to him.",
 				[3] = "You have delievered the recreated sceptre to the rebels.",
@@ -88,7 +88,7 @@ local quest = {
 			storageId = Storage.Quest.U8_6.WrathOfTheEmperor.Mission07,
 			missionId = 10354,
 			startValue = 0,
-			endValue = 6,
+			endValue = 7,
 			description = function(player)
 				return string.format("Kill six nobles in the city and report back to Zlak. You have killed %d nobles so far.", (math.max(player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission07), 0)))
 			end,

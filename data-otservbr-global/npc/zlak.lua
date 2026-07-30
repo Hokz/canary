@@ -76,7 +76,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline, 24)
 			player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission07, 0) --Questlog, Wrath of the Emperor "Mission 07: A Noble Cause"
 			npcHandler:setTopic(playerId, 0)
-		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 24 and player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission07) == 6 then
+		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 24 and player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission07) == 7 then
 			if npcHandler:getTopic(playerId) ~= 1 then
 				npcHandler:say({
 					"Word of your deedz iz already zpreading like a wildfire. Zalamon'z plan to unleash zome murderouz beaztz in ze zity workz almozt too well. You are already becoming zome kind of legend with which motherz frighten zeir unruly hatchlingz. ...",
