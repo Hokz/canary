@@ -65,8 +65,7 @@ local function creatureSayCallback(npc, creature, type, message)
 				npcHandler:say("So they've sent another one? I just hope ye' better than the last one. Are ye' ready for a mission?", npc, creature)
 				npcHandler:setTopic(playerId, 9)
 				player:setStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.StorkusVampiredust, 0)
-			end
-			if player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.StorkusVampiredust) < 20 then
+			elseif player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.StorkusVampiredust) < 20 then
 				npcHandler:say("So far ye've brought me " .. player:getItemCount(5905) .. " of 20 {vampire dusts}. Do ye' have any more with ye'? ", npc, creature)
 				npcHandler:setTopic(playerId, 1)
 			elseif player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.StorkusVampiredust) == 20 then
@@ -131,7 +130,12 @@ local function creatureSayCallback(npc, creature, type, message)
 			player:setStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.StorkusVampiredust, player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.StorkusVampiredust) + count)
 			player:removeItem(5905, count)
 
-			npcHandler:say("Ye've brought me " .. count .. " vampire dusts. " .. (20 - player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.StorkusVampiredust)) == 0 and "Ask me for a {mission} to continue your quest." or ("Ye' need to bring " .. (20 - player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.StorkusVampiredust)) .. " more."), npc, creature)
+			local remaining = 20 - player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.StorkusVampiredust)
+			if remaining <= 0 then
+				npcHandler:say("Ye've brought me " .. count .. " vampire dusts. Ask me for a {mission} to continue your quest.", npc, creature)
+			else
+				npcHandler:say("Ye've brought me " .. count .. " vampire dusts. Ye' need to bring " .. remaining .. " more.", npc, creature)
+			end
 			npcHandler:setTopic(playerId, 0)
 		elseif npcHandler:getTopic(playerId) == 3 then
 			if player:removeItem(8192, 1) then

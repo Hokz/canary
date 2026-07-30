@@ -72,7 +72,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 2)
 		end
 	elseif MsgContains(message, "blessing") or MsgContains(message, "bless") then
-		if player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.Questline) == 25 then --if quest is done
+		if player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.Questline) >= 23 then --High Inquisitor title grants blessing access "from now on"
 			npcHandler:say("Do you want to receive the blessing of the inquisition - which means " .. (missing == 5 and "all five available" or missing) .. " blessings - for " .. totalBlessPrice .. " gold?", npc, creature)
 			npcHandler:setTopic(playerId, 7)
 		else
@@ -105,7 +105,7 @@ local function creatureSayCallback(npc, creature, type, message)
 		elseif player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.Questline) == 3 then
 			npcHandler:say({
 				"Listen, we have information about a heretic coven that hides in a mountain called the Big Old One. The witches reach this cursed place on flying brooms and think they are safe there. ...",
-				"I've arranged a flying carpet that will bring you to their hideout. Travel to Femor Hills and tell the carpet pilot the codeword 'eclipse' ...",
+				"I've arranged a flying carpet that will bring you to their hideout. Travel to Femor Hills and tell the carpet pilot the code word 'Eclipse'. ...",
 				"He'll bring you to your destination. At their meeting place, you'll find a cauldron in which they cook some forbidden brew ...",
 				"Use this vial of holy water to destroy the brew. Also steal their grimoire and bring it to me.",
 			}, npc, creature)
@@ -231,8 +231,8 @@ local function creatureSayCallback(npc, creature, type, message)
 		elseif npcHandler:getTopic(playerId) == 6 then
 			if player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.Questline) == 22 then
 				npcHandler:say({
-					"Incredible! You're a true defender of faith! I grant you the title of a High Inquisitor for your noble deeds. From now on you can obtain the blessing of the inquisition which makes the pilgrimage of ashes obsolete ...",
-					"The blessing of the inquisition will bestow upon you all available blessings for the price of 110000 gold. Also, don't forget to ask me about your {outfit} to receive the final addon as demon hunter.",
+					"Incredible! You are a true defender of faith! I grant you the title of a High Inquisitor for your noble deeds. From now on you can obtain the blessing of the inquisition which makes the pilgrimage of ashes obsolete. ...",
+					"The blessing of the inquisition will bestow upon you all available blessings for a slightly higher price than if you'd buy them separately. Also, don't forget to ask me about your {outfit} to receive the final addon as demon hunter.",
 				}, npc, creature)
 				player:setStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.Questline, 23)
 				player:setStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.Mission07, 3) -- The Inquisition Questlog- "Mission 7: The Shadow Nexus"

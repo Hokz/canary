@@ -60,19 +60,19 @@ end
 
 -- Travel
 local TheNewFrontier = Storage.Quest.U8_54.TheNewFrontier
-local function addTravelKeyword(keyword, text, cost, destination, condition, action)
+local function addTravelKeyword(keyword, text, cost, destination, condition, action, yesText)
 	if condition then
 		keywordHandler:addKeyword({ keyword }, StdModule.say, { npcHandler = npcHandler, text = "Never heard about a place like this." }, condition)
 	end
 
 	local travelKeyword = keywordHandler:addKeyword({ keyword }, StdModule.say, { npcHandler = npcHandler, text = text, cost = cost, discount = "postman" })
-	travelKeyword:addChildKeyword({ "yes" }, StdModule.travel, { npcHandler = npcHandler, premium = false, text = "Hold on!", cost = cost, discount = "postman", destination = destination }, nil, action)
+	travelKeyword:addChildKeyword({ "yes" }, StdModule.travel, { npcHandler = npcHandler, premium = false, text = yesText or "Hold on!", cost = cost, discount = "postman", destination = destination }, nil, action)
 	travelKeyword:addChildKeyword({ "no" }, StdModule.say, { npcHandler = npcHandler, text = "You shouldn't miss the experience.", reset = true })
 end
 
 addTravelKeyword("eclipse", "Oh no, so the time has come? Do you really want me to fly you to this unholy place?", 110, Position(32659, 31915, 0), function(player)
 	return player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.Questline) ~= 4 and player:getStorageValue(Storage.Quest.U8_2.TheInquisitionQuest.Questline) ~= 5
-end)
+end, nil, "So be it!")
 addTravelKeyword("farmine", "Do you seek a ride to Farmine for |TRAVELCOST|?", 60, Position(32983, 31539, 1), function(player)
 	return player:getStorageValue(TheNewFrontier.Mission10[1]) ~= 2
 end)
@@ -114,7 +114,7 @@ keywordHandler:addKeyword({ "ride" }, StdModule.say, { npcHandler = npcHandler, 
 keywordHandler:addKeyword({ "trip" }, StdModule.say, { npcHandler = npcHandler, text = "I can fly you to {Darashia} on Darama, {Kazordoon}, {Svargrond} or {Edron} if you like. Where do you want to go?" })
 keywordHandler:addKeyword({ "time" }, StdModule.say, { npcHandler = npcHandler, text = "It's 3:42 pm right now. The next flight is scheduled soon." })
 
-npcHandler:setMessage(MESSAGE_GREET, "Daraman's blessings, traveller |PLAYERNAME|.")
+npcHandler:setMessage(MESSAGE_GREET, "Daraman's blessings, traveller |PLAYERNAME|. Where do you want me to fly you?")
 npcHandler:setMessage(MESSAGE_FAREWELL, "Daraman's blessings")
 npcHandler:setMessage(MESSAGE_WALKAWAY, "Daraman's blessings")
 

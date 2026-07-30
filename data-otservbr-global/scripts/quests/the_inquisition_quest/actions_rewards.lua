@@ -8,6 +8,7 @@ local rewards = {
 	[1306] = 8100,
 	[1307] = 8102,
 	[1308] = 8026,
+	[1309] = 50261, -- Merudri Nanbando (Monk vocation reward, matching the existing per-vocation armor pattern such as 8053 Fireborn Giant Armor for Knights)
 }
 
 local inquisitionRewards = Action()
