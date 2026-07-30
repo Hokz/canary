@@ -20,6 +20,8 @@
 ---@field private encounter Encounter
 ---@field private timeoutEvent Event
 ---@field private disableCooldown boolean
+---@field private bossAlive boolean
+---@field private emptyRoomEvent Event
 BossLever = {}
 
 --[[
@@ -79,6 +81,8 @@ setmetatable(BossLever, {
 			area = config.specPos,
 			monsters = config.monsters or {},
 			disableCooldown = config.disableCooldown,
+			bossAlive = false,
+			emptyRoomEvent = nil,
 			_position = nil,
 			_uid = nil,
 			_aid = nil,
@@ -262,8 +266,58 @@ function BossLever:onUse(player)
 			zn:refresh()
 			zn:removePlayers()
 		end, self.timeToDefeat * 1000, zone)
+
+		if self.emptyRoomEvent then
+			stopEvent(self.emptyRoomEvent)
+			self.emptyRoomEvent = nil
+		end
+		self.bossAlive = true
+		self.emptyRoomEvent = addEvent(function(bossLever, zn)
+			bossLever:watchEmptyRoom(zn)
+		end, BossLever.emptyRoomCheckInterval, self, zone)
 	end
 	return true
+end
+
+-- How often (ms) to poll for an empty room while a boss is alive.
+BossLever.emptyRoomCheckInterval = 20 * 1000
+
+---@param self BossLever
+---@param zone Zone
+-- Polls the room while the boss is alive; if every player leaves/dies before the boss
+-- is defeated, the attempt is considered failed and the room is reset immediately
+-- (no players are present to kick, so there's no reason to wait).
+function BossLever:watchEmptyRoom(zone)
+	if not self.bossAlive then
+		return
+	end
+	if zone:countPlayers() == 0 then
+		self:handleEmptyRoom(zone)
+		return
+	end
+	self.emptyRoomEvent = addEvent(function(bossLever, zn)
+		bossLever:watchEmptyRoom(zn)
+	end, BossLever.emptyRoomCheckInterval, self, zone)
+end
+
+---@param self BossLever
+---@param zone Zone
+function BossLever:handleEmptyRoom(zone)
+	if not self.bossAlive then
+		return
+	end
+	self.bossAlive = false
+	if self.emptyRoomEvent then
+		stopEvent(self.emptyRoomEvent)
+		self.emptyRoomEvent = nil
+	end
+	if self.timeoutEvent then
+		stopEvent(self.timeoutEvent)
+		self.timeoutEvent = nil
+	end
+	zone:refresh()
+	zone:cleanRoom()
+	logger.debug("BossLever:handleEmptyRoom() - {} attempt failed (no players left), room reset", self.name)
 end
 
 ---@param Zone

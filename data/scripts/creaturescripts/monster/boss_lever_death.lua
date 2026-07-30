@@ -18,6 +18,17 @@ function onBossDeath.onDeath(creature)
 		return true
 	end
 
+	-- Guards against double-cleanup: already handled by an empty-room reset, or a duplicate onDeath call.
+	if not bossLever.bossAlive then
+		return true
+	end
+	bossLever.bossAlive = false
+
+	if bossLever.emptyRoomEvent then
+		stopEvent(bossLever.emptyRoomEvent)
+		bossLever.emptyRoomEvent = nil
+	end
+
 	if bossLever.timeoutEvent then
 		stopEvent(bossLever.timeoutEvent)
 		bossLever.timeoutEvent = nil
@@ -27,8 +38,12 @@ function onBossDeath.onDeath(creature)
 		zone:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The " .. name .. " has been defeated. You have " .. bossLever.timeAfterKill .. " seconds to leave the room.")
 		bossLever.timeoutEvent = addEvent(function(zn)
 			zn:refresh()
+			zn:cleanRoom()
 			zn:removePlayers()
 		end, bossLever.timeAfterKill * 1000, zone)
+	else
+		zone:refresh()
+		zone:cleanRoom()
 	end
 	onDeathForDamagingPlayers(creature, function(creature, player)
 		player:takeScreenshot(SCREENSHOT_TYPE_BOSSDEFEATED)
