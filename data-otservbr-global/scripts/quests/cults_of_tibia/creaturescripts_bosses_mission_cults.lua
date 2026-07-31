@@ -27,7 +27,7 @@ function bossesCults.onDeath(creature)
 	if boss.createNew then
 		Game.setStorageValue("CheckTile", -1)
 		Game.createMonster(boss.createNew, boss.pos)
-		if removeMonster then
+		if boss.removeMonster then
 			for _x = boss.area1.x, boss.area2.x, 1 do
 				for _y = boss.area1.y, boss.area2.y, 1 do
 					for _z = boss.area1.z, boss.area2.z, 1 do

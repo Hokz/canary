@@ -57,7 +57,8 @@ local quest = {
 				However, they havent found any artefact in the sandy cave yet. Report to Gareth about your failure.",
 				[12] = "Even though you weren't successful in getting a replacement for the fake picture, \z
 				Gareth gave you access to the last floor of the museum. This area is for patrons only.",
-				[13] = "INTERNAL MESSAGE: THIS NEED QUESTLOG INFORMATION",
+				[13] = "You found Denominator behind the sealed doors of the lowest floor. A lever moved three stone \z
+				blocks into a hidden position - Denominator now demands you answer a string of questions about the number they spell out, without a single mistake.",
 				[14] = "The Denomintator opened the door for you after you answered his questions to the wanted number. \z
 				In the end he mentioned the Druid of Conor. Maybe you should pay him a visit.",
 				[15] = "In the end you told the Druid of Crunor about your experiences in the MoTA.",
@@ -98,7 +99,8 @@ local quest = {
 			startValue = 1,
 			endValue = 5,
 			states = {
-				[1] = "ASD",
+				[1] = "Gerimor spoke of an outlaw camp east of Thais, where people go missing without a trace, \z
+				and of strange lights seen at night in a ruin nearby. You agreed to investigate.",
 				[2] = "Below a ruin in the vicinity of the outlaw camp east of Thais a strange figure in ragged clothes \z
 				hinted at something weird going on in a cave. He seemed too confused to decide whether to stop you.",
 				[3] = function(player)
@@ -117,8 +119,10 @@ local quest = {
 			startValue = 1,
 			endValue = 3,
 			states = {
-				[1] = "ASD",
-				[2] = "ASD",
+				[1] = "Several Edron orcs have taken to worshipping a dangerous idol. Gerimor asked you to find \z
+				out what is truly behind it before their following grows any larger.",
+				[2] = "You passed the orc cult's transformation barriers and put an end to the being they worshipped. \z
+				Return to Gerimor and tell him what you have seen.",
 				[3] = "You returned to Gerimor after facing the being the orcs worshipped. \z
 				Whatever it was, it did not find the orcs by accident. \z
 				A far more powerful force seems to have strategically place it here.",
@@ -131,8 +135,10 @@ local quest = {
 			startValue = 1,
 			endValue = 10,
 			states = {
-				[1] = "ASD",
-				[2] = "ASD",
+				[1] = "Gerimor pointed you to the dark pyramid, where worshippers of eternal life are said to \z
+				gather. You agreed to investigate the cult hidden within.",
+				[2] = "You found Angelo at the bottom of the dark pyramid, leading a project to study a newly \z
+				exposed sandy cave. His workers have not returned, and he asked you to look for them.",
 				[3] = "In the cave you haven't found one of the missing scientists. \z
 				However, you have faced a lots of strange mummies and a green oasis at the end.",
 				[4] = "After you informed Angelo about your experiences in the cave, \z
@@ -160,9 +166,25 @@ local quest = {
 					return ("A remnant cult of Zathroth has formed in a forbidden temple beneath Carlin. \z
 				Find out what's behind this and stop it in time.\nTemporarily vaporised souls:\n%d Decaying\n%d Withering"):format(math.max(player:getStorageValue(18551), 0), math.max(player:getStorageValue(18550), 0))
 				end,
-				[2] = "ASD",
+				[2] = "You gathered enough decaying and withering souls to pass deeper into the forbidden temple, \z
+				where you put an end to the five pillars and the Essence of Malice guarding it. Return to Gerimor.",
 				[3] = "You returned to Gerimor after encounter with the remnants of Zathroth. On one hand its is \z
 				furtunate that Zathroth indeed wasn't behind all this, but on the other... what is going on there?",
+			},
+		},
+		[9] = {
+			name = "The Source of Corruption",
+			storageId = Storage.Quest.U11_40.CultsOfTibia.FinalBoss.Mission,
+			missionId = 10380,
+			startValue = 1,
+			endValue = 3,
+			states = {
+				[1] = "You have reported every cult to Gerimor. He has aimed a teleporter at the source they all \z
+				drew their power from and asked you to travel there and destroy it - with a group twice the size \z
+				it took to defeat any single cult.",
+				[2] = "You have destroyed the source of corruption that fueled every cult you faced. \z
+				Return to Gerimor to claim your reward.",
+				[3] = "You reported the destruction of the source of corruption to Gerimor and received your reward.",
 			},
 		},
 	},

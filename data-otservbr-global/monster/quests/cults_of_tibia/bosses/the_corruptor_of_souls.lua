@@ -15,6 +15,7 @@ monster.outfit = {
 
 monster.events = {
 	"CultsOfTibiaBossDeath",
+	"CheckTile",
 }
 
 monster.health = 290000
