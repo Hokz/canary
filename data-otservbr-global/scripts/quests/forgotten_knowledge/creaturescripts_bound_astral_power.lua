@@ -23,6 +23,20 @@ function astralPower.onDeath(creature, _corpse, _lastHitKiller, mostDamageKiller
 			Game.createMonster("bound astral power", positions[i].nextPos, true, true)
 			Game.setStorageValue(Storage.Quest.U11_02.ForgottenKnowledge.AstralGlyph, 1)
 			addEvent(Game.setStorageValue, 1 * 60 * 1000, Storage.Quest.U11_02.ForgottenKnowledge.AstralGlyph, 0)
+
+			-- Give the room's failsafe timer real teeth behind the "gained you more time" message:
+			-- each power kill refreshes the room's timeout instead of leaving it purely cosmetic.
+			local bossLever = BossLever["the last lore keeper"]
+			if bossLever then
+				if bossLever.timeoutEvent then
+					stopEvent(bossLever.timeoutEvent)
+				end
+				local zone = bossLever:getZone()
+				bossLever.timeoutEvent = addEvent(function(zn)
+					zn:refresh()
+					zn:removePlayers()
+				end, bossLever.timeToDefeat * 1000, zone)
+			end
 		end
 	end
 	return true

@@ -43,7 +43,6 @@ function leverMeltingFrozenHorror.onUse(player, item, fromPosition, target, toPo
 				playerTile:getPosition():sendMagicEffect(CONST_ME_POFF)
 				playerTile:teleportTo(config.newPosition)
 				playerTile:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
-				playerTile:setStorageValue(Storage.Quest.U11_02.ForgottenKnowledge.HorrorKilled, os.time() + 20 * 60 * 60)
 			end
 		end
 		Game.setStorageValue(Storage.Quest.U11_02.ForgottenKnowledge.HorrorKilled, 1)

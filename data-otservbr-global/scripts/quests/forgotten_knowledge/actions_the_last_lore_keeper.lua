@@ -37,6 +37,9 @@ local config = {
 		to = Position(32004, 32865, 15),
 	},
 	exit = Position(32035, 32859, 14),
+	onUseExtra = function(player)
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The Astral Glyph begins to draw upon bound astral power to expel you from the room!")
+	end,
 }
 
 local lever = BossLever(config)

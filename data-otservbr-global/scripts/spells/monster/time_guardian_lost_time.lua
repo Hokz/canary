@@ -2,7 +2,7 @@ local spell = Spell("instant")
 
 function spell.onCastSpell(creature, var)
 	local pos = creature:getPosition()
-	if pos.z ~= 15 then
+	if pos.z ~= 14 then
 		return true
 	end
 	if creature:getName():lower() == "the freezing time guardian" then
