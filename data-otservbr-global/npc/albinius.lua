@@ -27,6 +27,8 @@ npcConfig.speechBubble = SPEECHBUBBLE_TRADE
 
 npcConfig.shop = {
 	{ itemName = "heavy old tome", clientId = 23986, sell = 30 },
+	{ itemName = "blank imbuement scroll", clientId = 51442, buy = 25000 },
+	{ itemName = "etcher", clientId = 51443, buy = 30000 },
 }
 -- On buy npc shop message
 npcType.onBuyItem = function(npc, player, itemId, subType, amount, ignore, inBackpacks, totalCost)
@@ -263,6 +265,17 @@ local function creatureSayCallback(npc, creature, type, message)
 	elseif MsgContains(message, "no") and npcHandler:getTopic(playerId) == 6 then
 		npcHandler:say("In this case I'm sorry, you may not pass this portal.", npc, creature)
 	end
+
+	-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE: no exact transcript was provided for these two keywords.
+	if MsgContains(message, "mission") then
+		if player:getStorageValue(Storage.Quest.U11_02.ForgottenKnowledge.Tomes) < 1 then
+			npcHandler:say("Bring me Heavy Old Tomes so I may restore this {temple} - only then can the six sealed portals be opened.", npc, creature)
+		else
+			npcHandler:say("Speak to me of the {energy portal}, {death portal}, {ice portal}, {earth portal} or {holy portal} to earn passage to their guardians. Defeat all six and the way to the last, greatest secret will open.", npc, creature)
+		end
+	elseif MsgContains(message, "imbuing") then
+		npcHandler:say("The Imbuing Shrines let you weave powerful properties into your equipment. Restoring this temple grants you the first two tiers - the mightiest tier is only unlocked by proving yourself against the guardians beyond the six portals.", npc, creature)
+	end
 	return true
 end
 
@@ -274,17 +287,6 @@ npcHandler:setCallback(CALLBACK_MESSAGE_DEFAULT, creatureSayCallback)
 keywordHandler:addKeyword({ "name" }, StdModule.say, { npcHandler = npcHandler, text = "I am Albinius, a worshipper of the {Astral Shapers}." })
 keywordHandler:addKeyword({ "time" }, StdModule.say, { npcHandler = npcHandler, text = "Precisely time." })
 keywordHandler:addKeyword({ "job" }, StdModule.say, { npcHandler = npcHandler, text = "I find ways to unveil the secrets of the stars. Judging by this question, I doubt you follow my weekly publications concerning this research." })
-
-npcConfig.shop = {
-	{ itemName = "blank imbuement scroll", clientId = 51442, buy = 25000 },
-	{ itemName = "etcher", clientId = 51443, buy = 30000 },
-}
-
-npcType.onSellItem = function(npc, player, itemId, subtype, amount, ignore, name, totalCost)
-	player:sendTextMessage(MESSAGE_TRADE, string.format("Sold %ix %s for %i gold.", amount, name, totalCost))
-end
-
-npcType.onCheckItem = function(npc, player, clientId, subType) end
 
 npcHandler:addModule(FocusModule:new(), npcConfig.name, true, true, true)
 

@@ -3,7 +3,7 @@ function distortedSource.onThink(creature)
 	local health, difference, glyph, pos = 0, 0, Tile(Position(31989, 32823, 15)):getTopCreature(), creature:getPosition()
 	if creature:getHealth() <= 40000 then
 		creature:addHealth(10000, false)
-	elseif creature:getHealth() >= 55000 or Game.getStorageValue(Storage.Quest.U11_02.ForgottenKnowledge.AstralGlyph) < 1 then
+	elseif Game.getStorageValue(Storage.Quest.U11_02.ForgottenKnowledge.AstralGlyph) < 1 then
 		local spectators = Game.getSpectators(Position(31986, 32847, 14), false, false, 12, 12, 12, 12)
 		for i = 1, #spectators do
 			local spec = spectators[i]

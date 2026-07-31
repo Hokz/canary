@@ -10,9 +10,6 @@ function forgottenKnowledgeLantern.onUse(player, item, fromPosition, target, toP
 		return true
 	end
 
-	if not player:getStorageValue(23734) == 1 then
-		return false
-	end
 	if item:getId() == 23734 then
 		player:getPosition():sendMagicEffect(CONST_ME_ENERGYAREA)
 		local msg = "As you start polishing the lantern it begins to glow in an otherworldly light."
