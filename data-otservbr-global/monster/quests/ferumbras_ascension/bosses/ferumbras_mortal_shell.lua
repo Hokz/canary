@@ -108,6 +108,7 @@ monster.loot = {
 	{ id = 22758, chance = 100, unique = true }, -- death gaze
 	{ id = 7403, chance = 800 }, -- berserker
 	{ id = 22866, chance = 500 }, -- rift bow
+	{ id = 22865, chance = 200, unique = true }, -- mysterious scroll (rift runner mount, see actions_mysterious_scroll.lua)
 	{ id = 8098, chance = 300 }, -- demonwing axe
 	{ id = 22731, chance = 3000 }, -- rift tapestry
 	{ id = 7410, chance = 800 }, -- queen's sceptre

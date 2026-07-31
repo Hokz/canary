@@ -1,6 +1,6 @@
 local deathDragon = CreatureEvent("DeathDragon")
 function deathDragon.onDeath(creature, corpse, lasthitkiller, mostdamagekiller, lasthitunjustified, mostdamageunjustified)
-	if not targetMonster or creature:getName():lower() ~= "death dragon" then
+	if creature:getName():lower() ~= "death dragon" then
 		return true
 	end
 

@@ -36,6 +36,15 @@ function riftInvaderDeath.onDeath(creature, corpse, lasthitkiller, mostdamagekil
 				creature:say("NOOOOOOOOOOO!", TALKTYPE_MONSTER_YELL)
 				creature:say("FERUMBRAS BURSTS INTO SOUL SPLINTERS!", TALKTYPE_MONSTER_YELL, nil, nil, Position(33392, 31475, 14))
 				creature:remove()
+				-- Ascending Ferumbras is removed here, not killed, so BossLeverOnDeath never fires to
+				-- cancel its own timeoutEvent. Without this, the room could be force-cleared out from
+				-- under the team later in the fight (soul splinters/essences/destabilized/mortal shell
+				-- are not bounded by this lever's timer at all).
+				local bossLever = BossLever[config.bossName:lower()]
+				if bossLever and bossLever.timeoutEvent then
+					stopEvent(bossLever.timeoutEvent)
+					bossLever.timeoutEvent = nil
+				end
 				for a = 1, #crystals do
 					local crystalEffect = crystals[a]
 					crystalEffect.crystalPosition:sendMagicEffect(CONST_ME_FERUMBRAS)

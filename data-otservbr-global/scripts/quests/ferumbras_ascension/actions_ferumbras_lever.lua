@@ -3,7 +3,12 @@ local config = {
 		name = "Ascending Ferumbras",
 		position = Position(33392, 31473, 14),
 	},
-	timeToFightAgain = 60 * 60 * 20 * 24,
+	timeToFightAgain = 13 * 24 * 60 * 60 + 20 * 60 * 60,
+	-- 60 minutes covers just the crystal-lighting phase; the fight doesn't end when Ascending
+	-- Ferumbras is removed (see creaturescripts_rift_invader_death.lua), so this lever's own
+	-- timeout is explicitly cancelled there once the crystal phase completes - the rest of the
+	-- multi-stage fight (soul splinters/essences/destabilized/mortal shell) is not bounded by it.
+	timeToDefeat = 60 * 60,
 	playerPositions = {
 		{ pos = Position(33270, 31477, 14), teleport = Position(33392, 31479, 14) },
 		{ pos = Position(33269, 31477, 14), teleport = Position(33392, 31479, 14) },

@@ -19,7 +19,7 @@ function ferumbrasAscendantReward.onUse(player, item, fromPosition, target, toPo
 		return true
 	end
 	player:addAchievement("Hat Hunter")
-	player:addOutfitAddon(852, 3)
+	player:addOutfitAddon(845, 3)
 	player:addOutfitAddon(846, 3)
 	local bag = Game.createItem(2853)
 	for i = 1, #items do

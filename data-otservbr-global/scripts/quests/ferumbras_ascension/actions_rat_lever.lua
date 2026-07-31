@@ -3,7 +3,7 @@ local config = {
 		name = "The Lord of the Lice",
 		position = Position(33220, 31460, 12),
 	},
-	timeToFightAgain = 2 * 24 * 60 * 60,
+	timeToFightAgain = 44 * 60 * 60,
 	playerPositions = {
 		{ pos = Position(33201, 31475, 11), teleport = Position(33215, 31470, 12) },
 		{ pos = Position(33197, 31475, 11), teleport = Position(33215, 31470, 12) },
