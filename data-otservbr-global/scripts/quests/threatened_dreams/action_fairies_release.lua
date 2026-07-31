@@ -45,7 +45,7 @@ function fairiesRelease.onUse(player, item, fromPosition, target, toPosition, is
 	if player:getStorageValue(ThreatenedDreams.Mission02[1]) == 3 and fairiesCounter < 5 then
 		if player:getStorageValue(fairy.storage) < 1 then
 			item:transform(25797)
-			addEvent(revertFairy, 30 * 1000, toPosition, 25797)
+			addEvent(revertFairy, 60 * 1000, toPosition, 25797)
 			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, fairy.message)
 			toPosition:sendMagicEffect(CONST_ME_PURPLESMOKE)
 			toPosition:sendMagicEffect(CONST_ME_MAGIC_GREEN)

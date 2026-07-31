@@ -83,6 +83,7 @@ local function creatureSayCallback(npc, creature, type, message)
 				"Nature's blessings! You may find the desperate wolf mother in the south of Cormaya. You will know the place because there is a big stone that looks like a grumpy face. ...",
 				"At night it will weep bloody tears and only at night you will meet the ghost there. Take this talisman so you may be able to talk with animals and even plants and stones. Just don't expect that all of them will answer you.",
 			}, npc, creature)
+			player:addItem(25295, 1)
 			player:setStorageValue(ThreatenedDreams.Mission01[1], 5)
 			npcHandler:setTopic(playerId, 0)
 		end

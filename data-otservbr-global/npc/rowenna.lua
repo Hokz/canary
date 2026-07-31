@@ -62,6 +62,10 @@ npcHandler:setMessage(MESSAGE_GREET, "Welcome to the finest weaponshop in the la
 npcHandler:setMessage(MESSAGE_FAREWELL, "Good bye. Come back soon.")
 npcHandler:setMessage(MESSAGE_WALKAWAY, "Good bye. Come back soon.")
 npcHandler:setMessage(MESSAGE_SENDTRADE, "Of course, just browse through my wares.")
+
+-- EXACT_OWNER_TRANSCRIPT (Threatened Dreams / The Fairy Treasure)
+keywordHandler:addKeyword({ "child" }, StdModule.say, { npcHandler = npcHandler, text = "I have two children. Perhaps they are upstairs but I guess they are rather outside, playing." })
+
 npcHandler:addModule(FocusModule:new(), npcConfig.name, true, true, true)
 
 npcConfig.shop = {

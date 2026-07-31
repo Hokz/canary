@@ -65,6 +65,14 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("Oh, so you brought some gold from Eleonore to me?", npc, creature)
 			npcHandler:setTopic(playerId, 1)
 		end
+	-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE (Threatened Dreams / Sweet Dreams)
+	elseif MsgContains(message, "mirror image") then
+		if player:getStorageValue(Storage.Quest.U11_40.ThreatenedDreams.Mission06.MirrorImagePaid) >= 1 then
+			npcHandler:say("I already crafted a mirror image for you. It should still be holding the Coryms' attention.", npc, creature)
+		else
+			npcHandler:say("Ah, a mirror image to fool a captor's eyes while you slip away invisible? A neat trick indeed. It will cost you 1000 gold. Interested?", npc, creature)
+			npcHandler:setTopic(playerId, 10)
+		end
 	elseif MsgContains(message, "yes") then
 		if npcHandler:getTopic(playerId) == 1 then
 			if player:removeMoneyBank(200) then
@@ -74,6 +82,15 @@ local function creatureSayCallback(npc, creature, type, message)
 			else
 				npcHandler:say("You don't have enough...", npc, creature)
 			end
+		elseif npcHandler:getTopic(playerId) == 10 then
+			if player:removeMoneyBank(1000) then
+				npcHandler:say("There. The image will hold their attention for a while - go on, while you still have your invisibility.", npc, creature)
+				player:setStorageValue(Storage.Quest.U11_40.ThreatenedDreams.Mission06.MirrorImagePaid, 1)
+				player:setStorageValue(Storage.Quest.U11_40.ThreatenedDreams.Mission06[1], 4)
+			else
+				npcHandler:say("You don't have enough gold on you.", npc, creature)
+			end
+			npcHandler:setTopic(playerId, 0)
 		end
 	elseif MsgContains(message, "no") then
 		if npcHandler:getTopic(playerId) >= 1 then

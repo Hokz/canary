@@ -65,9 +65,61 @@ npcType.onCloseChannel = function(npc, creature)
 	npcHandler:onCloseChannel(npc, creature)
 end
 
-npcHandler:setMessage(MESSAGE_GREET, "Greatings, mortal beigin.")
+local ThreatenedDreams = Storage.Quest.U11_40.ThreatenedDreams
+
+-- EXACT_OWNER_TRANSCRIPT (Threatened Dreams / The Swan Feather Cloak)
+local function creatureSayCallback(npc, creature, type, message)
+	local player = Player(creature)
+	local playerId = player:getId()
+
+	if not npcHandler:checkInteraction(npc, creature) then
+		return false
+	end
+
+	if MsgContains(message, "cloak") or MsgContains(message, "swan cloak") then
+		if player:getStorageValue(ThreatenedDreams.Mission02[1]) < 8 then
+			npcHandler:say("I'm afraid I can't help you with that yet, mortal being.", npc, creature)
+			return true
+		end
+		if getWorldLight().level > 40 then
+			npcHandler:say("Come back during the day, mortal being. I only work my craft in daylight.", npc, creature)
+			return true
+		end
+		if player:getStorageValue(ThreatenedDreams.Mission05.CraftingStarted) >= 1 then
+			if os.time() >= player:getStorageValue(ThreatenedDreams.Mission05.CraftingTimer) then
+				npcHandler:say("You're returning just in time. Here, take the cloak I crafted for you. Thanks again for helping us, mortal being.", npc, creature)
+				player:addItem(25779, 1)
+				player:setStorageValue(ThreatenedDreams.Mission05.CraftingStarted, 2)
+			elseif player:getStorageValue(ThreatenedDreams.Mission05.CraftingStarted) == 1 then
+				npcHandler:say("I'm still working on your cloak, mortal being. Please return tomorrow.", npc, creature)
+			else
+				npcHandler:say("You already have your cloak, mortal being. Wear it with pride.", npc, creature)
+			end
+			return true
+		end
+		npcHandler:say("You did us a great favour, mortal being! Well, as I promised I will craft you a feathery cloak. Bring me one hundred swan feathers and I will make them into a beautiful robe. Do you have enough feathers yet?", npc, creature)
+		npcHandler:setTopic(playerId, 1)
+	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 1 then
+		if player:getItemCount(26181) >= 100 then
+			player:removeItem(26181, 100)
+			npcHandler:say("Very good. I will craft the cloak for you. This will take some time, so return tomorrow please.", npc, creature)
+			player:setStorageValue(ThreatenedDreams.Mission05.CraftingStarted, 1)
+			player:setStorageValue(ThreatenedDreams.Mission05.CraftingTimer, os.time() + 20 * 3600)
+		else
+			npcHandler:say("You don't have enough swan feathers yet. Come back once you've gathered one hundred.", npc, creature)
+		end
+		npcHandler:setTopic(playerId, 0)
+	elseif MsgContains(message, "no") then
+		npcHandler:say("Then not, mortal being.", npc, creature)
+		npcHandler:setTopic(playerId, 0)
+	end
+	return true
+end
+
+npcHandler:setMessage(MESSAGE_GREET, "Greetings, mortal being!")
 npcHandler:setMessage(MESSAGE_SENDTRADE, "Yes, i have some potions and runes if you are interested. Or do you want to buy only potions or only runes?oh if you want sell or buy gems, your may also ask me.")
 npcHandler:setMessage(MESSAGE_FAREWELL, "May enlightenment be your path, |PLAYERNAME|.")
+npcHandler:setCallback(CALLBACK_MESSAGE_DEFAULT, creatureSayCallback)
 npcHandler:addModule(FocusModule:new(), npcConfig.name, true, true, true)
 
 npcConfig.shop = {

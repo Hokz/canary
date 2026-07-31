@@ -56,7 +56,7 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
-	if MsgContains(message, "spell") then
+	if MsgContains(message, "spell") or MsgContains(message, "fishtail") then
 		if player:getStorageValue(ThreatenedDreams.Mission03[1]) == 1 and player:getStorageValue(ThreatenedDreams.Mission03.UnlikelyCouple) == 1 then
 			npcHandler:say({
 				"So, you are searching for a way to transform Aurita's fishtail into legs temporarily. As you might already have figured out you need some magic for this purpose. There is a place on Feyrist where you can find the arcane energies you need. ...",

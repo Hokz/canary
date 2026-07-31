@@ -121,6 +121,11 @@ local function creatureSayCallback(npc, creature, type, message)
 				"There is a fairy who once told me about this spell. Perhaps she will share her knowledge. You can find her in a small fairy village in the southwest of Feyrist.",
 			}, npc, creature)
 			npcHandler:setTopic(playerId, 0)
+		elseif player:getStorageValue(ThreatenedDreams.Mission03[1]) == 3 then
+			npcHandler:say({
+				"Have you found some raven herb?",
+			}, npc, creature)
+			npcHandler:setTopic(playerId, 2)
 		elseif player:getStorageValue(ThreatenedDreams.Mission03[1]) == 2 and player:getItemCount(25782) >= 1 then
 			npcHandler:say({
 				"We are so happy. Now Aurita can take a walk on the beach. But I still can't visit her secret underwater grotto. To achieve this, we need something else: a very rare plant called raven herb. ...",
