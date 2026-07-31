@@ -52,12 +52,14 @@ function bossTeleport.onStepIn(creature, item, position, fromPosition)
 		return true
 	end
 
-	if Game.getStorageValue(teleport.storage) ~= 1 then
-		player:teleportTo(teleport.destination)
-		teleport.destination:sendMagicEffect(CONST_ME_TELEPORT)
-	else
-		player:teleportTo(teleport.destination)
+	if Game.getStorageValue(teleport.storage) == 1 then
+		player:teleportTo(fromPosition, true)
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Someone is already fighting this manifestation. Wait until they are finished.")
+		return true
 	end
+
+	player:teleportTo(teleport.destination)
+	teleport.destination:sendMagicEffect(CONST_ME_TELEPORT)
 
 	return true
 end

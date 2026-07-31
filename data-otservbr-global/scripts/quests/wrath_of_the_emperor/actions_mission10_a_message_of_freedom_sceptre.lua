@@ -1,16 +1,16 @@
 local boss = {
-	[3193] = "fury of the emperor",
-	[3194] = "wrath of the emperor",
-	[3195] = "scorn of the emperor",
-	[3196] = "spite of the emperor",
+	[3193] = { name = "fury of the emperor", storage = Storage.Quest.U8_6.WrathOfTheEmperor.Bosses.Fury },
+	[3194] = { name = "wrath of the emperor", storage = Storage.Quest.U8_6.WrathOfTheEmperor.Bosses.Wrath },
+	[3195] = { name = "scorn of the emperor", storage = Storage.Quest.U8_6.WrathOfTheEmperor.Bosses.Scorn },
+	[3196] = { name = "spite of the emperor", storage = Storage.Quest.U8_6.WrathOfTheEmperor.Bosses.Spite },
 }
 
 local wrathEmperorMiss10Message = Action()
 function wrathEmperorMiss10Message.onUse(player, item, fromPosition, target, toPosition, isHotkey)
 	if boss[target.uid] and target.itemid == 11427 then
 		target:transform(10797)
-		Game.createMonster(boss[target.uid], { x = toPosition.x + 4, y = toPosition.y, z = toPosition.z })
-		Game.setStorageValue(target.uid - 4, 1)
+		Game.createMonster(boss[target.uid].name, { x = toPosition.x + 4, y = toPosition.y, z = toPosition.z })
+		Game.setStorageValue(boss[target.uid].storage, 1)
 	elseif target.itemid == 11361 then
 		if toPosition.x > 33034 and toPosition.x < 33071 and toPosition.y > 31079 and toPosition.y < 31102 then
 			if player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.BossStatus) == 1 then
@@ -41,6 +41,7 @@ function wrathEmperorMiss10Message.onUse(player, item, fromPosition, target, toP
 		if player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 31 then
 			player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline, 32)
 			player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission11, 2) --Questlog, Wrath of the Emperor "Mission 11: Payback Time"
+			player:addAchievement("Godslayer")
 		end
 		player:say("NOOOoooooooo...!", TALKTYPE_MONSTER_SAY, false, player, toPosition)
 		player:say("This should have dealt the deathblow to the snake things' ambitions.", TALKTYPE_MONSTER_SAY)

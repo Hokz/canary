@@ -68,7 +68,7 @@ local function creatureSayCallback(npc, creature, type, message)
 				npcHandler:say("A what? I don't even know what you're talking about, human. If you aren't just giving up - will you kindly change the topic please?", npc, creature)
 				npcHandler:setTopic(playerId, 4)
 			elseif npcHandler:getTopic(playerId) == 6 then
-				npcHandler:say("Haha, no! No. Why don't you just stop asking me that and start enjoying your stay here?", npc, creature)
+				npcHandler:say("I'm not sure, there is an entry, though. Muhahaha. And isn't that enough after all?", npc, creature)
 				npcHandler:setTopic(playerId, 7)
 			elseif npcHandler:getTopic(playerId) == 10 then
 				npcHandler:say("Oh, you mean - if I have ever been out of here in those 278 years? Well, I - I can't remember. No, I can't remember. Sorry.", npc, creature)

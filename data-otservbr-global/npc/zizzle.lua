@@ -66,6 +66,7 @@ local function creatureSayCallback(npc, creature, type, message)
 		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 26 then
 			npcHandler:say({
 				"Ze dragon emperor controlz ze whole empire wiz hiz willpower. But even he iz not powerful enough to uze ziz control continuouzly wizout zome form of aid. ... ",
+				"From what I learnt from my informantz, ze emperor uzez zome kind of magic cryztalz zat amplify hiz powerz and tranzmit hiz will into ze land. ...",
 				"Wiz ze ancient zeptre zat you acquired for uz earlier, I can charge ozer zeptrez wiz azpectz of power of ze Great Znake. If you manage to touch one of ze tranzmitter cryztalz wiz ze zeptre, itz godly power will realign ze cryztal. ...",
 				"Not only will ze cryztal ztop zending ze orderz of ze emperor into ze mindz of my opprezzed people, it will alzo zend a mezzage of freedom and zelf-rezpect inztead. ...",
 				"Dizabling ze cryztalz will probably alert ze emperor. It will likely be too late for him to intervene in perzon but a creature of hiz power might have ozer wayz to intervene. ...",
@@ -77,7 +78,7 @@ local function creatureSayCallback(npc, creature, type, message)
 		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 29 then
 			if player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) < 30 then
 				npcHandler:say({
-					"You freed ze dragon! And you pozzezz ze key to enter ze inner realmz of ze emperor, well done. ...",
+					"You freed ze dragon! And you pozzezz ze key to enter ze inner zanctum of ze emperor, well done. ...",
 					"Now you are ready to reach ze inner zanctum of ze emperor. Zalamon'z revelationz showed him zat zere are four cryztalz channelling ze will of ze emperor into ze land. ...",
 					"Wiz ze relic you gained from Zalamon we were able to create powerful replicaz of ze zeptre. Take ziz wiz you. ...",
 					"You will have to realign ze cryztalz one after ze ozer. Ztart wiz ze one in ze norz-wezt and work your way clockwize zrough ze room. ...",
