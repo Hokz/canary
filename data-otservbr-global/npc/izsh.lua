@@ -80,7 +80,7 @@ local function creatureSayCallback(npc, creature, type, message)
 	return true
 end
 
-npcHandler:setMessage(MESSAGE_GREET, "Greetingz zcalelezz being.")
+npcHandler:setMessage(MESSAGE_GREET, "Greetingz zcalelezz being. I guezz you are on a mizzion.")
 
 npcHandler:setCallback(CALLBACK_MESSAGE_DEFAULT, creatureSayCallback)
 npcHandler:addModule(FocusModule:new(), npcConfig.name, true, true, true)

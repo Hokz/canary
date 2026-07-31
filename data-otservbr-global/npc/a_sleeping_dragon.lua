@@ -159,6 +159,11 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 23)
 		elseif message:lower() == "west" and npcHandler:getTopic(playerId) == 23 then
 			npcHandler:say("You leave the massive open gate behind you and go to the west. ", npc, creature)
+			npcHandler:setTopic(playerId, 33)
+		elseif message:lower() == "bastesh" and npcHandler:getTopic(playerId) == 33 then
+			-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE: owner reference confirms "Bastesh" is a required
+			-- word at this point in the sequence but does not supply exact response text.
+			npcHandler:say("You speak the name Bastesh into the stillness. For a moment the air itself seems to listen, and something ancient stirs, granting you leave to approach.", npc, creature)
 			npcHandler:setTopic(playerId, 24)
 		elseif message:lower() == "take sapphire" and npcHandler:getTopic(playerId) == 24 then
 			npcHandler:say("You carefully remove the sapphire from Bastesh's grasp.", npc, creature)
