@@ -3,6 +3,9 @@ local monster = {}
 
 monster.description = "The Remorseless Corruptor"
 monster.experience = 0
+monster.events = {
+	"RemorselessCorruptorHealth",
+}
 monster.outfit = {
 	lookType = 875,
 	lookHead = 77,

@@ -150,6 +150,10 @@ function cultsOfTibiaLevers.onUse(player, item, fromPosition, itemEx, toPosition
 
 	if item:getActionId() == 5501 and item:getId() == 8912 then
 		if player:getPosition() == Position(33138, 31953, 15) then
+			if not player:canFightBoss("Ravenous Hunger") then
+				player:sendCancelMessage("You have to wait to fight Ravenous Hunger again.")
+				return true
+			end
 			local teleport = 0
 			local playersInArea = {}
 			local frompos = Position(33151, 31942, 15)
@@ -197,6 +201,10 @@ function cultsOfTibiaLevers.onUse(player, item, fromPosition, itemEx, toPosition
 
 	if item:getActionId() == 5502 and item:getId() == 8912 then
 		if player:getPosition() == Position(33162, 31893, 15) then
+			if not player:canFightBoss("The False God") then
+				player:sendCancelMessage("You have to wait to fight The False God again.")
+				return true
+			end
 			local teleport = 0
 			local playersInArea = {}
 			local frompos = Position(33152, 31908, 15)
@@ -244,6 +252,10 @@ function cultsOfTibiaLevers.onUse(player, item, fromPosition, itemEx, toPosition
 
 	if item:getActionId() == 5500 then
 		if player:getPosition() == Position(33095, 31943, 15) and item:getId() == 8912 then
+			if not player:canFightBoss("Essence of Malice") then
+				player:sendCancelMessage("You have to wait to fight Essence of Malice again.")
+				return true
+			end
 			local teleport = 0
 			local playersInArea = {}
 			local frompos = Position(33084, 31907, 15)
@@ -297,6 +309,10 @@ function cultsOfTibiaLevers.onUse(player, item, fromPosition, itemEx, toPosition
 
 	if item:getActionId() == 5503 then
 		if player:getPosition() == Position(33127, 31892, 15) and item:getId() == 8912 then
+			if not player:canFightBoss("The Souldespoiler") then
+				player:sendCancelMessage("You have to wait to fight The Souldespoiler again.")
+				return true
+			end
 			local teleport = 0
 			local playersInArea = {}
 			local frompos = Position(33119, 31913, 15)
@@ -342,6 +358,10 @@ function cultsOfTibiaLevers.onUse(player, item, fromPosition, itemEx, toPosition
 
 	if item:getActionId() == 5504 then
 		if player:getPosition() == Position(33164, 31859, 15) and item:getId() == 8912 then
+			if not player:canFightBoss("The Armored Voidborn") then
+				player:sendCancelMessage("You have to wait to fight The Armored Voidborn again.")
+				return true
+			end
 			local teleport = 0
 			local playersInArea = {}
 			local frompos = Position(33123, 31846, 15)
@@ -429,6 +449,10 @@ function cultsOfTibiaLevers.onUse(player, item, fromPosition, itemEx, toPosition
 
 	if item:getActionId() == 5505 then
 		if player:getPosition() == Position(33507, 32228, 10) and item:getId() == 8912 then
+			if not player:canFightBoss("The Sandking") then
+				player:sendCancelMessage("You have to wait to fight The Sandking again.")
+				return true
+			end
 			local teleport = 0
 			local teleport = 0
 			local playersInArea = {}
@@ -485,6 +509,22 @@ function cultsOfTibiaLevers.onUse(player, item, fromPosition, itemEx, toPosition
 
 	if item:getActionId() == 5506 then
 		if player:getPosition() == Position(33074, 31884, 15) and item:getId() == 8912 then
+			if
+				player:getStorageValue(Storage.Quest.U11_40.CultsOfTibia.Minotaurs.Mission) ~= 6
+				or player:getStorageValue(Storage.Quest.U11_40.CultsOfTibia.Life.Mission) ~= 10
+				or player:getStorageValue(Storage.Quest.U11_40.CultsOfTibia.MotA.Mission) ~= 15
+				or player:getStorageValue(Storage.Quest.U11_40.CultsOfTibia.Barkless.Mission) ~= 7
+				or player:getStorageValue(Storage.Quest.U11_40.CultsOfTibia.Misguided.Mission) ~= 5
+				or player:getStorageValue(Storage.Quest.U11_40.CultsOfTibia.Orcs.Mission) ~= 3
+				or player:getStorageValue(Storage.Quest.U11_40.CultsOfTibia.Humans.Mission) ~= 3
+			then
+				player:sendCancelMessage("You must defeat and report every cult to Gerimor before you may face the source of their corruption.")
+				return true
+			end
+			if not player:canFightBoss("The Source Of Corruption") then
+				player:sendCancelMessage("You have to wait to fight The Source of Corruption again.")
+				return true
+			end
 			local teleport = 0
 			local playersInArea = {}
 			local frompos = Position(33023, 31904, 14)

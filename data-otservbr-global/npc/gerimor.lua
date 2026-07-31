@@ -310,7 +310,7 @@ local config = {
 			},
 			completeText = {
 				"Thanks a lot. You have revealed the mystery of this cult and killed the sandking. ...",
-				"The signature AM you have seen, could stand for 'Aeterna Exsistentia' regarding the eternal life. As a reward I give this to you.",
+				"The signature AM you have seen, could stand for 'Aeterna Existentia' regarding the eternal life. As a reward I give this to you.",
 			},
 			storage = Storage.Quest.U11_40.CultsOfTibia.Life.Mission,
 			value = 9,
@@ -386,6 +386,9 @@ local function creatureSayCallback(npc, creature, type, message)
 				"You have undoubtedly bought your world some valuable time and weakened the enemy. Take my thanks in behalf of the world and keep up your heroic work. For your reward you must have two free slots. Are you ready to receive it?",
 			}, npc, creature)
 			npcHandler:setTopic(playerId, 4)
+		else
+			npcHandler:say("In which of the following topics are you interested in? Cult of Life, Cult of Prosperity, Cult of the Minotaurs, Cult of the Barkless, Cult of the Misguided, Cult of the Orcs, Cult of the Humans?", npc, creature)
+			npcHandler:setTopic(playerId, 2)
 		end
 	elseif npcHandler:getTopic(playerId) == 2 then
 		local missionsTable = config.missions[message:lower()]

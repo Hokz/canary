@@ -70,7 +70,7 @@ local function greetCallback(npc, creature)
 		npcHandler:setTopic(playerId, 0)
 	elseif player:getStorageValue(Storage.Quest.U11_40.CultsOfTibia.Minotaurs.Mission) == 4 then
 		npcHandler:setMessage(MESSAGE_GREET, {
-			"You say the minotaurs were controlled by a very powerful boss they worshipped. This explains why they had so much more power than the normal ones. ...",
+			"You say the minotaurs were controlled by a very powerful boss they worshipped. This explains why they had so much more power than the normal ones.",
 			"I'm very thankful. Please go to the Druid of Crunor and tell him what you've seen. He might be interested in that.",
 		})
 		player:setStorageValue(Storage.Quest.U11_40.CultsOfTibia.Minotaurs.Mission, 5)

@@ -3,6 +3,9 @@ local monster = {}
 
 monster.description = "a dark soul"
 monster.experience = 0
+monster.events = {
+	"DarkSoulDeath",
+}
 monster.outfit = {
 	lookType = 714,
 	lookHead = 0,

@@ -5,7 +5,10 @@ local bosses = {
 	["the unarmored voidborn"] = { storage = Storage.Quest.U11_40.CultsOfTibia.Orcs.Mission, value = 2 },
 	["the false god"] = { storage = Storage.Quest.U11_40.CultsOfTibia.Minotaurs.Mission, value = 4 },
 	["the sandking"] = { storage = Storage.Quest.U11_40.CultsOfTibia.Life.Mission, value = 8, global = "sandking", g_value = 5 },
-	["the corruptor of souls"] = { createNew = "The Source Of Corruption", pos = Position(33039, 31922, 15), removeMonster = "zarcorix of yalahar", area1 = Position(33073, 31885, 15), area2 = Position(33075, 31887, 15) },
+	-- area1/area2 must cover the arena where Zarcorix actually spawns (33039, 31921, 15, per
+	-- actions_bosses_levers.lua's aid 5506 branch) - the previous values were the lever-tile
+	-- coordinates, a disjoint area, so the removal search could never find it.
+	["the corruptor of souls"] = { createNew = "The Source Of Corruption", pos = Position(33039, 31922, 15), removeMonster = "zarcorix of yalahar", area1 = Position(33023, 31904, 14), area2 = Position(33052, 31932, 15) },
 	["the source of corruption"] = { storage = Storage.Quest.U11_40.CultsOfTibia.FinalBoss.Mission, value = 2 },
 }
 
@@ -27,7 +30,7 @@ function bossesCults.onDeath(creature)
 	if boss.createNew then
 		Game.setStorageValue("CheckTile", -1)
 		Game.createMonster(boss.createNew, boss.pos)
-		if removeMonster then
+		if boss.removeMonster then
 			for _x = boss.area1.x, boss.area2.x, 1 do
 				for _y = boss.area1.y, boss.area2.y, 1 do
 					for _z = boss.area1.z, boss.area2.z, 1 do
