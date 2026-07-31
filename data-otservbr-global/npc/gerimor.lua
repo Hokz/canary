@@ -424,6 +424,11 @@ local function creatureSayCallback(npc, creature, type, message)
 				npcHandler:setTopic(playerId, 2)
 			end
 		elseif npcHandler:getTopic(playerId) == 4 then
+			if player:getFreeBackpackSlots() < 2 then
+				npcHandler:say("You need at least two free slots to receive your reward. Come back when you have made room.", npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
 			local vocationRewards = {
 				[VOCATION.BASE_ID.SORCERER] = { itemId = 26190, itemName = "reflecting crown" },
 				[VOCATION.BASE_ID.DRUID] = { itemId = 26187, itemName = "leaf crown" },
