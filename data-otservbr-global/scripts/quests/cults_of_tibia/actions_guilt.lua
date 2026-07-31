@@ -20,7 +20,7 @@ function remorselessCorruptorGuilt.onUse(player, item, fromPosition, target, toP
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have raised the guilt of the corruptor.")
 
 	if name == "the remorseless corruptor" then
-		local count = Game.getStorageValue("CultsOfTibiaGuilt") + 1
+		local count = math.max(Game.getStorageValue("CultsOfTibiaGuilt"), 0) + 1
 		Game.setStorageValue("CultsOfTibiaGuilt", count)
 		if count >= guiltThreshold then
 			local pos = target:getPosition()
