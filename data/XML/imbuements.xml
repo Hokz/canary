@@ -485,7 +485,7 @@
 		<attribute key="item" value="11489" count="20" />
 		<attribute key="scroll" value="51736" />
 	</imbuement>
-	<imbuement name="Punch" base="3" category="18" iconid="61" premium="1" storage="50492">
+	<imbuement name="Punch" base="3" category="18" iconid="61" premium="1" storage="50490">
 		<attribute key="description" value="Raises fist fighting skill by 4." />
 		<attribute key="effect" type="skill" value="fist" bonus="4" />
 		<attribute key="item" value="10281" count="25" />
