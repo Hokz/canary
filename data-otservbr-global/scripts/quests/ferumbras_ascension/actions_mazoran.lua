@@ -5,6 +5,7 @@ local config = {
 	},
 
 	timeToDefeat = 30 * 60,
+	timeToFightAgain = 44 * 60 * 60,
 	playerPositions = {
 		{ pos = Position(33593, 32644, 14), teleport = Position(33585, 32693, 14), effect = CONST_ME_TELEPORT },
 		{ pos = Position(33593, 32645, 14), teleport = Position(33585, 32693, 14), effect = CONST_ME_TELEPORT },

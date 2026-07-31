@@ -51,6 +51,7 @@ local questModules = {
 	"050_the_dream_courts",
 	"051_the_way_of_the_monk",
 	"052_heart_of_destruction",
+	"053_ferumbras_ascension",
 }
 
 local catalog = dofile(CORE_DIRECTORY .. "/lib/core/quests/catalog.lua")

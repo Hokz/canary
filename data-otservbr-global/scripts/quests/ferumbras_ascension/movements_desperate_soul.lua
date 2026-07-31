@@ -14,6 +14,9 @@ function desperateSoul.onStepIn(creature, item, position, fromPosition)
 		addEvent(function()
 			player:setStorageValue(Storage.Quest.U10_90.FerumbrasAscension.FerumbrasEssence, 0)
 		end, 2 * 60 * 1000)
+		-- Permanent flag (unlike the temporary FerumbrasEssence one above) marking that this player
+		-- has returned the Desperate Soul to Tevon - read by tevon.lua's dialogue.
+		player:setStorageValue(Storage.Quest.U10_90.FerumbrasAscension.DesperateSoul, 1)
 	end
 
 	return true
