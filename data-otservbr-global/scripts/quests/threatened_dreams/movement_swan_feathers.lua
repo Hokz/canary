@@ -2,7 +2,7 @@ local ThreatenedDreams = Storage.Quest.U11_40.ThreatenedDreams
 
 local config = {
 	[25024] = {
-		message = "You found some more feathers on the grass near the wheat. Now you should have enough for an entire cloak.", -- Edron
+		message = "You found some beautiful swan feathers on the grass near the wheat.", -- Edron
 		storage = ThreatenedDreams.Mission01.Feathers1,
 	},
 	[25025] = {
@@ -18,7 +18,7 @@ local config = {
 		storage = ThreatenedDreams.Mission01.Feathers4,
 	},
 	[25028] = {
-		message = "You found some more feaathers under the dead tree. Now you should have enough for an entire cloak.", -- Darashia Nort + Far of City
+		message = "You found some beautiful swan feathers under the dead tree.", -- Darashia Nort + Far of City
 		storage = ThreatenedDreams.Mission01.Feathers5,
 	},
 }

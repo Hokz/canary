@@ -1,9 +1,10 @@
 -- Fairy Treasure / Tooth Fairy mission - the 3 children's bedrooms (Thais/Venore/Carlin).
--- Map Setup Contract: aid 45700-45702 must be placed on the "chest of drawers" furniture item
+-- Map Setup Contract: aid 45706-45708 must be placed on the "chest of drawers" furniture item
 -- next to each child's bed; aid 45703-45705 must be placed on the head part of each child's bed.
+-- (45700-45702 intentionally avoided - already reserved by bigfoot_burden's warzone MoveEvent.)
 local ThreatenedDreams = Storage.Quest.U11_40.ThreatenedDreams
 
-local drawerAids = { [45700] = true, [45701] = true, [45702] = true }
+local drawerAids = { [45706] = true, [45707] = true, [45708] = true }
 
 local beds = {
 	[45703] = ThreatenedDreams.Mission04.BedThais,
@@ -25,7 +26,7 @@ function drawerAction.onUse(player, item, fromPosition, target, toPosition, isHo
 	return true
 end
 
-drawerAction:aid(45700, 45701, 45702)
+drawerAction:aid(45706, 45707, 45708)
 drawerAction:register()
 
 -- Sweet Dreams / Family Feud reuses the same 3 beds for the Tooth Fairy's toothbrush delivery -
