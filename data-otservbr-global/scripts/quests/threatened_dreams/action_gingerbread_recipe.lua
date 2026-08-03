@@ -4,7 +4,8 @@
 -- are tracked as simple "prepared" flags rather than a strict step counter, so the oven checks
 -- that all 3 have been prepared rather than enforcing the exact application order.
 -- Map Setup Contract: aid 45732 = kitchen basin (Flour -> Lump of Cake Dough); aid 45733 = oven
--- in Feyrist (final baking step). Sugar (item 12275) is not gated behind the reference's "three
+-- in Feyrist (final baking step); aid 45734 = the moon melon vine, Feyrist, night-only (see
+-- moonMelonAction below). Sugar (item 12275) is not gated behind the reference's "three
 -- underground caves" gathering points in this pass - it is assumed obtainable through normal
 -- trade, a documented simplification given this quest's exhausted storage budget.
 local ThreatenedDreams = Storage.Quest.U11_40.ThreatenedDreams
@@ -53,10 +54,12 @@ end
 doughAction:id(6276)
 doughAction:register()
 
+-- Raspberry and lemon syrups: real physical fruit items exist (8012/8013), mixed with sugar and
+-- fully consumed into a storage-backed "prepared" flag (no physical "flask of syrup" item exists
+-- either) - GLOBAL_ITEM_PENDING_XML_VALIDATION / ACCEPTABLE_STORAGE_BACKED_FALLBACK.
 local syrups = {
 	[8012] = { storage = ThreatenedDreams.Mission06.SyrupRaspberry, name = "raspberry" },
 	[8013] = { storage = ThreatenedDreams.Mission06.SyrupLemon, name = "lemon" },
-	[3593] = { storage = ThreatenedDreams.Mission06.SyrupMoonMelon, name = "moon melon" },
 }
 
 local syrupAction = Action()
@@ -79,42 +82,57 @@ function syrupAction.onUse(player, item, fromPosition, target, toPosition, isHot
 	return true
 end
 
-syrupAction:id(8012, 8013, 3593)
+syrupAction:id(8012, 8013)
 syrupAction:register()
+
+-- Moon melon: no "moon melon" item exists anywhere in items.xml, and the nearest hit (item 3593,
+-- generic "melon") is not the intended asset, so it is not reused as a stand-in -
+-- GLOBAL_ITEM_PENDING_XML_VALIDATION / ACCEPTABLE_STORAGE_BACKED_FALLBACK. Tracked instead through
+-- a night-only Feyrist interaction (matching the reference's moonlit-harvest flavor) that consumes
+-- the player's sugar directly and sets the syrup flag in one step.
+local moonMelonAction = Action()
+function moonMelonAction.onUse(player, item, fromPosition, target, toPosition, isHotkey)
+	if player:getStorageValue(ThreatenedDreams.Mission06.SyrupMoonMelon) >= 1 then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already gathered enough moon melon nectar.")
+		return true
+	end
+	if getWorldLight().level > 40 then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The moon melon vines only open their blossoms at night.")
+		return true
+	end
+	if player:getItemCount(12275) < 1 then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need some sugar to mix with the nectar.")
+		return true
+	end
+	player:removeItem(12275, 1)
+	player:setStorageValue(ThreatenedDreams.Mission06.SyrupMoonMelon, 1)
+	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Under the moonlight, you gather sweet nectar from the moon melon vines and mix it with your sugar into a syrup.")
+	toPosition:sendMagicEffect(CONST_ME_SIRUP)
+	return true
+end
+
+moonMelonAction:aid(45734)
+moonMelonAction:register()
 
 local ovenAction = Action()
 function ovenAction.onUse(player, item, fromPosition, target, toPosition, isHotkey)
+	if item:getId() ~= 8018 then
+		return false
+	end
 	if player:getStorageValue(ThreatenedDreams.Mission06.GingerbreadKeyBaked) >= 1 then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already baked your gingerbread key.")
 		return true
 	end
-	if player:getStorageValue(ThreatenedDreams.Mission06.ChocolateDough) < 1 then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need a lump of chocolate dough first.")
+	if player:getStorageValue(ThreatenedDreams.Mission06.SyrupMoonMelon) < 1 or player:getStorageValue(ThreatenedDreams.Mission06.SyrupRaspberry) < 1 or player:getStorageValue(ThreatenedDreams.Mission06.SyrupLemon) < 1 then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You place the dough in the oven, but it feels like something is still missing from the recipe.")
 		return true
 	end
-	if item:getId() == 8018 then
-		item:remove(1)
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The key-shaped dough appears atop the oven, baking slowly.")
-		toPosition:sendMagicEffect(CONST_ME_FIREATTACK)
-		return true
-	end
-	local syrup = syrups[item:getId()]
-	if not syrup then
-		return false
-	end
-	if player:getStorageValue(syrup.storage) < 1 then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You haven't prepared this syrup yet.")
-		return true
-	end
-	if player:getStorageValue(ThreatenedDreams.Mission06.SyrupMoonMelon) >= 1 and player:getStorageValue(ThreatenedDreams.Mission06.SyrupRaspberry) >= 1 and player:getStorageValue(ThreatenedDreams.Mission06.SyrupLemon) >= 1 then
-		player:setStorageValue(ThreatenedDreams.Mission06.GingerbreadKeyBaked, 1)
-		player:setStorageValue(ThreatenedDreams.Mission06.CandiaAccess, 1)
-		player:setStorageValue(ThreatenedDreams.Mission06[1], 7)
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You glaze the key with the last syrup. The gingerbread key is finished - you sense a way to Candia has opened.")
-		toPosition:sendMagicEffect(CONST_ME_MAGIC_GREEN)
-	else
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You glaze the key with " .. syrup.name .. " syrup. Something still feels unfinished.")
-	end
+	item:remove(1)
+	player:setStorageValue(ThreatenedDreams.Mission06.GingerbreadKeyBaked, 1)
+	player:setStorageValue(ThreatenedDreams.Mission06.CandiaAccess, 1)
+	player:setStorageValue(ThreatenedDreams.Mission06[1], 7)
+	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You bake and glaze the key with your three syrups. The gingerbread key is finished - you sense a way to Candia has opened.")
+	toPosition:sendMagicEffect(CONST_ME_MAGIC_GREEN)
 	return true
 end
 

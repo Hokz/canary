@@ -81,7 +81,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("I'm afraid I can't help you with that yet, mortal being.", npc, creature)
 			return true
 		end
-		if getWorldLight().level > 40 then
+		if getWorldLight().level <= 40 then
 			npcHandler:say("Come back during the day, mortal being. I only work my craft in daylight.", npc, creature)
 			return true
 		end

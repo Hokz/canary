@@ -108,17 +108,17 @@ local function creatureSayCallback(npc, creature, type, message)
 		end
 	elseif MsgContains(message, "feud") or (MsgContains(message, "mission") and player:getStorageValue(ThreatenedDreams.Mission06[1]) >= 17) then
 		local m6 = player:getStorageValue(ThreatenedDreams.Mission06[1])
-		local toothbrushCount = math.max(player:getStorageValue(ThreatenedDreams.Mission06.ToothbrushCount), 0)
+		local toothbrushDelivered = math.max(player:getStorageValue(ThreatenedDreams.Mission06.ToothbrushDelivered), 0)
 		-- Completion/already-completed must be checked before the m6==17 briefing, otherwise
 		-- m6 staying at 17 during delivery makes the reward branch unreachable dead code.
 		if m6 == 18 then
 			npcHandler:say("You already brought me such good news about the toothbrushes. Thank you.", npc, creature)
-		elseif m6 == 17 and toothbrushCount >= 3 then
+		elseif m6 == 17 and toothbrushDelivered == 7 then
 			npcHandler:say("You delivered all three toothbrushes! Perhaps my sister means well after all. Here, take this - and thank you for your help.", npc, creature)
 			player:addItem(48424, 1)
 			player:setStorageValue(ThreatenedDreams.Mission06.PegasusFeather, 1)
 			player:setStorageValue(ThreatenedDreams.Mission06[1], 18)
-		elseif m6 == 17 and toothbrushCount == 0 then
+		elseif m6 == 17 and toothbrushDelivered == 0 then
 			npcHandler:say({
 				"Oh, Dulcineo sent you? That Candy Carnival is going to rot every child's teeth in Tibia, I just know it! Someone has to think of the children. ...",
 				"Would you bring toothbrushes to three children for me - Rowenna's child in Carlin, Quero's child in Thais, and Allen's child in Venore - and leave one on each of their pillows?",

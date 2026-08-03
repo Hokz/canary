@@ -31,7 +31,7 @@ function feathersSpot.onStepIn(creature, item, position, fromPosition)
 		return true
 	end
 
-	if getWorldLight().level > 40 then
+	if getWorldLight().level <= 40 then
 		return true
 	end
 

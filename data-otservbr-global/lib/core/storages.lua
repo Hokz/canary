@@ -2459,7 +2459,7 @@ Storage = {
 					CandyCaneCount = 45835,
 					HoneyElementalCount = 45836,
 					CandyCarnivalOpen = 45837,
-					ToothbrushCount = 45838,
+					ToothbrushDelivered = 45838, -- bitmask: 1=Thais, 2=Venore, 4=Carlin
 					PegasusFeather = 45839,
 					CherryFound = 45840,
 					TaffyBunnyReported = 45841,
