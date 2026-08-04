@@ -2862,6 +2862,23 @@ Storage = {
 				},
 				NightmareCurse = 46367,
 				Malofur = 46368,
+				-- Unsafe Release: the "use charged compass on the magical portal -> claim reward
+				-- chest -> talk to Andrew Lyze -> 50k experience" step and the whole repeatable
+				-- blue/green/violet compass recharge shop were entirely missing from the pre-existing
+				-- implementation (confirmed via repo-wide search: item 29294, the charged compass,
+				-- was referenced only by the ward-stone action, nowhere else). ExpGranted guards the
+				-- one-time 50k XP; RechargeColor is forward-looking state (1=blue/2=green/3=violet)
+				-- for whichever reward-chest action gets wired up once the portal's position is
+				-- known - see the Map Setup Contract in the PR body.
+				UnsafeReleaseExpGranted = 46369,
+				UnsafeReleaseRechargeColor = 46370,
+				-- Champion of Summer/Winter: neither achievement was granted anywhere, and the arena
+				-- NPCs' side-switch dialogue was permanently gated behind "Permission < 1" (true only
+				-- before the player's first-ever pick), contradicting the reference's explicit "after
+				-- earning one achievement you can switch sides" - both fixed using this new state.
+				DreamScarCurrentFaction = 46372, -- 1 = Summer, 2 = Winter
+				DreamScarSummerKills = 46373,
+				DreamScarWinterKills = 46374,
 			},
 		},
 		U12_02 = { -- update 12.02 - Reserved Storages 46601 - 46800

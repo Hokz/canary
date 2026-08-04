@@ -105,6 +105,15 @@ local function greetCallback(npc, creature)
 		npcHandler:setMessage(MESSAGE_GREET, "Well, let's see if your mission was successful. Just bring me all needed {materials}.")
 	elseif player:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.UnsafeRelease.Questline) == 2 then
 		npcHandler:setMessage(MESSAGE_GREET, "If you dug up all three crystals of sufficient quantity and obtained the poison gland, the charging of your compass can start! For the very first time it will be charged by the violet crystal. Ready to {unleash} the power of the crystals?")
+	elseif player:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.UnsafeRelease.Questline) == 3 and player:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.UnsafeReleaseExpGranted) < 1 then
+		-- CONFIRMED GAP (pre-existing): everything past the initial charge (this greeting, the
+		-- recharge shop, and the 50k experience reward explicitly listed as a top-level quest reward)
+		-- was entirely missing - the NPC file ended at "unleash" with no further dialogue at all.
+		player:addExperience(50000, true)
+		player:setStorageValue(Storage.Quest.U12_00.TheDreamCourts.UnsafeReleaseExpGranted, 1)
+		npcHandler:setMessage(MESSAGE_GREET, "Thank you very much for your help to repair the compass. Whenever you need help to charge the compass again, just ask me!")
+	elseif player:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.UnsafeRelease.Questline) == 3 then
+		npcHandler:setMessage(MESSAGE_GREET, "You are already equipped with a fantastic compass. Would you like to {charge} it again or repair another one for a little fee? To charge a compass you only need one of the respective crystals.")
 	else
 		npcHandler:setMessage(MESSAGE_GREET, "Greetings.")
 	end
@@ -244,6 +253,38 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("You cannot do that yet.", npc, creature)
 			npcHandler:setTopic(playerId, 0)
 		end
+	elseif MsgContains(message, "charge") and player:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.UnsafeReleaseExpGranted) >= 1 then
+		npcHandler:say("Would you like to use a blue (20000 gold), green (50000 gold) or violet crystal (100000 gold)? I will charge the compass instantly if it is possible.", npc, creature)
+		npcHandler:setTopic(playerId, 60)
+	elseif npcHandler:getTopic(playerId) == 60 and (MsgContains(message, "blue") or MsgContains(message, "green") or MsgContains(message, "violet")) then
+		local tiers = {
+			blue = { crystal = 29287, cost = 20000, color = 1 },
+			green = { crystal = 29288, cost = 50000, color = 2 },
+			violet = { crystal = 29289, cost = 100000, color = 3 },
+		}
+		local tierName
+		for name in pairs(tiers) do
+			if MsgContains(message, name) then
+				tierName = name
+				break
+			end
+		end
+		local tier = tiers[tierName]
+		if player:getItemCount(chargeableCompass) < 1 then
+			npcHandler:say("You need your uncharged compass first.", npc, creature)
+		elseif player:getItemCount(tier.crystal) < 1 then
+			npcHandler:say(("You don't have a %s crystal."):format(tierName), npc, creature)
+		elseif (player:getMoney() + player:getBankBalance()) < tier.cost then
+			npcHandler:say("You don't have enough money.", npc, creature)
+		else
+			player:removeItem(chargeableCompass, 1)
+			player:removeItem(tier.crystal, 1)
+			player:removeMoney(tier.cost)
+			player:addItem(chargedCompass, 1)
+			player:setStorageValue(Storage.Quest.U12_00.TheDreamCourts.UnsafeReleaseRechargeColor, tier.color)
+			npcHandler:say(("Thank you, here is your compass charged with the %s crystal."):format(tierName), npc, creature)
+		end
+		npcHandler:setTopic(playerId, 0)
 	elseif MsgContains(message, "compass") then
 		npcHandler:say("It was decided to collect all of the compasses, destroy them and throw them in the fiery depths of Tibia. I still have some of them here. I {sell} them for a low price if you want.", npc, creature)
 		npcHandler:setTopic(playerId, 50)
