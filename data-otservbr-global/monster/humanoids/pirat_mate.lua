@@ -26,6 +26,10 @@ monster.Bestiary = {
 	Locations = "The Wreckoning",
 }
 
+monster.events = {
+	"APiratesTailRaidKill",
+}
+
 monster.health = 3200
 monster.maxHealth = 3200
 monster.race = "blood"

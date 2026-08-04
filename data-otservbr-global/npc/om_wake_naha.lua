@@ -1,4 +1,4 @@
-local internalNpcName = "Larry"
+local internalNpcName = "Om'Wake Naha"
 local npcType = Game.createNpcType(internalNpcName)
 local npcConfig = {}
 
@@ -10,33 +10,22 @@ npcConfig.maxHealth = npcConfig.health
 npcConfig.walkInterval = 2000
 npcConfig.walkRadius = 2
 
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE: outfit not specified in the reference, built to
+-- match the established Rascoohan-race look (lookType 1371/1372, see gnomfurry.lua).
 npcConfig.outfit = {
-	lookTypeEx = 24432,
+	lookType = 1372,
+	lookHead = 10,
+	lookBody = 30,
+	lookLegs = 50,
+	lookFeet = 70,
+	lookAddons = 3,
 }
 
 npcConfig.flags = {
 	floorchange = false,
-	profession = "trader",
+	profession = "normal",
 }
-npcConfig.speechBubble = SPEECHBUBBLE_TRADE
-
-npcConfig.voices = {
-	interval = 15000,
-	chance = 50,
-}
-
-npcConfig.shop = {}
-
--- On buy npc shop message
-npcType.onBuyItem = function(npc, player, itemId, subType, amount, ignore, inBackpacks, totalCost)
-	npc:sellItem(player, itemId, amount, subType, 0, ignore, inBackpacks)
-end
--- On sell npc shop message
-npcType.onSellItem = function(npc, player, itemId, subtype, amount, ignore, name, totalCost)
-	player:sendTextMessage(MESSAGE_TRADE, string.format("Sold %ix %s for %i gold.", amount, name, totalCost))
-end
--- On check npc shop message (look item)
-npcType.onCheckItem = function(npc, player, clientId, subType) end
+npcConfig.speechBubble = SPEECHBUBBLE_NORMAL
 
 local keywordHandler = KeywordHandler:new()
 local npcHandler = NpcHandler:new(keywordHandler)
@@ -65,7 +54,6 @@ npcType.onCloseChannel = function(npc, creature)
 	npcHandler:onCloseChannel(npc, creature)
 end
 
--- Hidden Treasure sidequest, Mission Rita.
 local function creatureSayCallback(npc, creature, type, message)
 	local player = Player(creature)
 
@@ -73,17 +61,19 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
-	if MsgContains(message, "rita") then
-		npcHandler:say("Rita! Cheddar is spicy! Cheddar is spicy! Larry misses Rita!", npc, creature)
-		if player:getStorageValue(Storage.Quest.U12_60.APiratesTail.Mission06[1]) < 1 then
-			player:setStorageValue(Storage.Quest.U12_60.APiratesTail.Mission06[1], 1)
-		end
+	if MsgContains(message, "supplies") then
+		npcHandler:say("Pesky ratmen are constantly raiding our cheese supplies. I could use a helping hand or two, to get rid of this problem.", npc, creature)
+	elseif MsgContains(message, "helping") then
+		npcHandler:say("The pirats use transformation magic to enter my cheese cellar as rats and they devour and steal our precious cheese.", npc, creature)
+	elseif MsgContains(message, "cheese") then
+		npcHandler:say("Push as many cheese as you can into the cheese larder in the center of the cellar. Use the staffs that our shaman supplied to dispel the disguise of the rats to fight the intruders.", npc, creature)
 	end
 	return true
 end
 
-npcHandler:setMessage(MESSAGE_GREET, "Ship ahoy!")
+npcHandler:setMessage(MESSAGE_GREET, "Hello, traveller! Be welcome!")
 npcHandler:setCallback(CALLBACK_MESSAGE_DEFAULT, creatureSayCallback)
 npcHandler:addModule(FocusModule:new(), npcConfig.name, true, true, true)
 
+-- npcType registering the npcConfig table
 npcType:register(npcConfig)

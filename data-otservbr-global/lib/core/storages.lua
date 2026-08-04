@@ -2983,9 +2983,44 @@ Storage = {
 		U12_60 = { -- update 12.60 - Reserved Storages 47501 - 47600
 			APiratesTail = {
 				QuestLine = 47501,
-				RascacoonShortcut = 47512,
-				TentuglyKilled = 47513,
-				TentuglyDoor = 47514,
+				Mission01 = { -- A Pirate's Tail (Eustacio / pirat raids / 1500 points)
+					47502,
+					RaidPoints = 47503,
+				},
+				Mission02 = { -- Rascacoon (Tik'hi Tak'he introduction)
+					47504,
+				},
+				Mission03 = { -- Rascacoon Trust Points
+					47505,
+					TrustPoints = 47506,
+					TrustPoints1200Reached = 47507,
+					SupplyMissionCooldown = 47508,
+					MemoryTestCooldown = 47509,
+					StealthCooldown = 47510,
+					JourneyCooldown = 47511,
+					SupplyStaffExpiry = 47520,
+					SupplyMissionScore = 47521,
+					MemoryTestPattern = 47522,
+					MemoryTestCorrect = 47523,
+					StealthDisguiseExpiry = 47524,
+				},
+				RascacoonShortcut = 47512, -- existing, reused: set by Mission02's "yes" to Tik'hi Tak'he
+				TentuglyKilled = 47513, -- existing, reused
+				TentuglyDoor = 47514, -- existing, reused
+				Mission04 = { -- The Wreckoning / Tentugly's Head
+					47515,
+				},
+				Mission05 = { -- Ratmiral Blackwhiskers
+					47516,
+					RatmiralKilled = 47517,
+					TubCharges = 47526,
+				},
+				Mission06 = { -- Hidden Treasure (sidequest)
+					47518,
+					EustacioHouseDoor = 47519,
+					SniffGoodsRecovered = 47527,
+					GarmentObtained = 47528,
+				},
 			},
 			RascoohanOutfits = {},
 		},
@@ -3137,6 +3172,28 @@ GlobalStorage = {
 			DarashiaNorth = 60192,
 			DarashiaWest = 60193,
 		},
+	},
+	APiratesTailRaid = {
+		-- Reserved storage from 60194 - 60203. World-shared pirat raid scheduler state, see
+		-- globalevents_raid_scheduler.lua. Location zones are configured per RAID_LOCATIONS in
+		-- that file - until an owner fills in real map positions there, raids are announced
+		-- narratively but do not spawn anything (see that file's Map Setup Contract note).
+		Active = 60194, -- 0 = no raid running, 1 = raid in progress
+		Type = 60195, -- 1 = land attack, 2 = water attack, 3 = ship attack
+		Location = 60196, -- index into RAID_LOCATIONS (1-5)
+		EndsAt = 60197, -- hard timeout for the current raid, os.time() epoch
+		NextRaidAt = 60198, -- earliest os.time() the next raid may start (30 min after previous ends)
+		ShipPoints = 60199, -- running per-raid ship-attack point total, capped at 300 per raid
+		RemainingMonsters = 60200, -- land/water raid: monsters spawned minus valid in-zone kills so far
+	},
+	APiratesTailBosses = {
+		-- Reserved storage from 60201 - 60210. Boss-room-scoped (not per-player) encounter phase
+		-- state - only one attempt is realistically active at a time per room, matching how every
+		-- other BossLever room in this codebase already works.
+		TentuglyPhase = 60201, -- 1 = head, 2 = tentacles, 3 = final head
+		TentuglyTentaclesRemaining = 60202,
+		RatmiralStage = 60203, -- 1 = gate escape, 2 = lower deck, 3 = upper deck
+		RatmiralGateHealth = 60204,
 	},
 	FuryGates = 65000,
 	Yakchal = 65001,

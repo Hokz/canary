@@ -13,6 +13,10 @@ monster.outfit = {
 	lookMount = 0,
 }
 
+monster.events = {
+	"APiratesTailRaidKill",
+}
+
 monster.health = 2700
 monster.maxHealth = 2700
 monster.race = "blood"
