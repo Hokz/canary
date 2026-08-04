@@ -60,8 +60,15 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
+	-- CONFIRMED BUG (pre-existing): "fight" required DreamScar.Permission < 1, which is only ever
+	-- true before a player's very first side pick - once set, this keyword could never fire again,
+	-- silently contradicting the reference's explicit "after obtaining one achievement, player can
+	-- change side by talking hi > fight > yes". Removed that permanent guard so the keyword works on
+	-- every visit; also, DreamScarCurrentFaction (used by creaturescripts_dreamCourtsDeath.lua to
+	-- track which side's kills count toward Champion of Summer/Winter, previously never set at all)
+	-- is written on confirmation.
 	if MsgContains(message, "fight") then
-		if player:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.DreamScar.Permission) < 1 and player:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.Main.TheSummerCourt) == 1 then
+		if player:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.Main.TheSummerCourt) == 1 then
 			npcHandler:say("We allow able champions of all races to fight for our cause against the challenges of the {arena}. So are you interested? I'm not interested in fancy'wordplay, so a simple {yes} or {no} will suffice!", npc, creature)
 			npcHandler:setTopic(playerId, 2)
 		end
@@ -69,6 +76,7 @@ local function creatureSayCallback(npc, creature, type, message)
 		if npcHandler:getTopic(playerId) == 2 then
 			npcHandler:say("You are now able to enter the teleport.", npc, creature)
 			player:setStorageValue(Storage.Quest.U12_00.TheDreamCourts.DreamScar.Permission, 1)
+			player:setStorageValue(Storage.Quest.U12_00.TheDreamCourts.DreamScarCurrentFaction, 1)
 			npcHandler:setTopic(playerId, 0)
 		end
 	elseif MsgContains(message, "no") then

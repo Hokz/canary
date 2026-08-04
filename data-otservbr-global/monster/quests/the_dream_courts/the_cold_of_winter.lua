@@ -66,6 +66,7 @@ monster.loot = {}
 
 monster.attacks = {
 	{ name = "melee", interval = 2000, chance = 100, minDamage = 0, maxDamage = -2 },
+	{ name = "cold of winter", interval = 2000, chance = 20, target = false }, -- CONFIRMED BUG (pre-existing): fully scripted Izcandar-healing spell, never referenced in this attacks table
 }
 
 monster.defenses = {

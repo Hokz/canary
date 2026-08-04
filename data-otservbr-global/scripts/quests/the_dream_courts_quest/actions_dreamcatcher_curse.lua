@@ -50,10 +50,10 @@ function actions_dreamcatcher_curse.onUse(player, item, fromPosition, target, to
 				if target:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.NightmareCurse) >= 1 then
 					target:setStorageValue(Storage.Quest.U12_00.TheDreamCourts.NightmareCurse, 0)
 					target:removeCondition(CONDITION_OUTFIT)
-					target:unregisterEvent(Storage.Quest.U12_00.TheDreamCourts.NightmareCurse)
+					target:unregisterEvent("nightmareCurse")
 					target:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have a feeling of dread.")
 					player:setStorageValue(Storage.Quest.U12_00.TheDreamCourts.NightmareCurse, 1)
-					player:registerEvent(Storage.Quest.U12_00.TheDreamCourts.NightmareCurse)
+					player:registerEvent("nightmareCurse")
 					player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You take the dreamcurse on yourself!")
 					item:remove(1)
 					local j = resetArea()

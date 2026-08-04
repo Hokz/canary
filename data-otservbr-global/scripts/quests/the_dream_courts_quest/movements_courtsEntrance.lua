@@ -50,13 +50,17 @@ local config = {
 	[9] = {
 		hisPosition = Position(32016, 32037, 13),
 		toPosition = Position(32057, 32001, 13),
-		storage = Storage.Quest.U12_00.TheDreamCourts.TheSevenKeys.Rosebush,
+		-- CONFIRMED BUG (pre-existing): typo'd as "Rosebush" (lowercase b), which doesn't match the
+		-- real "RoseBush" key defined in storages.lua/used everywhere else - currently harmless only
+		-- because value=-1 is trivially satisfied by the resulting nil/0 read, but a latent landmine
+		-- if this gate is ever tightened.
+		storage = Storage.Quest.U12_00.TheDreamCourts.TheSevenKeys.RoseBush,
 		value = -1,
 	},
 	[10] = {
 		hisPosition = Position(32055, 32001, 13),
 		toPosition = Position(32016, 32035, 13),
-		storage = Storage.Quest.U12_00.TheDreamCourts.TheSevenKeys.Rosebush,
+		storage = Storage.Quest.U12_00.TheDreamCourts.TheSevenKeys.RoseBush,
 		value = -1,
 	},
 	[11] = {

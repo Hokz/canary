@@ -20,9 +20,17 @@ monster.corpse = 30013
 monster.speed = 125
 monster.manaCost = 0
 
+-- CONFIRMED BUG (pre-existing): "facelessHealth" was only ever registered dynamically, inside
+-- facelessThink's <=20%-HP enrage branch - meaning the boss started fully damageable from the
+-- moment it spawned, contradicting the reference's "Initially every hit heals boss." Added here so
+-- the boss starts immune-and-healing from spawn, matching the source exactly; the tile-walking
+-- mechanic (movements_facelessTiles.lua) already correctly unregisters it once players complete the
+-- sequence, and now re-registers it again if the 60-second window expires without a kill (see that
+-- file for the other half of this fix).
 monster.events = {
 	"dreamCourtsDeath",
 	"facelessThink",
+	"facelessHealth",
 }
 
 monster.changeTarget = {

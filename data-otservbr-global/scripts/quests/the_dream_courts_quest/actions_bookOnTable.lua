@@ -1,6 +1,10 @@
 local questline = Storage.Quest.U12_00.TheDreamCourts.HauntedHouse.Questline
 local wordsCount = Storage.Quest.U12_00.TheDreamCourts.BurriedCatedral.WordCount
-local facelessTime = Storage.Quest.U12_00.TheDreamCourts.BurriedCatedral.FacelessTime
+-- CONFIRMED BUG (pre-existing): read BurriedCatedral.FacelessTime, a key that doesn't exist anywhere
+-- in storages.lua - the 20h Faceless Bane re-challenge cooldown is actually written to
+-- BurriedCatedralGlobal.FacelessTimer by creaturescripts_dreamCourtsDeath.lua, so the old lookup was
+-- always nil and the cooldown was never enforced.
+local facelessTime = Storage.Quest.U12_00.TheDreamCourts.BurriedCatedralGlobal.FacelessTimer
 
 local actions_bookOnTable = Action()
 

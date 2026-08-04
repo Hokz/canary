@@ -51,6 +51,14 @@ function creaturescripts_facelessBane.onHealthChange(creature, attacker, primary
 			primaryDamage = 0
 		end
 	elseif creature:getName():lower() == "faceless bane" then
+		-- CONFIRMED BUG (pre-existing): this only blocked damage, it never actually healed the boss -
+		-- the reference (and a forum correction specifically calling out this exact mechanic) both
+		-- describe every hit while immune healing the boss "to full", not merely being absorbed with
+		-- no effect. Matches this file's own established pattern for the other 3 bosses
+		-- (Maxxenius/Alptramun/Plagueroot all convert the blocked damage into a heal), just using a
+		-- full heal instead of a proportional one, per the confirmed forum wording ("even for 1 HP,
+		-- it heals to full").
+		creature:addHealth(creature:getMaxHealth())
 		primaryDamage = 0
 	elseif creature:getName():lower() == "plagueroot" then
 		if primaryType == COMBAT_EARTHDAMAGE then
