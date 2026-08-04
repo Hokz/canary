@@ -80,7 +80,12 @@ local spell = Spell("instant")
 function spell.onCastSpell(creature, var)
 	local target = creature:getTarget()
 
-	if target:isPlayer() then
+	-- CONFIRMED BUG (found post-merge): unguarded nil dereference if the boss has no current target
+	-- (target died/logged out between target selection and the cast). Line 88 below already guards
+	-- the exact same value with "target and ...", so the nil case was clearly anticipated there and
+	-- simply missed here. Latent until PR #25 wired this spell into monster.attacks - it had never
+	-- once been cast before that.
+	if target and target:isPlayer() then
 		target:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You feel a powerfull eletric charge building up!")
 		doAddCondition(target, looktype)
 	end
