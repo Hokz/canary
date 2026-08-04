@@ -132,6 +132,73 @@ local quest = {
 				neutralise diremaw corpses seems to work.",
 			},
 		},
+		-- CUSTOM_GLOBAL_LIKE_QUESTLOG_PENDING_EXACT_REFERENCE
+		[8] = {
+			name = "Warzone IV: The Baron from Below",
+			storageId = Storage.Quest.U11_50.DangerousDepths.WarzoneIVStarted,
+			missionId = 10520,
+			startValue = 1,
+			endValue = 2,
+			states = {
+				[1] = function(player)
+					return ("You gained access to Warzone IV. Collect crystal fragments and use about 30 of \z
+					them on the geode to unlock the boss room, then defeat The Baron from Below.\n\nCrystals \z
+					delivered to the geode: %d/30 (shared across everyone fighting there)"):format(math.max(Game.getStorageValue(Storage.Quest.U11_50.DangerousDepths.Geodes.WarzoneIV), 0))
+				end,
+				[2] = "You defeated The Baron from Below and used the pump in the reward room beyond. \z
+				You are one step closer to reaching the Ancient Spawn of Morgathla.",
+			},
+		},
+		-- CUSTOM_GLOBAL_LIKE_QUESTLOG_PENDING_EXACT_REFERENCE
+		[9] = {
+			name = "Warzone V: The Count of the Core",
+			storageId = Storage.Quest.U11_50.DangerousDepths.WarzoneVStarted,
+			missionId = 10521,
+			startValue = 1,
+			endValue = 2,
+			states = {
+				[1] = function(player)
+					return ("You gained access to Warzone V. Collect crystal fragments and use about 30 of \z
+					them on the geode to unlock the boss room, then defeat The Count of the Core.\n\nCrystals \z
+					delivered to the geode: %d/30 (shared across everyone fighting there)"):format(math.max(Game.getStorageValue(Storage.Quest.U11_50.DangerousDepths.Geodes.WarzoneV), 0))
+				end,
+				[2] = "You defeated The Count of the Core and used the pump in the reward room beyond. \z
+				You are one step closer to reaching the Ancient Spawn of Morgathla.",
+			},
+		},
+		-- CUSTOM_GLOBAL_LIKE_QUESTLOG_PENDING_EXACT_REFERENCE
+		[10] = {
+			name = "Warzone VI: The Duke of the Depths",
+			storageId = Storage.Quest.U11_50.DangerousDepths.WarzoneVIStarted,
+			missionId = 10522,
+			startValue = 1,
+			endValue = 2,
+			states = {
+				[1] = function(player)
+					return ("You gained access to Warzone VI. Collect crystal fragments and use about 30 of \z
+					them on the geode to unlock the boss room, then defeat The Duke of the Depths.\n\nCrystals \z
+					delivered to the geode: %d/30 (shared across everyone fighting there)"):format(math.max(Game.getStorageValue(Storage.Quest.U11_50.DangerousDepths.Geodes.WarzoneVI), 0))
+				end,
+				[2] = "You defeated The Duke of the Depths and used the pump in the reward room beyond. \z
+				The way to Morgathla now lies open - and you may imbue Featherweight to its third level.",
+			},
+		},
+		-- CUSTOM_GLOBAL_LIKE_QUESTLOG_PENDING_EXACT_REFERENCE
+		[11] = {
+			name = "The Ancient Spawn of Morgathla",
+			storageId = Storage.Quest.U11_50.DangerousDepths.Morgathla.MalletGiven,
+			missionId = 10523,
+			startValue = 1,
+			endValue = 2,
+			states = {
+				[1] = "Having defeated all three champions of the depths, you had a mallet assembled \z
+				from their remains. Strike the gong deep below the Gnome Base with it to open a path to \z
+				the Ancient Spawn of Morgathla - the mallet will not survive the blow, and the path fades \z
+				after 7 seconds.",
+				[2] = "You defeated the Ancient Spawn of Morgathla across its four retreating forms and \z
+				claimed the treasure it left behind. The depths are safe once more.",
+			},
+		},
 	},
 }
 

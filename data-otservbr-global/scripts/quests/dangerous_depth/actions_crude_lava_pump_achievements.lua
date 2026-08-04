@@ -36,6 +36,9 @@ function dangerousDepthAchievements.onUse(player, item)
 			player:addAchievement("Buried the Baron")
 			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.Bosses.TheBaronFromBelowAchiev, 1)
 		end
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneIVStarted) < 2 then
+			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneIVStarted, 2)
+		end
 	end
 
 	if positionItem == WarzoneV then -- Warzone V
@@ -43,12 +46,18 @@ function dangerousDepthAchievements.onUse(player, item)
 			player:addAchievement("His Days are Counted")
 			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.Bosses.TheCountOfTheCoreAchiev, 1)
 		end
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneVStarted) < 2 then
+			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneVStarted, 2)
+		end
 	end
 
 	if positionItem == WarzoneVI then -- Warzone IV
 		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Bosses.TheDukeOfTheDepthsAchiev) < 1 then
 			player:addAchievement("Duked It Out")
 			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.Bosses.TheDukeOfTheDepthsAchiev, 1)
+		end
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneVIStarted) < 2 then
+			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneVIStarted, 2)
 		end
 	end
 

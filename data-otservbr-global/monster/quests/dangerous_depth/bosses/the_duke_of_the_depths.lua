@@ -74,6 +74,8 @@ monster.voices = {
 }
 
 monster.loot = {
+	-- Guaranteed drop, not a rare reward - see the_baron_from_below.lua's mallet head comment.
+	{ id = 27526, chance = 100000 }, -- mallet pommel
 	{ name = "platinum coin", chance = 100000, maxCount = 63 },
 	{ name = "mastermind potion", chance = 100000 },
 	{ name = "stone skin amulet", chance = 100000 },

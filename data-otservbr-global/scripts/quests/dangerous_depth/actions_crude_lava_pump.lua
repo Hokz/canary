@@ -21,6 +21,9 @@ function dangerousDepthPump.onUse(player, item)
 			end
 		end
 		player:say("With the pump destroyed, the lava stream has been stopped. Zone VI is acessible now!", TALKTYPE_MONSTER_SAY, false, false, positionItem)
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneVIStarted) < 1 then
+			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneVIStarted, 1)
+		end
 		item:transform(transformid[item:getId()])
 		addEvent(function()
 			if item then
@@ -39,6 +42,9 @@ function dangerousDepthPump.onUse(player, item)
 			end
 		end
 		player:say("With the pump destroyed, the lava stream has been stopped. Zone V is acessible now!", TALKTYPE_MONSTER_SAY, false, false, positionItem)
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneVStarted) < 1 then
+			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneVStarted, 1)
+		end
 		item:transform(transformid[item:getId()])
 		addEvent(function()
 			if item then
@@ -57,6 +63,9 @@ function dangerousDepthPump.onUse(player, item)
 			end
 		end
 		player:say("With the pump destroyed, the lava stream has been stopped. Zone IV is acessible now!", TALKTYPE_MONSTER_SAY, false, false, positionItem)
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneIVStarted) < 1 then
+			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.WarzoneIVStarted, 1)
+		end
 		item:transform(transformid[item:getId()])
 		addEvent(function()
 			if item then

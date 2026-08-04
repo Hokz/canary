@@ -2570,6 +2570,21 @@ Storage = {
 					WarzoneV = 45931,
 					WarzoneIV = 45932,
 				},
+				-- Ancient Spawn of Morgathla (final boss) - previously unimplemented, no storage
+				-- reserved for it at all despite the "Scourge of Scarabs" achievement already
+				-- being registered in register_achievements.lua and never granted anywhere.
+				Morgathla = {
+					MalletGiven = 45933, -- one-time gate on the mallet-assembly NPC
+					Defeated = 45934, -- final (room 4) kill, gates the reward chest + questlog completion
+					RewardClaimed = 45935,
+				},
+				-- Questlog-visibility-only flags: set the first time each Warzone's lava pump is
+				-- used (actions_crude_lava_pump.lua already grants the real Access.LavaPumpWarzone*
+				-- flag there; this is purely an additional write for catalog mission tracking, no
+				-- new gameplay gate).
+				WarzoneIVStarted = 45936,
+				WarzoneVStarted = 45937,
+				WarzoneVIStarted = 45938,
 			},
 			HiddenThreats = {
 				QuestLine = 45971,
