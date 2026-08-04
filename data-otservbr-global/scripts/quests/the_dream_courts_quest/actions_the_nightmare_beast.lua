@@ -21,6 +21,16 @@ local config = {
 		to = Position(32220, 32055, 15),
 	},
 	exit = Position(32211, 32084, 15),
+	-- The curse mechanic is gated by a SERVER-WIDE lock (DreamScarGlobal.LastBossCurse). Releasing it
+	-- on the boss's death alone is not sufficient: a party wipe or the fight timeout tears the room
+	-- down through BossLever's watchEmptyRoom -> handleEmptyRoom -> cleanRoom() / removePlayers()
+	-- paths, none of which fire onDeath - so a lock set mid-fight would survive the reset and silently
+	-- disable the curse for every future party until someone finally killed the boss. Clearing it as
+	-- each fight begins makes the lock self-healing regardless of how the previous attempt ended.
+	-- Must not return false: BossLever aborts the lever when onUseExtra returns exactly false.
+	onUseExtra = function()
+		Game.setStorageValue(Storage.Quest.U12_00.TheDreamCourts.DreamScarGlobal.LastBossCurse, 0)
+	end,
 }
 
 local lever = BossLever(config)
