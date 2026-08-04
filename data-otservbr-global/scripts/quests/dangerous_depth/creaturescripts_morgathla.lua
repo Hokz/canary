@@ -14,10 +14,14 @@
 -- MAP SETUP REQUIRED: every position below is nil until an owner configures it - see the Map
 -- Setup Contract in the PR body. Until then this is fully inert code, same pattern as every other
 -- position-dependent script built this session.
+--
+-- scarabsRequired is MAP SETUP GUIDANCE, not a runtime-enforced counter: watchScarabWave's actual
+-- gate is "every currently-spawned Ancient Scarab in the room is dead", so the owner should place
+-- exactly this many scarabSpawns positions per room for the intended per-room difficulty to apply.
 local ROOMS = {
 	[1] = {
 		center = nil, -- Position: used for all spectator scans in this room
-		scarabSpawns = {}, -- list of Position: initial trash wave
+		scarabSpawns = {}, -- list of Position: initial trash wave, should have scarabsRequired entries
 		scarabsRequired = 8,
 		bossSpawn = nil, -- Position
 		portals = {}, -- list of Position: blue portals the Dormant boss must be lured onto
@@ -307,6 +311,13 @@ function morgathlaDeath.onDeath(creature, corpse, lasthitkiller, mostdamagekille
 			player:addAchievement("Scourge of Scarabs")
 		end
 		player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.Morgathla.Defeated, 1)
+		-- Advances the tracked questlog storage (Morgathla.MalletGiven) past its endValue=2 so the
+		-- catalog mission (039_dangerous_depths.lua, missionId 10523) actually completes instead of
+		-- staying stuck on its state[1] "strike the gong" text forever - see quests.lua's
+		-- getMissionDescription/missionIsCompleted, which both key off this same storage.
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Morgathla.MalletGiven) < 2 then
+			player:setStorageValue(Storage.Quest.U11_50.DangerousDepths.Morgathla.MalletGiven, 2)
+		end
 	end)
 	return true
 end

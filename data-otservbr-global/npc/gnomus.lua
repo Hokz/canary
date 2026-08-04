@@ -65,11 +65,11 @@ local function creatureSayCallback(npc, creature, type, message)
 	local time = 20 * 60 * 60 -- 20 hours
 
 	if MsgContains(message, "measurements") then
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Measurements) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskMeasurements) > 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Measurements) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskMeasurements) > os.time() then
 			npcHandler:say("I don't need your help for now. Come back later.", npc, creature)
 			npcHandler:setTopic(playerId, 1)
 		end
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Measurements) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskMeasurements) <= 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Measurements) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskMeasurements) <= os.time() then
 			npcHandler:say({
 				"The heat down here is not the only problem we have but one of our greatest concerns. Not only is it almost unbearable for us, it also seems to be rising. ...",
 				"We need to find out if this is true and what that means for this place - and for us gnomes. You can help us do this by grabbing one of our trignometres and collecting as much as data from the heat in this area as possible. ...",
@@ -119,11 +119,11 @@ local function creatureSayCallback(npc, creature, type, message)
 	end
 
 	if MsgContains(message, "ordnance") then
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Ordnance) == 3 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskOrdnance) > 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Ordnance) == 3 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskOrdnance) > os.time() then
 			npcHandler:say("I don't need your help for now. Come back later.", npc, creature)
 			npcHandler:setTopic(playerId, 1)
 		end
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Ordnance) == 3 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskOrdnance) <= 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Ordnance) == 3 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskOrdnance) <= os.time() then
 			npcHandler:say({
 				"I am constantly waiting for ordnance to arrive. A lot of gnomes intend to travel out here to help us but the main access path to our base is not safe anymore. ...",
 				"Tragically we lost several gnomes after an outbreak of what I can only describe as a force from below. We were completely surprised by their onslaught and retreated to this outpost. ...",
@@ -179,11 +179,11 @@ local function creatureSayCallback(npc, creature, type, message)
 	end
 
 	if MsgContains(message, "charting") then
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Charting) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskCharting) > 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Charting) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskCharting) > os.time() then
 			npcHandler:say("I don't need your help for now. Come back later.", npc, creature)
 			npcHandler:setTopic(playerId, 1)
 		end
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Charting) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskCharting) <= 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.Charting) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Gnomes.TimeTaskCharting) <= os.time() then
 			npcHandler:say({
 				"While exploring these caves to find places to collect spores and grow mushrooms, we found several strange structures. I am convinced that this system was once home to intelligent beings. ...",
 				"However, the creatures from below are now disturbing our research as well as some particularly pesky dwarves who just would not leave us alone. ...",

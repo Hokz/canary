@@ -65,11 +65,11 @@ local function creatureSayCallback(npc, creature, type, message)
 	local time = 20 * 60 * 60 -- 20 hours
 
 	if MsgContains(message, "diremaws") then
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.Diremaw) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.TimeTaskDiremaws) > 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.Diremaw) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.TimeTaskDiremaws) > os.time() then
 			npcHandler:say("I don't need your help for now. Come back later.", npc, creature)
 			npcHandler:setTopic(playerId, 1)
 		end
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.Diremaw) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.TimeTaskDiremaws) <= 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.Diremaw) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.TimeTaskDiremaws) <= os.time() then
 			npcHandler:say({
 				"The gnomes say that these creatures seem to thrive on mushroom sponges. But not only that, apparently they also lay eggs in their own cadavers to breed even faster. ...",
 				"Yes, disgusting. I guess it provides everything their offspring needs... well, we probably shouldn't go into that much further. Instead we should focus on preventing that from happening. ... ",
@@ -111,11 +111,11 @@ local function creatureSayCallback(npc, creature, type, message)
 	end
 
 	if MsgContains(message, "growth") then
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.Growth) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.TimeTaskGrowth) > 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.Growth) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.TimeTaskGrowth) > os.time() then
 			npcHandler:say("I don't need your help for now. Come back later.", npc, creature)
 			npcHandler:setTopic(playerId, 1)
 		end
-		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.Growth) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.TimeTaskGrowth) <= 0 then
+		if player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.Growth) == 2 and player:getStorageValue(Storage.Quest.U11_50.DangerousDepths.Scouts.TimeTaskGrowth) <= os.time() then
 			npcHandler:say({
 				"I can't explain that stuff, even the gnomes don't know what grows in those caves. All we know is that this stuff brought about all the diremaws we are now facing. ...",
 				"This vermin is somehow attracted to this sponge, my guess is they use it as a nourishment, too. We need to get rid of the stuff regularly to reduce their numbers to a manageable level. ...",
