@@ -169,6 +169,18 @@ function creaturescripts_dreamCourtsDeath.onDeath(creature, corpse, killer, most
 			if cName:lower() == "alptramun" then
 				Game.setStorageValue(Storage.Quest.U12_00.TheDreamCourts.DreamScarGlobal.AlptramunSummonsKilled, 0)
 			end
+
+			-- DreamScarGlobal.LastBossCurse is a server-wide "a curse is currently active" lock. It is
+			-- only released from inside the curse-resolution paths, each of which requires the cursed
+			-- player to still be online and still hold the curse condition - so a single logout/death
+			-- mid-curse left it stuck at 1 and no further curse could ever be laid, server-wide, until
+			-- restart. Releasing it on the boss's death is unconditionally safe (the boss is dead, so
+			-- no curse can be pending) and bounds the known disconnect-cleanup gap to a single fight
+			-- instead of the whole server session. The underlying per-player cleanup gap is still open
+			-- and documented separately.
+			if cName:lower() == "the nightmare beast" then
+				Game.setStorageValue(Storage.Quest.U12_00.TheDreamCourts.DreamScarGlobal.LastBossCurse, 0)
+			end
 		end
 	end
 

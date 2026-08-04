@@ -31,23 +31,31 @@ end
 
 setCombatCallback(combat, CALLBACK_PARAM_TARGETTILE, "onTargetTilePlaguerootTeleport")
 
+-- CONFIRMED BUG (found post-merge): the search loop below was completely unbounded - it kept
+-- re-rolling until it happened to find a valid tile, with no iteration cap, so if no valid
+-- destination existed in range it would spin forever and hang the server thread. It also could fall
+-- out of the loop holding an invalid tile and still teleport onto it, since the old post-loop check
+-- only tested "if tile then" (non-nil) rather than re-testing validity. Latent until PR #25 wired
+-- this spell into monster.attacks - it had never once been cast before that.
+local function isInvalidDestination(tile)
+	return not tile or tile:getItemByType(ITEM_TYPE_TELEPORT) or not tile:getGround() or tile:hasFlag(TILESTATE_BLOCKPATH) or tile:hasFlag(TILESTATE_PROTECTIONZONE) or tile:hasFlag(TILESTATE_BLOCKSOLID)
+end
+
 local function teleportMonster(creature, centerPos, fromPos, toPos)
-	local position = { x = math.random(fromPos.x, toPos.x), y = math.random(fromPos.y, toPos.y), z = centerPos.z }
-	local tile = Tile(Position(position))
+	local position = Position(math.random(fromPos.x, toPos.x), math.random(fromPos.y, toPos.y), centerPos.z)
+	local tile = Tile(position)
 	local count = 1
 
-	while not tile or tile:getItemByType(ITEM_TYPE_TELEPORT) or not tile:getGround() or tile:hasFlag(TILESTATE_BLOCKPATH) or tile:hasFlag(TILESTATE_PROTECTIONZONE) or tile:hasFlag(TILESTATE_BLOCKSOLID) or count < 5 do
+	while (isInvalidDestination(tile) or count < 5) and count < 100 do
 		position = Position(math.random(fromPos.x, toPos.x), math.random(fromPos.y, toPos.y), centerPos.z)
 		tile = Tile(position)
 		count = count + 1
 	end
 
-	if tile then
-		if position:isInRange(Position(32199, 32039, 14), Position(32216, 32057, 14)) then
-			creature:getPosition():sendMagicEffect(CONST_ME_POFF)
-			creature:teleportTo(position)
-			Position(position):sendMagicEffect(CONST_ME_TELEPORT)
-		end
+	if not isInvalidDestination(tile) and position:isInRange(Position(32199, 32039, 14), Position(32216, 32057, 14)) then
+		creature:getPosition():sendMagicEffect(CONST_ME_POFF)
+		creature:teleportTo(position)
+		Position(position):sendMagicEffect(CONST_ME_TELEPORT)
 	end
 end
 

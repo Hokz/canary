@@ -46,7 +46,13 @@ function actions_dreamcatcher_curse.onUse(player, item, fromPosition, target, to
 		addEvent(placeMask, 10 * 1000, item:getPosition(), 29274, 29275)
 	elseif item.itemid == 29276 then
 		if player:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.DreamScar.LastBossCurse) < 1 then
-			if (target ~= player) and target:isPlayer() then
+			-- CONFIRMED BUG (found post-merge): "target" is nil whenever the mask is simply used
+			-- (double-clicked) rather than used ON another player, and is an Item userdata when used
+			-- on scenery - in both cases the old unguarded target:isPlayer() raised a Lua error on a
+			-- completely ordinary player action. Guarded in the repo's established style (see
+			-- scripts/actions/tools/hammer.lua and register_actions.lua). Order matters: the nil/type
+			-- checks must come before the method call.
+			if target and type(target) == "userdata" and target.isPlayer and target:isPlayer() and target ~= player then
 				if target:getStorageValue(Storage.Quest.U12_00.TheDreamCourts.NightmareCurse) >= 1 then
 					target:setStorageValue(Storage.Quest.U12_00.TheDreamCourts.NightmareCurse, 0)
 					target:removeCondition(CONDITION_OUTFIT)
