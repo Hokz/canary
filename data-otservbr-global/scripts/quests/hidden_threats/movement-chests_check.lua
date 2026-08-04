@@ -8,6 +8,7 @@ function corymChests.onStepOut(creature, item, position, fromPosition)
 	end
 	if player:getStorageValue(HiddenThreats.Rewards.keyFragment01) == 1 and player:getStorageValue(HiddenThreats.Rewards.keyFragment02) == 1 and player:getStorageValue(HiddenThreats.QuestLine) == 2 then
 		player:setStorageValue(HiddenThreats.QuestLine, 3)
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Now you have both key fragments. They need to be repaired.")
 	end
 	return true
 end
