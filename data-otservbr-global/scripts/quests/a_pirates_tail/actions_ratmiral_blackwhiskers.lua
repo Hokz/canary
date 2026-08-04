@@ -4,6 +4,16 @@ local config = {
 		position = Position(33904, 31351, 14),
 	},
 	requiredLevel = 250,
+	-- The reference is a real 3-stage encounter (gate escape -> lower deck -> upper deck), not a
+	-- spawn-and-kill fight - see creaturescripts_ratmiral_stages.lua. Ratmiral himself doesn't
+	-- appear until stage 2, so this replaces BossLever's default immediate spawn with just
+	-- resetting the stage state; teleportPlayers() still runs normally afterward.
+	createBoss = function()
+		Game.setStorageValue(GlobalStorage.APiratesTailBosses.RatmiralStage, 1)
+		Game.setStorageValue(GlobalStorage.APiratesTailBosses.RatmiralGateHealth, 2)
+		Game.setStorageValue(GlobalStorage.APiratesTailBosses.RatmiralStage3Deaths, 0)
+		return true
+	end,
 	playerPositions = {
 		{ pos = Position(33893, 31388, 15), teleport = Position(33904, 31356, 14), effect = CONST_ME_TELEPORT },
 		{ pos = Position(33894, 31388, 15), teleport = Position(33904, 31356, 14), effect = CONST_ME_TELEPORT },

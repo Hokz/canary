@@ -52,14 +52,10 @@ npcType.onCloseChannel = function(npc, creature)
 	npcHandler:onCloseChannel(npc, creature)
 end
 
-local function greetCallback(npc, creature)
-	local player = Player(creature)
+local APiratesTail = Storage.Quest.U12_60.APiratesTail
 
-	if player:getStorageValue(Storage.Quest.U12_60.APiratesTail.TentuglyKilled) == 1 then
-		npcHandler:setMessage(MESSAGE_GREET, "Hail, pirat! Come on board to go home! Welcome on board of the ship Flying Bat. Should I set {sail}s?")
-	else
-		npcHandler:setMessage(MESSAGE_GREET, "...")
-	end
+local function greetCallback(npc, creature)
+	npcHandler:setMessage(MESSAGE_GREET, "Hail, pirat! Come on board to go home! Welcome on board of the ship Flying Bat. Should I set {sail}s?")
 	return true
 end
 
@@ -71,15 +67,26 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
-	if MsgContains(message, "sail") and player:getStorageValue(Storage.Quest.U12_60.APiratesTail.TentuglyKilled) == 1 then
+	if MsgContains(message, "sail") and player:getStorageValue(APiratesTail.TentuglyKilled) ~= 1 then
+		npcHandler:say("Up to five passengers are allowed to go by this ship at once. Enter the room in front of me. Use the lever when you are ready.", npc, creature)
+		if player:getStorageValue(APiratesTail.Mission04[1]) < 1 then
+			player:setStorageValue(APiratesTail.Mission04[1], 1)
+		end
+	elseif MsgContains(message, "sail") and player:getStorageValue(APiratesTail.TentuglyKilled) == 1 then
 		npcHandler:say("There are two different routes. The dangerous one will be available once a day and it is likely that a seemonster will attack the ship once again. And a {safe} route that we can take directly there.", npc, creature)
 		npcHandler:setTopic(playerId, 1)
+		if player:getStorageValue(APiratesTail.Mission04[1]) < 2 then
+			player:setStorageValue(APiratesTail.Mission04[1], 2)
+		end
 	elseif MsgContains(message, "safe") and npcHandler:getTopic(playerId) == 1 then
 		npcHandler:say("Do you want to take the safe route?", npc, creature)
 		npcHandler:setTopic(playerId, 2)
 	elseif MsgContains(message, "yes") then
 		if npcHandler:getTopic(playerId) == 2 then
 			creature:teleportTo(Position(33839, 31222, 5))
+			if player:getStorageValue(APiratesTail.Mission05[1]) < 1 then
+				player:setStorageValue(APiratesTail.Mission05[1], 1)
+			end
 		end
 	end
 	return true

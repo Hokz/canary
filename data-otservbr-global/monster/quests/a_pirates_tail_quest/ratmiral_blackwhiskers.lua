@@ -22,6 +22,8 @@ monster.manaCost = 0
 
 monster.events = {
 	"RatmiralBlackwhiskersDeath",
+	"RatmiralLowerDeckRetreat",
+	"RatmiralUpperDeckDeath",
 }
 
 monster.changeTarget = {

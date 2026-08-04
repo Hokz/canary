@@ -4,6 +4,13 @@ local config = {
 		position = Position(33722, 31182, 7),
 	},
 	requiredLevel = 250,
+	-- Resets the 2-phase encounter state (head -> tentacles -> head, see
+	-- creaturescripts_tentugly_phases.lua) on every fresh lever pull.
+	onUseExtra = function(creature, infoPositions)
+		Game.setStorageValue(GlobalStorage.APiratesTailBosses.TentuglyPhase, 1)
+		Game.setStorageValue(GlobalStorage.APiratesTailBosses.TentuglyTentaclesRemaining, 0)
+		return true
+	end,
 	playerPositions = {
 		{ pos = Position(33792, 31391, 6), teleport = Position(33722, 31186, 7), effect = CONST_ME_TELEPORT },
 		{ pos = Position(33793, 31391, 6), teleport = Position(33722, 31186, 7), effect = CONST_ME_TELEPORT },
