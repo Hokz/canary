@@ -70,14 +70,19 @@ local config = {
 }
 
 local function configureLever()
+	-- CONFIRMED BUG (pre-existing): this table used to be completely inconsistent with the day->map
+	-- mapping in globalevents_the_dream_courts.lua (the "physical" reality of which .otbm is actually
+	-- loaded that day), so on most days the lever spawned a boss/add-set that didn't match the
+	-- terrain actually on the ground (e.g. Plagueroot's corrupted-nature tiles or Maxxenius's dark
+	-- floor tile wouldn't exist under the wrong day's boss). Now mirrors that table exactly.
 	local bossDate = {
-		["Monday"] = "Plagueroot",
-		["Tuesday"] = "Malofur Mangrinder",
-		["Wednesday"] = "Maxxenius",
-		["Thursday"] = "Alptramun",
+		["Monday"] = "Alptramun",
+		["Tuesday"] = "Izcandar The Banished",
+		["Wednesday"] = "Malofur Mangrinder",
+		["Thursday"] = "Maxxenius",
 		["Friday"] = "Izcandar The Banished",
-		["Saturday"] = "Maxxenius",
-		["Sunday"] = "Alptramun",
+		["Saturday"] = "Plagueroot",
+		["Sunday"] = "Maxxenius",
 	}
 	local bossName = bossDate[os.date("%A")]
 	config.boss.name = bossName

@@ -121,6 +121,7 @@ monster.attacks = {
 	{ name = "melee", interval = 2000, chance = 100, minDamage = -500, maxDamage = -1000 },
 	{ name = "energy beam", interval = 2000, chance = 10, minDamage = -500, maxDamage = -1200, shootEffect = CONST_ANI_ENERGY, effect = CONST_ME_ENERGYAREA, target = false },
 	{ name = "energy wave", interval = 2000, chance = 10, minDamage = -500, maxDamage = -1200, shootEffect = CONST_ANI_ENERGY, effect = CONST_ME_ENERGYAREA, target = false },
+	{ name = "maxxenius energy elemental", interval = 2000, chance = 12, target = true }, -- CONFIRMED BUG (pre-existing): fully scripted player bomb-transform spell, never referenced in this attacks table
 }
 
 monster.defenses = {

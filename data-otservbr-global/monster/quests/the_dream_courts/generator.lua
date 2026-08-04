@@ -60,6 +60,7 @@ monster.loot = {}
 
 monster.attacks = {
 	{ name = "combat", interval = 2000, chance = 10, type = COMBAT_EARTHDAMAGE, minDamage = -206, maxDamage = -252, radius = 6, effect = CONST_ME_GREEN_RINGS, target = false },
+	{ name = "generator wave", interval = 2000, chance = 20, target = false }, -- CONFIRMED BUG (pre-existing): fully scripted Maxxenius-healing spell, never referenced in this attacks table
 }
 
 monster.defenses = {

@@ -68,6 +68,7 @@ monster.attacks = {
 	{ name = "melee", interval = 2000, chance = 100, minDamage = 0, maxDamage = -90 },
 	{ name = "combat", interval = 2000, chance = 15, type = COMBAT_PHYSICALDAMAGE, minDamage = 0, maxDamage = -15, range = 7, shootEffect = CONST_ANI_SMALLSTONE, target = true },
 	{ name = "speed", interval = 2000, chance = 20, speedChange = -600, radius = 3, effect = CONST_ME_SMALLPLANTS, target = false, duration = 9000 },
+	{ name = "plant attendant wave", interval = 2000, chance = 20, target = false }, -- CONFIRMED BUG (pre-existing): fully scripted Plagueroot-healing spell, never referenced in this attacks table
 }
 
 monster.defenses = {

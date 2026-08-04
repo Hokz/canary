@@ -127,6 +127,7 @@ monster.attacks = {
 	{ name = "death beam", interval = 2000, chance = 25, minDamage = -1000, maxDamage = -2100, target = false }, -- -_death_beam(1000-2100)
 	{ name = "big death wave", interval = 2000, chance = 25, minDamage = -1000, maxDamage = -2000, target = false }, -- -_death_wave(1000-2000)
 	{ name = "combat", interval = 2000, chance = 25, type = COMBAT_DEATHDAMAGE, minDamage = -700, maxDamage = -1000, radius = 5, effect = CONST_ME_MORTAREA, target = false }, -- -_great_death_bomb(700-1000)
+	{ name = "nightmare beast curse", interval = 4000, chance = 20, target = false }, -- CONFIRMED BUG (pre-existing): this spell existed fully scripted but was never referenced anywhere in this attacks table, so the boss's signature curse mechanic never fired
 }
 
 monster.defenses = {

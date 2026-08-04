@@ -147,6 +147,8 @@ monster.attacks = {
 	{ name = "combat", interval = 1000, chance = 34, type = COMBAT_FIREDAMAGE, minDamage = -350, maxDamage = -650, range = 7, radius = 7, shootEffect = CONST_ANI_FIRE, effect = CONST_ME_FIREAREA, target = true },
 	{ name = "combat", interval = 1000, chance = 13, type = COMBAT_FIREDAMAGE, minDamage = -250, maxDamage = -600, length = 8, spread = 0, effect = CONST_ME_EXPLOSIONHIT, target = false },
 	{ name = "combat", interval = 1000, chance = 10, type = COMBAT_FIREDAMAGE, minDamage = -350, maxDamage = -600, length = 8, spread = 0, effect = CONST_ME_FIREAREA, target = false },
+	{ name = "plagueroot teleport", interval = 3000, chance = 10, target = false }, -- CONFIRMED BUG (pre-existing): fully scripted room-teleport spell, never referenced in this attacks table
+	{ name = "plagueroot skill reducer", interval = 2000, chance = 15, target = true }, -- CONFIRMED BUG (pre-existing): fully scripted skill-reduction spell, never referenced in this attacks table
 }
 
 monster.defenses = {

@@ -116,6 +116,7 @@ monster.loot = {
 monster.attacks = {
 	{ name = "combat", interval = 2000, chance = 100, type = COMBAT_PHYSICALDAMAGE, minDamage = -400, maxDamage = -2500, target = true }, -- basic attack
 	{ name = "combat", interval = 2000, chance = 10, type = COMBAT_PHYSICALDAMAGE, minDamage = -400, maxDamage = -5500, effect = CONST_ME_GROUNDSHAKER, radius = 4, target = false }, -- groundshaker
+	{ name = "malofur explosion", interval = 6000, chance = 15, target = false }, -- CONFIRMED BUG (pre-existing): fully scripted BOOOOM charge-sequence spell, never referenced in this attacks table
 }
 
 monster.defenses = {
