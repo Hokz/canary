@@ -9,6 +9,9 @@ local HEAVY_STONE_ID = 12724 -- "heavy stone" - existing generic quest item, alr
 -- items.xml as "It can be used to arm catapults" (reused from The Rookie Guard's identical
 -- stone-pile/catapult mechanic, not fabricated for this quest)
 local FLINTSTONE_ID = 35337 -- Greenish Flintstone
+local PICK_ID = 3456 -- "pick" - Eustacio's dialogue explicitly says to bring one ("you also
+-- might want to take a pick!"), and the reference calls it essential to this mission, but the
+-- stone-pile action wasn't actually checking for it - a real fidelity gap, fixed here.
 
 local function shipRaidActive()
 	return Game.getStorageValue(GlobalStorage.APiratesTailRaid.Active) == 1 and Game.getStorageValue(GlobalStorage.APiratesTailRaid.Type) == 3
@@ -18,6 +21,10 @@ local stonePile = Action()
 function stonePile.onUse(player, item, fromPosition, target, toPosition, isHotkey)
 	if not shipRaidActive() then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "There is no pirat ship attacking right now.")
+		return true
+	end
+	if player:getItemCount(PICK_ID) < 1 then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need a pick to break off a stone here.")
 		return true
 	end
 	player:addItem(HEAVY_STONE_ID, 1)
