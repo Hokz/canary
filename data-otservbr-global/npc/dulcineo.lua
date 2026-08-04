@@ -1,4 +1,4 @@
-local internalNpcName = "Grumpy Stone"
+local internalNpcName = "Dulcineo"
 local npcType = Game.createNpcType(internalNpcName)
 local npcConfig = {}
 
@@ -11,12 +11,12 @@ npcConfig.walkInterval = 2000
 npcConfig.walkRadius = 2
 
 npcConfig.outfit = {
-	lookType = 0,
-	lookHead = 0,
-	lookBody = 0,
-	lookLegs = 0,
-	lookFeet = 0,
-	lookAddons = 0,
+	lookType = 267,
+	lookHead = 20,
+	lookBody = 20,
+	lookLegs = 20,
+	lookFeet = 20,
+	lookAddons = 3,
 }
 
 npcConfig.flags = {
@@ -55,6 +55,16 @@ end
 local ThreatenedDreams = Storage.Quest.U11_40.ThreatenedDreams
 
 -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE: no exact transcript was provided for this NPC.
+local function greetCallback(npc, creature)
+	local player = Player(creature)
+	if player:getStorageValue(ThreatenedDreams.Mission06.LipstickUsed) < 1 then
+		npcHandler:setMessage(MESSAGE_GREET, "*He waves happily and mimes eating candy, then frowns and points between two directions, as if torn.*")
+	else
+		npcHandler:setMessage(MESSAGE_GREET, "Oh, hello there! Welcome, welcome!")
+	end
+	return true
+end
+
 local function creatureSayCallback(npc, creature, type, message)
 	local player = Player(creature)
 	local playerId = player:getId()
@@ -63,38 +73,33 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
+	if player:getStorageValue(ThreatenedDreams.Mission06.LipstickUsed) < 1 then
+		return true
+	end
+
+	local m6 = player:getStorageValue(ThreatenedDreams.Mission06[1])
 	if MsgContains(message, "mission") then
-		if player:getStorageValue(ThreatenedDreams.Mission04.MapGrumpyStone) >= 1 then
-			if player:getStorageValue(ThreatenedDreams.Mission04.MapLastPart) >= 1 then
-				npcHandler:say("You already know everything I do, traveller.", npc, creature)
-			else
-				npcHandler:say("The last part you seek is hidden south of here, on the Fields of Glory - look inside a big fly agaric, if you dare touch such a thing.", npc, creature)
-			end
-		elseif player:getStorageValue(ThreatenedDreams.Mission04.StonesRaked) >= 5 then
+		if m6 == 16 then
 			npcHandler:say({
-				"You raked all five of my restless kin and let them rest at last. My thanks, traveller - take this piece of an old map I kept buried beneath me. ...",
-				"If you still seek the last part of the map, look south of here on the Fields of Glory - I have heard it is hidden inside a big fly agaric.",
+				"I'm so happy the Candy Carnival is open again! But... there's a shadow over my joy. My dear friend Sugar Plum Fairy and her sister, the Tooth Fairy, have been feuding for ages now over all this candy. ...",
+				"They haven't spoken properly in so long. Would you go speak with the Tooth Fairy? Maybe you can help patch things up between them.",
 			}, npc, creature)
-			player:addItem(24944, 1)
-			player:setStorageValue(ThreatenedDreams.Mission04.MapGrumpyStone, 1)
+			player:setStorageValue(ThreatenedDreams.Mission06[1], 17)
+		elseif m6 == 17 then
+			npcHandler:say("Have you spoken to the Tooth Fairy yet? I do hope she'll hear us out.", npc, creature)
+		elseif m6 == 18 then
+			npcHandler:say({
+				"You brought the toothbrushes to the children and made peace with the Tooth Fairy? That's wonderful news! Perhaps this silly feud can finally end. Thank you, truly, for everything you've done for Candia.",
+			}, npc, creature)
+			player:setStorageValue(ThreatenedDreams.Mission06[1], 19)
 		else
-			npcHandler:say({
-				"Grumble... my kin, the sentient stones scattered around me, have not known rest in ages. Weeds and moss cling to them and it pains them terribly. A good raking would set them right. ...",
-				"Would you rake the five stones around me, traveller?",
-			}, npc, creature)
-			npcHandler:setTopic(playerId, 1)
+			npcHandler:say("Thank you again for helping patch things up, friend!", npc, creature)
 		end
-	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 1 then
-		npcHandler:say("Good. Bring a rake and set to work on the five stones around me.", npc, creature)
-		npcHandler:setTopic(playerId, 0)
-	elseif MsgContains(message, "no") then
-		npcHandler:say("Grumble. Suit yourself then.", npc, creature)
-		npcHandler:setTopic(playerId, 0)
 	end
 	return true
 end
 
-npcHandler:setMessage(MESSAGE_GREET, "Grumble... what do you want.")
+npcHandler:setCallback(CALLBACK_GREET, greetCallback)
 npcHandler:setCallback(CALLBACK_MESSAGE_DEFAULT, creatureSayCallback)
 npcHandler:addModule(FocusModule:new(), npcConfig.name, true, true, true)
 

@@ -1,4 +1,4 @@
-local internalNpcName = "Grumpy Stone"
+local internalNpcName = "A Captive Forest Fury"
 local npcType = Game.createNpcType(internalNpcName)
 local npcConfig = {}
 
@@ -7,15 +7,15 @@ npcConfig.description = internalNpcName
 
 npcConfig.health = 100
 npcConfig.maxHealth = npcConfig.health
-npcConfig.walkInterval = 2000
-npcConfig.walkRadius = 2
+npcConfig.walkInterval = 0
+npcConfig.walkRadius = 1
 
 npcConfig.outfit = {
-	lookType = 0,
-	lookHead = 0,
-	lookBody = 0,
-	lookLegs = 0,
-	lookFeet = 0,
+	lookType = 130,
+	lookHead = 20,
+	lookBody = 30,
+	lookLegs = 40,
+	lookFeet = 50,
 	lookAddons = 0,
 }
 
@@ -63,38 +63,31 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
-	if MsgContains(message, "mission") then
-		if player:getStorageValue(ThreatenedDreams.Mission04.MapGrumpyStone) >= 1 then
-			if player:getStorageValue(ThreatenedDreams.Mission04.MapLastPart) >= 1 then
-				npcHandler:say("You already know everything I do, traveller.", npc, creature)
-			else
-				npcHandler:say("The last part you seek is hidden south of here, on the Fields of Glory - look inside a big fly agaric, if you dare touch such a thing.", npc, creature)
-			end
-		elseif player:getStorageValue(ThreatenedDreams.Mission04.StonesRaked) >= 5 then
-			npcHandler:say({
-				"You raked all five of my restless kin and let them rest at last. My thanks, traveller - take this piece of an old map I kept buried beneath me. ...",
-				"If you still seek the last part of the map, look south of here on the Fields of Glory - I have heard it is hidden inside a big fly agaric.",
-			}, npc, creature)
-			player:addItem(24944, 1)
-			player:setStorageValue(ThreatenedDreams.Mission04.MapGrumpyStone, 1)
-		else
-			npcHandler:say({
-				"Grumble... my kin, the sentient stones scattered around me, have not known rest in ages. Weeds and moss cling to them and it pains them terribly. A good raking would set them right. ...",
-				"Would you rake the five stones around me, traveller?",
-			}, npc, creature)
-			npcHandler:setTopic(playerId, 1)
-		end
+	if player:getStorageValue(ThreatenedDreams.Mission06.ForestFuryFreed) >= 1 then
+		npcHandler:say("Thank you again for freeing me, mortal being. I owe you a debt I can never repay.", npc, creature)
+		return true
+	end
+
+	if MsgContains(message, "help") then
+		npcHandler:say({
+			"Shh! Keep your voice down, or the Coryms will hear! I was captured long ago and locked in this cage, and I have grown weary of these dark markets. Would you help me escape?",
+		}, npc, creature)
+		npcHandler:setTopic(playerId, 1)
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 1 then
-		npcHandler:say("Good. Bring a rake and set to work on the five stones around me.", npc, creature)
+		npcHandler:say({
+			"Bless you, mortal being! But this will not be easy. My cage is locked with an intricate key, hidden two floors below us. And even with the key, the Coryms will notice if you are seen freeing me. ...",
+			"You will need to become invisible - a spell, or perhaps a stealth ring, would do. But invisibility alone is not enough; the Coryms must still believe I am here even as I vanish. Seek out Charlotta on the surface - she knows a trick with mirror images that may help.",
+		}, npc, creature)
+		player:setStorageValue(ThreatenedDreams.Mission06[1], 2)
 		npcHandler:setTopic(playerId, 0)
 	elseif MsgContains(message, "no") then
-		npcHandler:say("Grumble. Suit yourself then.", npc, creature)
+		npcHandler:say("I understand. Please, do think it over.", npc, creature)
 		npcHandler:setTopic(playerId, 0)
 	end
 	return true
 end
 
-npcHandler:setMessage(MESSAGE_GREET, "Grumble... what do you want.")
+npcHandler:setMessage(MESSAGE_GREET, "...Psst. Over here. Can you {help} me?")
 npcHandler:setCallback(CALLBACK_MESSAGE_DEFAULT, creatureSayCallback)
 npcHandler:addModule(FocusModule:new(), npcConfig.name, true, true, true)
 

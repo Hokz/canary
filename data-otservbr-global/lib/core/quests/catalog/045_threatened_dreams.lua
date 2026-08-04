@@ -91,6 +91,86 @@ local quest = {
 				You may also ask Aurita for the starlight vial now.",
 			},
 		},
+		-- CUSTOM_GLOBAL_LIKE_QUESTLOG_PENDING_EXACT_REFERENCE
+		[4] = {
+			name = "The Fairy Treasure",
+			storageId = Storage.Quest.U11_40.ThreatenedDreams.Mission04[1],
+			missionId = 10432,
+			startValue = 1,
+			endValue = 5,
+			states = {
+				[1] = "The Tooth Fairy is stranded here without her portal spells, and some children are still waiting \z
+				for their milk-tooth presents. Deliver presents to the children of Quero, Allen and Rowenna and bring back their milk teeth.",
+				[2] = "You delivered all three presents. The Tooth Fairy gave you a piece of an old map and mentioned \z
+				two more fae who might know where the rest is hidden.",
+				[3] = "A grumbling stone between Kazordoon and Femor Hills asked you to rake its restless kin free of \z
+				weeds and moss. A tired tree on the Fields of Glory longs for a bedtime story instead.",
+				[4] = "You gathered three parts of the old map. The last, a fourth fragment hidden inside a big fly \z
+				agaric south of the tired tree, completed it.",
+				[5] = "The assembled old map led you to a stone sun mosaic in the very south of Thais, where a hidden \z
+				fairy treasure lay waiting beneath the stones.",
+			},
+		},
+		-- CUSTOM_GLOBAL_LIKE_QUESTLOG_PENDING_EXACT_REFERENCE
+		[5] = {
+			name = "The Swan Feather Cloak",
+			storageId = Storage.Quest.U11_40.ThreatenedDreams.Mission05[1],
+			missionId = 10433,
+			startValue = 1,
+			endValue = 3,
+			states = {
+				[1] = function(player)
+					return ("Valindara offered to craft you a feathery cloak from one hundred swan feathers, gathered \z
+					near swans around Feyrist during daylight.\nSwan feathers gathered: %d/100"):format(math.max(player:getStorageValue(Storage.Quest.U11_40.ThreatenedDreams.Mission05.FeatherCount), 0))
+				end,
+				[2] = "You brought Valindara one hundred swan feathers. She is weaving them into a cloak - return the \z
+				following day to collect it.",
+				[3] = "Valindara finished weaving your swan feather cloak.",
+			},
+		},
+		-- CUSTOM_GLOBAL_LIKE_QUESTLOG_PENDING_EXACT_REFERENCE
+		[6] = {
+			name = "Sweet Dreams",
+			storageId = Storage.Quest.U11_40.ThreatenedDreams.Mission06[1],
+			missionId = 10434,
+			startValue = 1,
+			endValue = 20,
+			states = {
+				[1] = "Maelyrra told you of a great donut on Feyrist's east coast that leads to Candia, a realm of \z
+				sweets - but you'll need a Gingerbread Key to make sense of the way through.",
+				[2] = "You found a captive forest fury in the Corym Black Market beneath Liberty Bay, begging to be \z
+				freed. She needs an intricate key hidden two floors below, and a way to stay unseen.",
+				[3] = "You found the intricate cage key. Now you need a way to remain unseen from the Coryms.",
+				[4] = "Charlotta crafted a mirror image to distract the Coryms. You need to become invisible and free \z
+				the forest fury quickly.",
+				[5] = "You freed the forest fury while unseen. She pressed the recipe for a gingerbread key into your \z
+				hand before vanishing.",
+				[6] = "You are gathering the ingredients for the gingerbread key: cake dough, chocolate dough, and \z
+				syrups of moon melon, raspberry and lemon.",
+				[7] = "You baked and glazed the gingerbread key. A way into Candia has opened through the great donut.",
+				[8] = "You found a candy lipstick atop the Gingerbread Castle. Its inhabitants' gestures now make sense to you.",
+				[9] = "Sugar Plum Fairy's favourite sweets were stolen by Kroazur and sold onward to Katex Blood \z
+				Tongue, The Flaming Orchid and Gorga. Defeat them and recover her sweets.",
+				[10] = "You recovered all four stolen sweets and returned them to Sugar Plum Fairy. She sent you to \z
+				Candis at the Chocolate Mines.",
+				[11] = "Candis asked you to enter a dangerous portal in the Chocolate Mines and free her workers from \z
+				something calling itself Sugar Daddy.",
+				[12] = "You defeated Sugar Daddy and freed the workers. The mines are still unstable, though - broken \z
+				walls need sealing and loose Honey Elementals need to be caught.",
+				[13] = "You are sealing broken walls with candy canes and catching loose Honey Elementals in jars.",
+				[14] = "You stabilized the Chocolate Mines. Report back to Candis.",
+				[15] = "Candis thanked you and asked you to tell Sugar Plum Fairy the good news.",
+				[16] = "The Candy Carnival has reopened. Dulcineo is troubled by a long feud between Sugar Plum Fairy \z
+				and her sister, the Tooth Fairy.",
+				[17] = "The Tooth Fairy asked you to deliver toothbrushes to three children - Rowenna's in Carlin, \z
+				Quero's in Thais, and Allen's in Venore - and leave them on their pillows.",
+				[18] = "You delivered all three toothbrushes and made peace with the Tooth Fairy. Report back to Dulcineo.",
+				[19] = "One of Sugar Plum Fairy's taffy bunnies, Cherry, has gone missing in the Dessert Dungeons \z
+				beneath Candia. She's said to be far too quick to catch.",
+				[20] = "You found Cherry's trail in the Dessert Dungeons and confirmed she is safe, if uncatchable. \z
+				Candia's sweetest dreams are safe once more.",
+			},
+		},
 	},
 }
 

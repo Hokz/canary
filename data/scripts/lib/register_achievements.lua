@@ -567,6 +567,7 @@ ACHIEVEMENTS = {
 	[568] = { name = "Bat Person", grade = 1, points = 3, description = "No matter your command, this beast is all ears!" },
 	[569] = { name = "Illuminator", grade = 1, points = 3, description = "Joran and Yvette have brought the colours back to the world, and you have freed it from the monsters of this story. The world of books is now yours." },
 	[570] = { name = "Power of Words", grade = 2, points = 5, description = "The pen is mightier than the sword. In a way, yes, you have had this experience. You have seen with your own eyes what the power of words can do, the written word, to be precise." },
+	[571] = { name = "A Friend in Need", grade = 1, points = 3, description = "You freed a captive forest fury from the Corym Black Market, staying unseen the whole time." },
 }
 
 --[[

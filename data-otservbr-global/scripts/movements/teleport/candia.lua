@@ -14,6 +14,14 @@ function candia.onStepIn(creature, item, position, fromPosition)
 
 	for value in pairs(config) do
 		if Position(config[value].position) == player:getPosition() then
+			-- Feyrist > Candia direction requires the baked Gingerbread Key (Sweet Dreams);
+			-- the reverse Candia > Feyrist direction is always open once inside.
+			local enteringCandia = config[value].destination.x == 33338 or config[value].destination.x == 33339
+			if enteringCandia and player:getStorageValue(Storage.Quest.U11_40.ThreatenedDreams.Mission06.CandiaAccess) < 1 then
+				player:teleportTo(fromPosition)
+				player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The donut leads nowhere you recognize. You feel you need a key of some sort to make sense of this place.")
+				return true
+			end
 			player:teleportTo(Position(config[value].destination), true)
 			player:getPosition():sendMagicEffect(CONST_ME_CANDY_FLOSS)
 			return true

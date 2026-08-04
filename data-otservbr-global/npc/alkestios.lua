@@ -61,7 +61,7 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
-	if MsgContains(message, "mission") then
+	if MsgContains(message, "mission") and player:getStorageValue(ThreatenedDreams.Mission01[1]) >= 1 then
 		if player:getStorageValue(ThreatenedDreams.Mission01[1]) == 1 and player:getStorageValue(ThreatenedDreams.Mission01.PoacherChest) == 1 then
 			npcHandler:say("Uhmn.. Maybe Ahmet in Ankrahmun can help we to fake this book.", npc, creature)
 		elseif player:getStorageValue(ThreatenedDreams.Mission01[1]) == 2 then
@@ -79,7 +79,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			}, npc, creature)
 			player:setStorageValue(ThreatenedDreams.Mission01[1], 16)
 		end
-	elseif MsgContains(message, "help") and player:getStorageValue(ThreatenedDreams.Mission01[1]) < 1 then
+	elseif (MsgContains(message, "help") or MsgContains(message, "mission")) and player:getStorageValue(ThreatenedDreams.Mission01[1]) < 1 then
 		npcHandler:say({
 			"I indeed have some troubles since I'm travelling this part of the world. When I took over the body of a white deer I wasn't aware that such an animal is a sought after quarry for hunters and poachers. ...",
 			"Now I'm living in the constant danger of being caught and killed. Of course, I could just take over another animal but this deer has really grown on me. I'd like to help this beautiful stag but I need your assistance. Are you willing to help me?",

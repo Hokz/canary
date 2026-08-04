@@ -18,6 +18,10 @@ monster.bosstiary = {
 	bossRace = RARITY_BANE,
 }
 
+monster.events = {
+	"SweetDreamsSugarDaddyKill",
+}
+
 monster.health = 9500
 monster.maxHealth = 9500
 monster.race = "blood"
