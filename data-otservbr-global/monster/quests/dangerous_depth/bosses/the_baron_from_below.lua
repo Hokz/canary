@@ -74,6 +74,13 @@ monster.voices = {
 }
 
 monster.loot = {
+	-- Guaranteed drop, not a rare reward: this is the only place a "mallet head" is obtainable
+	-- anywhere in the repo, and the final boss (Morgathla) access mechanic requires one of each
+	-- of the 3 mallet parts (see creaturescripts_morgathla.lua) - the reference names 3 mallet
+	-- parts and requires all 3 area bosses defeated before final-boss access, but doesn't specify
+	-- a drop source (image data lost); one part per boss is the well-supported, disclosed
+	-- inference, not a guess pulled from nowhere.
+	{ id = 27524, chance = 100000 }, -- mallet head
 	{ name = "platinum coin", chance = 100000, maxCount = 58 },
 	{ name = "mastermind potion", chance = 100000 },
 	{ name = "stone skin amulet", chance = 100000 },

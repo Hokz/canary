@@ -74,6 +74,8 @@ monster.voices = {
 }
 
 monster.loot = {
+	-- Guaranteed drop, not a rare reward - see the_baron_from_below.lua's mallet head comment.
+	{ id = 27525, chance = 100000 }, -- mallet handle
 	{ name = "platinum coin", chance = 100000, maxCount = 54 },
 	{ id = 27713, chance = 100000, maxCount = 7 }, -- heavy crystal fragment
 	{ name = "mastermind potion", chance = 100000, maxCount = 3 },

@@ -1,6 +1,12 @@
 local mType = Game.createMonsterType("Ancient Scarab")
 local monster = {}
 
+monster.events = {
+	-- Dangerous Depths final boss (Morgathla): no-op everywhere except inside that specific
+	-- encounter, see creaturescripts_morgathla.lua's scarabStrengthen handler.
+	"MorgathlaScarabDeath",
+}
+
 monster.description = "an ancient scarab"
 monster.experience = 720
 monster.outfit = {
