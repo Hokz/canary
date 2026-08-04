@@ -2748,6 +2748,31 @@ Storage = {
 				SpeedBonusApplied = 46104, -- last speed delta granted via changeSpeed, so re-entering a
 				-- completed-area Zone or logging back in can diff/reapply correctly instead of stacking
 			},
+			-- Secret Library final invasion (Scourge of Oblivion) - previously a single BossLever
+			-- pull with no wave/wing-boss orchestration at all (the described 26:20, 4-wing-boss
+			-- encounter). These are Game-storage (room-shared, not per-player) state, same convention
+			-- as TheSecretLibrary.Library.* above and Dangerous Depths' Geodes.WarzoneX.
+			SecretLibraryInvasion = {
+				Started = 46105, -- Game.setStorageValue: os.time() the 26:20 encounter began, room-shared
+				SpellstealerDefeated = 46106,
+				ScionOfHavocDefeated = 46107,
+				BrothersDefeated = 46108, -- both Brother Chill and Brother Freeze dead
+				BrothersDeathCount = 46113, -- synchronous counter (see InvasionBrothersDeath) - not a
+				-- live spectator re-scan, which has a real race if both die in the same tick (the
+				-- exact class of bug already found and fixed this session in A Pirate's Tail's
+				-- Ratmiral encounter)
+				DevourerDefeated = 46109,
+				ScourgePhase = 46110, -- 0 = not yet spawned, 1 = yellow (vulnerable), 2 = red (reflect), 3 = blue (beam)
+			},
+			-- Furious Scorpion boss room (Darashia desert) - the reference describes 2 add-waves
+			-- ("4 skeleton elite warriors" on moving left, "2 undead elite gladiators" moving
+			-- deeper) that were never spawned at all in the pre-existing implementation. Game-storage
+			-- (room-shared, one attempt at a time), reset at the start of each new attempt in
+			-- movements_teleportTo.lua's startBattle.
+			ScorpionRoomAdds = {
+				EliteWarriorsSpawned = 46111,
+				EliteGladiatorsSpawned = 46112,
+			},
 		},
 		U12_00 = { -- update 12.00 - Reserved Storages 46301 - 46600
 			TheDreamCourts = {

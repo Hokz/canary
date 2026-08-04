@@ -2,6 +2,9 @@ local mType = Game.createMonsterType("Spawn of Havoc")
 local monster = {}
 
 monster.description = "a spawn of havoc"
+monster.events = {
+	"InvasionSpawnOfHavocDeath",
+}
 monster.experience = 0
 monster.outfit = {
 	lookType = 49,

@@ -2,6 +2,9 @@ local mType = Game.createMonsterType("The Book of Secrets")
 local monster = {}
 
 monster.description = "a The Book of Secrets"
+monster.events = {
+	"InvasionBookDeath",
+}
 monster.experience = 0
 monster.outfit = {
 	lookTypeEx = 22755,

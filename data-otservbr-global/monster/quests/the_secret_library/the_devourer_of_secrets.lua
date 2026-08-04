@@ -2,6 +2,10 @@ local mType = Game.createMonsterType("The Devourer of Secrets")
 local monster = {}
 
 monster.description = "The Devourer of Secrets"
+monster.events = {
+	"InvasionDevourerDamageGate",
+	"InvasionDevourerDeath",
+}
 monster.experience = 0
 monster.outfit = {
 	lookType = 309,

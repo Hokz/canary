@@ -2,6 +2,9 @@ local mType = Game.createMonsterType("Stolen Tome of Portals")
 local monster = {}
 
 monster.description = "a stolen tome of portals"
+monster.events = {
+	"InvasionBookDeath",
+}
 monster.experience = 0
 monster.outfit = {
 	lookTypeEx = 23985,

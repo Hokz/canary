@@ -69,6 +69,11 @@ local function startBattle(pid, position, b_name, middle)
 		player:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
 		player:say("You have to master this very last challenge within 5 minutes!", TALKTYPE_MONSTER_SAY)
 		local monster = Game.createMonster(b_name, middle)
+		-- Reset the room's add-wave gates (see movements_scorpion_room_adds.lua) at the start of
+		-- each fresh attempt, so a second/third attempt can trigger the elite warrior/gladiator
+		-- waves again instead of only ever firing once per server uptime.
+		Game.setStorageValue(Storage.Quest.U11_80.TheSecretLibrary.ScorpionRoomAdds.EliteWarriorsSpawned, 0)
+		Game.setStorageValue(Storage.Quest.U11_80.TheSecretLibrary.ScorpionRoomAdds.EliteGladiatorsSpawned, 0)
 	end
 end
 
