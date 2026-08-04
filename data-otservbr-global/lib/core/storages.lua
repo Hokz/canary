@@ -2729,8 +2729,25 @@ Storage = {
 				Addon1 = 46098,
 				Addon2 = 46099,
 			},
-			DiscovererOutfits = {},
-			MeasuringTibia = {},
+			-- Measuring Tibia (World Discovery / Discoverer outfit) - modern (11.80+) auto-discovery
+			-- behavior: every character is eligible automatically, no NPC/keyword needed to start.
+			-- Per-subarea/per-POI discovery state is far too granular for flat numeric storages
+			-- (~171 subareas x up to ~10 POIs each) - that state lives in the player KV store
+			-- (player:kv():scoped("measuring-tibia"), see lib/quests/measuring_tibia.lua), matching
+			-- this repo's own established pattern for equally-granular per-player state
+			-- (achievements: PlayerAchievement::getUnlockedKV(), one KV entry per unlocked
+			-- achievement). These few numeric storages are only the cheap, frequently-read
+			-- summary/gate flags.
+			DiscovererOutfits = {
+				BaseClaimed = 46100, -- Charos: 10 areas -> base outfit + Widely Travelled achievement
+				Addon1Claimed = 46101, -- Charos: 15 areas -> addon 1
+				Addon2Claimed = 46102, -- Charos: 20 areas -> addon 2 + Measuring the World achievement
+			},
+			MeasuringTibia = {
+				CompletedAreaCount = 46103, -- cached count of fully-discovered parent areas (0-20)
+				SpeedBonusApplied = 46104, -- last speed delta granted via changeSpeed, so re-entering a
+				-- completed-area Zone or logging back in can diff/reapply correctly instead of stacking
+			},
 		},
 		U12_00 = { -- update 12.00 - Reserved Storages 46301 - 46600
 			TheDreamCourts = {

@@ -1,0 +1,312 @@
+-- Measuring Tibia (World Discovery / Discoverer outfit, added 11.80) - area/subarea reference data.
+--
+-- Every subarea's fromPos/toPos (its Zone boundary) and pois (its candidate Point of Interest
+-- position pool) are nil/empty pending real Tibia world coordinates - the owner-supplied PDF source
+-- (Tibiopedia) lists area/subarea NAMES and their achievement mapping exactly, but gives no
+-- coordinates anywhere (text-only area/subarea tables, no map grid references). Filling these in is
+-- pure map data entry, not something that can be safely inferred - see the Map/POI Setup Contract in
+-- the PR body. Until fromPos/toPos is set, a subarea's Zone is never created (see
+-- scripts/systems/measuring_tibia_zones.lua) and the whole system stays inert for that subarea -
+-- same "nil position = inert code" convention used for every other position-dependent quest this
+-- session.
+--
+-- requiredActive/requiredDiscovered default to the PDF's stated 10 active / 7-to-complete and are
+-- only overridden per-subarea if a real source ever specifies otherwise for a specific place.
+MeasuringTibiaAreas = {
+	{
+		name = "Ab'Dendriel",
+		achievement = "Elven Woods",
+		subareas = {
+			{ name = "Ab'Dendriel City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Ab'Dendriel Surroundings", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Draconia", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Elvenbane", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Carlin",
+		achievement = "Long Live the Queen",
+		subareas = {
+			{ name = "Carlin City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Carlin Surroundings", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Fields of Glory", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Folda", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Ghostlands", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Ice Islands", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Isle of the Kings", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Senja", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Vega", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Edron",
+		achievement = "Stronghold of Edron",
+		subareas = {
+			{ name = "Azzilon Castle", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Cormaya", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Cyclopolis", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Edron Castle", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Edron Dragon Lair", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Edron Goblin Den", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Edron Hero Fortress", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Edron Orc Lands", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Edron Surroundings", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Edron Troll Den", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Grimvale", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Stonehome", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Feyrist",
+		achievement = "Realms of Dreams",
+		subareas = {
+			{ name = "Candia", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Feyrist Meadows", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Fae Village", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Hrodmir",
+		achievement = "Race to the Pole",
+		subareas = {
+			{ name = "Bittermor", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Formorgar Glacier", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Grimlund", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Hellheim", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Inukaya", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Krimhorn", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Nibelor", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Okolnir", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Ragnir", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Svargrond City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Svargrond Surroundings", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Tyrsung", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Kazordoon",
+		achievement = "Dwarven Mines",
+		subareas = {
+			{ name = "Femor Hills", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Horned Fox Lair", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Kazordoon City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Kazordoon Surroundings", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Kazordoon Troll Den", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Orc Lands", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Rorc Plains", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Ulderek's Rock", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Kilmaresh",
+		achievement = "The Empire's Glory",
+		subareas = {
+			{ name = "Central Steppe", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Green Belt", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Issavi", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Kilmaresh Mountains", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Nykri Delta", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Rascacoon", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Southern Steppe", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "The Wreckoning", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Krailos",
+		achievement = "The Ogre Steppe",
+		subareas = {
+			{ name = "Krailos Mines", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Krailos Ruins", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Krailos Steppe", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Ogre Village", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Marapur",
+		achievement = "Snake Pit",
+		subareas = {
+			{ name = "Dead Riverbed", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Emerald Gardens", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Fading Isles", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Hounds Head", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Moonfall", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Moonstone Crater", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Murmuring Wilderness", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Salgadara", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Silent Waters", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Silvertides", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Sparking Lagoon", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Stardance Mountains", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Thalassara Surroundings", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Northern Darama",
+		achievement = "Daraman's Footsteps",
+		subareas = {
+			{ name = "Daramian Minotaur Pyramid", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Darashia City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Drefia", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Lion's Rock", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Northern Darama Desert", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Oramond",
+		achievement = "Glooth Punk",
+		subareas = {
+			{ name = "Oramond Marshes", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Oramond Minotaur Camp", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Oramond Mountain Hideout", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Rathleton City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Rathleton Slum", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Rathleton Workshops", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Quirefang",
+		achievement = "Trip to the Beach",
+		subareas = {
+			{ name = "Gray Beach", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Hive Pools", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Hive Pyramids", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Roshamuul",
+		achievement = "Twisted Dreams",
+		subareas = {
+			{ name = "Isle of Ada - Adaean Mines", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Isle of Ada - Bastion", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Isle of Ada - Outskirts", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Lower Roshamuul", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Roshamuul Mountains", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Upper Roshamuul", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Ingol", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Southern Darama",
+		achievement = "Mummy's Dearest",
+		subareas = {
+			{ name = "Ankrahmun City", fromPos = nil, toPos = nil, pois = {} },
+			-- The PDF's own forum comments flag Ankrahmun Pharaoh Tombs as deceptive: the world map
+			-- shows only 1 tomb marker, but there are 8 separate tombs total that all count toward
+			-- this subarea's discovery. Kept as a single subarea (matching the PDF's area/subarea
+			-- table, which lists it once) - the 8-tomb detail is candidate-POI-pool content (their
+			-- entrances/interiors), not a reason to split it into 8 subareas.
+			{ name = "Ankrahmun Pharaoh Tombs", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Cobra Bastion", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Kha'zeel Dragon Lairs", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Southern Darama Desert", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Southern Terramite Tunnels", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Thais",
+		achievement = "All Hail the King",
+		subareas = {
+			{ name = "Aragonia", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Fibula", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Greenshore", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Mount Sternum", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Targuna", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Thais City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Thais Surroundings", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Thais Troll's Cave", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Tiquanda",
+		achievement = "King of the Jungle",
+		subareas = {
+			{ name = "Asura Palace", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Banuta", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Chor", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Forbidden Lands of Tiquanda", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Kha'zeel Mountains", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Medusa Tower", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Oskayat", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Port Hope City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Port Hope Surroundings", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Vandura",
+		achievement = "Liberty Bay Watch",
+		subareas = {
+			{ name = "Bounac", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Calassa", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Goroma", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Goroma Hellgorge", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Kharos", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Laguna Islands", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Liberty Bay City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Liberty Bay Surroundings", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Malada", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Meriana", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Nargor", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Ramoa", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Talahu", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Treasure Island", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Vandura Cultist Hideout", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Vandura Quara Caves", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Venore",
+		achievement = "Jewel in the Swamp",
+		subareas = {
+			{ name = "Amazon Camp", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Black Knight Villa", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Dark Cathedral", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Gloom Caverns", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Green Claw Swamp", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Jakundaf Desert", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Outlaw Camp", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Plains of Havoc", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Shadowthorn", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Venore City", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Venore Dragon Lair", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Venore Southern Swamp", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Venore Surroundings", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Yalahar",
+		achievement = "Ancient Splendor",
+		subareas = {
+			{ name = "Fenrock", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Isle of Evil", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Mistrock", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Yalahar Alchemist Quarter", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Yalahar Arena Quarter", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Yalahar Centre", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Yalahar Factory Quarter", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Yalahar Foreigner Quarter", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Yalahar Graveyard", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Yalahar Mage Quarter", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Yalahar Sunken Quarter", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Yalahar Trade Quarter", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+	{
+		name = "Zao",
+		achievement = "Lizard Kingdom",
+		subareas = {
+			{ name = "Chazorai", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Corrupted Gardens", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Dragonblaze Peaks", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Emperor's Castle", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Falcon Bastion", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Muggy Plains", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Norcferatu Fortress", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Razzachai", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Spirittrails", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Vengoth", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Zao Orc Fortress", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Zao Steppe", fromPos = nil, toPos = nil, pois = {} },
+			{ name = "Zzaion", fromPos = nil, toPos = nil, pois = {} },
+		},
+	},
+}
