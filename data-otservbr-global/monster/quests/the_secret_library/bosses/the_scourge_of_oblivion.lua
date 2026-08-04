@@ -13,8 +13,16 @@ monster.outfit = {
 	lookMount = 0,
 }
 
+-- CONFIRMED BUG (pre-existing): monster.events referenced "SecretLibraryBossDeath", a CreatureEvent
+-- that is never registered anywhere in the repo (a dangling reference - harmless at runtime per this
+-- engine's registerCreatureEvent semantics, but dead code; the Library Liberator achievement it was
+-- clearly meant to grant was never wired to anything). This is the boss's YELLOW (vulnerable) form -
+-- see the_scourge_of_oblivion_dormant.lua (pre-fight placeholder) and
+-- the_scourge_of_oblivion_reflective.lua (red phase) for the other two forms, cycled by
+-- InvasionScourgePhaseCycle.
 monster.events = {
-	"SecretLibraryBossDeath",
+	"InvasionScourgePhaseCycle",
+	"InvasionScourgeDeath",
 }
 
 monster.bosstiary = {
@@ -150,18 +158,14 @@ monster.defenses = {
 	{ name = "invisible", interval = 1000, chance = 17, effect = CONST_ME_MAGIC_BLUE },
 }
 
-monster.reflects = {
-	{ type = COMBAT_PHYSICALDAMAGE, percent = 100 },
-	{ type = COMBAT_ENERGYDAMAGE, percent = 100 },
-	{ type = COMBAT_EARTHDAMAGE, percent = 100 },
-	{ type = COMBAT_FIREDAMAGE, percent = 100 },
-	{ type = COMBAT_LIFEDRAIN, percent = 100 },
-	{ type = COMBAT_MANADRAIN, percent = 100 },
-	{ type = COMBAT_DROWNDAMAGE, percent = 100 },
-	{ type = COMBAT_ICEDAMAGE, percent = 100 },
-	{ type = COMBAT_HOLYDAMAGE, percent = 100 },
-	{ type = COMBAT_DEATHDAMAGE, percent = 100 },
-}
+-- CONFIRMED BUG (pre-existing): this file had a permanent, unconditional 100%-reflect-all-types
+-- table alongside normal (0% resist) elements, with no code anywhere that ever varied it - meaning
+-- the boss, as previously authored, reflected 100% of all incoming damage back at attackers at all
+-- times, with no way to actually damage it net-positive. The reference's red "reflective shields"
+-- phase is exactly this behavior, but only DURING that phase - moved to
+-- the_scourge_of_oblivion_reflective.lua (a separate type, swapped in via InvasionScourgePhaseCycle,
+-- preserving current HP - the same technique already used by this quest's own Ghulosh/Deathgaze form
+-- swap). This file (yellow/vulnerable) now has no reflects at all, as intended for that phase.
 
 monster.elements = {
 	{ type = COMBAT_PHYSICALDAMAGE, percent = 0 },

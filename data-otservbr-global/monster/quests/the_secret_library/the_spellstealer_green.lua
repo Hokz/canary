@@ -1,11 +1,10 @@
-local mType = Game.createMonsterType("The Spellstealer")
+-- The Spellstealer - GREEN colored phase. Immune while colored; luring it onto the matching green
+-- teleport (movements_invasion_start.lua) swaps it back to the base grey/vulnerable form, preserving
+-- current HP - see creaturescripts_invasion_wings.lua's InvasionSpellstealerColorSwap.
+local mType = Game.createMonsterType("The Spellstealer (green)")
 local monster = {}
 
 monster.description = "The Spellstealer"
-monster.events = {
-	"InvasionSpellstealerColorSwap",
-	"InvasionSpellstealerDeath",
-}
 monster.experience = 0
 monster.outfit = {
 	lookType = 12,
@@ -20,7 +19,7 @@ monster.outfit = {
 monster.health = 10000
 monster.maxHealth = 10000
 monster.race = "undead"
-monster.corpse = 6068
+monster.corpse = 0
 monster.speed = 175
 monster.manaCost = 0
 
@@ -39,7 +38,7 @@ monster.flags = {
 	hostile = true,
 	convinceable = false,
 	pushable = false,
-	rewardBoss = true,
+	rewardBoss = false,
 	illusionable = false,
 	canPushItems = true,
 	canPushCreatures = true,
@@ -54,8 +53,8 @@ monster.flags = {
 }
 
 monster.light = {
-	level = 0,
-	color = 0,
+	level = 3,
+	color = 66, -- green
 }
 
 monster.voices = {
@@ -67,27 +66,24 @@ monster.loot = {}
 
 monster.attacks = {
 	{ name = "melee", interval = 2000, chance = 100, minDamage = 0, maxDamage = -200 },
-	{ name = "combat", interval = 1000, chance = 15, type = COMBAT_PHYSICALDAMAGE, minDamage = 0, maxDamage = -180, range = 7, shootEffect = CONST_ANI_SNOWBALL, effect = CONST_ME_POFF, target = false },
-	{ name = "combat", interval = 1000, chance = 12, type = COMBAT_ENERGYDAMAGE, minDamage = 0, maxDamage = -175, length = 3, spread = 0, effect = CONST_ME_POFF, target = false },
 }
 
 monster.defenses = {
 	defense = 33,
 	armor = 28,
-	--	mitigation = ???,
 }
 
 monster.elements = {
-	{ type = COMBAT_PHYSICALDAMAGE, percent = 0 },
-	{ type = COMBAT_ENERGYDAMAGE, percent = 0 },
-	{ type = COMBAT_EARTHDAMAGE, percent = 0 },
-	{ type = COMBAT_FIREDAMAGE, percent = 0 },
-	{ type = COMBAT_LIFEDRAIN, percent = 0 },
-	{ type = COMBAT_MANADRAIN, percent = 0 },
-	{ type = COMBAT_DROWNDAMAGE, percent = 0 },
-	{ type = COMBAT_ICEDAMAGE, percent = 0 },
-	{ type = COMBAT_HOLYDAMAGE, percent = 0 },
-	{ type = COMBAT_DEATHDAMAGE, percent = 0 },
+	{ type = COMBAT_PHYSICALDAMAGE, percent = 100 },
+	{ type = COMBAT_ENERGYDAMAGE, percent = 100 },
+	{ type = COMBAT_EARTHDAMAGE, percent = 100 },
+	{ type = COMBAT_FIREDAMAGE, percent = 100 },
+	{ type = COMBAT_LIFEDRAIN, percent = 100 },
+	{ type = COMBAT_MANADRAIN, percent = 100 },
+	{ type = COMBAT_DROWNDAMAGE, percent = 100 },
+	{ type = COMBAT_ICEDAMAGE, percent = 100 },
+	{ type = COMBAT_HOLYDAMAGE, percent = 100 },
+	{ type = COMBAT_DEATHDAMAGE, percent = 100 },
 }
 
 monster.immunities = {

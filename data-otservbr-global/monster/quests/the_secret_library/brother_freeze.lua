@@ -2,6 +2,11 @@ local mType = Game.createMonsterType("Brother Freeze")
 local monster = {}
 
 monster.description = "Brother Freeze"
+monster.events = {
+	"InvasionBrothersHealIce",
+	"InvasionBrothersHealEachOther",
+	"InvasionBrothersDeath",
+}
 monster.experience = 0
 monster.outfit = {
 	lookType = 261,
