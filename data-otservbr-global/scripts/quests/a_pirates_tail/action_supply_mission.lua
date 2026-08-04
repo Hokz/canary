@@ -76,6 +76,8 @@ local function endAttempt(player, success)
 	end
 end
 
+local roomState = { active = false }
+
 local function spawnRat()
 	if #ROOM.ratSpawns == 0 then
 		return
@@ -100,10 +102,14 @@ local function spawnRat()
 			if cheese then
 				cheese:remove()
 				for _, player in ipairs(roomPlayers()) do
-					setScore(player, math.max(player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) - 3, 0))
-					player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "A disguised rat devoured a cheese!")
-					if player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) <= 0 then
-						endAttempt(player, false)
+					-- skip players whose attempt already ended (score already at 0) so one
+					-- player isn't re-ejected/re-penalized by every later cheese-eaten event
+					if player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) > 0 then
+						setScore(player, math.max(player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) - 3, 0))
+						player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "A disguised rat devoured a cheese!")
+						if player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) <= 0 then
+							endAttempt(player, false)
+						end
 					end
 				end
 				addEvent(function()
@@ -112,6 +118,30 @@ local function spawnRat()
 			end
 		end
 	end, RAT_EAT_DELAY)
+end
+
+-- Room-wide rat/cheese spawning is ONE shared timeline for the whole 5-player cellar, not a
+-- separate chain per player who enters - each player scores independently, but only a single
+-- tickRats loop should ever be running at a time. An earlier draft started a fresh tickRats chain
+-- from inside supplyEntry.onUse itself (once per player), which meant N simultaneous players
+-- produced N independent rat spawners all broadcasting cheese-eaten penalties to the whole room -
+-- multiplying both the spawn rate and the penalty rate by however many players had entered.
+local function tickRats(elapsed)
+	if not roomState.active then
+		return
+	end
+	elapsed = elapsed + RAT_INTERVAL
+	if elapsed >= MISSION_DURATION then
+		roomState.active = false
+		for _, player in ipairs(roomPlayers()) do
+			if player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) > 0 then
+				endAttempt(player, true)
+			end
+		end
+		return
+	end
+	spawnRat()
+	addEvent(tickRats, RAT_INTERVAL, elapsed)
 end
 
 local supplyEntry = Action()
@@ -128,26 +158,10 @@ function supplyEntry.onUse(player, item, fromPosition, target, toPosition, isHot
 	player:teleportTo(ROOM.entry)
 	setScore(player, START_SCORE)
 
-	addEvent(function()
-		if player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) > 0 then
-			endAttempt(player, true)
-		end
-	end, MISSION_DURATION)
-
-	local ratSpawner
-	local elapsed = 0
-	local function tickRats()
-		if player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) <= 0 then
-			return -- attempt already ended
-		end
-		elapsed = elapsed + RAT_INTERVAL
-		if elapsed >= MISSION_DURATION then
-			return
-		end
-		spawnRat()
-		addEvent(tickRats, RAT_INTERVAL)
+	if not roomState.active then
+		roomState.active = true
+		addEvent(tickRats, RAT_INTERVAL, 0)
 	end
-	addEvent(tickRats, RAT_INTERVAL)
 	return true
 end
 supplyEntry:aid(ENTRY_AID)

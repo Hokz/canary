@@ -11,6 +11,7 @@ local config = {
 	createBoss = function()
 		Game.setStorageValue(GlobalStorage.APiratesTailBosses.RatmiralStage, 1)
 		Game.setStorageValue(GlobalStorage.APiratesTailBosses.RatmiralGateHealth, 2)
+		Game.setStorageValue(GlobalStorage.APiratesTailBosses.RatmiralStage3Deaths, 0)
 		return true
 	end,
 	playerPositions = {

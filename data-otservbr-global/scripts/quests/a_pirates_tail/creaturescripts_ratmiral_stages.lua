@@ -173,15 +173,16 @@ function upperDeckDeath.onDeath(creature, corpse, lasthitkiller, mostdamagekille
 	if Game.getStorageValue(GlobalStorage.APiratesTailBosses.RatmiralStage) ~= 3 then
 		return true
 	end
-	-- both bosses share this handler name via monster.events; check if the other is still alive
-	local otherName = creature:getName():lower() == "ratmiral blackwhiskers" and "1st mate ratticus" or "ratmiral blackwhiskers"
-	local otherAlive = false
-	for _, spectator in ipairs(Game.getSpectators(creature:getPosition(), false, true, 20, 20, 20, 20)) do
-		if spectator:isMonster() and spectator:getName():lower() == otherName then
-			otherAlive = true
-		end
-	end
-	if otherAlive then
+	-- Both bosses share this handler name via monster.events. Completion is driven by a
+	-- persisted counter incremented here, rather than re-scanning live spectators for "is the
+	-- other one still alive" - if both bosses die in the same combat tick (e.g. one AoE hit
+	-- killing both), a spectator re-scan from inside either's own onDeath call could plausibly
+	-- still see the other as "alive" if the engine hasn't fully removed it from the world yet,
+	-- which would make both calls wait forever and the reward would never grant. A counter
+	-- written synchronously in each call has no such race.
+	local deaths = Game.getStorageValue(GlobalStorage.APiratesTailBosses.RatmiralStage3Deaths) + 1
+	Game.setStorageValue(GlobalStorage.APiratesTailBosses.RatmiralStage3Deaths, deaths)
+	if deaths < 2 then
 		return true -- wait for the second boss form
 	end
 

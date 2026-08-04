@@ -69,9 +69,13 @@ end
 
 local raidStartup = GlobalEvent("APiratesTailRaidStartup")
 function raidStartup.onStartup()
-	if Game.getStorageValue(GlobalStorage.APiratesTailRaid.Active) ~= 1 then
-		Game.setStorageValue(GlobalStorage.APiratesTailRaid.Active, 0)
-	end
+	-- Always force a clean inactive state on boot, regardless of what was persisted before the
+	-- restart: monsters never survive a restart, so a raid that was "active" (mid-wave, with a
+	-- stale RemainingMonsters count from before the crash/shutdown) can never be legitimately
+	-- resolved by players killing monsters that no longer exist. The previous conditional here
+	-- (`if Active ~= 1 then reset`) only normalized the very-first-boot "-1 unset" case and left
+	-- a genuinely stale "1" from a crash untouched.
+	Game.setStorageValue(GlobalStorage.APiratesTailRaid.Active, 0)
 	if Game.getStorageValue(GlobalStorage.APiratesTailRaid.NextRaidAt) <= 0 then
 		Game.setStorageValue(GlobalStorage.APiratesTailRaid.NextRaidAt, os.time() + RAID_COOLDOWN)
 	end

@@ -3194,6 +3194,7 @@ GlobalStorage = {
 		TentuglyTentaclesRemaining = 60202,
 		RatmiralStage = 60203, -- 1 = gate escape, 2 = lower deck, 3 = upper deck
 		RatmiralGateHealth = 60204,
+		RatmiralStage3Deaths = 60205, -- 0-2: how many of {Ratmiral, 1st Mate Ratticus} have died this attempt
 	},
 	FuryGates = 65000,
 	Yakchal = 65001,
