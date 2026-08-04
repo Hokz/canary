@@ -20,7 +20,7 @@ local caveSpiderRoom = MoveEvent()
 function caveSpiderRoom.onStepIn(creature, item, position, fromPosition)
 	local player = creature:getPlayer()
 	if not player then
-		return trued
+		return true
 	end
 
 	local room = config

@@ -62,7 +62,10 @@ local function greetCallback(npc, creature, message)
 		})
 		player:setStorageValue(HiddenThreats.CorymRescueMission, player:getStorageValue(HiddenThreats.CorymRescueMission) + 1)
 		player:setStorageValue(HiddenThreats.CorymRescued07, 1)
-		player:addItem(3029, 1)
+		-- small amethyst, not sapphire: confirmed via a direct player report on the source
+		-- Tibiopedia page correcting the article's own reward infobox ("I didn't get coal eyes
+		-- as written, I got 2 gold nuggets, a small amethyst, a small emerald, a small ruby").
+		player:addItem(3033, 1)
 	else
 		npcHandler:setMessage(MESSAGE_GREET, "My hero! A friend of mine sent you to liberate me? A true friend!")
 	end

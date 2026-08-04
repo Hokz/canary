@@ -53,34 +53,36 @@ npcType.onCloseChannel = function(npc, creature)
 end
 
 local HiddenThreats = Storage.Quest.U11_50.HiddenThreats
+-- Corrected to the PDF's exact transcript for Corym Footman ("My hero! ... little reward."), which
+-- matches the reward-granting line used by the other freed coryms in this role (Corym Worker (1)/
+-- (3)/(5)). This file previously used an invented "hunger" greeting/keyword with no PDF source,
+-- unmarked as custom - a transcript-fidelity violation, fixed here.
+--
+-- No addItem call despite the "reward" line: a direct player report on the source page (correcting
+-- the article's own reward infobox) lists the quest's complete reward set as "2 gold nuggets, a
+-- small amethyst, a small emerald, a small ruby" - exactly the 4 items Corym Worker (1)/(3)/(5) and
+-- Corym Servant already grant, with no 5th item. Adding one here would exceed that confirmed total.
+-- OWNER_DECISION_REWARD_REFERENCE_CONFLICT: the PDF's literal transcript implies Footman also hands
+-- over a physical trinket like the other two reward-granting workers; the confirmed aggregate total
+-- says otherwise. Flagged for owner verification rather than guessed.
 local function greetCallback(npc, creature, message)
 	local player = Player(creature)
 
 	if player:getStorageValue(HiddenThreats.CorymRescued08) < 0 then
 		npcHandler:setMessage(MESSAGE_GREET, {
-			"Every man is the architect of his own fortune. We have nearly died of {hunger}.",
+			"My hero! A friend of mine sent you to liberate me? A true friend! I am poor but nevertheless I give you this as little reward.",
 		})
+		player:setStorageValue(HiddenThreats.CorymRescueMission, player:getStorageValue(HiddenThreats.CorymRescueMission) + 1)
+		player:setStorageValue(HiddenThreats.CorymRescued08, 1)
 	else
-		npcHandler:setMessage(MESSAGE_GREET, "What we get to eat is really ridiculous.")
+		npcHandler:setMessage(MESSAGE_GREET, "My hero! A friend of mine sent you to liberate me? A true friend!")
 	end
 	return true
 end
 
 local function creatureSayCallback(npc, creature, type, message)
-	local player = Player(creature)
-
 	if not npcHandler:checkInteraction(npc, creature) then
 		return false
-	end
-
-	if MsgContains(message, "hunger") then
-		npcHandler:say({
-			"What we get to eat is really ridiculous. Particularly in view of the fact that we should dig up an insane amount of ores.",
-		}, npc, creature)
-		if player:getStorageValue(HiddenThreats.CorymRescued08) < 0 then
-			player:setStorageValue(HiddenThreats.CorymRescueMission, player:getStorageValue(HiddenThreats.CorymRescueMission) + 1)
-			player:setStorageValue(HiddenThreats.CorymRescued08, 1)
-		end
 	end
 	return true
 end
