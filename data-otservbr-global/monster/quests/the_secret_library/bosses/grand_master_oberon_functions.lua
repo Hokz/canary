@@ -37,7 +37,13 @@ GrandMasterOberonConfig = {
 		"Falcon Knight",
 		"Falcon Paladin",
 	},
-	AmountLife = 3,
+	-- Was 3, off by one against the reference's exact "after fourth correct answer, boss becomes
+	-- fully mortal": with the immunity-blocking fix in grand_master_oberon_immunity.lua, this value
+	-- now directly determines how many correct answers are required (traced precisely: with
+	-- AmountLife=N, questions are asked on health dips while Life<=N, and Life increments by 1 per
+	-- correct answer starting at 1 - so N correct answers are required before the (N+1)th dip is
+	-- unconditionally lethal). N=3 required only 3 correct answers; N=4 requires exactly 4.
+	AmountLife = 4,
 }
 
 local function healOberon(monster)

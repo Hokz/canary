@@ -105,18 +105,21 @@ function brothersHealEachOther.onThink(creature, interval)
 end
 brothersHealEachOther:register()
 
+-- REVIEW FIX: a live Game.getSpectators re-scan for "is the other brother still alive" has a real
+-- race if both die in the same combat tick (e.g. one AoE hit killing both) - the engine may not have
+-- fully removed the first one from the world by the time the second's onDeath call re-scans, so
+-- both calls could see the other as "still alive" and BrothersDefeated would never be set, softlocking
+-- this wing (and therefore the whole invasion, since all 4 wings are required). This is the exact bug
+-- class already found and fixed this session in A Pirate's Tail's Ratmiral encounter - same fix: a
+-- storage counter written synchronously in each call, which has no such race.
 local brothersDeath = CreatureEvent("InvasionBrothersDeath")
 function brothersDeath.onDeath(creature, corpse, lasthitkiller, mostdamagekiller)
-	local position = creature:getPosition()
-	local otherAlive = false
-	local otherName = creature:getName():lower() == "brother chill" and "brother freeze" or "brother chill"
-	for _, spectator in ipairs(Game.getSpectators(position, false, false, 15, 15, 15, 15)) do
-		if spectator:isMonster() and spectator:getName():lower() == otherName then
-			otherAlive = true
-			break
-		end
+	local deaths = Game.getStorageValue(Invasion.BrothersDeathCount) + 1
+	Game.setStorageValue(Invasion.BrothersDeathCount, deaths)
+	if deaths < 2 then
+		return true -- wait for the second brother
 	end
-	if not otherAlive and Game.getStorageValue(Invasion.BrothersDefeated) < 1 then
+	if Game.getStorageValue(Invasion.BrothersDefeated) < 1 then
 		Game.setStorageValue(Invasion.BrothersDefeated, 1)
 		InvasionCheckWingsCleared()
 	end

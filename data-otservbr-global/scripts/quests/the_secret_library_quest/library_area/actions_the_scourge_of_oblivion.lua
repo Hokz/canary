@@ -20,6 +20,7 @@ local config = {
 		Game.setStorageValue(Invasion.SpellstealerDefeated, 0)
 		Game.setStorageValue(Invasion.ScionOfHavocDefeated, 0)
 		Game.setStorageValue(Invasion.BrothersDefeated, 0)
+		Game.setStorageValue(Invasion.BrothersDeathCount, 0)
 		Game.setStorageValue(Invasion.DevourerDefeated, 0)
 		Game.setStorageValue(Invasion.ScourgePhase, 0)
 		return true

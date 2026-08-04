@@ -2757,6 +2757,10 @@ Storage = {
 				SpellstealerDefeated = 46106,
 				ScionOfHavocDefeated = 46107,
 				BrothersDefeated = 46108, -- both Brother Chill and Brother Freeze dead
+				BrothersDeathCount = 46113, -- synchronous counter (see InvasionBrothersDeath) - not a
+				-- live spectator re-scan, which has a real race if both die in the same tick (the
+				-- exact class of bug already found and fixed this session in A Pirate's Tail's
+				-- Ratmiral encounter)
 				DevourerDefeated = 46109,
 				ScourgePhase = 46110, -- 0 = not yet spawned, 1 = yellow (vulnerable), 2 = red (reflect), 3 = blue (beam)
 			},
