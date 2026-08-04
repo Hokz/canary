@@ -136,7 +136,13 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
-	if MsgContains(message, "discovering") then
+	-- Guarded against topic 1 (mid city-selection in the old travel flow, below): without this, a
+	-- player who typed "outfit"/"discovering" out of curiosity while picking a destination city
+	-- would silently overwrite that in-progress topic, abandoning the travel flow with no message
+	-- explaining why their next reply (a city name) stopped being recognized.
+	if npcHandler:getTopic(playerId) == 1 then
+		-- fall through to the travel-service handling below
+	elseif MsgContains(message, "discovering") then
 		npcHandler:say({
 			"We are currently working on a huge and very ambitious project: We try to chart the world of Tibia! I know what you might think: Are there so many undiscovered places on this world? And the answer is: Yes! ...",
 			"There are many secret, hidden or hardly accessible places and sites. We want to create a detailed and accurate map of our world - and we are searching for assistance concerning this project. ...",
