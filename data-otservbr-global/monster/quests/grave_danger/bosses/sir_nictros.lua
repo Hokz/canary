@@ -58,9 +58,11 @@ monster.flags = {
 	canWalkOnPoison = true,
 }
 
-monster.events = {
-	-- "Sir_Baeloc_Sir_NictrosCharge"
-}
+-- CONFIRMED BUG (pre-existing): this was a SECOND `monster.events` assignment, which silently
+-- overwrote the real one above (line 28) with an effectively empty table - so Sir Nictros ended up
+-- with no events at all and never ran BossHealthCheck, breaking his half of the two-brother swap.
+-- Kept as a plain comment so the commented-out spell reference is not lost.
+-- "Sir_Baeloc_Sir_NictrosCharge"
 
 monster.light = {
 	level = 0,

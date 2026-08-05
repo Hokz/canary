@@ -22,6 +22,11 @@ monster.manaCost = 0
 
 monster.events = {
 	"BossHealthCheck",
+	-- CONFIRMED BLOCKER (pre-existing): grave_danger_death was missing here, so killing Sir Baeloc
+	-- never credited the Darashia grave (creaturescripts_boss_kill.lua maps "sir baeloc" ->
+	-- Graves.Darashia). See the matching comment on lord_azaram.lua - together these two omissions
+	-- capped Graves.Progress at 10 and made the quest uncompletable.
+	"grave_danger_death",
 }
 
 monster.changeTarget = {

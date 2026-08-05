@@ -1,6 +1,15 @@
 local mType = Game.createMonsterType("Vampiric Blood")
 local monster = {}
 
+-- CONFIRMED BLOCKER (pre-existing): "blood_death" - the drown-damage death explosion that is the
+-- only thing able to damage The Red Knight - was registered on "Rewar The Bloody" (the southeast
+-- wing boss) instead of here, almost certainly a name mix-up between "Rewar The Bloody" and
+-- "Vampiric Blood". It has been moved off Rewar and onto this monster, where the southwest wing
+-- mechanic actually needs it.
+monster.events = {
+	"blood_death",
+}
+
 monster.description = "a vampiric blood"
 monster.experience = 0
 monster.outfit = {

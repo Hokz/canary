@@ -23,6 +23,11 @@ monster.maxSummons = 0
 
 monster.events = {
 	"nargol_death",
+	-- zelos_init fires when the LAST wing lich-knight dies and records how long the clear took, so
+	-- creaturescripts_king_zelos.lua can scale King Zelos's power by the elapsed ritual time. It was
+	-- previously registered ONLY on King Zelos himself, i.e. it could only ever run on his own death -
+	-- always too late to affect the fight it was meant to scale.
+	"zelos_init",
 }
 
 monster.changeTarget = {

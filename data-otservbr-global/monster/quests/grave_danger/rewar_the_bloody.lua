@@ -23,8 +23,15 @@ monster.manaCost = 0
 monster.maxSummons = 0
 
 monster.events = {
-	"blood_death",
+	-- "blood_death" removed: it is the southwest wing's Vampiric Blood drown explosion and was
+	-- registered here by mistake (see the comment in vampiric_blood.lua). Rewar is the southeast
+	-- wing boss and his own mechanic is the Fetter form-swap in "rewar_the_bloody" below.
 	"rewar_the_bloody",
+	-- zelos_init fires when the LAST wing lich-knight dies and records how long the clear took, so
+	-- creaturescripts_king_zelos.lua can scale King Zelos's power by the elapsed ritual time. It was
+	-- previously registered ONLY on King Zelos himself, i.e. it could only ever run on his own death -
+	-- always too late to affect the fight it was meant to scale.
+	"zelos_init",
 }
 
 monster.changeTarget = {

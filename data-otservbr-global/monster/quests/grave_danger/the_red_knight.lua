@@ -20,9 +20,30 @@ monster.corpse = 36434
 monster.speed = 250
 monster.manaCost = 0
 
+monster.events = {
+	-- zelos_init fires when the LAST wing lich-knight dies and records how long the clear took, so
+	-- creaturescripts_king_zelos.lua can scale King Zelos's power by the elapsed ritual time. It was
+	-- previously registered ONLY on King Zelos himself, i.e. it could only ever run on his own death -
+	-- always too late to affect the fight it was meant to scale.
+	"zelos_init",
+}
+
 monster.changeTarget = {
 	interval = 4000,
 	chance = 10,
+}
+
+-- CONFIRMED BLOCKER (pre-existing): The Red Knight resists every damage type at 100% except
+-- COMBAT_DROWNDAMAGE (see monster.elements below), so per the source the ONLY way to hurt him is to
+-- kill Vampiric Blood adds next to him and let their death explosion deal the drowning damage. But
+-- nothing anywhere spawned a single Vampiric Blood - no spawn file, no summon block, no script - so
+-- the southwest wing boss was literally unkillable. Summoning them here gives the renewable supply
+-- of adds the mechanic depends on.
+monster.summon = {
+	maxSummons = 4,
+	summons = {
+		{ name = "Vampiric Blood", chance = 30, interval = 4000, count = 4 },
+	},
 }
 
 monster.strategiesTarget = {

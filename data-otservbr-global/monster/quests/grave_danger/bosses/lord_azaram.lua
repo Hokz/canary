@@ -16,6 +16,11 @@ monster.outfit = {
 monster.events = {
 	"azaram_health",
 	"azaram_summon",
+	-- CONFIRMED BLOCKER (pre-existing): grave_danger_death was missing here, so killing Lord Azaram
+	-- never credited the Ghostlands grave (creaturescripts_boss_kill.lua maps "lord azaram" ->
+	-- Graves.Ghostlands). Combined with the same omission on Sir Baeloc, Graves.Progress could only
+	-- ever reach 10, so Jack Springer's ">= 12" gate never opened and the quest was uncompletable.
+	"grave_danger_death",
 }
 
 monster.health = 300000

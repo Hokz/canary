@@ -21,7 +21,9 @@ monster.speed = 212
 
 monster.events = {
 	"zelos_damage",
-	"zelos_init",
+	-- "zelos_init" removed: it stamps the elapsed ritual time when the last WING lich-knight dies, and
+	-- is now registered on those four bosses (and their intermediate forms) instead. Registered here
+	-- it could only ever fire on King Zelos's own death - after the fight it was meant to scale.
 	"grave_danger_death",
 }
 

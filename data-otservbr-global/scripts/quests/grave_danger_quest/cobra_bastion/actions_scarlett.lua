@@ -73,7 +73,15 @@ end
 local graveScarlettAid = Action()
 
 function graveScarlettAid.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if player:getStorageValue(Storage.Quest.U12_20.GraveDanger.GaffirKilled) ~= 1 and player:getStorageValue(Storage.Quest.U12_20.GraveDanger.CustodianKilled) ~= 1 and player:getStorageValue(Storage.Quest.U12_20.GraveDanger.QuaidKilled) ~= 1 then
+	-- CONFIRMED BUG (pre-existing): this used `and` between three "not killed" tests, so it only
+	-- blocked a player who had killed NONE of the three minibosses - killing any single one granted
+	-- full access to the Scarlett encounter. The source requires all three (Gaffir, Custodian, Guard
+	-- Captain Quaid). Also switched `~= 1` to `< 1` so any future value >1 still counts as done.
+	if
+		player:getStorageValue(Storage.Quest.U12_20.GraveDanger.GaffirKilled) < 1
+		or player:getStorageValue(Storage.Quest.U12_20.GraveDanger.CustodianKilled) < 1
+		or player:getStorageValue(Storage.Quest.U12_20.GraveDanger.QuaidKilled) < 1
+	then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You are not allowed to use this yet.")
 		return true
 	end
