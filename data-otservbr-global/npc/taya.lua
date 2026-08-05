@@ -89,7 +89,11 @@ local function creatureSayCallback(npc, creature, type, message)
 		npcHandler:say("Suon be praised. Ask Narsai in Issavi about it. I guess she knows more.", npc, creature)
 		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline, 1)
 		npcHandler:setTopic(playerId, 0)
-	elseif npcHandler:getTopic(playerId) == 10 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) == 5 then
+	-- CONFIRMED HARDENING (found via review): this previously fired on ANY message once greeted at
+	-- Questline == 5 (no MsgContains check at all) - literally saying anything, including "hi" again,
+	-- would immediately reveal Enusat. Requires an explicit keyword now, matching every other
+	-- multi-line reveal in this quest.
+	elseif (MsgContains(message, "oracle") or MsgContains(message, "report")) and npcHandler:getTopic(playerId) == 10 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) == 5 then
 		npcHandler:say("You offered a sacrifice for the holy seer sphinxes and lamassu! The Eye of Suon is now blessed and I can be an oracle. ... And, wait ... I already see a danger. Enusat the Onyx Wing! He is a black Manticore who threatens the people living in the small steppe villages. ...", npc, creature)
 		npcHandler:say("Please, find and kill him to protect those people. He might be high up in the mountains but could also dwell in one of the old tombs underneath the steppe.", npc, creature)
 		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline, 6)

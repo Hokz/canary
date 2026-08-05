@@ -267,19 +267,30 @@ local config = {
 	}, -- Spider Cloud Shreds
 }
 
+-- CONFIRMED BUG (found via Repository Audit): this unconditionally returned true even when the
+-- target matched none of its config entries, which in this engine means "handled, stop trying other
+-- handlers" - silently swallowing every other registered use of item 31327 regardless of target.
+-- Item 31327 is also used by actions_shark_scissors.lua's live-sheep shearing action (this same PR);
+-- since Lua scripts load in directory order and "actions_scissorsfun.lua" sorts before
+-- "actions_shark_scissors.lua", that handler would never have fired for any target this one doesn't
+-- recognise, including a Sheep (whose .itemid is nil, matching no config entry here). Returning false
+-- on a genuine no-match lets the engine correctly try the next registered handler instead.
 local scissorsfun = Action()
 function scissorsfun.onUse(player, item, fromPosition, target, toPosition, isHotkey)
 	local key = config[target.itemid]
-	if key then
-		if player:getStorageValue(key.storage) == key.getValue then
-			if table.contains({ key.itemId }, target.itemid) then
-				player:sendTextMessage(MESSAGE_EVENT_ADVANCE, key.msg)
-				player:addItem(key.addItemId, 1)
-			end
-		else
-			player:sendTextMessage(MESSAGE_FAILURE, "Sorry, not possible.")
-		end
+	if not key then
+		return false
 	end
+
+	if player:getStorageValue(key.storage) == key.getValue then
+		if table.contains({ key.itemId }, target.itemid) then
+			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, key.msg)
+			player:addItem(key.addItemId, 1)
+		end
+	else
+		player:sendTextMessage(MESSAGE_FAILURE, "Sorry, not possible.")
+	end
+
 	return true
 end
 

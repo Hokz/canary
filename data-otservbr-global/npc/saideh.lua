@@ -86,7 +86,10 @@ local function creatureSayCallback(npc, creature, type, message)
 	-- (the latter as a stub, now fixed) and correctly advanced Fourteen.Remains up to 4, but nothing
 	-- anywhere ever read that value back or granted the mission's reward - the source's explicit
 	-- 20000 XP could never be claimed no matter how far a player got.
-	elseif MsgContains(message, "report") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) == 4 then
+	-- "report" matches this repo's own established convention for a sub-task check-in keyword (see
+	-- npc/alyxo.lua's Fafnar/Lyre/Presente report branches); "mission" added as an alias since it's
+	-- the convention used for a stage's very first offer elsewhere in this same quest.
+	elseif (MsgContains(message, "report") or MsgContains(message, "mission")) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) == 4 then
 		npcHandler:say({
 			"The grave has been violated? It seems that the ogres aren't the most dangerous threat. These creatures are not capable to surpass the second floor with all the puzzles. But the monsters around the desecrated grave are different, much more intelligent. ...",
 			"Although your mission was not as successful as I hoped, I would like to thank you for your help. Take this as a little reward.",

@@ -212,17 +212,22 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 0)
 		end
 	end
-	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar) == 301 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar) == 301 then
-			npcHandler:say({ "Did you finish the 3 jobs I gave you?" }, npc, creature) -- needs review, this is not the speech of the global
-			npcHandler:setTopic(playerId, 13)
-		end
-	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 13 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar) == 301 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar) == 301 then
-			-- CONFIRMED BUG (pre-existing): "Sculptor Apprentice" was granted right here, on completing
-			-- Alyxo's own three favors - nothing to do with the achievement's actual subject (a
-			-- sculptor/jeweller combining the four Regalia of Suon parts). Moved to npc/yonan.lua's
-			-- combine action, the point that actually matches the achievement.
+	-- CONFIRMED BLOCKER (found via review - reachability check, not just claim comparison): this
+	-- branch only ever checked Thirteen.Fafnar == 301 (the 300-cultist report), completely ignoring
+	-- Thirteen.Lyre and Thirteen.Presente. Alyxo explicitly asked for THREE favors ("Did you finish
+	-- the 3 jobs I gave you?"), but a player could report and claim the full reward - including
+	-- unlocking The Revenge of the Ogres via Fourteen.Remains - having only ever killed 300 cultists,
+	-- without ever recovering the lyre or reporting the animal present. Now requires all three
+	-- sub-tasks' own completion values (Lyre reaches 4 only after being turned in at topic 9; Presente
+	-- reaches 3 only after being turned in at topic 11 - see those branches above).
+	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar) == 301 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Lyre) == 4 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Presente) == 3 then
+		npcHandler:say({ "Did you finish the 3 jobs I gave you?" }, npc, creature) -- needs review, this is not the speech of the global
+		npcHandler:setTopic(playerId, 13)
+	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 13 then
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar) == 301 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Lyre) == 4 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Presente) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) < 1 then
+			-- "Sculptor Apprentice" is granted at the tortoise-petrify branch above (topic 15/16), not
+			-- here - see the comment there for why (its registered description is about Alyxo, a
+			-- medusa, petrifying an animal, not about finishing these three favors).
 			player:addItem(31574, 1)
 			npcHandler:say({ "Congratulations, you have completed the 3 jobs I gave you." }, npc, creature) -- needs review, this is not the speech of the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains, 1)

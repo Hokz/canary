@@ -30,6 +30,15 @@ mirrorSpot:register()
 local mirrorSoot = Action()
 
 function mirrorSoot.onUse(player, item, fromPosition, target, toPosition, isHotkey)
+	-- CONFIRMED HARDENING (found via review): the mirror pickup itself is gated on
+	-- Wanted.Questline >= 1, but the item is an ordinary tradeable object - a player who received it
+	-- by trade rather than picking it up themselves could self-soot without ever having accepted the
+	-- mission from Eshaya.
+	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline) < 1 then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Nothing happens.")
+		return true
+	end
+
 	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.MirrorSoot) >= 1 then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The mirror is already blackened with soot.")
 		return true

@@ -65,6 +65,16 @@ function sharkCombine.onUse(player, item, fromPosition, target, toPosition, isHo
 		return true
 	end
 
+	-- CONFIRMED BUG (found via review): PROGRESS_WOOL is a one-way bit set once at shearing time and
+	-- never cleared, so it only proves the wool was obtained at some point - not that the player still
+	-- has it now. A player who lost, dropped, or traded the wool before returning here could still
+	-- combine. Re-checking current possession closes that gap; removeItem is only called once
+	-- possession is confirmed, so it cannot fail here.
+	if not player:getItemById(10319, 1) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need the wool to prepare the mixture.")
+		return true
+	end
+
 	player:removeItem(10319, 1)
 	player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Progress, progress + PROGRESS_COMBINED)
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You work the wool into the salve until it turns thick and waterproof. This should help the injured shark.")

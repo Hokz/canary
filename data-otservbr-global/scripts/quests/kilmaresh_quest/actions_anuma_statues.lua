@@ -29,6 +29,16 @@ function anumaStatues.onUse(player, item, fromPosition, target, toPosition, isHo
 		return true
 	end
 
+	-- CONFIRMED BUG (found via review): reaching Questline == 3 requires having combined the Eye of
+	-- Suon once (Narsai only advances to this stage after seeing item 36708), but nothing re-checked
+	-- it was still held at the moment of each individual sacrifice - the source is explicit that the
+	-- Eye of Suon itself must be worn while performing the ritual, not just combined once beforehand.
+	-- A player who discarded, traded away, or otherwise lost it could still bless every statue.
+	if not player:getItemById(36708, 1) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need the Eye of Suon for this ritual.")
+		return true
+	end
+
 	local blessed = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.AnumaBlessed)
 	if blessed < 0 then
 		blessed = 0
@@ -36,6 +46,16 @@ function anumaStatues.onUse(player, item, fromPosition, target, toPosition, isHo
 
 	if testFlag(blessed, statue.bit) then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already made a sacrifice at the statue of " .. statue.name .. ".")
+		return true
+	end
+
+	-- CONFIRMED BUG (found via review): wine was removed and the statue bit set unconditionally,
+	-- without ever checking the wine was actually present. Checking possession first (rather than
+	-- trusting removeItem's return value, which this repo's convention doesn't rely on for these
+	-- storage-gated one-time actions - see e.g. actions_eye_of_suon.lua's combine action) guarantees
+	-- no wine means no progress.
+	if not player:getItemById(2, 1) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need a bottle of wine to make a sacrifice.")
 		return true
 	end
 
