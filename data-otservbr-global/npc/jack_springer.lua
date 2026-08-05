@@ -207,6 +207,19 @@ local function creatureSayCallback(npc, creature, type, message)
 		}, npc, creature)
 		player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Stage, 1)
 		player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Questline, 2)
+		-- CONFIRMED BLOCKER (found in post-implementation review): the Isle of Kings quest door
+		-- (startup/tables/door_quest.lua, position (32173,31922,8) - immediately next to the King
+		-- Zelos lever's own exit at (32172,31918,8)) is keyed on Bosses.KingZelos.Room, exactly as the
+		-- repo's "free quests" bypass table confirms (freequests.lua sets this same storage to unlock
+		-- full King Zelos access). Nothing wrote it anywhere, so the door was permanently unusable for
+		-- a NORMAL player reaching it honestly - but the King Zelos lever itself has no storage check
+		-- of its own, so anyone who reached the lever by any other route (teleport items, a guide, a
+		-- future map change extending another path there) could pull it and fight Zelos with zero of
+		-- the twelve graves done. This is the one point in the whole quest where the source's intended
+		-- gate ("you have to travel to the isle of the kings" only after the full report) was not
+		-- enforced anywhere in code. Setting it here - the exact narrative moment Jack sends the
+		-- player - closes that gap without touching the map.
+		player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Bosses.KingZelos.Room, 1)
 	end
 
 	return true
