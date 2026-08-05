@@ -32,34 +32,9 @@ sharkSarcophagus:register()
 -- repo (confirmed via a broad repo-wide search) - not implemented, since inventing an entire
 -- city-guard fine mechanic is outside a single mission's scope; classified as a documented Global-like
 -- gap rather than silently skipped.
-local sharkShear = Action()
-
-function sharkShear.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if not target or not target:isMonster() or target:getName():lower() ~= "sheep" then
-		return false
-	end
-
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) ~= 1 then
-		return false
-	end
-
-	local progress = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Progress)
-	if progress < 0 then
-		progress = 0
-	end
-
-	if testFlag(progress, 2) then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already sheared enough wool.")
-		return true
-	end
-
-	player:addItem(10319, 1)
-	player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Progress, progress + 2)
-	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You carefully shear a bundle of wool from the sheep, unharmed.")
-	target:getPosition():sendMagicEffect(CONST_ME_MAGIC_GREEN)
-
-	return true
-end
-
-sharkShear:id(31327)
-sharkShear:register()
+--
+-- CONFIRMED BUG (found via Repository Audit, "multiple Action handlers register action.item_id
+-- 31327"): this shearing logic used to be a second, separate Action registered on item 31327,
+-- alongside actions_scissorsfun.lua's own registration on the same id. The repo's content-reference
+-- audit flags any item id with more than one Action registration. Moved into
+-- actions_scissorsfun.lua's single handler, which is now the only registration for item 31327.

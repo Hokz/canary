@@ -267,16 +267,37 @@ local config = {
 	}, -- Spider Cloud Shreds
 }
 
--- CONFIRMED BUG (found via Repository Audit): this unconditionally returned true even when the
--- target matched none of its config entries, which in this engine means "handled, stop trying other
--- handlers" - silently swallowing every other registered use of item 31327 regardless of target.
--- Item 31327 is also used by actions_shark_scissors.lua's live-sheep shearing action (this same PR);
--- since Lua scripts load in directory order and "actions_scissorsfun.lua" sorts before
--- "actions_shark_scissors.lua", that handler would never have fired for any target this one doesn't
--- recognise, including a Sheep (whose .itemid is nil, matching no config entry here). Returning false
--- on a genuine no-match lets the engine correctly try the next registered handler instead.
+-- CONFIRMED BUG (found via Repository Audit, "multiple Action handlers register action.item_id
+-- 31327"): this file and actions_shark_scissors.lua both registered a separate Action on item 31327.
+-- The repo's content-reference audit flags any item id with more than one Action registration as
+-- unsafe/ambiguous regardless of runtime dispatch order - a return-value fallthrough fix is not
+-- sufficient to satisfy it. Consolidated: "A Shark in Need"'s live-sheep shearing (previously a
+-- second, separate Action in actions_shark_scissors.lua) is now handled directly in this single
+-- handler, which is the only registration left for item 31327.
 local scissorsfun = Action()
 function scissorsfun.onUse(player, item, fromPosition, target, toPosition, isHotkey)
+	if target and target:isMonster() and target:getName():lower() == "sheep" then
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) ~= 1 then
+			return false
+		end
+
+		local progress = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Progress)
+		if progress < 0 then
+			progress = 0
+		end
+
+		if testFlag(progress, 2) then
+			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already sheared enough wool.")
+			return true
+		end
+
+		player:addItem(10319, 1)
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Progress, progress + 2)
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You carefully shear a bundle of wool from the sheep, unharmed.")
+		target:getPosition():sendMagicEffect(CONST_ME_MAGIC_GREEN)
+		return true
+	end
+
 	local key = config[target.itemid]
 	if not key then
 		return false
