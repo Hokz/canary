@@ -1,3 +1,25 @@
+-- CONFIRMED BUG (pre-existing): this file referenced `config.soulPos`, `config.centerRoom` and
+-- `removeTainted()` as if they were globals, but all three are file-locals inside
+-- creaturescripts_lord_azaram.lua and are invisible here. Stepping on item 31160 therefore raised
+-- "attempt to index a nil value (global 'config')" every single time. The positions are restated
+-- locally and the tainted-splinter cleanup is done inline, so this script is now self-contained.
+-- Values mirrored verbatim from creaturescripts_lord_azaram.lua's own config table (same room).
+local config = {
+	centerRoom = Position(33424, 31472, 13),
+	soulPos = Position(33426, 31471, 13),
+	x = 10,
+	y = 10,
+}
+
+local function removeTaintedSplinters()
+	local spectators = Game.getSpectators(config.centerRoom, false, false, config.x, config.x, config.y, config.y)
+	for _, spectator in pairs(spectators) do
+		if spectator:isMonster() and spectator:getName():lower() == "tainted soul splinter" then
+			spectator:remove()
+		end
+	end
+end
+
 local soul_cleanse = MoveEvent()
 
 function soul_cleanse.onStepIn(creature, item, position, fromPosition)
@@ -12,7 +34,7 @@ function soul_cleanse.onStepIn(creature, item, position, fromPosition)
 			creature:say("The broken Soul absorbs the power of the soul splinter and gains strength!")
 			creature:teleportTo(config.soulPos)
 			item:remove()
-			removeTainted()
+			removeTaintedSplinters()
 
 			local boss = Creature("Lord Azaram")
 

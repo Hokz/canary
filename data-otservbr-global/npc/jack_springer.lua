@@ -119,6 +119,17 @@ local function creatureSayCallback(npc, creature, type, message)
 		Storage.Quest.U12_20.GraveDanger.Graves.Thais,
 		Storage.Quest.U12_20.GraveDanger.Graves.Orclands,
 		Storage.Quest.U12_20.GraveDanger.Graves.IceIslands,
+		-- CONFIRMED BUG (pre-existing): the five boss "Killed" flags were NOT reset alongside the
+		-- graves. None of the lich-knight boss rooms is gated on having spoken to Jack first, so a
+		-- player who killed one of them before greeting him had that boss's Killed flag already set;
+		-- this reset then wiped the corresponding grave, and creaturescripts_boss_kill.lua only ever
+		-- credits a grave when Killed < 1 - so that grave became permanently unobtainable and the
+		-- quest uncompletable for that character. Resetting them together keeps the two in sync.
+		Storage.Quest.U12_20.GraveDanger.Bosses.LordAzaram.Killed,
+		Storage.Quest.U12_20.GraveDanger.Bosses.CountVlarkorth.Killed,
+		Storage.Quest.U12_20.GraveDanger.Bosses.EarlOsam.Killed,
+		Storage.Quest.U12_20.GraveDanger.Bosses.BaelocNictros.Killed,
+		Storage.Quest.U12_20.GraveDanger.Bosses.DukeKrule.Killed,
 	}
 
 	if MsgContains(message, "late") then

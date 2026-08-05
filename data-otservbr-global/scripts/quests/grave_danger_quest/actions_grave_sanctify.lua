@@ -59,7 +59,13 @@ function grave_sanctify.onUse(player, item, fromPosition, itemEx, toPosition)
 		player:setStorageValue(thing.stor, 1)
 		itemEx:getPosition():sendMagicEffect(CONST_ME_HOLYAREA)
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, thing.msg)
-		player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Graves.Progress, player:getStorageValue(Storage.Quest.U12_20.GraveDanger.Graves.Progress) + 1)
+		-- CONFIRMED BLOCKER (pre-existing): Graves.Progress reads -1 while unset, so incrementing it
+		-- twelve times only ever reached 11 and Jack Springer's ">= 12" gate could never open. This
+		-- was a second, independent reason the quest was uncompletable (the first being the two
+		-- missing grave_danger_death events). Clamping the unset sentinel to 0 first makes twelve
+		-- graves total exactly 12. The same clamp is applied in creaturescripts_boss_kill.lua.
+		local progress = math.max(player:getStorageValue(Storage.Quest.U12_20.GraveDanger.Graves.Progress), 0)
+		player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Graves.Progress, progress + 1)
 	else
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, thing.msg)
 	end

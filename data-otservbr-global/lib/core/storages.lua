@@ -2949,6 +2949,14 @@ Storage = {
 				CobraBastion = {
 					Questline = 46891,
 				},
+				-- GLOBAL (Game) storage, not per-player: the os.time() at which the King Zelos lever was
+				-- pulled. The source states the king grows stronger the longer the ritual runs, and
+				-- creaturescripts_king_zelos.lua scales his damage resistance by the elapsed clear time.
+				-- Previously that scaling read an uninitialised creature storage and was inert. Only one
+				-- King Zelos encounter can be active at a time (BossLever enforces a single occupied
+				-- room), so a single global start-stamp is sufficient. Allocated from the free tail of
+				-- the U12_20 reserved range (46851-47000; highest previously used was 46926).
+				KingZelosRitualStart = 46927,
 			},
 			HandOfTheInquisitionOutfits = {
 				Outfits = 46892,
