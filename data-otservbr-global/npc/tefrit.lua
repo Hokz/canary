@@ -102,7 +102,11 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 3)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 2 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 2 and player:getItemById(31329, 20) and player:getItemById(31339, 25) and player:getItemById(31330, 15) then
+		-- CONFIRMED BUG (pre-existing): crab pincers (item 10272) were removed unconditionally a few
+		-- lines below without ever being checked for here, so this branch's "did you bring everything"
+		-- gate could pass - and Tefrit would still take 5 pincers the player might not have - even
+		-- though the turn-in text explicitly lists crab pincers as one of the four required items.
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 2 and player:getItemById(10272, 5) and player:getItemById(31329, 20) and player:getItemById(31339, 25) and player:getItemById(31330, 15) then
 			player:removeItem(10272, 5)
 			player:removeItem(31329, 20)
 			player:removeItem(31339, 25)

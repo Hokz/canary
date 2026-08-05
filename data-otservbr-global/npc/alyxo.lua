@@ -118,7 +118,12 @@ local function creatureSayCallback(npc, creature, type, message)
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss) == 3 then
 			npcHandler:say({ "Kill 300 members of the Fafnar cult, help me find Ivory Lyre and help me find an animal to stone." }, npc, creature) -- needs review, this is not the speech of the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss, 4)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar, 1)
+			-- CONFIRMED BUG (pre-existing): this baseline was 1, not 0, so the kill counter in
+			-- creaturescripts_fafnar.lua (which increments from whatever this starts at) reached the
+			-- ==300 threshold after only 299 real kills. Starting at 0 makes the count exact; see the
+			-- matching fix in that file for the other half (an uncapped counter that could overshoot
+			-- past 300 with no way back, since this "report" check is a strict equality).
+			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar, 0)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Lyre, 1)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Presente, 1)
 			npcHandler:setTopic(playerId, 6)
@@ -173,15 +178,33 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 0)
 		end
 	end
+	-- CONFIRMED BUG (pre-existing): this "petrify a keepsake" side-branch had no gate beyond simply
+	-- holding item 31445 - the exact same item the main "report" turn-in above needs. A player who
+	-- said "small tortoise" before ever reporting would have their only copy silently converted to
+	-- item 31446 with Thirteen.Presente never advancing past 1, permanently soft-locking the
+	-- required report step (which checks Presente==2). Per the source, Alyxo only offers to petrify a
+	-- SECOND tortoise ("if you find another one, I can petrify it for you, too") - i.e. after the
+	-- first one has already been reported. Gating on Presente>=3 (report already completed) prevents
+	-- the softlock entirely.
 	if MsgContains(message, "small tortoise") then
-		if player:getItemById(31445, 1) then
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Presente) >= 3 and player:getItemById(31445, 1) then
 			npcHandler:say({ "Do you want me to stone a small tortoise?" }, npc, creature) -- needs review, this is not the speech of the global
 			npcHandler:setTopic(playerId, 15)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 15 then
-		if player:getItemById(31445, 1) then
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Presente) >= 3 and player:getItemById(31445, 1) then
 			player:removeItem(31445, 1)
 			player:addItem(31446, 1)
+			-- CONFIRMED BUG (pre-existing, my own earlier fix in this same pass had it wrong too):
+			-- "Sculptor Apprentice"'s real registry description (register_achievements.lua) is "helping
+			-- a medusa to find proper objects and even watching her using her petrifying gaze" - this
+			-- is explicitly about THIS moment (Alyxo, a medusa, petrifying a tortoise), not the Regalia
+			-- of Suon combination (npc/yonan.lua) I mistakenly moved it to earlier in this same pass,
+			-- and not the unrelated "3 jobs complete" milestone it was originally (also wrongly)
+			-- attached to. Corrected here, at the one place that actually matches the description.
+			if not player:hasAchievement("Sculptor Apprentice") then
+				player:addAchievement("Sculptor Apprentice")
+			end
 			npcHandler:say({ "Here's your Small Petrified Tortoise." }, npc, creature) -- needs review, this is not the speech of the global
 			npcHandler:setTopic(playerId, 16)
 		else
@@ -196,7 +219,10 @@ local function creatureSayCallback(npc, creature, type, message)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 13 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar) == 301 then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Thirteen.Fafnar) == 301 then
-			player:addAchievement("Sculptor Apprentice", 'Congratulations! You earned the achievement "Sculptor Apprentice".')
+			-- CONFIRMED BUG (pre-existing): "Sculptor Apprentice" was granted right here, on completing
+			-- Alyxo's own three favors - nothing to do with the achievement's actual subject (a
+			-- sculptor/jeweller combining the four Regalia of Suon parts). Moved to npc/yonan.lua's
+			-- combine action, the point that actually matches the achievement.
 			player:addItem(31574, 1)
 			npcHandler:say({ "Congratulations, you have completed the 3 jobs I gave you." }, npc, creature) -- needs review, this is not the speech of the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains, 1)

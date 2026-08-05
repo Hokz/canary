@@ -183,6 +183,44 @@ keywordHandler:addAliasKeyword({ "spark" })
 keywordHandler:addKeyword({ "solitude" }, StdModule.say, { npcHandler = npcHandler, text = "Talk to the hermit Eremo on the isle of Cormaya about this blessing." })
 keywordHandler:addAliasKeyword({ "wisdom" })
 
+-- "A Shark in Need" (Kilmaresh Quest) - this NPC was previously registered but never placed on the
+-- map (spawn position (0,0,7), the engine's "unplaced" sentinel) and carried none of this content;
+-- see the PR's Map Setup Contract for the required Issavi placement. Gated on
+-- KilmareshQuest.AccessDoor (set once Fafnar's Wrath is under way) matching the source's ordering
+-- note that later Kilmaresh missions unlock only after Fafnar's Wrath has begun.
+local sharkKeyword = keywordHandler:addKeyword({ "shark" }, StdModule.say, {
+	npcHandler = npcHandler,
+	text = {
+		"This poor shark is seriously injured. It seems it was attacked by a sea serpent. Those dangerous creatures seldom stray into the coastal waters around Kilmaresh but sometimes it happens. ...",
+		"This shark was lucky enough to escape alive but now it's in need of help. Unfortunately I don't have the needed medicine here in the temple. Would you keep an eye open and look for it while hurling yourself into adventures?",
+	},
+}, function(player)
+	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AccessDoor) >= 1 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) < 1
+end)
+sharkKeyword:addChildKeyword({ "yes" }, StdModule.say, { npcHandler = npcHandler, text = "You're a kind soul, Bastesh may bless you. What I need is a healing salve that resists salt water. Perhaps you can find some of it out there.", reset = true, ungreet = true }, nil, function(player)
+	player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline, 1)
+end)
+
+keywordHandler:addKeyword({ "shark" }, StdModule.say, { npcHandler = npcHandler, text = "What I need is a healing salve that resists salt water. Perhaps you can find some of it out there." }, function(player)
+	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) == 1
+end)
+
+local sharkCureKeyword = keywordHandler:addKeyword({ "cure" }, StdModule.say, { npcHandler = npcHandler, text = "Did you find the cure?" }, function(player)
+	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) == 1
+end)
+sharkCureKeyword:addChildKeyword({ "yes" }, StdModule.say, { npcHandler = npcHandler, text = "Yes, this seems to be exactly what I need. Thank you, friend, Bastesh may bless you! Take this as a sign of my temple's gratitude.", reset = true, ungreet = true }, function(player)
+	local progress = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Progress)
+	return progress >= 0 and testFlag(progress, 4)
+end, function(player)
+	player:addItem(31575, 1) -- golden bijou, the fourth Regalia of Suon part
+	player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline, 2)
+end)
+sharkCureKeyword:addChildKeyword({ "yes" }, StdModule.say, { npcHandler = npcHandler, text = "I'm afraid that's not quite what I need. It has to be a salve that resists salt water.", reset = true })
+
+keywordHandler:addKeyword({ "shark" }, StdModule.say, { npcHandler = npcHandler, text = "Thank you again for helping that poor shark, friend." }, function(player)
+	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) == 2
+end)
+
 npcHandler:setMessage(MESSAGE_GREET, "Welcome, young |PLAYERNAME|! If you are heavily wounded or poisoned, I can {heal} you for free or you want the {adventurer stone}?")
 npcHandler:setMessage(MESSAGE_WALKAWAY, "Remember: If you are heavily wounded or poisoned, I can heal you for free.")
 npcHandler:setMessage(MESSAGE_FAREWELL, "May the gods bless you, |PLAYERNAME|!")

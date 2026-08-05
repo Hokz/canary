@@ -3024,6 +3024,33 @@ Storage = {
 					Remains = 46925,
 				},
 				AccessDoor = 46926,
+				-- "A Shark in Need" (Ninev) was entirely unimplemented before this pass - built here
+				-- storage-backed rather than with fabricated intermediate items (no "healing salve"/
+				-- "waterproof salve" item exists anywhere in items.xml), per the item-fallback rule.
+				-- Progress is a bitmask: bit1 = found the salve, bit2 = sheared wool from a live sheep.
+				NinevShark = {
+					Questline = 46928,
+					Progress = 46929,
+				},
+				-- "Aspiring Oracle" (Taya/Narsai, added 12.70) did not exist at all before this pass.
+				-- EyeOfSuon is a bitmask: bit1 = golden frame, bit2 = red gem.
+				-- AnumaBlessed is a bitmask across the 7 named statues (bits 1,2,4,8,16,32,64).
+				AspiringOracle = {
+					Questline = 46930,
+					EyeOfSuon = 46931,
+					AnumaBlessed = 46932,
+					EnusatKilled = 46933,
+				},
+				-- "Wanted" (Eshaya/Kallimae, added 12.70) did not exist at all before this pass.
+				Wanted = {
+					Questline = 46934,
+					MirrorSoot = 46935,
+					InnocentRevealed = 46936,
+					NeferiJustice = 46937,
+					HetaiJustice = 46938,
+					AmenefJustice = 46939,
+					OutfitGranted = 46940,
+				},
 			},
 			Orcsoberfest = {},
 		},

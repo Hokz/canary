@@ -25,6 +25,11 @@ monster.corpse = 31646
 monster.speed = 115
 monster.manaCost = 0
 
+-- "Wanted" (added 12.70) - this bare monster had no quest hook at all before this pass.
+monster.events = {
+	"WantedJustice",
+}
+
 monster.changeTarget = {
 	interval = 4000,
 	chance = 10,

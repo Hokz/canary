@@ -26,7 +26,10 @@ local statuesActions = Action()
 function statuesActions.onUse(player, item, fromPosition, target, toPosition, isHotkey)
 	local key = config[target.uid]
 
-	if not table.contains({ key.itemId }, target.itemid) then
+	-- CONFIRMED BUG (pre-existing): key was dereferenced (key.itemId) before checking it was found at
+	-- all - using the sceptre on any tile/object that isn't one of the 5 registered statue uids threw
+	-- "attempt to index a nil value" instead of a normal "nothing happens" no-op.
+	if not key or not table.contains({ key.itemId }, target.itemid) then
 		return false
 	end
 

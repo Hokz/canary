@@ -129,8 +129,19 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 5)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 5 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin) == 1 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin) == 1 and player:getItemById(31431, 1) then
+		-- CONFIRMED BUG (pre-existing): the 4th omen (a goanna "bearing the symbol of Suon", killed for
+		-- its hide) was never checked here at all - only the "sign of sun and sea" item from the basin
+		-- omen. Added the goanna-hide check (item 31428, the Sun-Marked Goanna's 100%-chance drop).
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin) == 1 and player:getItemById(31431, 1) and player:getItemById(31428, 1) then
+			player:removeItem(31428, 1)
 			player:addItem(31572, 1)
+			-- CONFIRMED BUG (pre-existing): "Sun and Sea" was registered
+			-- (register_achievements.lua) but granted nowhere in the repo. Its description ("the
+			-- balance of sun and sea is preserved in Kilmaresh") matches this exact reward - the
+			-- "Symbol of Sun and Sea" omen (item 31431) collected as part of this same pilgrimage.
+			if not player:hasAchievement("Sun and Sea") then
+				player:addAchievement("Sun and Sea")
+			end
 			npcHandler:say({ "Thanks. Here is your reward." }, npc, creature) -- It needs to be revised, it's not the same as the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss, 1)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin, 2)
@@ -140,6 +151,20 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say({ "Sorry." }, npc, creature) -- It needs to be revised, it's not the same as the global
 		end
 	end
+
+	-- "Wanted" (added 12.70) - entirely absent before this pass.
+	if MsgContains(message, "glimpse") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline) == 1 then
+		npcHandler:say({
+			"We are seeing things to yet happen. This is something that lies in the past. But there is a ritual that might grant you a glimpse of the past. ...",
+			"Find a precious golden hand mirror. It has to be made of gold, a silver mirror won't work as a component for this ritual. Then blacken it over a fire and cover it in soot. ...",
+			"You also have to find a mask made from ivory. Then go to the shrine of Suon on the shore north-west of Issavi. ...",
+			"There, in front of the Benevolent King's statue, you have to scratch the soot off the mirror whilst wearing the ivory mask by reciting the following words: ...",
+			"Suon, Benevolent Sun, grant me a glimpse of the past. Then name the four suspects and ask for the innocent one. ...",
+			"The face of the right person will appear in the mirror and the wind will whisper the name into your ear.",
+		}, npc, creature)
+		npcHandler:setTopic(playerId, 0)
+	end
+
 	return true
 end
 

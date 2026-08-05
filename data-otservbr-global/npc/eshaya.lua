@@ -105,6 +105,14 @@ local function creatureSayCallback(npc, creature, type, message)
 			}, npc, creature)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Title, 1)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Second.Investigating, 1)
+			-- CONFIRMED BLOCKER (pre-existing): AccessDoor (storages.lua) gates a door immediately next
+			-- to the Ambassador's residence search area (door_quest.lua, position (33886,31476,7),
+			-- z7 - the exact same floor as the Second.Investigating search objects a few tiles away)
+			-- but nothing anywhere ever wrote it, confirmed by a repo-wide search; the only other
+			-- reference is the "free quests" bypass table, which sets this exact storage to grant full
+			-- Kilmaresh access. The door was therefore permanently closed for a normal player who had
+			-- just accepted this exact mission. Set at the same moment the investigation itself starts.
+			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.AccessDoor, 1)
 			npcHandler:setTopic(playerId, 0)
 		end
 	elseif MsgContains(message, "theft") then
@@ -126,6 +134,49 @@ local function creatureSayCallback(npc, creature, type, message)
 		end
 	elseif MsgContains(message, "empress") then
 		npcHandler:say("Good luck on your audience with the Empress. May Kilmaresh prosper.", npc, creature)
+		npcHandler:setTopic(playerId, 0)
+	end
+
+	-- "Wanted" (added 12.70) - entirely absent before this pass. Uses fresh topic numbers (30-31) to
+	-- avoid colliding with the Fafnar's Wrath dialogue above (topics 0-4).
+	if MsgContains(message, "wanted") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AccessDoor) >= 1 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline) < 1 then
+		npcHandler:say({
+			"Ah, I see, you discovered the poster we put up. Yes, there are four persons, we are currently looking for:",
+			"Amenef, a Burning Gladiator, as far as we know. ...",
+			"Neferi, an Issavi scribe, who is an alleged spy - Petaris the spice merchant, who seems to be secretly a wizard for the Fafnar cult and Hetai, who we believe is a Priestess of the Wild Sun. ...",
+			"They have to be consigned to the Sapphire Blade by all means! Will you help to find the wanted persons?",
+		}, npc, creature)
+		npcHandler:setTopic(playerId, 30)
+	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 30 then
+		npcHandler:say({
+			"Great! Yet ... Well, there is a little problem. One of them might be innocent. One of the seers of the Midnight Flame told me to have a closer look. ...",
+			"And of course, no innocent must be harmed. Find the innocent one and bring the rest of them to justice.",
+		}, npc, creature)
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline, 1)
+		npcHandler:setTopic(playerId, 0)
+	elseif MsgContains(message, "innocent") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline) == 1 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.InnocentRevealed) >= 1 then
+		npcHandler:say("Good to know that Petaris is innocent. My heart could not betray me! Bring the rest of them to justice now.", npc, creature)
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline, 2)
+		npcHandler:setTopic(playerId, 0)
+	elseif MsgContains(message, "report") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline) == 2 then
+		local neferi = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.NeferiJustice) >= 1
+		local hetai = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.HetaiJustice) >= 1
+		local amenef = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.AmenefJustice) >= 1
+		if neferi and hetai and amenef then
+			npcHandler:say({
+				"Well done! You spared our beautiful city great harm. As a sign of our friendship, please take these robes. ...",
+				"You are also allowed to wear a tagralt blade and an eye-embroidered veil as worn by our seers. ...",
+				"Of course, those are not the actual insignia of the Sapphire Blade and the Midnight Flame. But a honorary sign of our trust and gratitude.",
+			}, npc, creature)
+			if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.OutfitGranted) < 1 then
+				player:addOutfit(1386)
+				player:addOutfit(1387)
+				player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.OutfitGranted, 1)
+			end
+			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline, 3)
+		else
+			npcHandler:say("Neferi, Hetai and Amenef still have to be brought to justice - Petaris must not be harmed.", npc, creature)
+		end
 		npcHandler:setTopic(playerId, 0)
 	end
 

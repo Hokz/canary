@@ -17,9 +17,17 @@ function stepTile.onStepIn(player, item, frompos, item2, topos)
 		return true
 	end
 
-	local tile = Tile(tileOne):getItemById(416)
-	if tiles.tileId == tile then
-		player:teleportTo(tile.positionTo)
+	-- CONFIRMED BUG (pre-existing): two independent bugs made every teleport in this puzzle
+	-- unreachable regardless of which one was actually correct. First, the reference tile was always
+	-- checked for a hardcoded item id (416) instead of the id matching the specific teleport the
+	-- player just used (tiles.tileId, one of 416/417/418/423). Second, even had that matched,
+	-- `tiles.tileId == tile` compared a number against an Item userdata (or nil) - a comparison Lua
+	-- can never consider true - so the success branch was dead code, and it also read the nonexistent
+	-- field `tile.positionTo` on that Item rather than `tiles.positionTo` on the config entry. Every
+	-- step, correct or not, fell through to the "wrong" branch and bounced the player back to start.
+	local currentTile = Tile(tileOne):getItemById(tiles.tileId)
+	if currentTile then
+		player:teleportTo(tiles.positionTo)
 	else
 		player:teleportTo(destination)
 	end

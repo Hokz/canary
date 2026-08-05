@@ -114,6 +114,50 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say({ "Sorry." }, npc, creature) -- It needs to be revised, it's not the same as the global
 		end
 	end
+
+	-- "Aspiring Oracle" (added 12.70) - entirely absent before this pass. Uses fresh topic numbers
+	-- (30-32) to avoid colliding with the "Midnight Rituals" dialogue above (topics 1-4), since both
+	-- missions share this same Narsai NPC file.
+	if MsgContains(message, "eye of suon") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) == 1 then
+		npcHandler:say({
+			"The young woman is right. There is in fact an artefact that might bestow the power of true seeing on a mortal human being. It is called the Eye of Suon. ...",
+			"The legends tell that it consists of two parts: a precious red gem an a golden frame shaped like an eye. But the two parts were separated long ago and are now lost. ...",
+			"My second sight tells me that the frame is still here in Kilmaresh. But it is far away ... in the Salt Caves underneath the Green Belt. Be careful, they are inhabited by Bashmu. ...",
+			"Although some of them are benevolent creatures they despise it if someone enters their lairs. The gem on the other hand is quite far away. ...",
+			"You can find it in the former part of Kilmaresh, now known as Krailos. You can take a ship to get there, but there is also a secret tunnel in the Ruins of Nuur. ...",
+			"It still connects the ruins to the lost part of the Old Empire. A seeled door prevents theogres from coming through. ...",
+			"But you can open it by drawing a sun symbol on the door with your finger, right above the door knob.",
+			"You will find the gem in the ruins of the Old Empire underneath Krailos. ...",
+			"Find the two parts and combine them to restore the Eye of Suon. The return to me and I will tell you more.",
+		}, npc, creature)
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline, 2)
+		npcHandler:setTopic(playerId, 0)
+	elseif MsgContains(message, "eye of suon") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) == 2 then
+		if player:getItemById(36708, 1) then
+			npcHandler:say({
+				"You really found the parts and restored the Eye of Suon! I'm impressed! But the artefact won't grant the second sight yet. It has to be activated by a special blessing. ...",
+				"There have been several Anuma, all of them lamassu und sphinxes, who were patrons of seers and oracles. Each of them has a statue, some here in Issavi, some elsewhere in Kilmaresh. ...",
+				"Take this wine and sacrifice it at each of the statues by pouring it out in front of them. Here is a scroll that lists the names of the holy Anuma whose statues you have to find. ...",
+				"If you bring all sacrifices the Eye of Suon will awake.",
+			}, npc, creature)
+			player:addItem(2, 7) -- wine, one per Anuma statue
+			player:addItem(31709, 1) -- "the kilmar tablets" reused as the scroll of Anuma names (see PR notes)
+			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline, 3)
+		else
+			npcHandler:say("You still need to find and combine both parts of the Eye of Suon.", npc, creature)
+		end
+		npcHandler:setTopic(playerId, 0)
+	elseif MsgContains(message, "eye of suon") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) == 3 then
+		local blessed = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.AnumaBlessed)
+		if blessed >= 127 then
+			npcHandler:say("You offered all the sacrifices. Now you can tell Taya about the good news and bring her the Eye of Suon.", npc, creature)
+			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline, 5)
+		else
+			npcHandler:say("You still have to offer a sacrifice at every Anuma statue on the scroll I gave you.", npc, creature)
+		end
+		npcHandler:setTopic(playerId, 0)
+	end
+
 	return true
 end
 
