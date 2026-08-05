@@ -274,9 +274,34 @@ local config = {
 -- sufficient to satisfy it. Consolidated: "A Shark in Need"'s live-sheep shearing (previously a
 -- second, separate Action in actions_shark_scissors.lua) is now handled directly in this single
 -- handler, which is the only registration left for item 31327.
+-- CONFIRMED BUG (found in review of the consolidation above, and introduced by it): the first version
+-- of this consolidated handler called `target:isMonster()` unconditionally. That is a runtime error
+-- for every non-Creature target, which is most of this handler's actual traffic:
+--   * Item target - the engine pushes Item userdata (Lua::pushThing, lua_functions_loader.cpp:204).
+--     Item is registered with NO base class (registerSharedClass(L, "Item", "", ...),
+--     item_functions.cpp:22) and `isMonster` is registered only on Monster
+--     (monster_functions.cpp:25), so revscriptsys.lua's ItemIndex falls through to `methods[key]`
+--     and yields nil -> calling it raises "attempt to call a nil value (method 'isMonster')".
+--   * No/empty target (ground use, self use, scenery with no thing) - the engine pushes a plain
+--     table {uid=0, itemid=0, actionid=0, type=0} (lua_functions_loader.cpp:195-201), which has no
+--     metatable at all -> same crash.
+-- Reading `target.isMonster` (without calling it) is safe on all three shapes, so it is used as a
+-- presence test before dispatching. `type(target) == "userdata"` additionally separates real things
+-- from the sentinel table. Both branches now prove their target's type before touching it.
 local scissorsfun = Action()
 function scissorsfun.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if target and target:isMonster() and target:getName():lower() == "sheep" then
+	if not target then
+		return false
+	end
+
+	local isUserdata = type(target) == "userdata"
+
+	-- Creature target: "A Shark in Need" live-sheep shearing.
+	if isUserdata and target.isMonster and target:isMonster() then
+		if target:getName():lower() ~= "sheep" then
+			return false
+		end
+
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) ~= 1 then
 			return false
 		end
@@ -296,6 +321,13 @@ function scissorsfun.onUse(player, item, fromPosition, target, toPosition, isHot
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You carefully shear a bundle of wool from the sheep, unharmed.")
 		target:getPosition():sendMagicEffect(CONST_ME_MAGIC_GREEN)
 		return true
+	end
+
+	-- Item target: pre-existing "Midnight Rituals" gathering. Proving isItem() before reading
+	-- target.itemid also avoids CreatureIndex's `itemid` shim, which returns a hardcoded 1 for any
+	-- Creature (revscriptsys.lua) and would otherwise reach config[1] on a non-sheep creature.
+	if not isUserdata or not target.isItem or not target:isItem() then
+		return false
 	end
 
 	local key = config[target.itemid]

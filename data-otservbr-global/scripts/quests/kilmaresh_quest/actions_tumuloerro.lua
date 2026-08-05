@@ -5,7 +5,9 @@
 local tumuloerro = Action()
 
 function tumuloerro.onUse(player, item, frompos, item2, topos)
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) >= 3 then
+	-- Uses RevengeOfTheOgres.Questline (stage 2+ = inside the dungeon past the cage key) instead of
+	-- the old Fourteen.Remains - see the comment in npc/saideh.lua.
+	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline) >= 2 then
 		local damage = math.floor(player:getMaxHealth() * 0.5)
 		doTargetCombatHealth(0, player, COMBAT_FIREDAMAGE, -damage, -damage, CONST_ME_HITBYFIRE)
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Flames burst from the right side of the grave, searing you badly! You should have searched the other side.")

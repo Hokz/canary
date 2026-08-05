@@ -9,10 +9,12 @@
 local tumulo = Action()
 
 function tumulo.onUse(player, item, frompos, item2, topos)
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) == 3 then
-		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains, 4)
+	-- Uses RevengeOfTheOgres.Questline (stage 2 = cage key found) instead of the old
+	-- Fourteen.Remains - see the comment in npc/saideh.lua.
+	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline) == 2 then
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline, 3)
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You carefully search the left side of the grave and find the scattered remains of the hero Dayyan. This is what Saideh sent you to find.")
-	elseif player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) > 3 then
+	elseif player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline) > 2 then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have already found what you were looking for here.")
 	else
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Empty.")

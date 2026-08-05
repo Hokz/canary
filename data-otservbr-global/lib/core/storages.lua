@@ -3042,6 +3042,16 @@ Storage = {
 					EnusatKilled = 46933,
 				},
 				-- "Wanted" (Eshaya/Kallimae, added 12.70) did not exist at all before this pass.
+				-- "The Revenge of the Ogres" previously had no state of its own - it borrowed
+				-- Fourteen.Remains, which is written by npc/alyxo.lua when "The Boards that Mean the
+				-- World" completes. That made Revenge strictly gated behind Boards, contradicting the
+				-- source's "after Fafnar's Wrath, the later missions may be performed in any order".
+				-- This dedicated state lets Saideh gate on the real common prerequisite
+				-- (Sixth.Favor >= 11, set by the Empress when Fafnar's Wrath completes) instead.
+				-- 1 = accepted, 2 = cage key found, 3 = Dayyan's grave searched, 4 = reported/rewarded.
+				RevengeOfTheOgres = {
+					Questline = 46941,
+				},
 				Wanted = {
 					Questline = 46934,
 					MirrorSoot = 46935,

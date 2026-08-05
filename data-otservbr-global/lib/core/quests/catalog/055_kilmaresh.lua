@@ -53,13 +53,13 @@ local quest = {
 		},
 		[5] = {
 			name = "The Revenge of the Ogres",
-			storageId = Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains,
+			storageId = Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline,
 			missionId = 20204,
-			startValue = 2,
-			endValue = 5,
+			startValue = 1,
+			endValue = 4,
 			states = {
-				[2] = "Find the grave of the hero Dayyan, protected by ogres and ancient puzzles, for Saideh.",
-				[5] = "You searched Dayyan's grave and were rewarded by Saideh.",
+				[1] = "Find the grave of the hero Dayyan, protected by ogres and ancient puzzles, for Saideh.",
+				[4] = "You searched Dayyan's grave and were rewarded by Saideh.",
 			},
 		},
 		[6] = {
