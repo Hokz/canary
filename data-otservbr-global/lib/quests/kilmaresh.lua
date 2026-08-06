@@ -74,9 +74,7 @@ function KilmareshQuest.hasPilgrimageStarted(player)
 
 	local storage = Storage.Quest.U12_20.KilmareshQuest
 
-	return player:getStorageValue(storage.Nine.Owl) >= 1
-		or player:getStorageValue(storage.Tem.Bleeds) >= 1
-		or player:getStorageValue(storage.Eleven.Basin) >= 1
+	return player:getStorageValue(storage.Nine.Owl) >= 1 or player:getStorageValue(storage.Tem.Bleeds) >= 1 or player:getStorageValue(storage.Eleven.Basin) >= 1
 end
 
 -- Midnight Rituals: idempotent "all four members helped -> pilgrimage unlocked" transition.
@@ -96,12 +94,7 @@ function KilmareshQuest.startMidnightPilgrimage(player)
 
 	local storage = Storage.Quest.U12_20.KilmareshQuest
 
-	if
-		player:getStorageValue(storage.Eighth.Yonan) < 3
-		or player:getStorageValue(storage.Eighth.Narsai) < 3
-		or player:getStorageValue(storage.Eighth.Shimun) < 3
-		or player:getStorageValue(storage.Eighth.Tefrit) < 3
-	then
+	if player:getStorageValue(storage.Eighth.Yonan) < 3 or player:getStorageValue(storage.Eighth.Narsai) < 3 or player:getStorageValue(storage.Eighth.Shimun) < 3 or player:getStorageValue(storage.Eighth.Tefrit) < 3 then
 		return false
 	end
 

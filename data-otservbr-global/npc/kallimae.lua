@@ -122,7 +122,14 @@ local function creatureSayCallback(npc, creature, type, message)
 	-- The offer uses the SAME idempotent predicate as the confirmation below, so a player who has
 	-- already started or finished the pilgrimage is never re-offered it (and so cannot reach the
 	-- confirmation branch that would otherwise rewind Nine.Owl).
-	if MsgContains(message, "mission") and not KilmareshQuest.hasPilgrimageStarted(player) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3 then
+	if
+		MsgContains(message, "mission")
+		and not KilmareshQuest.hasPilgrimageStarted(player)
+		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3
+		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3
+		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3
+		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3
+	then
 		do
 			npcHandler:say({ "Did you help some residents with ingredients?" }, npc, creature) -- It needs to be revised, it's not the same as the global
 			npcHandler:setTopic(playerId, 3)
