@@ -38,10 +38,7 @@ local quest = {
 						end
 					end
 
-					return string.format(
-						"Prevent the raising of twelve lich knights. Sanctify the graves yet untouched and destroy any lich knights that might have been raised. Graves explored: %d/12",
-						cleansed
-					)
+					return string.format("Prevent the raising of twelve lich knights. Sanctify the graves yet untouched and destroy any lich knights that might have been raised. Graves explored: %d/12", cleansed)
 				end,
 			},
 		},
