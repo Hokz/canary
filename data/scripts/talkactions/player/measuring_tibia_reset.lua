@@ -16,7 +16,7 @@ function feature.onSay(player, words, param)
 
 	local subarea = MeasuringTibia.subareaByNameLower[subareaName:lower()]
 	if not subarea then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, ('Unknown subarea "%s".'):format(subareaName))
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, ("Unknown subarea \"%s\"."):format(subareaName))
 		return true
 	end
 
