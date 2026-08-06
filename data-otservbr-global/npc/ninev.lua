@@ -186,8 +186,9 @@ keywordHandler:addAliasKeyword({ "wisdom" })
 -- "A Shark in Need" (Kilmaresh Quest) - this NPC was previously registered but never placed on the
 -- map (spawn position (0,0,7), the engine's "unplaced" sentinel) and carried none of this content;
 -- see the PR's Map Setup Contract for the required Issavi placement. Gated on
--- KilmareshQuest.AccessDoor (set once Fafnar's Wrath is under way) matching the source's ordering
--- note that later Kilmaresh missions unlock only after Fafnar's Wrath has begun.
+-- KilmareshQuest.Sixth.Favor >= 11, i.e. Fafnar's Wrath must be COMPLETE - that value is written only
+-- when the Empress hands over the Regalia part at the very end of that mission (npc/the_empress.lua).
+-- Not merely begun, and not AccessDoor: see the bug note on the gate predicate below.
 local sharkKeyword = keywordHandler:addKeyword({ "shark" }, StdModule.say, {
 	npcHandler = npcHandler,
 	text = {

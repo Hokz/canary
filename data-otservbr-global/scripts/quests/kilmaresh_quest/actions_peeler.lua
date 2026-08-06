@@ -8,10 +8,12 @@ function peeler.onUse(player, item, frompos, item2, topos)
 		-- advancing without the tool would strand the player with no way to re-acquire it. Created only
 		-- when not already held, so a retry after a failed attempt cannot hand out a second peeler.
 		--
-		-- canDropOnMap: left at the engine default (true, player_functions.cpp:2378), matching every
-		-- other quest-tool grant in this repo - an over-capacity player gets the peeler on the ground
-		-- rather than losing it. addItem still returns nil on a genuine creation/placement failure, and
-		-- that is what this check catches.
+		-- canDropOnMap is passed as false (Lua arg 3 -> stack index 4, player_functions.cpp:2378, where
+		-- the engine would otherwise default it to true). Map fallback is therefore DISABLED: the peeler
+		-- is never placed on the ground as a consolation. addItem returns nil instead, so a truthy
+		-- result proves the peeler actually entered the player's inventory - which is exactly what
+		-- Set.Ritual 2 -> 3 is about to depend on. A refused attempt leaves the storage untouched and
+		-- is freely retryable once the player makes room.
 		if not player:getItemById(31328, 1) and not player:addItem(31328, 1, false) then
 			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the bark peeler right now.")
 			return true
