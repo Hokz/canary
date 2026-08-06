@@ -108,24 +108,39 @@ local DISCOVERING_TOPIC_COUNT_ASKED = 12
 local DiscovererOutfits = Storage.Quest.U11_80.DiscovererOutfits
 
 local tierByWord = {
-	ten = { count = 10, storage = DiscovererOutfits.BaseClaimed, grant = function(player)
-		player:addOutfit(MeasuringTibia.OUTFIT_LOOKTYPE_MALE)
-		player:addOutfit(MeasuringTibia.OUTFIT_LOOKTYPE_FEMALE)
-		if not player:hasAchievement("Widely Travelled") then
-			player:addAchievement("Widely Travelled")
-		end
-	end, replyLine = "Very good! You gained the Discoverer outfit." },
-	fifteen = { count = 15, storage = DiscovererOutfits.Addon1Claimed, grant = function(player)
-		player:addOutfitAddon(MeasuringTibia.OUTFIT_LOOKTYPE_MALE, 1)
-		player:addOutfitAddon(MeasuringTibia.OUTFIT_LOOKTYPE_FEMALE, 1)
-	end, replyLine = "Very good! You gained the first addon to the Discoverer outfit." },
-	twenty = { count = 20, storage = DiscovererOutfits.Addon2Claimed, grant = function(player)
-		player:addOutfitAddon(MeasuringTibia.OUTFIT_LOOKTYPE_MALE, 2)
-		player:addOutfitAddon(MeasuringTibia.OUTFIT_LOOKTYPE_FEMALE, 2)
-		if not player:hasAchievement("Measuring the World") then
-			player:addAchievement("Measuring the World")
-		end
-	end, replyLine = "Very good! You gained the second addon to the Discoverer outfit" },
+	ten = {
+		count = 10,
+		storage = DiscovererOutfits.BaseClaimed,
+		grant = function(player)
+			player:addOutfit(MeasuringTibia.OUTFIT_LOOKTYPE_MALE)
+			player:addOutfit(MeasuringTibia.OUTFIT_LOOKTYPE_FEMALE)
+			if not player:hasAchievement("Widely Travelled") then
+				player:addAchievement("Widely Travelled")
+			end
+		end,
+		replyLine = "Very good! You gained the Discoverer outfit.",
+	},
+	fifteen = {
+		count = 15,
+		storage = DiscovererOutfits.Addon1Claimed,
+		grant = function(player)
+			player:addOutfitAddon(MeasuringTibia.OUTFIT_LOOKTYPE_MALE, 1)
+			player:addOutfitAddon(MeasuringTibia.OUTFIT_LOOKTYPE_FEMALE, 1)
+		end,
+		replyLine = "Very good! You gained the first addon to the Discoverer outfit.",
+	},
+	twenty = {
+		count = 20,
+		storage = DiscovererOutfits.Addon2Claimed,
+		grant = function(player)
+			player:addOutfitAddon(MeasuringTibia.OUTFIT_LOOKTYPE_MALE, 2)
+			player:addOutfitAddon(MeasuringTibia.OUTFIT_LOOKTYPE_FEMALE, 2)
+			if not player:hasAchievement("Measuring the World") then
+				player:addAchievement("Measuring the World")
+			end
+		end,
+		replyLine = "Very good! You gained the second addon to the Discoverer outfit",
+	},
 }
 
 local function creatureSayCallback(npc, creature, type, message)
