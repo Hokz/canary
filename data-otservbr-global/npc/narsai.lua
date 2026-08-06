@@ -76,6 +76,10 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
+	-- Legacy repair for players stranded by the missing Eighth.* initialisation (see
+	-- lib/quests/kilmaresh.lua). Idempotent, grants nothing, never lowers an existing stage.
+	KilmareshQuest.migrateMidnightRituals(player)
+
 	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 1 then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 1 then
 			npcHandler:say({ "Could you help me do a ritual?" }, npc, creature) -- It needs to be revised, it's not the same as the global

@@ -76,6 +76,10 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
+	-- Legacy repair for players stranded by the missing Eighth.* initialisation (see
+	-- lib/quests/kilmaresh.lua). Idempotent, grants nothing, never lowers an existing stage.
+	KilmareshQuest.migrateMidnightRituals(player)
+
 	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) == 11 then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) == 11 then
 			npcHandler:say({ "Some residents are in need of ingredients to finish a ritual. You can help?" }, npc, creature) -- It needs to be revised, it's not the same as the global
@@ -131,6 +135,14 @@ local function creatureSayCallback(npc, creature, type, message)
 	then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3 then
 			npcHandler:say({ "Thanks. I need you to go to 4 places indicated by Goddess Bastesh." }, npc, creature) -- It needs to be revised, it's not the same as the global
+			-- CONFIRMED BUG (found in review): the questlog's Midnight Rituals entry used Set.Ritual with
+			-- endValue 3, but 3 only means "bark peeler obtained" - the tool-preparation stage. Since
+			-- Player.missionIsCompleted (data/libs/functions/quests.lua:1117) is `value >= endValue`, the
+			-- mission read as COMPLETED while all four ingredient turn-ins were still outstanding, and
+			-- ignoreendvalue does not prevent that (it only affects visibility and state clamping once a
+			-- value passes endValue). Set.Ritual 4 is a genuine completion marker, written here - the one
+			-- point where all four Eighth.* are proven to be 3 and Kallimae advances to the pilgrimage.
+			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Ritual, 4)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Nine.Owl, 1)
 			npcHandler:setTopic(playerId, 4)
 			npcHandler:setTopic(playerId, 4)
