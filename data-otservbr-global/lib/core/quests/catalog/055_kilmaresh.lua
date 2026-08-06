@@ -16,14 +16,44 @@ local quest = {
 	startStorageId = Storage.Quest.U12_20.KilmareshQuest.Questline,
 	startStorageValue = 1,
 	missions = {
+		-- CONFIRMED BUG (found in review): the questlog previously had no entry that became visible when
+		-- Fafnar's Wrath is actually accepted. Sixth.Favor is only first written by the Empress, near
+		-- the END of the mission, so a player who accepted the quest from Eshaya and was mid-way through
+		-- the Ambassador investigation, the Urmahlullu fight, the Moe theft and the memory realm saw
+		-- nothing at all. Second.Investigating is written by npc/eshaya.lua at acceptance (1) and
+		-- advances through the investigation (up to 6), so it is the correct "mission is active" key for
+		-- that whole first half.
 		[1] = {
+			name = "Fafnar's Wrath - The Ambassador",
+			storageId = Storage.Quest.U12_20.KilmareshQuest.Second.Investigating,
+			missionId = 20207,
+			ignoreendvalue = true,
+			startValue = 1,
+			endValue = 6,
+			states = {
+				[1] = "Eshaya asked you to search the Ambassador of Rathleton's residence in eastern Issavi for evidence of his treason.",
+				[5] = "You found nothing incriminating. Report back to Eshaya.",
+				[6] = "Find the Ring of Secret Thoughts, said to be held by Urmahlullu in a tomb south of Issavi, then use it to expose the Ambassador's memories.",
+			},
+		},
+		[2] = {
 			-- CONFIRMED BUG (found in review): endValue was 10, but the Empress advances Sixth.Favor
 			-- 10 -> 11 when she hands over the reward - so 10 is "all statues blessed, go claim your
 			-- reward", not "complete", and the questlog showed the mission finished one step early
 			-- while also going blank at the real completion (11 was outside the range).
-			name = "Fafnar's Wrath",
+			-- CONFIRMED BLOCKER (found in review, verified against the engine rather than assumed):
+			-- Player.missionIsStarted (data/libs/functions/quests.lua:1035) returns false when
+			-- `value > endValue` unless `ignoreendvalue` is set - so once npc/kallimae.lua advances
+			-- Sixth.Favor to 12 on accepting Midnight Rituals, this mission would DISAPPEAR from the
+			-- questlog entirely. `ignoreendvalue` is a real supported field: quests.lua:1035 honours it
+			-- for visibility and :1150 clamps the displayed state to the highest defined one, and
+			-- Game.getMission returns the catalog table unmodified (quests.lua:758), so setting it here
+			-- takes effect. missionIsCompleted (:1117) is `value >= endValue`, so 11 and 12 both read
+			-- as completed.
+			name = "Fafnar's Wrath - The Catacombs",
 			storageId = Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor,
 			missionId = 20200,
+			ignoreendvalue = true,
 			startValue = 1,
 			endValue = 11,
 			states = {
@@ -32,7 +62,7 @@ local quest = {
 				[11] = "You proved the Ambassador's treason and received a part of the Regalia of Suon from the Empress.",
 			},
 		},
-		[2] = {
+		[3] = {
 			name = "A Shark in Need",
 			storageId = Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline,
 			missionId = 20201,
@@ -43,18 +73,38 @@ local quest = {
 				[2] = "You cured the injured shark and received a part of the Regalia of Suon from Ninev.",
 			},
 		},
-		[3] = {
+		[4] = {
+			-- CONFIRMED BUG (found in review): keyed to Eleven.Basin, which is only written once the
+			-- player has already helped all four members AND found three omens - so the mission was
+			-- invisible for almost its entire duration. Set.Ritual is written by npc/kallimae.lua at the
+			-- moment the mission is accepted (1), then by the scissors pickup (2) and the peeler pickup
+			-- (3), making it the correct active key. Eleven.Basin's pilgrimage/completion phase is
+			-- carried by the separate entry below. ignoreendvalue keeps this visible once Set.Ritual
+			-- passes 3.
 			name = "Midnight Rituals",
-			storageId = Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin,
+			storageId = Storage.Quest.U12_20.KilmareshQuest.Set.Ritual,
 			missionId = 20202,
+			ignoreendvalue = true,
+			startValue = 1,
+			endValue = 3,
+			states = {
+				[1] = "Kallimae asked you to help Yonan, Narsai, Tefrit and Shimun gather the ingredients for their rituals.",
+				[2] = "You found the ritual scissors. Keep gathering the ingredients the four members need.",
+				[3] = "You have the tools you need. Deliver every member's ingredients, then return to Kallimae.",
+			},
+		},
+		[5] = {
+			name = "Midnight Rituals - The Pilgrimage",
+			storageId = Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin,
+			missionId = 20208,
 			startValue = 1,
 			endValue = 2,
 			states = {
-				[1] = "Help Yonan, Narsai, Tefrit and Shimun gather ritual ingredients, then complete the Midnight Pilgrimage for Kallimae.",
+				[1] = "You found the sign of sun and sea. Bring it and the goanna's hide to Kallimae to complete the Midnight Pilgrimage.",
 				[2] = "You completed the Midnight Pilgrimage and received a part of the Regalia of Suon from Kallimae.",
 			},
 		},
-		[4] = {
+		[6] = {
 			-- CONFIRMED BUG (found in review): this was keyed to Fourteen.Remains with
 			-- startValue == endValue == 1, i.e. the completed-reward marker only - the mission was
 			-- invisible for its entire active duration and appeared only once already finished. Now
@@ -74,7 +124,7 @@ local quest = {
 				[5] = "You completed Alyxo's tasks and received a part of the Regalia of Suon.",
 			},
 		},
-		[5] = {
+		[7] = {
 			name = "The Revenge of the Ogres",
 			storageId = Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline,
 			missionId = 20204,
@@ -85,7 +135,7 @@ local quest = {
 				[4] = "You searched Dayyan's grave and were rewarded by Saideh.",
 			},
 		},
-		[6] = {
+		[8] = {
 			name = "Aspiring Oracle",
 			storageId = Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline,
 			missionId = 20205,
@@ -97,7 +147,7 @@ local quest = {
 				[7] = "You killed Enusat the Onyx Wing and were rewarded by Taya.",
 			},
 		},
-		[7] = {
+		[9] = {
 			name = "Wanted",
 			storageId = Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline,
 			missionId = 20206,

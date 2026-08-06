@@ -92,6 +92,22 @@ local function creatureSayCallback(npc, creature, type, message)
 			-- player. The real per-member progress lives in Eighth.* and is written by each member NPC
 			-- when the player first asks them for their list, so nothing is lost by removing them.
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Ritual, 1)
+			-- CONFIRMED BLOCKER (found in review): the four Midnight Rituals member NPCs each require
+			-- their own Eighth.* storage to already equal 1 before they will offer their task, but
+			-- nothing ever initialised them - the removed Set.Yonan/Narsai/Shimun/Tefrit writes pointed
+			-- at storage paths that do not exist. A fresh player could accept Midnight Rituals and then
+			-- find all four members unreachable. Seeded here, only when below 1, so a player who has
+			-- already progressed a member (2 = list given, 3 = ingredients delivered) is never reset.
+			for _, memberStorage in ipairs({
+				Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan,
+				Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai,
+				Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun,
+				Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit,
+			}) do
+				if player:getStorageValue(memberStorage) < 1 then
+					player:setStorageValue(memberStorage, 1)
+				end
+			end
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor, 12)
 			npcHandler:setTopic(playerId, 2)
 			npcHandler:setTopic(playerId, 2)
@@ -151,7 +167,12 @@ local function creatureSayCallback(npc, creature, type, message)
 				player:addAchievement("Sun and Sea")
 			end
 			npcHandler:say({ "Thanks. Here is your reward." }, npc, creature) -- It needs to be revised, it's not the same as the global
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss, 1)
+			-- CONFIRMED BLOCKER (found in review): this used to write Twelve.Boss = 1 here. Twelve.Boss
+			-- is The Boards' own questline storage, whose completed value is 5 - so a player who
+			-- finished Boards first and Midnight Rituals second had their completed Boards silently
+			-- reset from 5 back to 1, losing questlog completion and re-opening the mission. Boards is
+			-- now seeded independently by npc/alyxo.lua from Sixth.Favor >= 11, so Midnight Rituals
+			-- writes nothing belonging to another mission.
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin, 2)
 			npcHandler:setTopic(playerId, 6)
 			npcHandler:setTopic(playerId, 6)

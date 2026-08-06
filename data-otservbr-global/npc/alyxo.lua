@@ -83,6 +83,22 @@ local function creatureSayCallback(npc, creature, type, message)
 		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss, 1)
 	end
 
+	-- Legacy migration: before this PR, Boards' completion was recorded only as Fourteen.Remains = 1
+	-- (that storage also doubled as Revenge's chain). Twelve.Boss is now Boards' questline with 5 as
+	-- its completed value, so a player who finished Boards under the old flow would otherwise show as
+	-- incomplete in the new questlog forever. Promote them once. Deliberately does NOT re-grant item
+	-- 31574 and does NOT touch any Thirteen.* subtask.
+	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) >= 1 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss) < 5 then
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss, 5)
+	end
+
+	-- Parent questlog visibility anchor for legacy players: KilmareshQuest.Questline was unused before
+	-- this PR, so an existing player with real Kilmaresh progress would have no questlog at all until
+	-- they happened to re-trigger an entry point. Any evidence of genuine progress exposes it.
+	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Questline) < 1 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Title) >= 1 then
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Questline, 1)
+	end
+
 	-- Mission 3 Steal The Ambassador Ring
 	if MsgContains(message, "mission") then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss) == 1 then

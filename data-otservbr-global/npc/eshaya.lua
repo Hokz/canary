@@ -141,7 +141,15 @@ local function creatureSayCallback(npc, creature, type, message)
 
 	-- "Wanted" (added 12.70) - entirely absent before this pass. Uses fresh topic numbers (30-31) to
 	-- avoid colliding with the Fafnar's Wrath dialogue above (topics 0-4).
-	if MsgContains(message, "wanted") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AccessDoor) >= 1 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline) < 1 then
+	-- CONFIRMED BUG (found in review): Wanted gated on AccessDoor, which this same NPC sets when the
+	-- Ambassador investigation *begins* - so it was offerable within minutes of starting Fafnar's
+	-- Wrath. The source makes it an additional mission available only once the base quest is finished.
+	-- Predicate is centralised in lib/quests/kilmaresh.lua so this and Aspiring Oracle (npc/taya.lua)
+	-- cannot diverge.
+	if MsgContains(message, "wanted") and not KilmareshQuest.isBaseQuestComplete(player) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline) < 1 then
+		npcHandler:say("There is a poster, yes - but Issavi has asked much of you already. Finish what you have begun for us first.", npc, creature)
+		npcHandler:setTopic(playerId, 0)
+	elseif MsgContains(message, "wanted") and KilmareshQuest.isBaseQuestComplete(player) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline) < 1 then
 		npcHandler:say({
 			"Ah, I see, you discovered the poster we put up. Yes, there are four persons, we are currently looking for:",
 			"Amenef, a Burning Gladiator, as far as we know. ...",

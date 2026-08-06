@@ -78,7 +78,14 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
-	if MsgContains(message, "oracle") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) < 1 then
+	-- CONFIRMED BUG (found in review): Aspiring Oracle had no base-quest prerequisite at all, so a
+	-- brand-new character could start it before touching Kilmaresh. The source makes it an additional
+	-- mission available only once the base quest is finished. Predicate is centralised in
+	-- lib/quests/kilmaresh.lua so this and Wanted (npc/eshaya.lua) cannot diverge.
+	if MsgContains(message, "oracle") and not KilmareshQuest.isBaseQuestComplete(player) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) < 1 then
+		npcHandler:say("You carry yourself well, but the Golden City has greater troubles than mine right now. Prove yourself to Issavi first.", npc, creature)
+		npcHandler:setTopic(playerId, 0)
+	elseif MsgContains(message, "oracle") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) < 1 then
 		npcHandler:say({
 			"Have you ever heard of the Circle of the Midnight Flame? They are an order of seers and prophets. Since I was a little girl it was my greatest dream to join them. ...",
 			"Sadly, I was not born with the gift of true seeing. But I firmly believe there is a way. I heard stories about an artefact that can grant the power of seeing. ...",

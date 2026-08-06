@@ -138,8 +138,22 @@ local function creatureSayCallback(npc, creature, type, message)
 				"Take this wine and sacrifice it at each of the statues by pouring it out in front of them. Here is a scroll that lists the names of the holy Anuma whose statues you have to find. ...",
 				"If you bring all sacrifices the Eye of Suon will awake.",
 			}, npc, creature)
-			player:addItem(2, 7) -- wine, one per Anuma statue
-			player:addItem(31709, 1) -- "the kilmar tablets" reused as the scroll of Anuma names (see PR notes)
+			-- Transactional, with the same tool/document distinction used in npc/yonan.lua:
+			--   * wine (item 2) is MECHANICALLY REQUIRED - actions_anuma_statues.lua consumes one per
+			--     statue and refuses to bless without it, and Questline 2 -> 3 is one-way, so
+			--     advancing without it would strand the player.
+			--   * the scroll (31709) is INFORMATIONAL (it only lists the statue names), so its
+			--     delivery is deliberately not treated as blocking.
+			if not player:addItem(2, 7) then
+				npcHandler:say("You cannot carry the wine right now. Return when you have room for it.", npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
+			if not player:getItemById(31709, 1) then
+				player:addItem(31709, 1) -- scroll of Anuma names (informational, non-blocking)
+			end
+
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline, 3)
 		else
 			npcHandler:say("You still need to find and combine both parts of the Eye of Suon.", npc, creature)

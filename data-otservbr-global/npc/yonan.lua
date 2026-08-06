@@ -135,17 +135,15 @@ local function greetCallback(npc, creature)
 	local player = Player(creature)
 	local playerId = player:getId()
 
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Access) < 1 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 1)
-	elseif (player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) >= 0 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) <= 50) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) < 3 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 15)
-	elseif player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) == 4 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission, 5)
-		npcHandler:setTopic(playerId, 20)
-	end
+	-- CONFIRMED BUG (found in review): this greetCallback branched on
+	-- KilmareshQuest.First.Access / .JamesfrancisTask / .Mission, none of which exist - `First`
+	-- defines only `Title` (lib/core/storages.lua). They are copy-pasted from the unrelated
+	-- CultsOfTibia.Minotaurs block. Every branch resolved against a nil key and all three set the same
+	-- greeting anyway, but they also pre-seeded a conversation topic purely by greeting - and topic 1
+	-- is consumed by live "yes" branches in this file, so a bare "yes" straight after hello could
+	-- advance a mission without ever being offered it. Replaced with the unconditional greeting the
+	-- branches all produced, and no topic seeding.
+	npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
 	return true
 end
 
@@ -165,8 +163,25 @@ local function creatureSayCallback(npc, creature, type, message)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 1 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 1 then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 1 then
-			player:addItem(31717, 1) -- Yonans List
-			player:addItem(31613, 1) -- Pick Enchanted
+			-- Transactional, with an explicit distinction between the two items:
+			--   * item 31613 (enchanted pick) is MECHANICALLY REQUIRED - it is the registered trigger
+			--     for actions_pickenchanted.lua, the only way to mine the ten tagralt ore nuggets this
+			--     task needs. Eighth.Yonan 1 -> 2 is one-way and this branch only fires at 1, so
+			--     advancing without the pick would make the task impossible with no way to re-acquire.
+			--   * item 31717 (Yonan's List) is INFORMATIONAL - it only restates the ingredients in its
+			--     item description. Its delivery is deliberately NOT treated as blocking.
+			-- The pick is only created when not already held, so a retry after a failed attempt cannot
+			-- hand out a second one.
+			if not player:getItemById(31613, 1) and not player:addItem(31613, 1) then
+				npcHandler:say({ "You cannot carry my enchanted pick right now. Come back when you have room for it." }, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
+			if not player:getItemById(31717, 1) then
+				player:addItem(31717, 1) -- Yonan's List (informational, non-blocking)
+			end
+
 			npcHandler:say({ "Here is the list with the missing ingredients to complete the ritual." }, npc, creature) -- It needs to be revised, it's not the same as the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan, 2)
 			npcHandler:setTopic(playerId, 2)
