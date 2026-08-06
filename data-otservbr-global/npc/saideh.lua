@@ -51,10 +51,13 @@ local function greetCallback(npc, creature)
 	local player = Player(creature)
 	local playerId = player:getId()
 
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Access) < 1 then
-		npcHandler:setMessage(MESSAGE_GREET, "Hello, my name is Saideh. Once this was the entry to the crypt of our heroes. One of the graves belongs to our beloved hero Dayyan. Nowadays it is not a good idea to visit this place.")
-		npcHandler:setTopic(playerId, 1)
-	end
+	-- CONFIRMED BUG (found in review): branched on KilmareshQuest.First.Access, which does not
+	-- exist (`First` defines only `Title`) - copy-pasted from the unrelated CultsOfTibia block.
+	-- It also pre-seeded topic 1 purely by greeting, and topic 1 is the Revenge mission's own
+	-- confirmation topic, so a bare "yes" straight after hello could accept the mission without
+	-- the intended "mission" -> "yes" exchange. Greeting is now unconditional with no topic seed;
+	-- the confirmation branch re-checks Sixth.Favor >= 11 and the Revenge stage regardless.
+	npcHandler:setMessage(MESSAGE_GREET, "Hello, my name is Saideh. Once this was the entry to the crypt of our heroes. One of the graves belongs to our beloved hero Dayyan. Nowadays it is not a good idea to visit this place.")
 	return true
 end
 

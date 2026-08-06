@@ -51,17 +51,15 @@ local function greetCallback(npc, creature)
 	local player = Player(creature)
 	local playerId = player:getId()
 
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Access) < 1 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 1)
-	elseif (player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) >= 0 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) <= 50) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) < 3 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 15)
-	elseif player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) == 4 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission, 5)
-		npcHandler:setTopic(playerId, 20)
-	end
+	-- CONFIRMED BUG (found in review): this greetCallback branched on
+	-- KilmareshQuest.First.Access / .JamesfrancisTask / .Mission, none of which exist - `First`
+	-- defines only `Title` (lib/core/storages.lua). They are copy-pasted from the unrelated
+	-- CultsOfTibia.Minotaurs block. Every branch resolved against a nil key and all three set the same
+	-- greeting anyway, but they also pre-seeded a conversation topic purely by greeting - and topic 1
+	-- is consumed by live "yes" branches in this file, so a bare "yes" straight after hello could
+	-- advance a mission without ever being offered it. Replaced with the unconditional greeting the
+	-- branches all produced, and no topic seeding.
+	npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
 	return true
 end
 
@@ -71,6 +69,18 @@ local function creatureSayCallback(npc, creature, type, message)
 
 	if not npcHandler:checkInteraction(npc, creature) then
 		return false
+	end
+
+	-- CONFIRMED BUG (found in review): Twelve.Boss is Boards' own progress storage, but the only thing
+	-- that ever initialised it to 1 was npc/kallimae.lua at the *end* of Midnight Rituals - so Boards
+	-- was chained behind Midnight Rituals, contradicting the source's "after Fafnar's Wrath the later
+	-- missions may be performed in any order". Seeding it here from the canonical Fafnar's Wrath
+	-- completion marker (Sixth.Favor >= 11, set by the Empress) makes Boards independently available
+	-- without touching any downstream stage: 2, 3 and 4 and every Thirteen.* subtask are unchanged.
+	-- Kallimae's own write becomes redundant rather than wrong, so no migration is needed - players
+	-- already at Twelve.Boss >= 1 are untouched by this seed.
+	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) >= 11 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss) < 1 then
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss, 1)
 	end
 
 	-- Mission 3 Steal The Ambassador Ring
@@ -228,8 +238,18 @@ local function creatureSayCallback(npc, creature, type, message)
 			-- "Sculptor Apprentice" is granted at the tortoise-petrify branch above (topic 15/16), not
 			-- here - see the comment there for why (its registered description is about Alyxo, a
 			-- medusa, petrifying an animal, not about finishing these three favors).
-			player:addItem(31574, 1)
+			-- Transactional: Fourteen.Remains 1 is the one-time Boards completion marker, so the Regalia
+			-- part must be delivered before it advances.
+			if not player:addItem(31574, 1) then
+				npcHandler:say({ "You cannot carry your reward right now. Return when you have room for it." }, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
 			npcHandler:say({ "Congratulations, you have completed the 3 jobs I gave you." }, npc, creature) -- needs review, this is not the speech of the global
+			-- Twelve.Boss 5 is Boards' own completion state, used by the questlog catalog. Fourteen.Remains
+			-- is kept as the pre-existing one-time reward guard for backward compatibility.
+			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss, 5)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains, 1)
 			npcHandler:setTopic(playerId, 14)
 		else

@@ -2,7 +2,14 @@ local scissors = Action()
 
 function scissors.onUse(player, item, frompos, item2, topos)
 	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Ritual) == 1 then
-		player:addItem(31327, 1)
+		-- Transactional: Set.Ritual 1 -> 2 is one-way and this pickup cannot be repeated, so a failed
+		-- delivery would leave the player permanently without the scissors that four Midnight Rituals
+		-- gathering steps require.
+		if not player:addItem(31327, 1) then
+			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the scissors right now.")
+			return true
+		end
+
 		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Ritual, 2)
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have found a  ritual scissors.")
 	else

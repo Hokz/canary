@@ -103,6 +103,8 @@ local function creatureSayCallback(npc, creature, type, message)
 				"But the vision of a Kilmareshian seer is no proof they will ever accept in Rathleton. And without proof we can't banish the {Ambassador}, this would cause major diplomatic fallout or even a war. I can't risk that. ...",
 				"I need unequivocal evidence that the {Ambassador} conspires with the Fafnar cultists. Please go to his residence in the eastern part of the city and search for letters, journals ... anything that could prove him guilty.",
 			}, npc, creature)
+			-- Parent questlog visibility anchor - see catalog/055_kilmaresh.lua.
+			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Questline, 1)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Title, 1)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Second.Investigating, 1)
 			-- CONFIRMED BLOCKER (pre-existing): AccessDoor (storages.lua) gates a door immediately next

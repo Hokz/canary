@@ -60,9 +60,30 @@ function eyeCombine.onUse(player, item, fromPosition, target, toPosition, isHotk
 		return false
 	end
 
+	-- Transactional. Previously both components were removed and the Eye was then created without
+	-- checking either step, so a failed creation destroyed the frame AND the gem with nothing to show
+	-- for it, and neither is re-obtainable once AspiringOracle.Questline has moved past the
+	-- find-spots' gate. Order is now: prove both components are actually held (getItemById searches
+	-- the whole inventory including nested containers, so components split across bags are found) ->
+	-- create the Eye and check it succeeded -> only then consume the components. If creation fails,
+	-- nothing has been removed and the original state is intact, so the player can simply retry.
+	if not player:getItemById(36707, 1) or not player:getItemById(36706, 1) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need both the eye-shaped frame and the red gem.")
+		return true
+	end
+
+	if player:getItemById(36708, 1) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have already restored the Eye of Suon.")
+		return true
+	end
+
+	if not player:addItem(36708, 1) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the Eye of Suon right now.")
+		return true
+	end
+
 	player:removeItem(36707, 1)
 	player:removeItem(36706, 1)
-	player:addItem(36708, 1)
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You set the red gem into the eye-shaped frame. The two parts fuse together, restoring the Eye of Suon!")
 	player:getPosition():sendMagicEffect(CONST_ME_MAGIC_BLUE)
 

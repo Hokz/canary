@@ -87,6 +87,10 @@ local function creatureSayCallback(npc, creature, type, message)
 		npcHandler:setTopic(playerId, 1)
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 1 then
 		npcHandler:say("Suon be praised. Ask Narsai in Issavi about it. I guess she knows more.", npc, creature)
+		-- Parent questlog visibility anchor - see catalog/055_kilmaresh.lua. Deliberately NOT
+		-- First.Title: npc/eshaya.lua offers Fafnar's Wrath only while First.Title < 1, so writing that
+		-- here would lock the player out of the main mission.
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Questline, 1)
 		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline, 1)
 		npcHandler:setTopic(playerId, 0)
 	-- CONFIRMED HARDENING (found via review): this previously fired on ANY message once greeted at
@@ -102,8 +106,15 @@ local function creatureSayCallback(npc, creature, type, message)
 		npcHandler:say("Please, find and kill him to protect those people. He might be high up in the mountains but could also dwell in one of the old tombs underneath the steppe.", npc, creature)
 		npcHandler:setTopic(playerId, 0)
 	elseif MsgContains(message, "report") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) == 6 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.EnusatKilled) >= 1 then
+		-- Transactional: Questline 7 is the one-time completion marker for Aspiring Oracle, so the
+		-- mosaic must be delivered before it advances.
+		if not player:addItem(30669, 1) then -- sun mosaic
+			npcHandler:say("You cannot carry the mosaic right now. Come back when you have room for it.", npc, creature)
+			npcHandler:setTopic(playerId, 0)
+			return true
+		end
+
 		npcHandler:say("You killed the Onyx Wing! Well done, you saved the lives of many villagers out there! Please take this mosaic as a sign of my gratitude.", npc, creature)
-		player:addItem(30669, 1) -- sun mosaic
 		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline, 7)
 		npcHandler:setTopic(playerId, 0)
 	end

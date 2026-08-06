@@ -316,7 +316,16 @@ function scissorsfun.onUse(player, item, fromPosition, target, toPosition, isHot
 			return true
 		end
 
-		player:addItem(10319, 1)
+		-- Transactional: the wool progress bit is one-way, and actions_shark_salve.lua's combine step
+		-- also requires the physical wool - so setting the bit without delivering the item would make
+		-- the mission unfinishable (cannot re-shear, cannot combine). player:addItem returns Item
+		-- userdata on success and nil on failure (player_functions.cpp:2388-2408), so the result is
+		-- checked before any state advances.
+		if not player:addItem(10319, 1) then
+			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the wool right now.")
+			return true
+		end
+
 		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Progress, progress + 2)
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You carefully shear a bundle of wool from the sheep, unharmed.")
 		target:getPosition():sendMagicEffect(CONST_ME_MAGIC_GREEN)

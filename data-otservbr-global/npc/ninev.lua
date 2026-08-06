@@ -195,7 +195,12 @@ local sharkKeyword = keywordHandler:addKeyword({ "shark" }, StdModule.say, {
 		"This shark was lucky enough to escape alive but now it's in need of help. Unfortunately I don't have the needed medicine here in the temple. Would you keep an eye open and look for it while hurling yourself into adventures?",
 	},
 }, function(player)
-	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AccessDoor) >= 1 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) < 1
+	-- CONFIRMED BUG (found in review): this gated on AccessDoor, which npc/eshaya.lua sets when the
+	-- Ambassador investigation *begins* - so A Shark in Need could be started long before Fafnar's
+	-- Wrath was complete. Gates on the canonical completion marker instead: Sixth.Favor reaches 11
+	-- only when the Empress hands over the Regalia part at the end of Fafnar's Wrath
+	-- (npc/the_empress.lua).
+	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) >= 11 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) < 1
 end)
 sharkKeyword:addChildKeyword({ "yes" }, StdModule.say, { npcHandler = npcHandler, text = "You're a kind soul, Bastesh may bless you. What I need is a healing salve that resists salt water. Perhaps you can find some of it out there.", reset = true, ungreet = true }, nil, function(player)
 	player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline, 1)
@@ -212,7 +217,14 @@ sharkCureKeyword:addChildKeyword({ "yes" }, StdModule.say, { npcHandler = npcHan
 	local progress = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Progress)
 	return progress >= 0 and testFlag(progress, 4)
 end, function(player)
-	player:addItem(31575, 1) -- golden bijou, the fourth Regalia of Suon part
+	-- Transactional: Questline 2 is the one-time completion marker, so the Regalia part must be
+	-- delivered before it advances - otherwise the player completes the mission and permanently loses
+	-- the part that npc/yonan.lua's four-part combine requires.
+	if not player:addItem(31575, 1) then -- golden bijou, the fourth Regalia of Suon part
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the reward right now. Come back when you have room for it.")
+		return
+	end
+
 	player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline, 2)
 end)
 sharkCureKeyword:addChildKeyword({ "yes" }, StdModule.say, { npcHandler = npcHandler, text = "I'm afraid that's not quite what I need. It has to be a salve that resists salt water.", reset = true })

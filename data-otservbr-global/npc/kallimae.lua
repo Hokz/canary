@@ -56,17 +56,15 @@ local function greetCallback(npc, creature)
 	local player = Player(creature)
 	local playerId = player:getId()
 
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Access) < 1 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 1)
-	elseif (player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) >= 0 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) <= 50) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) < 3 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 15)
-	elseif player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) == 4 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission, 5)
-		npcHandler:setTopic(playerId, 20)
-	end
+	-- CONFIRMED BUG (found in review): this greetCallback branched on
+	-- KilmareshQuest.First.Access / .JamesfrancisTask / .Mission, none of which exist - `First`
+	-- defines only `Title` (lib/core/storages.lua). They are copy-pasted from the unrelated
+	-- CultsOfTibia.Minotaurs block. Every branch resolved against a nil key and all three set the same
+	-- greeting anyway, but they also pre-seeded a conversation topic purely by greeting - and topic 1
+	-- is consumed by live "yes" branches in this file, so a bare "yes" straight after hello could
+	-- advance a mission without ever being offered it. Replaced with the unconditional greeting the
+	-- branches all produced, and no topic seeding.
+	npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
 	return true
 end
 
@@ -87,11 +85,13 @@ local function creatureSayCallback(npc, creature, type, message)
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 1 then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) == 11 then
 			npcHandler:say({ "Search for the NPCs Yonan, Narsai, Shimun and Tefrit." }, npc, creature) -- It needs to be revised, it's not the same as the global
+			-- CONFIRMED BUG (found in review): Set.Yonan / Set.Narsai / Set.Shimun / Set.Tefrit do not
+			-- exist - `Set` defines only `Ritual` (lib/core/storages.lua). Each write resolved to a nil
+			-- key, which the engine rejects with a "Storage key is nil" log line
+			-- (player_functions.cpp), so these were four dead writes producing four log errors per
+			-- player. The real per-member progress lives in Eighth.* and is written by each member NPC
+			-- when the player first asks them for their list, so nothing is lost by removing them.
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Ritual, 1)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Yonan, 1)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Narsai, 1)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Shimun, 1)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Tefrit, 1)
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor, 12)
 			npcHandler:setTopic(playerId, 2)
 			npcHandler:setTopic(playerId, 2)
@@ -133,8 +133,16 @@ local function creatureSayCallback(npc, creature, type, message)
 		-- its hide) was never checked here at all - only the "sign of sun and sea" item from the basin
 		-- omen. Added the goanna-hide check (item 31428, the Sun-Marked Goanna's 100%-chance drop).
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin) == 1 and player:getItemById(31431, 1) and player:getItemById(31428, 1) then
+			-- Transactional: Eleven.Basin 1 -> 2 is the one-time completion marker, so the Regalia part
+			-- must be delivered first - and the goanna hide is only consumed once delivery succeeded,
+			-- so a failure leaves the player able to retry with their omen items intact.
+			if not player:addItem(31572, 1) then
+				npcHandler:say({ "You cannot carry your reward right now. Return when you have room for it." }, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
 			player:removeItem(31428, 1)
-			player:addItem(31572, 1)
 			-- CONFIRMED BUG (pre-existing): "Sun and Sea" was registered
 			-- (register_achievements.lua) but granted nowhere in the repo. Its description ("the
 			-- balance of sun and sea is preserved in Kilmaresh") matches this exact reward - the

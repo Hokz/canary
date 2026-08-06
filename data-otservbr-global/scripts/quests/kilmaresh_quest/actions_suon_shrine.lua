@@ -13,8 +13,13 @@
 -- on server start. The runtime smoke runs with --fail-on-warnings, so this was a failure genuinely
 -- introduced by this PR. Registering on the shrine object's own unique id instead removes the
 -- collision entirely and matches the uid-based pattern used by this quest's other position-bound
--- actions. The knife is still required - it is now checked as a carried item rather than being the
--- registered trigger, so the source's "scratch the soot off with a knife" requirement is preserved.
+-- actions.
+--
+-- REAL BEHAVIOUR (stated plainly rather than overclaimed): the player uses the SHRINE, and the knife,
+-- sooted mirror and ivory mask are verified as carried items. This is not literally "use the knife on
+-- the mirror while wearing the mask" - the knife is not the dispatch trigger (registering it caused
+-- the item-3291 range collision with destroy.lua), and the mask cannot be equipped at all (no slot
+-- attribute in items.xml). Classified PDF_VISUAL_DETAIL_PENDING_OWNER_VALIDATION.
 local suonShrine = Action()
 
 function suonShrine.onUse(player, item, fromPosition, target, toPosition, isHotkey)
@@ -32,8 +37,14 @@ function suonShrine.onUse(player, item, fromPosition, target, toPosition, isHotk
 		return true
 	end
 
+	-- ACCURACY NOTE (review): the source says the mask must be *worn*. That cannot be enforced here:
+	-- the ivory mask (item 31371, data/items/items.xml:58328) carries no slot/slotType attribute at
+	-- all, so the engine cannot equip it and `player:getSlotItem(CONST_SLOT_HEAD)` could never match
+	-- it. Possession is therefore the strongest check available without adding a slot to a shared
+	-- item, which would be an items.xml change well outside this quest's scope.
+	-- Classified PDF_VISUAL_DETAIL_PENDING_OWNER_VALIDATION - see the PR body.
 	if not player:getItemById(31371, 1) then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need to be wearing the ivory mask for this ritual.")
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need the ivory mask with you for this ritual.")
 		return true
 	end
 

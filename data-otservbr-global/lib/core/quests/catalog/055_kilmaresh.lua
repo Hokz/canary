@@ -5,18 +5,31 @@
 -- it does not attempt full per-substep coverage of every storage this quest uses.
 local quest = {
 	name = "Kilmaresh Quest",
-	startStorageId = Storage.Quest.U12_20.KilmareshQuest.First.Title,
+	-- CONFIRMED BUG (found in review): this used First.Title, which only npc/eshaya.lua writes when
+	-- Fafnar's Wrath is accepted - so a player who legitimately started an independent Kilmaresh
+	-- mission (Aspiring Oracle via Taya, or Wanted) had no Kilmaresh questlog at all. Making Taya
+	-- write First.Title would have been worse: eshaya.lua offers Fafnar's Wrath only while
+	-- First.Title < 1, so it would have silently locked the player out of the main mission. The
+	-- previously-unused parent KilmareshQuest.Questline (46895, confirmed written nowhere in the repo)
+	-- is now the visibility anchor, set by each legitimate entry point without implying any specific
+	-- mission has started.
+	startStorageId = Storage.Quest.U12_20.KilmareshQuest.Questline,
 	startStorageValue = 1,
 	missions = {
 		[1] = {
+			-- CONFIRMED BUG (found in review): endValue was 10, but the Empress advances Sixth.Favor
+			-- 10 -> 11 when she hands over the reward - so 10 is "all statues blessed, go claim your
+			-- reward", not "complete", and the questlog showed the mission finished one step early
+			-- while also going blank at the real completion (11 was outside the range).
 			name = "Fafnar's Wrath",
 			storageId = Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor,
 			missionId = 20200,
 			startValue = 1,
-			endValue = 10,
+			endValue = 11,
 			states = {
-				[1] = "Investigate the Ambassador of Rathleton and prove his treason to Eshaya.",
-				[10] = "You proved the Ambassador's treason and received a part of the Regalia of Suon from the Empress.",
+				[1] = "Search the catacombs beneath Issavi for the four masks and the five Fafnar statues, then bless them with the Empress's sceptre.",
+				[10] = "You blessed all five Fafnar statues. Return to the Empress to claim your reward.",
+				[11] = "You proved the Ambassador's treason and received a part of the Regalia of Suon from the Empress.",
 			},
 		},
 		[2] = {
@@ -42,13 +55,23 @@ local quest = {
 			},
 		},
 		[4] = {
+			-- CONFIRMED BUG (found in review): this was keyed to Fourteen.Remains with
+			-- startValue == endValue == 1, i.e. the completed-reward marker only - the mission was
+			-- invisible for its entire active duration and appeared only once already finished. Now
+			-- keyed to Twelve.Boss, which is Boards' own active progress storage (1 = available,
+			-- 2 = three bosses assigned, 3 = bosses done, 4 = three favours assigned), with the
+			-- completed state carried by 5.
 			name = "The Boards that Mean the World",
-			storageId = Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains,
+			storageId = Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss,
 			missionId = 20203,
 			startValue = 1,
-			endValue = 1,
+			endValue = 5,
 			states = {
-				[1] = "You defeated Xogixath, Bragrumol and Mozradek, recovered the ivory lyre, dealt with the animal present, and received a part of the Regalia of Suon from Alyxo.",
+				[1] = "Alyxo at the Seaside Theatre needs help. Ask her about her mission.",
+				[2] = "Discreetly hunt down and kill Xogixath, Bragrumol and Mozradek.",
+				[3] = "Report back to Alyxo now that the three demons are dead.",
+				[4] = "Kill 300 Fafnar cultists, recover the stolen ivory lyre, and find an animal present for Narsai.",
+				[5] = "You completed Alyxo's tasks and received a part of the Regalia of Suon.",
 			},
 		},
 		[5] = {
