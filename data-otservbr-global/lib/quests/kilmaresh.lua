@@ -61,6 +61,67 @@ function KilmareshQuest.isBaseQuestComplete(player)
 	return true
 end
 
+-- Midnight Rituals: has the pilgrimage already been started or finished?
+--
+-- Nine.Owl, Tem.Bleeds and Eleven.Basin are all one-way pilgrimage progress markers, so any of them
+-- being set proves the pilgrimage is already under way.
+---@param player Player
+---@return boolean
+function KilmareshQuest.hasPilgrimageStarted(player)
+	if not player then
+		return false
+	end
+
+	local storage = Storage.Quest.U12_20.KilmareshQuest
+
+	return player:getStorageValue(storage.Nine.Owl) >= 1
+		or player:getStorageValue(storage.Tem.Bleeds) >= 1
+		or player:getStorageValue(storage.Eleven.Basin) >= 1
+end
+
+-- Midnight Rituals: idempotent "all four members helped -> pilgrimage unlocked" transition.
+--
+-- CONFIRMED BLOCKER (found in review): Kallimae used to write Set.Ritual = 4 and Nine.Owl = 1
+-- unconditionally whenever all four Eighth.* equalled 3 - which stays true forever once the members
+-- are done. A player who had already advanced the pilgrimage (Nine.Owl 2, Tem.Bleeds 1, Eleven.Basin
+-- 1) or even finished it (Basin 2) could re-trigger the dialogue and have Nine.Owl forced back to 1,
+-- restarting the omen chain. This centralises the transition so both the "mission" offer and the
+-- "yes" confirmation share one predicate, and every write is monotonic.
+---@param player Player
+---@return boolean true if the transition was applied
+function KilmareshQuest.startMidnightPilgrimage(player)
+	if not player then
+		return false
+	end
+
+	local storage = Storage.Quest.U12_20.KilmareshQuest
+
+	if
+		player:getStorageValue(storage.Eighth.Yonan) < 3
+		or player:getStorageValue(storage.Eighth.Narsai) < 3
+		or player:getStorageValue(storage.Eighth.Shimun) < 3
+		or player:getStorageValue(storage.Eighth.Tefrit) < 3
+	then
+		return false
+	end
+
+	-- Already started or completed: never rewind any pilgrimage marker.
+	if KilmareshQuest.hasPilgrimageStarted(player) then
+		return false
+	end
+
+	-- Set.Ritual is monotonic - only ever raised to the completion marker, never lowered.
+	if player:getStorageValue(storage.Set.Ritual) < 4 then
+		player:setStorageValue(storage.Set.Ritual, 4)
+	end
+
+	if player:getStorageValue(storage.Nine.Owl) < 1 then
+		player:setStorageValue(storage.Nine.Owl, 1)
+	end
+
+	return true
+end
+
 -- Midnight Rituals legacy repair.
 --
 -- The four member NPCs each require their own Eighth.* storage to equal 1 before they will offer

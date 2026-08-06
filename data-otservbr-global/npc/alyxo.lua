@@ -256,7 +256,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			-- medusa, petrifying an animal, not about finishing these three favors).
 			-- Transactional: Fourteen.Remains 1 is the one-time Boards completion marker, so the Regalia
 			-- part must be delivered before it advances.
-			if not player:addItem(31574, 1) then
+			if not player:addItem(31574, 1, false) then
 				npcHandler:say({ "You cannot carry your reward right now. Return when you have room for it." }, npc, creature)
 				npcHandler:setTopic(playerId, 0)
 				return true

@@ -12,7 +12,7 @@ function peeler.onUse(player, item, frompos, item2, topos)
 		-- other quest-tool grant in this repo - an over-capacity player gets the peeler on the ground
 		-- rather than losing it. addItem still returns nil on a genuine creation/placement failure, and
 		-- that is what this check catches.
-		if not player:getItemById(31328, 1) and not player:addItem(31328, 1) then
+		if not player:getItemById(31328, 1) and not player:addItem(31328, 1, false) then
 			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the bark peeler right now.")
 			return true
 		end

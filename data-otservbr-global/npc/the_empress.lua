@@ -60,7 +60,7 @@ local function greetCallback(npc, creature)
 	-- Kilmaresh mission now gates on, so the Regalia part must be delivered before it advances -
 	-- otherwise the player loses a part the four-part combine requires and cannot get it back.
 	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) == 10 then
-		if player:addItem(31573, 1) then
+		if player:addItem(31573, 1, false) then
 			npcHandler:setMessage(MESSAGE_GREET, {
 				"You succeeded! Issavi is safe again. Take this as a sign of our grace and gratitude, brave mortal being. It is a precious relic from earlier times. More precisely, it is one of four parts of the relic called the Regalia of Suon. ...",
 				"Should you ever find the other three parts, a talented jeweler might be able to combine them and recreate the regalia for you.",
@@ -72,7 +72,7 @@ local function greetCallback(npc, creature)
 	-- Transactional: the sceptre is the tool the five-statue task requires, and Memories 5 -> 6 is
 	-- one-way, so a failed delivery would leave the task impossible to perform.
 	elseif player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fifth.Memories) == 5 then
-		if not player:addItem(31414, 1) then
+		if not player:addItem(31414, 1, false) then
 			npcHandler:setMessage(MESSAGE_GREET, "I would grant you an audience, but you cannot carry what I must give you. Return when you have room for it.")
 			return true
 		end

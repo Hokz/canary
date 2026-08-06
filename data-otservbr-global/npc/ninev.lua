@@ -220,7 +220,7 @@ end, function(player)
 	-- Transactional: Questline 2 is the one-time completion marker, so the Regalia part must be
 	-- delivered before it advances - otherwise the player completes the mission and permanently loses
 	-- the part that npc/yonan.lua's four-part combine requires.
-	if not player:addItem(31575, 1) then -- golden bijou, the fourth Regalia of Suon part
+	if not player:addItem(31575, 1, false) then -- golden bijou, the fourth Regalia of Suon part
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the reward right now. Come back when you have room for it.")
 		return
 	end

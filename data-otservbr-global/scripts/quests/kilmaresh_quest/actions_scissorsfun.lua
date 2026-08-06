@@ -321,7 +321,7 @@ function scissorsfun.onUse(player, item, fromPosition, target, toPosition, isHot
 		-- the mission unfinishable (cannot re-shear, cannot combine). player:addItem returns Item
 		-- userdata on success and nil on failure (player_functions.cpp:2388-2408), so the result is
 		-- checked before any state advances.
-		if not player:addItem(10319, 1) then
+		if not player:addItem(10319, 1, false) then
 			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the wool right now.")
 			return true
 		end

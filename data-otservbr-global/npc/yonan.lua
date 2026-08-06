@@ -176,7 +176,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			--     item description. Its delivery is deliberately NOT treated as blocking.
 			-- The pick is only created when not already held, so a retry after a failed attempt cannot
 			-- hand out a second one.
-			if not player:getItemById(31613, 1) and not player:addItem(31613, 1) then
+			if not player:getItemById(31613, 1) and not player:addItem(31613, 1, false) then
 				npcHandler:say({ "You cannot carry my enchanted pick right now. Come back when you have room for it." }, npc, creature)
 				npcHandler:setTopic(playerId, 0)
 				return true
@@ -219,7 +219,7 @@ local function creatureSayCallback(npc, creature, type, message)
 		npcHandler:setTopic(playerId, 5)
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 5 then
 		if player:getItemById(31572, 1) and player:getItemById(31573, 1) and player:getItemById(31574, 1) and player:getItemById(31575, 1) then
-			if player:addItem(31576, 1) then -- regalia of suon
+			if player:addItem(31576, 1, false) then -- regalia of suon
 				player:removeItem(31572, 1) -- blue and golden cordon
 				player:removeItem(31573, 1) -- sun medal
 				player:removeItem(31574, 1) -- sunray emblem

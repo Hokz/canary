@@ -16,7 +16,14 @@ function sharkSarcophagus.onUse(player, item, fromPosition, target, toPosition, 
 		return true
 	end
 
-	player:addItem(31327, 1)
+	-- REQUIRED_PROGRESS_ITEM: canDropOnMap = false so an over-capacity player is told to make room
+	-- rather than having the scissors silently dropped on the ground. This branch sets no storage, and
+	-- the possession check above makes it non-duplicating, so a failed attempt is simply retried.
+	if not player:addItem(31327, 1, false) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the scissors right now.")
+		return true
+	end
+
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You find a pair of scissors hidden inside the sarcophagus.")
 
 	return true

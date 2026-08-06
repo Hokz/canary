@@ -15,7 +15,11 @@ function frameSpot.onUse(player, item, fromPosition, target, toPosition, isHotke
 		return true
 	end
 
-	player:addItem(36707, 1)
+	if not player:addItem(36707, 1, false) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the eye-shaped frame right now.")
+		return true
+	end
+
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Among the salt-crusted stones, you find a golden, eye-shaped frame.")
 
 	return true
@@ -37,7 +41,11 @@ function gemSpot.onUse(player, item, fromPosition, target, toPosition, isHotkey)
 		return true
 	end
 
-	player:addItem(36706, 1)
+	if not player:addItem(36706, 1, false) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the red gem right now.")
+		return true
+	end
+
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Buried in the ruins of the Old Empire, you find a precious red gem.")
 
 	return true
@@ -77,7 +85,7 @@ function eyeCombine.onUse(player, item, fromPosition, target, toPosition, isHotk
 		return true
 	end
 
-	if not player:addItem(36708, 1) then
+	if not player:addItem(36708, 1, false) then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the Eye of Suon right now.")
 		return true
 	end

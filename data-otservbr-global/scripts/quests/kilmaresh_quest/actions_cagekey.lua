@@ -7,7 +7,7 @@ function cagekey.onUse(player, item, frompos, item2, topos)
 	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline) == 1 then
 		-- Transactional: stage 2 is one-way and this chest cannot be re-searched, so a failed delivery
 		-- would permanently strand the player without the key the dungeon requires.
-		if not player:addItem(31379, 1) then -- Wooden Cage Key
+		if not player:addItem(31379, 1, false) then -- Wooden Cage Key
 			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the cage key right now.")
 			return true
 		end

@@ -115,7 +115,7 @@ local function creatureSayCallback(npc, creature, type, message)
 	elseif MsgContains(message, "report") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.Questline) == 6 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.AspiringOracle.EnusatKilled) >= 1 then
 		-- Transactional: Questline 7 is the one-time completion marker for Aspiring Oracle, so the
 		-- mosaic must be delivered before it advances.
-		if not player:addItem(30669, 1) then -- sun mosaic
+		if not player:addItem(30669, 1, false) then -- sun mosaic
 			npcHandler:say("You cannot carry the mosaic right now. Come back when you have room for it.", npc, creature)
 			npcHandler:setTopic(playerId, 0)
 			return true

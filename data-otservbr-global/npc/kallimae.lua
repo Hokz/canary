@@ -119,10 +119,12 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say({ "Sorry." }, npc, creature) -- It needs to be revised, it's not the same as the global
 		end
 	end
-	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3 then
+	-- The offer uses the SAME idempotent predicate as the confirmation below, so a player who has
+	-- already started or finished the pilgrimage is never re-offered it (and so cannot reach the
+	-- confirmation branch that would otherwise rewind Nine.Owl).
+	if MsgContains(message, "mission") and not KilmareshQuest.hasPilgrimageStarted(player) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3 then
+		do
 			npcHandler:say({ "Did you help some residents with ingredients?" }, npc, creature) -- It needs to be revised, it's not the same as the global
-			npcHandler:setTopic(playerId, 3)
 			npcHandler:setTopic(playerId, 3)
 		end
 	elseif
@@ -134,17 +136,15 @@ local function creatureSayCallback(npc, creature, type, message)
 		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3
 	then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3 then
-			npcHandler:say({ "Thanks. I need you to go to 4 places indicated by Goddess Bastesh." }, npc, creature) -- It needs to be revised, it's not the same as the global
-			-- CONFIRMED BUG (found in review): the questlog's Midnight Rituals entry used Set.Ritual with
-			-- endValue 3, but 3 only means "bark peeler obtained" - the tool-preparation stage. Since
-			-- Player.missionIsCompleted (data/libs/functions/quests.lua:1117) is `value >= endValue`, the
-			-- mission read as COMPLETED while all four ingredient turn-ins were still outstanding, and
-			-- ignoreendvalue does not prevent that (it only affects visibility and state clamping once a
-			-- value passes endValue). Set.Ritual 4 is a genuine completion marker, written here - the one
-			-- point where all four Eighth.* are proven to be 3 and Kallimae advances to the pilgrimage.
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Ritual, 4)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Nine.Owl, 1)
-			npcHandler:setTopic(playerId, 4)
+			-- Set.Ritual 4 is the genuine Midnight Rituals completion marker (the questlog's endValue),
+			-- and Nine.Owl 1 opens the omen chain. Both writes are delegated to the shared idempotent
+			-- transition in lib/quests/kilmaresh.lua so a player who has already advanced or finished
+			-- the pilgrimage can never have Nine.Owl forced back to 1 by re-running this dialogue.
+			if KilmareshQuest.startMidnightPilgrimage(player) then
+				npcHandler:say({ "Thanks. I need you to go to 4 places indicated by Goddess Bastesh." }, npc, creature) -- It needs to be revised, it's not the same as the global
+			else
+				npcHandler:say({ "You are already walking the pilgrimage. Seek the omens Bastesh set for you." }, npc, creature)
+			end
 			npcHandler:setTopic(playerId, 4)
 		else
 			npcHandler:say({ "Sorry." }, npc, creature) -- It needs to be revised, it's not the same as the global
@@ -164,7 +164,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			-- Transactional: Eleven.Basin 1 -> 2 is the one-time completion marker, so the Regalia part
 			-- must be delivered first - and the goanna hide is only consumed once delivery succeeded,
 			-- so a failure leaves the player able to retry with their omen items intact.
-			if not player:addItem(31572, 1) then
+			if not player:addItem(31572, 1, false) then
 				npcHandler:say({ "You cannot carry your reward right now. Return when you have room for it." }, npc, creature)
 				npcHandler:setTopic(playerId, 0)
 				return true

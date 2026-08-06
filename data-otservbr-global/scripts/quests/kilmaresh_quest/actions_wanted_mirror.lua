@@ -14,7 +14,11 @@ function mirrorSpot.onUse(player, item, fromPosition, target, toPosition, isHotk
 		return true
 	end
 
-	player:addItem(36875, 1)
+	if not player:addItem(36875, 1, false) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the golden hand mirror right now.")
+		return true
+	end
+
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Among the ruins, you find a precious golden hand mirror.")
 
 	return true
