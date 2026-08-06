@@ -98,11 +98,7 @@ function KilmareshQuest.migrateMidnightRituals(player)
 	}
 
 	-- Evidence that the mission was genuinely accepted at some point.
-	local accepted = player:getStorageValue(storage.Sixth.Favor) >= 12
-		or player:getStorageValue(storage.Set.Ritual) >= 1
-		or player:getStorageValue(storage.Nine.Owl) >= 1
-		or player:getStorageValue(storage.Tem.Bleeds) >= 1
-		or player:getStorageValue(storage.Eleven.Basin) >= 1
+	local accepted = player:getStorageValue(storage.Sixth.Favor) >= 12 or player:getStorageValue(storage.Set.Ritual) >= 1 or player:getStorageValue(storage.Nine.Owl) >= 1 or player:getStorageValue(storage.Tem.Bleeds) >= 1 or player:getStorageValue(storage.Eleven.Basin) >= 1
 
 	if not accepted then
 		for _, memberStorage in ipairs(members) do
