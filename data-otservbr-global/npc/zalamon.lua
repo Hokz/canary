@@ -262,7 +262,7 @@ local function creatureSayCallback(npc, creature, type, message)
 		elseif Zzuppliezz.isActive(player) then
 			npcHandler:say({
 				"You already carry my ordezz. Bring me one {zzuppliezz} crate from zze weaponzz rack and one zzalted fizzh, ...",
-				"and do not forget to feed our imprizzoned brozzerzz on zze way. ",
+				"and do not forget to feed our imprizzoned brozzerzz on zze way. If it hazz gone wrong, zzay {abandon} and we will try again anozzer day. ",
 			}, npc, creature)
 		else
 			local remaining = Zzuppliezz.cooldownRemaining(player)
@@ -285,6 +285,10 @@ local function creatureSayCallback(npc, creature, type, message)
 					"Excellent. Zze weaponzz will reach zze right handzz, and our brozzerzz will not zztarve zzis night. ...",
 					"Take zzis for your troublezz. Come back tomorrow - zzere iz alwayzz more to carry. ",
 				}, npc, creature)
+			elseif reason == "crate-source" then
+				npcHandler:say("You have not been to zze weaponzz rack. Take a crate from it firzzt. ", npc, creature)
+			elseif reason == "fish-source" then
+				npcHandler:say("You have not been to zze zzupply zztore. Take zze zzalted fizzh firzzt. ", npc, creature)
 			elseif reason == "prisoners" then
 				npcHandler:say("You have not fed our imprizzoned brozzerzz. Give zzem a fizzh zzrough zze fenzze firzzt. ", npc, creature)
 			elseif reason == "crate" then
@@ -306,6 +310,15 @@ local function creatureSayCallback(npc, creature, type, message)
 		else
 			npcHandler:say("Azzk me for a {task} firzzt. ", npc, creature)
 		end
+	elseif MsgContains(message, "abandon") then
+		-- Guaranteed escape: even if both replacement allowances are spent and the items are gone, the
+		-- run can always be dropped, so an active task can never brick the Mission 05 gate forever.
+		if Zzuppliezz.abandon(player) then
+			npcHandler:say("Zzen it izz forgotten. Rezzt, and azzk me for a {task} again later. ", npc, creature)
+		else
+			npcHandler:say("You have nozzing to abandon. ", npc, creature)
+		end
+		npcHandler:setTopic(playerId, 0)
 		-- ZZUPPLIEZZ
 	elseif MsgContains(message, "crate") then
 		if npcHandler:getTopic(playerId) == 17 then
@@ -443,6 +456,37 @@ local function creatureSayCallback(npc, creature, type, message)
 			}, npc, creature)
 			npcHandler:setTopic(playerId, 15)
 		elseif npcHandler:getTopic(playerId) == 15 then
+			-- GENERAL WOTE PREREQUISITES (owner reference, "Wymagania"): besides Children of the
+			-- Revolution being finished - which reaching this dialogue already proves - the quest needs
+			-- The New Frontier mission 9 (Mortal Kombat) STARTED and The Ape City mission 9 STARTED.
+			-- Neither was enforced anywhere, so WOTE could previously be started without them.
+			--
+			-- Proven states, not guessed:
+			--   * TheNewFrontier.Mission09[1] = 1 is written by npc/ztiss.lua when the tournament path is
+			--     accepted, i.e. Mortal Kombat started. Full TNF completion is NOT required.
+			--   * TheApeCity.Questline = 17 is written by npc/hairycles.lua when the final (ninth) mission
+			--     is accepted; the catalog's state [16] reads "You completed the eighth mission ... one
+			--     final mission for you", which pins 17 to mission 9 having started.
+			--
+			-- The qualifying-task rule stays at Mission 05, where the detailed reference puts it.
+			if player:getStorageValue(Storage.Quest.U8_54.TheNewFrontier.Mission09[1]) < 1 then
+				npcHandler:say({
+					"Not yet, palezzkin. Zze zzettlerzz in zze norzz zztill dizztruzzt uzz. ...",
+					"Prove yourzzelf in zzeir tournament firzzt - zzen we will zzpeak of zze emperor. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
+			if player:getStorageValue(Storage.Quest.U7_6.TheApeCity.Questline) < 17 then
+				npcHandler:say({
+					"You are not ready. Zze ape people to zze wezzt zztill azzk zzingz of you. ...",
+					"Finizzh what Hairyclezz began wizz you, zzen return. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
 			npcHandler:say({
 				"Your determination izz highly appreciated. To zzneak pazzt zze eyezz of zze enemy, you will have to uzze a diverzzion. Zzere are zzeveral old tunnelzz beneazz zze zzoil of Zzao. ... ",
 				"One of zzem izz uzzed azz a maintenanzze connection by enemy lizardzz. To enter it, you will have to uzze a dizzguizze. Zzomezzing like a crate perhapzz. ... ",

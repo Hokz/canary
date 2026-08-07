@@ -30,6 +30,17 @@ Zzuppliezz.KEY_EVER_COMPLETED = "zzuppliezz-ever-completed"
 Zzuppliezz.KEY_CRATE_TAKEN = "zzuppliezz-crate-taken"
 Zzuppliezz.KEY_FISH_TAKEN = "zzuppliezz-fish-taken"
 Zzuppliezz.KEY_PRISONERS_FED = "zzuppliezz-prisoners-fed"
+-- Bounded replacement counters, per run. See Zzuppliezz.mayGrant.
+Zzuppliezz.KEY_CRATE_GRANTS = "zzuppliezz-crate-grants"
+Zzuppliezz.KEY_FISH_GRANTS = "zzuppliezz-fish-grants"
+
+-- A player who loses a quest item mid-run must not be locked out of the task forever, but the sources
+-- must not become an infinite supply either. Each source may hand out its items at most twice per run,
+-- and only ever when the player is actually short of what the run still needs - so nothing can be
+-- stockpiled, and a single accident is always recoverable. Zalamon can also abandon the run outright,
+-- which guarantees there is no dead end even if both allowances are used.
+-- GLOBAL_LIKE: no authoritative source describes lost-item handling for this task.
+Zzuppliezz.MAX_GRANTS_PER_RUN = 2
 
 Zzuppliezz.REPEAT_INTERVAL = 20 * 60 * 60 -- GLOBAL_LIKE: not specified by the owner reference
 
@@ -76,11 +87,72 @@ end
 ---@param player Player
 function Zzuppliezz.markCrateTaken(player)
 	player:kv():set(Zzuppliezz.KEY_CRATE_TAKEN, true)
+	player:kv():set(Zzuppliezz.KEY_CRATE_GRANTS, Zzuppliezz.grantCount(player, Zzuppliezz.KEY_CRATE_GRANTS) + 1)
 end
 
 ---@param player Player
 function Zzuppliezz.markFishTaken(player)
 	player:kv():set(Zzuppliezz.KEY_FISH_TAKEN, true)
+	player:kv():set(Zzuppliezz.KEY_FISH_GRANTS, Zzuppliezz.grantCount(player, Zzuppliezz.KEY_FISH_GRANTS) + 1)
+end
+
+---@param player Player
+---@param key string
+---@return number
+function Zzuppliezz.grantCount(player, key)
+	local n = player:kv():get(key)
+	return type(n) == "number" and n or 0
+end
+
+---How many corned fish this run still needs: two before the prisoners are fed, one afterwards.
+---@param player Player
+---@return number
+function Zzuppliezz.fishStillNeeded(player)
+	return Zzuppliezz.hasFedPrisoners(player) and 1 or Zzuppliezz.FISH_REQUIRED
+end
+
+---May a source hand out `itemId` right now? True only when the player is genuinely short of what the
+---run still needs AND the per-run grant allowance is not exhausted. This is what makes losing an item
+---recoverable without turning either source into a farm.
+---@param player Player
+---@param itemId number
+---@return boolean, number  -- allowed, how many to give
+function Zzuppliezz.mayGrant(player, itemId)
+	if not Zzuppliezz.isActive(player) then
+		return false, 0
+	end
+
+	local key, needed
+	if itemId == Zzuppliezz.ITEM_WEAPONS_CRATE then
+		key, needed = Zzuppliezz.KEY_CRATE_GRANTS, 1
+	else
+		key, needed = Zzuppliezz.KEY_FISH_GRANTS, Zzuppliezz.fishStillNeeded(player)
+	end
+
+	local held = math.max(player:getItemCount(itemId), 0)
+	if held >= needed then
+		return false, 0
+	end
+
+	if Zzuppliezz.grantCount(player, key) >= Zzuppliezz.MAX_GRANTS_PER_RUN then
+		return false, 0
+	end
+
+	return true, needed - held
+end
+
+---Abandon the current run. The guaranteed escape from any stuck state: clears the run, starts the
+---normal cooldown, and never awards the completion flag.
+---@param player Player
+---@return boolean
+function Zzuppliezz.abandon(player)
+	if not player or not Zzuppliezz.isActive(player) then
+		return false
+	end
+
+	player:kv():set(Zzuppliezz.KEY_ACTIVE, false)
+	player:kv():set(Zzuppliezz.KEY_TIMER, os.time() + Zzuppliezz.REPEAT_INTERVAL)
+	return true
 end
 
 ---@param player Player
@@ -130,6 +202,8 @@ function Zzuppliezz.start(player)
 	player:kv():set(Zzuppliezz.KEY_CRATE_TAKEN, false)
 	player:kv():set(Zzuppliezz.KEY_FISH_TAKEN, false)
 	player:kv():set(Zzuppliezz.KEY_PRISONERS_FED, false)
+	player:kv():set(Zzuppliezz.KEY_CRATE_GRANTS, 0)
+	player:kv():set(Zzuppliezz.KEY_FISH_GRANTS, 0)
 	player:kv():set(Zzuppliezz.KEY_ACTIVE, true)
 	return true
 end
@@ -143,8 +217,19 @@ function Zzuppliezz.blockingReason(player)
 	end
 
 	-- CONFIRMED BUG (found in review): completion previously checked only "1 crate + 1 fish", so a
-	-- player could take the crate and both fish, never visit the prisoners, and hand in. The prisoner
-	-- step is the whole point of the task, so it is now proven state rather than assumed.
+	-- player could take the crate and both fish, never visit the prisoners, and hand in. Worse, items
+	-- stashed from an earlier run could stand in for interactions never performed this run.
+	--
+	-- Completion therefore requires BOTH per-run interaction proof AND the physical items. The flags
+	-- are cleared by Zzuppliezz.start, so nothing carries over between runs.
+	if not Zzuppliezz.hasTakenCrate(player) then
+		return "crate-source"
+	end
+
+	if not Zzuppliezz.hasTakenFish(player) then
+		return "fish-source"
+	end
+
 	if not Zzuppliezz.hasFedPrisoners(player) then
 		return "prisoners"
 	end

@@ -25,8 +25,11 @@ function rack.onUse(player, item, fromPosition, target, toPosition, isHotkey)
 		return true
 	end
 
-	if Zzuppliezz.hasTakenCrate(player) then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already took a crate for this run.")
+	-- Bounded replacement: granted only when the player is genuinely short of what the run still needs
+	-- and the per-run allowance is not exhausted. Losing the crate stays recoverable; farming it does not.
+	local allowed = Zzuppliezz.mayGrant(player, Zzuppliezz.ITEM_WEAPONS_CRATE)
+	if not allowed then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already took what you need from this rack.")
 		return true
 	end
 
@@ -55,12 +58,15 @@ function supplies.onUse(player, item, fromPosition, target, toPosition, isHotkey
 		return true
 	end
 
-	if Zzuppliezz.hasTakenFish(player) then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already took fish for this run.")
+	-- Grants only the shortfall (two before the prisoners are fed, one after), so the store can never
+	-- be used to accumulate fish, while a lost fish can still be replaced within the run allowance.
+	local allowed, amount = Zzuppliezz.mayGrant(player, Zzuppliezz.ITEM_CORNED_FISH)
+	if not allowed then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already took what you need from this store.")
 		return true
 	end
 
-	if not player:addItem(Zzuppliezz.ITEM_CORNED_FISH, Zzuppliezz.FISH_REQUIRED, false) then
+	if not player:addItem(Zzuppliezz.ITEM_CORNED_FISH, amount, false) then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the fish right now.")
 		return true
 	end
