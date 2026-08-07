@@ -183,9 +183,14 @@ keywordHandler:addAliasKeyword({ "spark" })
 keywordHandler:addKeyword({ "solitude" }, StdModule.say, { npcHandler = npcHandler, text = "Talk to the hermit Eremo on the isle of Cormaya about this blessing." })
 keywordHandler:addAliasKeyword({ "wisdom" })
 
--- "A Shark in Need" (Kilmaresh Quest) - this NPC was previously registered but never placed on the
--- map (spawn position (0,0,7), the engine's "unplaced" sentinel) and carried none of this content;
--- see the PR's Map Setup Contract for the required Issavi placement. Gated on
+-- "A Shark in Need" (Kilmaresh Quest) - this NPC carried none of this content before this pass.
+--
+-- CORRECTION to an earlier pass of this PR, which claimed Ninev was "never placed on the map (spawn
+-- position (0,0,7), the engine's unplaced sentinel)". That was a misreading of the spawn format: in
+-- data-otservbr-global/world/otservbr-npc.xml the inner x/y are OFFSETS from the enclosing
+-- centerx/centery, and 990 of the file's 1008 npc entries use x="0" y="0" for "exactly at the
+-- centre". Ninev is genuinely placed, at (33871, 31528, 7) in Issavi - no map work is needed for this
+-- NPC. Gated on
 -- KilmareshQuest.Sixth.Favor >= 11, i.e. Fafnar's Wrath must be COMPLETE - that value is written only
 -- when the Empress hands over the Regalia part at the very end of that mission (npc/the_empress.lua).
 -- Not merely begun, and not AccessDoor: see the bug note on the gate predicate below.
