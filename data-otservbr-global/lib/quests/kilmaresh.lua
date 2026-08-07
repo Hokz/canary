@@ -25,6 +25,71 @@
 
 KilmareshQuest = KilmareshQuest or {}
 
+-- Wine is not item id 2. Ids 1-20 in data/items/items.xml are the LIQUID TYPE enumeration
+-- ("<!-- Liquids -->": water 1, wine 2, beer 3 ... ink 18), not carryable items - nothing else in the
+-- repository grants item 2. Wine is carried in a fluid container holding the wine subtype, which is
+-- the convention the repo uses elsewhere (hot_cuisine's recipe text: "1 Vial of wine").
+-- Shared here so npc/narsai.lua (which hands the wine out) and the Anuma statue sacrifices (which
+-- consume it) can never disagree about what "wine" is.
+KilmareshQuest.WINE_FLUID = 2
+KilmareshQuest.FLUID_CONTAINER_VIAL = 2874
+
+-- CONFIRMED BLOCKER (found in review): every ingredient turn-in in this quest checked quantities with
+--   player:getItemById(itemId, count)
+-- but that signature is `getItemById(itemId, deepSearch[, subType = -1])`
+-- (src/lua/functions/creatures/player/player_functions.cpp:1891-1892). The second argument is a
+-- BOOLEAN deep-search flag, not a count - so every one of those checks passed as soon as the player
+-- held a SINGLE unit of the item.
+--
+-- The removal side then failed silently in the player's favour: Player::removeItemOfType
+-- (src/creatures/players/player.cpp:5186) only calls internalRemoveItems once it has accumulated
+-- `count >= amount`, and otherwise returns false having removed NOTHING. The callers ignored that
+-- return value, so a player carrying one of each ingredient passed the gate, lost no items at all, and
+-- still had their stage storage advanced - skipping the entire gathering mission at zero cost.
+--
+-- These two helpers do it properly: getItemCount is genuinely count-aware
+-- (player_functions.cpp:1838-1839), and consumption is verified rather than assumed.
+
+---Does the player hold every {id, count} pair in `list`?
+---@param player Player
+---@param list table  array of { id = number, count = number }
+---@return boolean
+function KilmareshQuest.hasIngredients(player, list)
+	if not player or not list then
+		return false
+	end
+
+	for _, entry in ipairs(list) do
+		if player:getItemCount(entry.id) < entry.count then
+			return false
+		end
+	end
+
+	return true
+end
+
+---Remove every {id, count} pair in `list`, but only if ALL of them are present first.
+---Returns false and consumes nothing when the player is short of any entry.
+---@param player Player
+---@param list table  array of { id = number, count = number }
+---@return boolean
+function KilmareshQuest.consumeIngredients(player, list)
+	if not KilmareshQuest.hasIngredients(player, list) then
+		return false
+	end
+
+	-- Counts were all verified immediately above and nothing here can add or drop items in between,
+	-- so each removal is expected to succeed. The result is still checked so that a partial consume
+	-- can never pass unnoticed.
+	for _, entry in ipairs(list) do
+		if not player:removeItem(entry.id, entry.count) then
+			return false
+		end
+	end
+
+	return true
+end
+
 ---@param player Player
 ---@return boolean
 function KilmareshQuest.isBaseQuestComplete(player)

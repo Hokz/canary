@@ -201,10 +201,10 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 3)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 2 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 2 and player:getItemById(9651, 3) and player:getItemById(31325, 12) and player:getItemById(31333, 10) then
-			player:removeItem(9651, 3)
-			player:removeItem(31325, 12)
-			player:removeItem(31333, 10)
+		-- CONFIRMED BLOCKER (found in review): this used getItemById(id, count), whose second argument
+		-- is actually deepSearch - so one of each ingredient passed the gate, removeItem then removed
+		-- nothing, and the stage advanced for free. See lib/quests/kilmaresh.lua.
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 2 and KilmareshQuest.consumeIngredients(player, { { id = 9651, count = 3 }, { id = 31325, count = 12 }, { id = 31333, count = 10 } }) then
 			npcHandler:say({ "Thank you this stage of the ritual is complete." }, npc, creature) -- It needs to be revised, it's not the same as the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan, 3)
 			npcHandler:setTopic(playerId, 4)

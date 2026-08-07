@@ -108,11 +108,10 @@ local function creatureSayCallback(npc, creature, type, message)
 		-- lines below without ever being checked for here, so this branch's "did you bring everything"
 		-- gate could pass - and Tefrit would still take 5 pincers the player might not have - even
 		-- though the turn-in text explicitly lists crab pincers as one of the four required items.
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 2 and player:getItemById(10272, 5) and player:getItemById(31329, 20) and player:getItemById(31339, 25) and player:getItemById(31330, 15) then
-			player:removeItem(10272, 5)
-			player:removeItem(31329, 20)
-			player:removeItem(31339, 25)
-			player:removeItem(31330, 15)
+		-- CONFIRMED BLOCKER (found in review): this used getItemById(id, count), whose second argument
+		-- is actually deepSearch - so one of each ingredient passed the gate, removeItem then removed
+		-- nothing, and the stage advanced for free. See lib/quests/kilmaresh.lua.
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 2 and KilmareshQuest.consumeIngredients(player, { { id = 10272, count = 5 }, { id = 31329, count = 20 }, { id = 31339, count = 25 }, { id = 31330, count = 15 } }) then
 			npcHandler:say({ "Thank you this stage of the ritual is complete." }, npc, creature) -- It needs to be revised, it's not the same as the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit, 3)
 			npcHandler:setTopic(playerId, 4)

@@ -3033,11 +3033,21 @@ Storage = {
 					Progress = 46929,
 				},
 				-- "Aspiring Oracle" (Taya/Narsai, added 12.70) did not exist at all before this pass.
-				-- EyeOfSuon is a bitmask: bit1 = golden frame, bit2 = red gem.
 				-- AnumaBlessed is a bitmask across the 7 named statues (bits 1,2,4,8,16,32,64).
+				-- NuurDoor records that this player broke the seal on the sun-symbol door in the Ruins
+				-- of Nuur (Narsai: "you can open it by drawing a sun symbol on the door with your
+				-- finger, right above the door knob"). It is a passage marker, not a questlog
+				-- milestone - the door is the route to the red gem, so it sits inside the
+				-- part-collection stage rather than between two Questline values.
+				--
+				-- 46931 previously held an "EyeOfSuon" bitmask (bit1 frame, bit2 gem) that no code ever
+				-- read or wrote: the two parts and the combined artefact are real items (36707, 36706,
+				-- 36708), so possession IS the state and the parallel bitmask was dead weight. Removed
+				-- and the id reclaimed for NuurDoor - safe precisely because nothing ever wrote it, so
+				-- no character can be carrying a stale value.
 				AspiringOracle = {
 					Questline = 46930,
-					EyeOfSuon = 46931,
+					NuurDoor = 46931,
 					AnumaBlessed = 46932,
 					EnusatKilled = 46933,
 				},

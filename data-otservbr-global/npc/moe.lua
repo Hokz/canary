@@ -75,9 +75,13 @@ local function creatureSayCallback(npc, creature, type, message)
 		end
 	elseif MsgContains(message, "feathers") then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourth.Moe) == 2 then
-			if player:getItemById(31437, 10) then
+			-- CONFIRMED BLOCKER (found in review): this used getItemById(31437, 10), whose second
+			-- argument is deepSearch and not a count, so ONE sphinx feather satisfied the "ten
+			-- feathers" demand; removeItem(31437, 10) then removed nothing (removeItemOfType only
+			-- removes once it has the full amount) and Fourth.Moe advanced anyway. Same defect class
+			-- as the four Midnight Rituals turn-ins - see lib/quests/kilmaresh.lua.
+			if KilmareshQuest.consumeIngredients(player, { { id = 31437, count = 10 } }) then
 				npcHandler:say("Thank you! They look so pretty, I'm very pleased. Agreed, now I will steal the ring from the Ambassador of Rathleton. Just be patient, I have to wait for a good moment.", npc, creature)
-				player:removeItem(31437, 10)
 				player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourth.Moe, 3)
 				player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourth.MoeTimer, os.time() + 60 * 60)
 			else

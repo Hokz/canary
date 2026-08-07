@@ -104,10 +104,10 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 3)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 2 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 2 and player:getItemById(31335, 10) and player:getItemById(10279, 2) and player:getItemById(31332, 5) then
-			player:removeItem(31335, 10)
-			player:removeItem(10279, 2)
-			player:removeItem(31332, 5)
+		-- CONFIRMED BLOCKER (found in review): this used getItemById(id, count), whose second argument
+		-- is actually deepSearch - so one of each ingredient passed the gate, removeItem then removed
+		-- nothing, and the stage advanced for free. See lib/quests/kilmaresh.lua.
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 2 and KilmareshQuest.consumeIngredients(player, { { id = 31335, count = 10 }, { id = 10279, count = 2 }, { id = 31332, count = 5 } }) then
 			npcHandler:say({ "Thank you this stage of the ritual is complete." }, npc, creature) -- It needs to be revised, it's not the same as the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai, 3)
 			npcHandler:setTopic(playerId, 4)
@@ -148,7 +148,14 @@ local function creatureSayCallback(npc, creature, type, message)
 			--     advancing without it would strand the player.
 			--   * the scroll (31709) is INFORMATIONAL (it only lists the statue names), so its
 			--     delivery is deliberately not treated as blocking.
-			if not player:addItem(2, 7) then
+			-- CONFIRMED BLOCKER (found in review): this handed out item id 2, which is the LIQUID TYPE
+			-- "wine" from the fluid enumeration at the top of data/items/items.xml, not a carryable
+			-- item - nothing else in the repo grants it. Wine is carried in a fluid container, so this
+			-- now gives 7 vials (2874) with the wine subtype (2). Signature is
+			-- addItem(itemId, count, canDropOnMap, subType) - player_functions.cpp:2352/2378.
+			-- canDropOnMap = false: the wine is MECHANICALLY REQUIRED (one vial per Anuma statue, and
+			-- Questline 2 -> 3 is one-way), so it must never be silently dropped on the ground.
+			if not player:addItem(KilmareshQuest.FLUID_CONTAINER_VIAL, 7, false, KilmareshQuest.WINE_FLUID) then
 				npcHandler:say("You cannot carry the wine right now. Return when you have room for it.", npc, creature)
 				npcHandler:setTopic(playerId, 0)
 				return true

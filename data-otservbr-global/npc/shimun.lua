@@ -104,10 +104,18 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 3)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 2 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 2 and player:getItemById(31340, 1) and player:getItemById(31336, 12) and player:getItemById(2874, 5) then
-			player:removeItem(31340, 1)
-			player:removeItem(31336, 12)
-			player:removeItem(2874, 5)
+		-- CONFIRMED BLOCKER (found in review): this used getItemById(id, count), whose second argument
+		-- is actually deepSearch - so one of each ingredient passed the gate, removeItem then removed
+		-- nothing, and the stage advanced for free. See lib/quests/kilmaresh.lua.
+		--
+		-- The vial (2874) is deliberately matched by item id only, with NO fluid subtype. "Ink vials"
+		-- in the source means a vial holding the ink fluid: 2874 is a fluid container
+		-- (items.xml:6115-6119) and "ink" is fluid subtype 18 (items.xml:22, in the fluid enumeration
+		-- mead 16 / tea 17 / ink 18 / candyfluid 19). getItemCount does accept a subType, so the
+		-- faithful check is one line away - but nothing anywhere in this repository ever fills a vial
+		-- with ink, so enforcing subtype 18 would make Midnight Rituals impossible to finish.
+		-- Left generic and documented rather than soft-locking the mission.
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 2 and KilmareshQuest.consumeIngredients(player, { { id = 31340, count = 1 }, { id = 31336, count = 12 }, { id = 2874, count = 5 } }) then
 			npcHandler:say({ "Thank you this stage of the ritual is complete." }, npc, creature) -- It needs to be revised, it's not the same as the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun, 3)
 			npcHandler:setTopic(playerId, 4)
