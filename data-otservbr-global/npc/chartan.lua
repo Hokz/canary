@@ -66,42 +66,6 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("Zo? Did you find a way to reztore ze teleporter? ", npc, creature)
 			npcHandler:setTopic(playerId, 3)
 		end
-		-- ZZUPPLIEZZ post-WOTE handoff. The reference states the Children of the Revolution dailies move
-		-- to Chartan once Zalamon is no longer available, so the same repeatable run is offered here.
-		-- Shared state lives in lib/quests/zzuppliezz.lua, so a run started at one NPC can be handed in
-		-- at the other and the 20-hour cooldown and EVER-COMPLETED flag stay consistent.
-		-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE: no exact Chartan transcript for this task exists in
-		-- the owner package; the wording below is functional and in Chartan's established voice.
-	elseif MsgContains(message, "task") then
-		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < Zzuppliezz.REQUIRED_CHILDREN_QUESTLINE then
-			npcHandler:say("You are not one of uz yet. ", npc, creature)
-		elseif Zzuppliezz.isActive(player) then
-			npcHandler:say("You already carry ze orderz. Bring me ze crate and a zalted fizh, and feed our imprizoned brozerz on ze way. ", npc, creature)
-		else
-			local remaining = Zzuppliezz.cooldownRemaining(player)
-			if remaining > 0 then
-				npcHandler:say(string.format("Enough for today. Come back in about %d hourz. ", math.max(1, math.floor(remaining / 3600))), npc, creature)
-			else
-				npcHandler:say("Our people inzide ze zity ztill need armz and food. Zey call it ze {zzuppliezz} run. Are you willing? ", npc, creature)
-				npcHandler:setTopic(playerId, 40)
-			end
-		end
-	elseif MsgContains(message, "zzuppliezz") or MsgContains(message, "supplies") then
-		if Zzuppliezz.isActive(player) then
-			if Zzuppliezz.complete(player) then
-				npcHandler:say("Good. Ze weaponz will reach ze right handz. Take zis, and come back tomorrow. ", npc, creature)
-			else
-				npcHandler:say("You are not carrying what I azked for - one crate of weaponz and one zalted fizh. ", npc, creature)
-			end
-			npcHandler:setTopic(playerId, 0)
-		elseif npcHandler:getTopic(playerId) == 40 then
-			npcHandler:say("Take a crate from ze weaponz rack and two zalted fizh from ze zupply ztore. Give one fizh to ze prizonerz behind ze fenze, and bring me ze rezt. ", npc, creature)
-			Zzuppliezz.start(player)
-			npcHandler:setTopic(playerId, 0)
-		else
-			npcHandler:say("Azk me for a {task} firzt. ", npc, creature)
-		end
-		-- ZZUPPLIEZZ
 	elseif MsgContains(message, "zalamon") then
 		if npcHandler:getTopic(playerId) == 1 then
 			npcHandler:say({

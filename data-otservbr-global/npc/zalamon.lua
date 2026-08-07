@@ -207,27 +207,31 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 21)
 		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 12 then
 			-- CONFIRMED GAP (found in review): this advanced straight to Mission 05 with no prerequisite
-			-- check at all. The authoritative reference makes Mission 05 the hard gate for (a) the
-			-- Zzuppliezz daily task having been completed at least once, and (b) The New Frontier being
-			-- finished - not merely started. Both are checked here rather than at WOTE Mission 01, because
-			-- the reference places the gate at this exact point in the chain.
+			-- check at all. The owner reference states the rule for this exact point in the chain:
+			-- every task STARTED at Zalamon must be finished, and if the player has never done any task,
+			-- at least one must be completed now ("choćby taska z rybami").
 			--
-			-- "Zze Art of War" is deliberately NOT checked: no weekly-task subsystem exists anywhere in
-			-- this repository, and a task that cannot exist cannot currently be active. Building an
-			-- unrelated weekly-task framework is out of scope for this change.
-			if not Zzuppliezz.hasEverCompleted(player) then
-				npcHandler:say({
-					"Not zzo fazzt. Before I zzend you into zze zzity itzzelf, you muzzt prove you can zzupply our people under zzeir very nozzez. ...",
-					"Azzk me about a {task} and complete zze zzuppliezz run for uzz firzzt. ",
-				}, npc, creature)
+			-- The rule is deliberately GENERIC. The reference names Zzuppliezz only as an example
+			-- ("np. Zzupliezz"), so it must not be hard-coded here - see lib/quests/children_tasks.lua.
+			--
+			-- Two things are NOT checked, on purpose:
+			--   * The New Frontier completion. An earlier revision of this branch required
+			--     TheNewFrontier.Questline >= 29. That value was invented: the reference lists only
+			--     "misja 9 (Mortal Kombat)" among the GENERAL WOTE requirements, never full completion,
+			--     and never as a Mission 05 gate. The gate was removed rather than replaced by a guess.
+			--   * "Zze Art of War" - no weekly-task subsystem exists in this repository, and a task that
+			--     cannot exist cannot currently be active.
+			local outstanding = ChildrenTasks.firstIncompleteName(player)
+			if outstanding then
+				npcHandler:say("You zztill owe me zze " .. outstanding .. " run you took on. Finizzh what you zztarted before azzking for more. ", npc, creature)
 				npcHandler:setTopic(playerId, 0)
 				return true
 			end
 
-			if player:getStorageValue(Storage.Quest.U8_54.TheNewFrontier.Questline) < 29 then
+			if not ChildrenTasks.hasCompletedAny(player) then
 				npcHandler:say({
-					"You are not ready. Zze rezizztanzze in zze north muzzt zztand on itzz own feet before we zztrike at zze heart of zze empire. ...",
-					"Finizzh what you began wizz zze zzettlerzz of Farmine - zzen return to me. ",
+					"Not zzo fazzt. You have never once carried for uzz. Before I zzend you into zze zzity itzzelf, prove you can zzupply our people under zzeir very nozzez. ...",
+					"Azzk me about a {task} and complete one for uzz firzzt. ",
 				}, npc, creature)
 				npcHandler:setTopic(playerId, 0)
 				return true
@@ -275,16 +279,21 @@ local function creatureSayCallback(npc, creature, type, message)
 	elseif MsgContains(message, "zzuppliezz") or MsgContains(message, "supplies") then
 		if Zzuppliezz.isActive(player) then
 			-- Turn-in. Transactional: nothing is consumed unless every required item is present.
-			if Zzuppliezz.complete(player) then
+			local reason = Zzuppliezz.blockingReason(player)
+			if reason == nil and Zzuppliezz.complete(player) then
 				npcHandler:say({
 					"Excellent. Zze weaponzz will reach zze right handzz, and our brozzerzz will not zztarve zzis night. ...",
 					"Take zzis for your troublezz. Come back tomorrow - zzere iz alwayzz more to carry. ",
 				}, npc, creature)
+			elseif reason == "prisoners" then
+				npcHandler:say("You have not fed our imprizzoned brozzerzz. Give zzem a fizzh zzrough zze fenzze firzzt. ", npc, creature)
+			elseif reason == "crate" then
+				npcHandler:say("Where izz zze crate of weaponzz? Take one from zze rack. ", npc, creature)
+			elseif reason == "fish" then
+				npcHandler:say("You muzzt bring me a zzalted fizzh azz well. ", npc, creature)
 			else
-				npcHandler:say({
-					"You are not carrying what I azzked for. I need one {weaponzz crate} and one zzalted fizzh brought back to me, ...",
-					"and zze ozzer fizzh given to our imprizzoned brozzerzz. ",
-				}, npc, creature)
+				-- complete() refused after the checks passed - almost always no room for the reward gem.
+				npcHandler:say("Make zzome room for your reward firzzt, zzen return to me. ", npc, creature)
 			end
 			npcHandler:setTopic(playerId, 0)
 		elseif npcHandler:getTopic(playerId) == 40 then
