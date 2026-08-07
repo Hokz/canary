@@ -183,6 +183,62 @@ keywordHandler:addAliasKeyword({ "spark" })
 keywordHandler:addKeyword({ "solitude" }, StdModule.say, { npcHandler = npcHandler, text = "Talk to the hermit Eremo on the isle of Cormaya about this blessing." })
 keywordHandler:addAliasKeyword({ "wisdom" })
 
+-- "A Shark in Need" (Kilmaresh Quest) - this NPC carried none of this content before this pass.
+--
+-- CORRECTION to an earlier pass of this PR, which claimed Ninev was "never placed on the map (spawn
+-- position (0,0,7), the engine's unplaced sentinel)". That was a misreading of the spawn format: in
+-- data-otservbr-global/world/otservbr-npc.xml the inner x/y are OFFSETS from the enclosing
+-- centerx/centery, and 990 of the file's 1008 npc entries use x="0" y="0" for "exactly at the
+-- centre". Ninev is genuinely placed, at (33871, 31528, 7) in Issavi - no map work is needed for this
+-- NPC. Gated on
+-- KilmareshQuest.Sixth.Favor >= 11, i.e. Fafnar's Wrath must be COMPLETE - that value is written only
+-- when the Empress hands over the Regalia part at the very end of that mission (npc/the_empress.lua).
+-- Not merely begun, and not AccessDoor: see the bug note on the gate predicate below.
+local sharkKeyword = keywordHandler:addKeyword({ "shark" }, StdModule.say, {
+	npcHandler = npcHandler,
+	text = {
+		"This poor shark is seriously injured. It seems it was attacked by a sea serpent. Those dangerous creatures seldom stray into the coastal waters around Kilmaresh but sometimes it happens. ...",
+		"This shark was lucky enough to escape alive but now it's in need of help. Unfortunately I don't have the needed medicine here in the temple. Would you keep an eye open and look for it while hurling yourself into adventures?",
+	},
+}, function(player)
+	-- CONFIRMED BUG (found in review): this gated on AccessDoor, which npc/eshaya.lua sets when the
+	-- Ambassador investigation *begins* - so A Shark in Need could be started long before Fafnar's
+	-- Wrath was complete. Gates on the canonical completion marker instead: Sixth.Favor reaches 11
+	-- only when the Empress hands over the Regalia part at the end of Fafnar's Wrath
+	-- (npc/the_empress.lua).
+	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) >= 11 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) < 1
+end)
+sharkKeyword:addChildKeyword({ "yes" }, StdModule.say, { npcHandler = npcHandler, text = "You're a kind soul, Bastesh may bless you. What I need is a healing salve that resists salt water. Perhaps you can find some of it out there.", reset = true, ungreet = true }, nil, function(player)
+	player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline, 1)
+end)
+
+keywordHandler:addKeyword({ "shark" }, StdModule.say, { npcHandler = npcHandler, text = "What I need is a healing salve that resists salt water. Perhaps you can find some of it out there." }, function(player)
+	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) == 1
+end)
+
+local sharkCureKeyword = keywordHandler:addKeyword({ "cure" }, StdModule.say, { npcHandler = npcHandler, text = "Did you find the cure?" }, function(player)
+	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) == 1
+end)
+sharkCureKeyword:addChildKeyword({ "yes" }, StdModule.say, { npcHandler = npcHandler, text = "Yes, this seems to be exactly what I need. Thank you, friend, Bastesh may bless you! Take this as a sign of my temple's gratitude.", reset = true, ungreet = true }, function(player)
+	local progress = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Progress)
+	return progress >= 0 and testFlag(progress, 4)
+end, function(player)
+	-- Transactional: Questline 2 is the one-time completion marker, so the Regalia part must be
+	-- delivered before it advances - otherwise the player completes the mission and permanently loses
+	-- the part that npc/yonan.lua's four-part combine requires.
+	if not player:addItem(31575, 1, false) then -- golden bijou, the fourth Regalia of Suon part
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You cannot carry the reward right now. Come back when you have room for it.")
+		return
+	end
+
+	player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline, 2)
+end)
+sharkCureKeyword:addChildKeyword({ "yes" }, StdModule.say, { npcHandler = npcHandler, text = "I'm afraid that's not quite what I need. It has to be a salve that resists salt water.", reset = true })
+
+keywordHandler:addKeyword({ "shark" }, StdModule.say, { npcHandler = npcHandler, text = "Thank you again for helping that poor shark, friend." }, function(player)
+	return player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.NinevShark.Questline) == 2
+end)
+
 npcHandler:setMessage(MESSAGE_GREET, "Welcome, young |PLAYERNAME|! If you are heavily wounded or poisoned, I can {heal} you for free or you want the {adventurer stone}?")
 npcHandler:setMessage(MESSAGE_WALKAWAY, "Remember: If you are heavily wounded or poisoned, I can heal you for free.")
 npcHandler:setMessage(MESSAGE_FAREWELL, "May the gods bless you, |PLAYERNAME|!")

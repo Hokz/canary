@@ -56,17 +56,15 @@ local function greetCallback(npc, creature)
 	local player = Player(creature)
 	local playerId = player:getId()
 
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Access) < 1 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 1)
-	elseif (player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) >= 0 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) <= 50) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) < 3 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 15)
-	elseif player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) == 4 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission, 5)
-		npcHandler:setTopic(playerId, 20)
-	end
+	-- CONFIRMED BUG (found in review): this greetCallback branched on
+	-- KilmareshQuest.First.Access / .JamesfrancisTask / .Mission, none of which exist - `First`
+	-- defines only `Title` (lib/core/storages.lua). They are copy-pasted from the unrelated
+	-- CultsOfTibia.Minotaurs block. Every branch resolved against a nil key and all three set the same
+	-- greeting anyway, but they also pre-seeded a conversation topic purely by greeting - and topic 1
+	-- is consumed by live "yes" branches in this file, so a bare "yes" straight after hello could
+	-- advance a mission without ever being offered it. Replaced with the unconditional greeting the
+	-- branches all produced, and no topic seeding.
+	npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
 	return true
 end
 

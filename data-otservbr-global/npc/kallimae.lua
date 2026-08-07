@@ -56,17 +56,15 @@ local function greetCallback(npc, creature)
 	local player = Player(creature)
 	local playerId = player:getId()
 
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Access) < 1 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 1)
-	elseif (player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) >= 0 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) <= 50) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) < 3 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 15)
-	elseif player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) == 4 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission, 5)
-		npcHandler:setTopic(playerId, 20)
-	end
+	-- CONFIRMED BUG (found in review): this greetCallback branched on
+	-- KilmareshQuest.First.Access / .JamesfrancisTask / .Mission, none of which exist - `First`
+	-- defines only `Title` (lib/core/storages.lua). They are copy-pasted from the unrelated
+	-- CultsOfTibia.Minotaurs block. Every branch resolved against a nil key and all three set the same
+	-- greeting anyway, but they also pre-seeded a conversation topic purely by greeting - and topic 1
+	-- is consumed by live "yes" branches in this file, so a bare "yes" straight after hello could
+	-- advance a mission without ever being offered it. Replaced with the unconditional greeting the
+	-- branches all produced, and no topic seeding.
+	npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
 	return true
 end
 
@@ -78,6 +76,10 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
+	-- Legacy repair for players stranded by the missing Eighth.* initialisation (see
+	-- lib/quests/kilmaresh.lua). Idempotent, grants nothing, never lowers an existing stage.
+	KilmareshQuest.migrateMidnightRituals(player)
+
 	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) == 11 then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) == 11 then
 			npcHandler:say({ "Some residents are in need of ingredients to finish a ritual. You can help?" }, npc, creature) -- It needs to be revised, it's not the same as the global
@@ -87,11 +89,29 @@ local function creatureSayCallback(npc, creature, type, message)
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 1 then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) == 11 then
 			npcHandler:say({ "Search for the NPCs Yonan, Narsai, Shimun and Tefrit." }, npc, creature) -- It needs to be revised, it's not the same as the global
+			-- CONFIRMED BUG (found in review): Set.Yonan / Set.Narsai / Set.Shimun / Set.Tefrit do not
+			-- exist - `Set` defines only `Ritual` (lib/core/storages.lua). Each write resolved to a nil
+			-- key, which the engine rejects with a "Storage key is nil" log line
+			-- (player_functions.cpp), so these were four dead writes producing four log errors per
+			-- player. The real per-member progress lives in Eighth.* and is written by each member NPC
+			-- when the player first asks them for their list, so nothing is lost by removing them.
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Ritual, 1)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Yonan, 1)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Narsai, 1)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Shimun, 1)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Set.Tefrit, 1)
+			-- CONFIRMED BLOCKER (found in review): the four Midnight Rituals member NPCs each require
+			-- their own Eighth.* storage to already equal 1 before they will offer their task, but
+			-- nothing ever initialised them - the removed Set.Yonan/Narsai/Shimun/Tefrit writes pointed
+			-- at storage paths that do not exist. A fresh player could accept Midnight Rituals and then
+			-- find all four members unreachable. Seeded here, only when below 1, so a player who has
+			-- already progressed a member (2 = list given, 3 = ingredients delivered) is never reset.
+			for _, memberStorage in ipairs({
+				Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan,
+				Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai,
+				Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun,
+				Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit,
+			}) do
+				if player:getStorageValue(memberStorage) < 1 then
+					player:setStorageValue(memberStorage, 1)
+				end
+			end
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor, 12)
 			npcHandler:setTopic(playerId, 2)
 			npcHandler:setTopic(playerId, 2)
@@ -99,10 +119,19 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say({ "Sorry." }, npc, creature) -- It needs to be revised, it's not the same as the global
 		end
 	end
-	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3 then
+	-- The offer uses the SAME idempotent predicate as the confirmation below, so a player who has
+	-- already started or finished the pilgrimage is never re-offered it (and so cannot reach the
+	-- confirmation branch that would otherwise rewind Nine.Owl).
+	if
+		MsgContains(message, "mission")
+		and not KilmareshQuest.hasPilgrimageStarted(player)
+		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3
+		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3
+		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3
+		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3
+	then
+		do
 			npcHandler:say({ "Did you help some residents with ingredients?" }, npc, creature) -- It needs to be revised, it's not the same as the global
-			npcHandler:setTopic(playerId, 3)
 			npcHandler:setTopic(playerId, 3)
 		end
 	elseif
@@ -114,9 +143,15 @@ local function creatureSayCallback(npc, creature, type, message)
 		and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3
 	then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Yonan) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Narsai) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Tefrit) == 3 then
-			npcHandler:say({ "Thanks. I need you to go to 4 places indicated by Goddess Bastesh." }, npc, creature) -- It needs to be revised, it's not the same as the global
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Nine.Owl, 1)
-			npcHandler:setTopic(playerId, 4)
+			-- Set.Ritual 4 is the genuine Midnight Rituals completion marker (the questlog's endValue),
+			-- and Nine.Owl 1 opens the omen chain. Both writes are delegated to the shared idempotent
+			-- transition in lib/quests/kilmaresh.lua so a player who has already advanced or finished
+			-- the pilgrimage can never have Nine.Owl forced back to 1 by re-running this dialogue.
+			if KilmareshQuest.startMidnightPilgrimage(player) then
+				npcHandler:say({ "Thanks. I need you to go to 4 places indicated by Goddess Bastesh." }, npc, creature) -- It needs to be revised, it's not the same as the global
+			else
+				npcHandler:say({ "You are already walking the pilgrimage. Seek the omens Bastesh set for you." }, npc, creature)
+			end
 			npcHandler:setTopic(playerId, 4)
 		else
 			npcHandler:say({ "Sorry." }, npc, creature) -- It needs to be revised, it's not the same as the global
@@ -129,10 +164,34 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 5)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 5 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin) == 1 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin) == 1 and player:getItemById(31431, 1) then
-			player:addItem(31572, 1)
+		-- CONFIRMED BUG (pre-existing): the 4th omen (a goanna "bearing the symbol of Suon", killed for
+		-- its hide) was never checked here at all - only the "sign of sun and sea" item from the basin
+		-- omen. Added the goanna-hide check (item 31428, the Sun-Marked Goanna's 100%-chance drop).
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin) == 1 and player:getItemById(31431, 1) and player:getItemById(31428, 1) then
+			-- Transactional: Eleven.Basin 1 -> 2 is the one-time completion marker, so the Regalia part
+			-- must be delivered first - and the goanna hide is only consumed once delivery succeeded,
+			-- so a failure leaves the player able to retry with their omen items intact.
+			if not player:addItem(31572, 1, false) then
+				npcHandler:say({ "You cannot carry your reward right now. Return when you have room for it." }, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
+			player:removeItem(31428, 1)
+			-- CONFIRMED BUG (pre-existing): "Sun and Sea" was registered
+			-- (register_achievements.lua) but granted nowhere in the repo. Its description ("the
+			-- balance of sun and sea is preserved in Kilmaresh") matches this exact reward - the
+			-- "Symbol of Sun and Sea" omen (item 31431) collected as part of this same pilgrimage.
+			if not player:hasAchievement("Sun and Sea") then
+				player:addAchievement("Sun and Sea")
+			end
 			npcHandler:say({ "Thanks. Here is your reward." }, npc, creature) -- It needs to be revised, it's not the same as the global
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Twelve.Boss, 1)
+			-- CONFIRMED BLOCKER (found in review): this used to write Twelve.Boss = 1 here. Twelve.Boss
+			-- is The Boards' own questline storage, whose completed value is 5 - so a player who
+			-- finished Boards first and Midnight Rituals second had their completed Boards silently
+			-- reset from 5 back to 1, losing questlog completion and re-opening the mission. Boards is
+			-- now seeded independently by npc/alyxo.lua from Sixth.Favor >= 11, so Midnight Rituals
+			-- writes nothing belonging to another mission.
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eleven.Basin, 2)
 			npcHandler:setTopic(playerId, 6)
 			npcHandler:setTopic(playerId, 6)
@@ -140,6 +199,20 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say({ "Sorry." }, npc, creature) -- It needs to be revised, it's not the same as the global
 		end
 	end
+
+	-- "Wanted" (added 12.70) - entirely absent before this pass.
+	if MsgContains(message, "glimpse") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Wanted.Questline) == 1 then
+		npcHandler:say({
+			"We are seeing things to yet happen. This is something that lies in the past. But there is a ritual that might grant you a glimpse of the past. ...",
+			"Find a precious golden hand mirror. It has to be made of gold, a silver mirror won't work as a component for this ritual. Then blacken it over a fire and cover it in soot. ...",
+			"You also have to find a mask made from ivory. Then go to the shrine of Suon on the shore north-west of Issavi. ...",
+			"There, in front of the Benevolent King's statue, you have to scratch the soot off the mirror whilst wearing the ivory mask by reciting the following words: ...",
+			"Suon, Benevolent Sun, grant me a glimpse of the past. Then name the four suspects and ask for the innocent one. ...",
+			"The face of the right person will appear in the mirror and the wind will whisper the name into your ear.",
+		}, npc, creature)
+		npcHandler:setTopic(playerId, 0)
+	end
+
 	return true
 end
 

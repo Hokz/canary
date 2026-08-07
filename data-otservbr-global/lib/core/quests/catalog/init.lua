@@ -53,6 +53,7 @@ local questModules = {
 	"052_heart_of_destruction",
 	"053_ferumbras_ascension",
 	"054_a_pirates_tail",
+	"055_kilmaresh",
 }
 
 local catalog = dofile(CORE_DIRECTORY .. "/lib/core/quests/catalog.lua")

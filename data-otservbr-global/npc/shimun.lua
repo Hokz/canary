@@ -56,17 +56,15 @@ local function greetCallback(npc, creature)
 	local player = Player(creature)
 	local playerId = player:getId()
 
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Access) < 1 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 1)
-	elseif (player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) >= 0 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.JamesfrancisTask) <= 50) and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) < 3 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		npcHandler:setTopic(playerId, 15)
-	elseif player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission) == 4 then
-		npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
-		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Mission, 5)
-		npcHandler:setTopic(playerId, 20)
-	end
+	-- CONFIRMED BUG (found in review): this greetCallback branched on
+	-- KilmareshQuest.First.Access / .JamesfrancisTask / .Mission, none of which exist - `First`
+	-- defines only `Title` (lib/core/storages.lua). They are copy-pasted from the unrelated
+	-- CultsOfTibia.Minotaurs block. Every branch resolved against a nil key and all three set the same
+	-- greeting anyway, but they also pre-seeded a conversation topic purely by greeting - and topic 1
+	-- is consumed by live "yes" branches in this file, so a bare "yes" straight after hello could
+	-- advance a mission without ever being offered it. Replaced with the unconditional greeting the
+	-- branches all produced, and no topic seeding.
+	npcHandler:setMessage(MESSAGE_GREET, "How could I help you?") -- It needs to be revised, it's not the same as the global
 	return true
 end
 
@@ -77,6 +75,10 @@ local function creatureSayCallback(npc, creature, type, message)
 	if not npcHandler:checkInteraction(npc, creature) then
 		return false
 	end
+
+	-- Legacy repair for players stranded by the missing Eighth.* initialisation (see
+	-- lib/quests/kilmaresh.lua). Idempotent, grants nothing, never lowers an existing stage.
+	KilmareshQuest.migrateMidnightRituals(player)
 
 	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 1 then
 		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 1 then
@@ -102,10 +104,18 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 3)
 		end
 	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 3 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 2 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 2 and player:getItemById(31340, 1) and player:getItemById(31336, 12) and player:getItemById(2874, 5) then
-			player:removeItem(31340, 1)
-			player:removeItem(31336, 12)
-			player:removeItem(2874, 5)
+		-- CONFIRMED BLOCKER (found in review): this used getItemById(id, count), whose second argument
+		-- is actually deepSearch - so one of each ingredient passed the gate, removeItem then removed
+		-- nothing, and the stage advanced for free. See lib/quests/kilmaresh.lua.
+		--
+		-- The vial (2874) is deliberately matched by item id only, with NO fluid subtype. "Ink vials"
+		-- in the source means a vial holding the ink fluid: 2874 is a fluid container
+		-- (items.xml:6115-6119) and "ink" is fluid subtype 18 (items.xml:22, in the fluid enumeration
+		-- mead 16 / tea 17 / ink 18 / candyfluid 19). getItemCount does accept a subType, so the
+		-- faithful check is one line away - but nothing anywhere in this repository ever fills a vial
+		-- with ink, so enforcing subtype 18 would make Midnight Rituals impossible to finish.
+		-- Left generic and documented rather than soft-locking the mission.
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun) == 2 and KilmareshQuest.consumeIngredients(player, { { id = 31340, count = 1 }, { id = 31336, count = 12 }, { id = 2874, count = 5 } }) then
 			npcHandler:say({ "Thank you this stage of the ritual is complete." }, npc, creature) -- It needs to be revised, it's not the same as the global
 			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Eighth.Shimun, 3)
 			npcHandler:setTopic(playerId, 4)

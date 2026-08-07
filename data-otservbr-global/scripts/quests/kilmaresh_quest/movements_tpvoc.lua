@@ -30,8 +30,11 @@ function tpvoc.onStepIn(creature, item, position, fromPosition)
 		return true
 	end
 
+	-- CONFIRMED BUG (pre-existing): referenced the undefined global "vocacoes" instead of the local
+	-- "vocation" matched two lines above - stepping on the CORRECT vocation tile threw a Lua runtime
+	-- error instead of teleporting forward, making this puzzle unsolvable regardless of vocation.
 	if player:getVocation():getBaseId() == vocation.vocationId then
-		player:teleportTo(vocacoes.toPosition)
+		player:teleportTo(vocation.toPosition)
 		player:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
 	else
 		player:teleportTo({ x = 33822, y = 31645, z = 9 })

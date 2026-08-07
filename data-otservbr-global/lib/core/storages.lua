@@ -3024,6 +3024,53 @@ Storage = {
 					Remains = 46925,
 				},
 				AccessDoor = 46926,
+				-- "A Shark in Need" (Ninev) was entirely unimplemented before this pass - built here
+				-- storage-backed rather than with fabricated intermediate items (no "healing salve"/
+				-- "waterproof salve" item exists anywhere in items.xml), per the item-fallback rule.
+				-- Progress is a bitmask: bit1 = found the salve, bit2 = sheared wool from a live sheep.
+				NinevShark = {
+					Questline = 46928,
+					Progress = 46929,
+				},
+				-- "Aspiring Oracle" (Taya/Narsai, added 12.70) did not exist at all before this pass.
+				-- AnumaBlessed is a bitmask across the 7 named statues (bits 1,2,4,8,16,32,64).
+				-- NuurDoor records that this player broke the seal on the sun-symbol door in the Ruins
+				-- of Nuur (Narsai: "you can open it by drawing a sun symbol on the door with your
+				-- finger, right above the door knob"). It is a passage marker, not a questlog
+				-- milestone - the door is the route to the red gem, so it sits inside the
+				-- part-collection stage rather than between two Questline values.
+				--
+				-- 46931 previously held an "EyeOfSuon" bitmask (bit1 frame, bit2 gem) that no code ever
+				-- read or wrote: the two parts and the combined artefact are real items (36707, 36706,
+				-- 36708), so possession IS the state and the parallel bitmask was dead weight. Removed
+				-- and the id reclaimed for NuurDoor - safe precisely because nothing ever wrote it, so
+				-- no character can be carrying a stale value.
+				AspiringOracle = {
+					Questline = 46930,
+					NuurDoor = 46931,
+					AnumaBlessed = 46932,
+					EnusatKilled = 46933,
+				},
+				-- "Wanted" (Eshaya/Kallimae, added 12.70) did not exist at all before this pass.
+				-- "The Revenge of the Ogres" previously had no state of its own - it borrowed
+				-- Fourteen.Remains, which is written by npc/alyxo.lua when "The Boards that Mean the
+				-- World" completes. That made Revenge strictly gated behind Boards, contradicting the
+				-- source's "after Fafnar's Wrath, the later missions may be performed in any order".
+				-- This dedicated state lets Saideh gate on the real common prerequisite
+				-- (Sixth.Favor >= 11, set by the Empress when Fafnar's Wrath completes) instead.
+				-- 1 = accepted, 2 = cage key found, 3 = Dayyan's grave searched, 4 = reported/rewarded.
+				RevengeOfTheOgres = {
+					Questline = 46941,
+				},
+				Wanted = {
+					Questline = 46934,
+					MirrorSoot = 46935,
+					InnocentRevealed = 46936,
+					NeferiJustice = 46937,
+					HetaiJustice = 46938,
+					AmenefJustice = 46939,
+					OutfitGranted = 46940,
+				},
 			},
 			Orcsoberfest = {},
 		},

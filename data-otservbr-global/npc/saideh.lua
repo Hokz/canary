@@ -51,10 +51,13 @@ local function greetCallback(npc, creature)
 	local player = Player(creature)
 	local playerId = player:getId()
 
-	if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.First.Access) < 1 then
-		npcHandler:setMessage(MESSAGE_GREET, "Hello, my name is Saideh. Once this was the entry to the crypt of our heroes. One of the graves belongs to our beloved hero Dayyan. Nowadays it is not a good idea to visit this place.")
-		npcHandler:setTopic(playerId, 1)
-	end
+	-- CONFIRMED BUG (found in review): branched on KilmareshQuest.First.Access, which does not
+	-- exist (`First` defines only `Title`) - copy-pasted from the unrelated CultsOfTibia block.
+	-- It also pre-seeded topic 1 purely by greeting, and topic 1 is the Revenge mission's own
+	-- confirmation topic, so a bare "yes" straight after hello could accept the mission without
+	-- the intended "mission" -> "yes" exchange. Greeting is now unconditional with no topic seed;
+	-- the confirmation branch re-checks Sixth.Favor >= 11 and the Revenge stage regardless.
+	npcHandler:setMessage(MESSAGE_GREET, "Hello, my name is Saideh. Once this was the entry to the crypt of our heroes. One of the graves belongs to our beloved hero Dayyan. Nowadays it is not a good idea to visit this place.")
 	return true
 end
 
@@ -66,21 +69,53 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
-	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) == 1 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) == 1 then
-			npcHandler:say({ " I would like you to visit the grave of our beloved hero Dayyan. His remains have to be reburied, because a horde of ogres controls this place. Do you want to start this holy mission?" }, npc, creature)
-			npcHandler:setTopic(playerId, 1)
-			npcHandler:setTopic(playerId, 1)
-		end
-	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 1 and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) == 1 then
-		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains) == 1 then
+	-- CONFIRMED BUG (found in review): Revenge's start gate used to be Fourteen.Remains == 1, a value
+	-- written only by npc/alyxo.lua once "The Boards that Mean the World" fully completes - so Revenge
+	-- could not be started until Boards was finished, contradicting the source's "after Fafnar's
+	-- Wrath, the later missions may be performed in any order". Revenge now has its own state
+	-- (RevengeOfTheOgres.Questline) and gates on the real shared prerequisite instead: Sixth.Favor
+	-- reaches 11 only when the Empress rewards the player at the end of Fafnar's Wrath
+	-- (npc/the_empress.lua), making it the canonical "Fafnar's Wrath complete" marker.
+	--
+	-- Migration: players who progressed Revenge under the old scheme have Fourteen.Remains >= 2 but no
+	-- RevengeOfTheOgres.Questline. The legacy value is mapped forward on first interaction below, so
+	-- they neither restart the mission nor re-earn its reward.
+	local revengeStage = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline)
+	local legacyStage = player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains)
+	if revengeStage < 0 and legacyStage >= 2 then
+		-- legacy 2/3/4/5 map to new 1/2/3/4
+		revengeStage = math.min(legacyStage - 1, 4)
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline, revengeStage)
+	end
+
+	if MsgContains(message, "mission") and player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) >= 11 and revengeStage < 1 then
+		npcHandler:say({ " I would like you to visit the grave of our beloved hero Dayyan. His remains have to be reburied, because a horde of ogres controls this place. Do you want to start this holy mission?" }, npc, creature)
+		npcHandler:setTopic(playerId, 1)
+	elseif MsgContains(message, "yes") and npcHandler:getTopic(playerId) == 1 then
+		if player:getStorageValue(Storage.Quest.U12_20.KilmareshQuest.Sixth.Favor) >= 11 and revengeStage < 1 then
 			npcHandler:say({ "Well, I appreciate that. Good luck!" }, npc, creature)
-			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.Fourteen.Remains, 2)
-			npcHandler:setTopic(playerId, 2)
+			player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline, 1)
 			npcHandler:setTopic(playerId, 2)
 		else
 			npcHandler:say({ "Sorry." }, npc, creature)
+			npcHandler:setTopic(playerId, 0)
 		end
+	-- CONFIRMED BLOCKER (pre-existing): this NPC never had a report/reward branch at all. The
+	-- dungeon's cage key (actions_cagekey.lua) and the grave search (actions_tumulo.lua) both existed
+	-- (the latter as a stub, now fixed) and advanced the mission's progress, but nothing anywhere ever
+	-- read that value back or granted the mission's reward - the source's explicit 20000 XP could
+	-- never be claimed no matter how far a player got.
+	-- "report" matches this repo's own established convention for a sub-task check-in keyword (see
+	-- npc/alyxo.lua's Fafnar/Lyre/Presente report branches); "mission" added as an alias since it's
+	-- the convention used for a stage's very first offer elsewhere in this same quest.
+	elseif (MsgContains(message, "report") or MsgContains(message, "mission")) and revengeStage == 3 then
+		npcHandler:say({
+			"The grave has been violated? It seems that the ogres aren't the most dangerous threat. These creatures are not capable to surpass the second floor with all the puzzles. But the monsters around the desecrated grave are different, much more intelligent. ...",
+			"Although your mission was not as successful as I hoped, I would like to thank you for your help. Take this as a little reward.",
+		}, npc, creature)
+		player:addExperience(20000, true)
+		player:setStorageValue(Storage.Quest.U12_20.KilmareshQuest.RevengeOfTheOgres.Questline, 4)
+		npcHandler:setTopic(playerId, 0)
 	end
 	return true
 end
