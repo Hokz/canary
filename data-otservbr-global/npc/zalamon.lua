@@ -206,6 +206,33 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("You - azzembled zze zzeptre? Hand it out, give it to me, will you? ", npc, creature)
 			npcHandler:setTopic(playerId, 21)
 		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 12 then
+			-- CONFIRMED GAP (found in review): this advanced straight to Mission 05 with no prerequisite
+			-- check at all. The authoritative reference makes Mission 05 the hard gate for (a) the
+			-- Zzuppliezz daily task having been completed at least once, and (b) The New Frontier being
+			-- finished - not merely started. Both are checked here rather than at WOTE Mission 01, because
+			-- the reference places the gate at this exact point in the chain.
+			--
+			-- "Zze Art of War" is deliberately NOT checked: no weekly-task subsystem exists anywhere in
+			-- this repository, and a task that cannot exist cannot currently be active. Building an
+			-- unrelated weekly-task framework is out of scope for this change.
+			if not Zzuppliezz.hasEverCompleted(player) then
+				npcHandler:say({
+					"Not zzo fazzt. Before I zzend you into zze zzity itzzelf, you muzzt prove you can zzupply our people under zzeir very nozzez. ...",
+					"Azzk me about a {task} and complete zze zzuppliezz run for uzz firzzt. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
+			if player:getStorageValue(Storage.Quest.U8_54.TheNewFrontier.Questline) < 29 then
+				npcHandler:say({
+					"You are not ready. Zze rezizztanzze in zze north muzzt zztand on itzz own feet before we zztrike at zze heart of zze empire. ...",
+					"Finizzh what you began wizz zze zzettlerzz of Farmine - zzen return to me. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
 			npcHandler:say({
 				"Now we need to get clozzer to zze emperor himzzelf. A hive of beezz would defend zzeir queen wizz zzeir lives in cazze an enemy gained entranzze. Zzizz makezz a formidable defenzze line, nearly inviolable. ... ",
 				"But a zztranger directly in zze midzzt of zze hive will be acczzepted - after all it izz not pozzible to overcome zzuch a formidable defenzze which izz nearly inviolable, or izz it? Ha. ... ",
@@ -221,6 +248,56 @@ local function creatureSayCallback(npc, creature, type, message)
 		end
 
 		-- WRATH OF THE EMPEROR QUEST
+
+		-- ZZUPPLIEZZ - repeatable Children of the Revolution supply task (see lib/quests/zzuppliezz.lua).
+		-- Prerequisite for WOTE Mission 05. Topics 40/41 are used to stay clear of the existing
+		-- Children (1-16) and WOTE (17-21) topic ranges in this same file.
+	elseif MsgContains(message, "task") then
+		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < Zzuppliezz.REQUIRED_CHILDREN_QUESTLINE then
+			npcHandler:say("You have not yet earned zze trust needed for zzuch errandzz. ", npc, creature)
+		elseif Zzuppliezz.isActive(player) then
+			npcHandler:say({
+				"You already carry my ordezz. Bring me one {zzuppliezz} crate from zze weaponzz rack and one zzalted fizzh, ...",
+				"and do not forget to feed our imprizzoned brozzerzz on zze way. ",
+			}, npc, creature)
+		else
+			local remaining = Zzuppliezz.cooldownRemaining(player)
+			if remaining > 0 then
+				npcHandler:say(string.format("You have done enough for today. Return in about %d hourzz. ", math.max(1, math.floor(remaining / 3600))), npc, creature)
+			else
+				npcHandler:say({
+					"Zzere iz alwayzz work. Our people inzzide zze zzity are hungry and unarmed. ...",
+					"Zzey call zzis run zze {zzuppliezz}. Are you willing? ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 40)
+			end
+		end
+	elseif MsgContains(message, "zzuppliezz") or MsgContains(message, "supplies") then
+		if Zzuppliezz.isActive(player) then
+			-- Turn-in. Transactional: nothing is consumed unless every required item is present.
+			if Zzuppliezz.complete(player) then
+				npcHandler:say({
+					"Excellent. Zze weaponzz will reach zze right handzz, and our brozzerzz will not zztarve zzis night. ...",
+					"Take zzis for your troublezz. Come back tomorrow - zzere iz alwayzz more to carry. ",
+				}, npc, creature)
+			else
+				npcHandler:say({
+					"You are not carrying what I azzked for. I need one {weaponzz crate} and one zzalted fizzh brought back to me, ...",
+					"and zze ozzer fizzh given to our imprizzoned brozzerzz. ",
+				}, npc, creature)
+			end
+			npcHandler:setTopic(playerId, 0)
+		elseif npcHandler:getTopic(playerId) == 40 then
+			npcHandler:say({
+				"Take a crate from zze weaponzz rack, and two zzalted fizzh from zze zzupply zztore. ...",
+				"Give one fizzh to zze prizzonerzz behind zze fenzze - zzey have not eaten in dayzz - and bring me zze crate and zze zzecond fizzh. ",
+			}, npc, creature)
+			Zzuppliezz.start(player)
+			npcHandler:setTopic(playerId, 0)
+		else
+			npcHandler:say("Azzk me for a {task} firzzt. ", npc, creature)
+		end
+		-- ZZUPPLIEZZ
 	elseif MsgContains(message, "crate") then
 		if npcHandler:getTopic(playerId) == 17 then
 			npcHandler:say("Ah I zzee. You are ready for your mizzion and waiting for me to create and mark zze crate? ", npc, creature)
