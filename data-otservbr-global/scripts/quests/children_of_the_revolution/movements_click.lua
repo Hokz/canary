@@ -13,16 +13,22 @@ local config = {
 		from = Position(33252, 31105, 7),
 		to = Position(33288, 31134, 7),
 	},
-	-- CONFIRMED (owner PDF main spoiler + TibiaWiki, corroborated by the PDF comment noting a
-	-- "Lizard Gate Guardian" encounter during this mission): 10-minute survival, waves every
-	-- minute, early waves are eternal guardians, later waves are lizard chosen, and the boss
-	-- (Lizard Gate Guardian) spawns additionally at minute 8.
+	-- PROVEN (owner PDF main spoiler + TibiaWiki, corroborated by the PDF's own reader comment
+	-- noting a "Lizard Gate Guardian" encounter during this mission): 10-minute survival, waves
+	-- every minute, early waves are eternal guardians, later waves are lizard chosen, and the
+	-- boss (Lizard Gate Guardian) spawns additionally around minute 8.
+	-- NOT_PROVEN: the exact monster COUNT per wave. No source (owner PDF, TibiaWiki, or bounded
+	-- external research) documents an exact number. 20 is carried over from this file's own
+	-- pre-existing (pre-this-PR) wave-1-4 configuration for consistency, not asserted as a
+	-- confirmed Global value - it does not affect completability either way, since surviving
+	-- (not killing) is the actual objective. 9 waves (not 10): a wave scheduled at exactly the
+	-- 10-minute mark would fire at the same tick as the area clear and be removed instantly by
+	-- doClearMissionArea, which is pointless and unproven as intended Global behavior - dropped.
 	waves = {
 		{ monster = "eternal guardian", size = 20 },
 		{ monster = "eternal guardian", size = 20 },
 		{ monster = "eternal guardian", size = 20 },
 		{ monster = "eternal guardian", size = 20 },
-		{ monster = "lizard chosen", size = 20 },
 		{ monster = "lizard chosen", size = 20 },
 		{ monster = "lizard chosen", size = 20 },
 		{ monster = "lizard chosen", size = 20 },
@@ -45,6 +51,16 @@ local currentRunToken = 0
 
 local function isCurrentRun(runToken)
 	return runToken > 0 and Game.getStorageValue(Mission05) == runToken
+end
+
+-- CONFIRMED BUG (found in review): only the STEPPING player was checked for Questline == 19;
+-- the other three formation tiles were accepted from any isPlayer() occupant at all, letting one
+-- eligible player plus three arbitrary bystanders start the encounter. Every one of the four
+-- formation occupants must independently satisfy this predicate. Kept as its own function (not
+-- inlined) so a future task-family PR can extend it - e.g. "== 19 OR active Zze Art of War
+-- participant" - without touching the formation/wave logic at all.
+local function isEligibleForMission05Formation(player)
+	return player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) == 19
 end
 
 local function doClearMissionArea(runToken)
@@ -96,9 +112,19 @@ local function summonWave(runToken, i)
 	end
 
 	if i == config.bossWaveIndex then
+		-- No source proves a fixed boss spawn tile, so it stays randomized within the same
+		-- summonArea used for every other wave - but unlike the regular waves (where a handful
+		-- of failed spawns out of 20 is inconsequential), the boss is a named, singular monster,
+		-- so its creation is checked and retried once before giving up silently.
 		local bossPosition = Position(math.random(config.summonArea.from.x, config.summonArea.to.x), math.random(config.summonArea.from.y, config.summonArea.to.y), 7)
-		Game.createMonster(config.boss, bossPosition)
-		bossPosition:sendMagicEffect(CONST_ME_TELEPORT)
+		local boss = Game.createMonster(config.boss, bossPosition)
+		if not boss then
+			bossPosition = Position(math.random(config.summonArea.from.x, config.summonArea.to.x), math.random(config.summonArea.from.y, config.summonArea.to.y), 7)
+			boss = Game.createMonster(config.boss, bossPosition)
+		end
+		if boss then
+			bossPosition:sendMagicEffect(CONST_ME_TELEPORT)
+		end
 	end
 end
 
@@ -110,14 +136,14 @@ function click.onStepIn(creature, item, position, fromPosition)
 		return true
 	end
 
-	if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) ~= 19 or Game.getStorageValue(Mission05) > 0 then
+	if not isEligibleForMission05Formation(player) or Game.getStorageValue(Mission05) > 0 then
 		return true
 	end
 
 	local players = {}
 	for i = 1, #config.positions do
 		local occupant = Tile(Position(config.positions[i])):getTopCreature()
-		if occupant and occupant:isPlayer() then
+		if occupant and occupant:isPlayer() and isEligibleForMission05Formation(occupant) then
 			players[#players + 1] = occupant
 		end
 	end

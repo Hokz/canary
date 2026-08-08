@@ -1,3 +1,9 @@
+-- REFERENCE_CONFLICT: HP/EXP below are the only values independently confirmed across multiple
+-- fetches of an accessible source. A higher figure (5000 HP / 2500 EXP) was raised during review
+-- but could not be independently corroborated here (tibia.fandom.com, tibiabosses.com, and
+-- guildstats.eu were all inaccessible from this environment). Kept at the lower, verified figure
+-- rather than guessing upward; does not affect quest completability (survival, not a kill,
+-- completes the mission). See LIZARD_GATE_GUARDIAN_REFERENCE_MATRIX in the PR body.
 local mType = Game.createMonsterType("Lizard Gate Guardian")
 local monster = {}
 
@@ -54,11 +60,9 @@ monster.light = {
 	color = 0,
 }
 
-monster.voices = {
-	interval = 5000,
-	chance = 10,
-	{ text = "Zzzhizzz!", yell = false },
-}
+-- No voice lines: at least one accessible source explicitly documents none for this monster,
+-- and no source confirmed any specific line - not inventing one.
+monster.voices = {}
 
 monster.loot = {
 	{ name = "gold coin", chance = 100000, maxCount = 48 },

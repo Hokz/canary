@@ -184,8 +184,15 @@ function questReward.onUse(player, item, fromPosition, itemEx, toPosition)
 		-- available for as long as the given storage holds the given value, instead of the
 		-- default one-time-only gate below. Additive only: entries without renewWhile (all
 		-- others using this shared dispatcher) are completely unaffected.
+		--
+		-- renewWhile.itemId (optional): when set, also requires current possession == 0.
+		-- player:getItemCount() only searches inventory + backpacks (Player::getItemTypeCount),
+		-- never the depot, so this cannot detect a stashed spare - but it closes the trivial case
+		-- of reopening the chest while still holding the item, which the storage-only check alone
+		-- does not prevent.
 		if setting.renewWhile then
-			if player:getStorageValue(setting.renewWhile.storage) ~= setting.renewWhile.value then
+			local renew = setting.renewWhile
+			if player:getStorageValue(renew.storage) ~= renew.value or (renew.itemId and player:getItemCount(renew.itemId) > 0) then
 				player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The " .. getItemName(setting.itemId) .. " is empty.")
 				return true
 			end

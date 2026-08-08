@@ -2486,8 +2486,10 @@ ChestUnique = {
 		-- independently confirmed, but it is sourced from the same storage room using the same
 		-- one-time-pickup pattern as Mission 3's Flask of Poison, which IS confirmed renewable
 		-- while its mission step is still active. Applying the same safe recovery here prevents
-		-- a permanent soft-lock if the oil is lost before it's used on the levers.
-		renewWhile = { storage = Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline, value = 13 },
+		-- a permanent soft-lock if the oil is lost before it's used on the levers. itemId gates
+		-- on current possession == 0 (inventory/backpacks only) so reopening the chest while
+		-- still holding the flask is blocked, same as Mission 3's poison fix.
+		renewWhile = { storage = Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline, value = 13, itemId = 10189 },
 	},
 	[6291] = {
 		itemId = 2472,
