@@ -89,22 +89,14 @@ local function summonWave(runToken, i)
 	local wave = config.waves[i]
 	if wave then
 		for _ = 1, wave.size do
-			local summonPosition = Position(
-				math.random(config.summonArea.from.x, config.summonArea.to.x),
-				math.random(config.summonArea.from.y, config.summonArea.to.y),
-				7
-			)
+			local summonPosition = Position(math.random(config.summonArea.from.x, config.summonArea.to.x), math.random(config.summonArea.from.y, config.summonArea.to.y), 7)
 			Game.createMonster(wave.monster, summonPosition)
 			summonPosition:sendMagicEffect(CONST_ME_TELEPORT)
 		end
 	end
 
 	if i == config.bossWaveIndex then
-		local bossPosition = Position(
-			math.random(config.summonArea.from.x, config.summonArea.to.x),
-			math.random(config.summonArea.from.y, config.summonArea.to.y),
-			7
-		)
+		local bossPosition = Position(math.random(config.summonArea.from.x, config.summonArea.to.x), math.random(config.summonArea.from.y, config.summonArea.to.y), 7)
 		Game.createMonster(config.boss, bossPosition)
 		bossPosition:sendMagicEffect(CONST_ME_TELEPORT)
 	end
@@ -118,10 +110,7 @@ function click.onStepIn(creature, item, position, fromPosition)
 		return true
 	end
 
-	if
-		player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) ~= 19
-		or Game.getStorageValue(Mission05) > 0
-	then
+	if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) ~= 19 or Game.getStorageValue(Mission05) > 0 then
 		return true
 	end
 
@@ -141,13 +130,7 @@ function click.onStepIn(creature, item, position, fromPosition)
 		return true
 	end
 
-	player:say(
-		"The army is complete again. You hear a hatch opening elsewhere, followed by a grinding sound.",
-		TALKTYPE_MONSTER_SAY,
-		false,
-		0,
-		Position(33261, 31081, 8)
-	)
+	player:say("The army is complete again. You hear a hatch opening elsewhere, followed by a grinding sound.", TALKTYPE_MONSTER_SAY, false, 0, Position(33261, 31081, 8))
 
 	local stair = Tile(config.stairPosition):getItemById(1897)
 	if stair then
