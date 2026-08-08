@@ -9,7 +9,14 @@ local function completeTest(cid)
 	if not player then
 		return false
 	end
-	if player:getStorageValue(TheNewFrontier.Questline) == 17 then
+	-- CONFIRMED BUG (found in review): this only checked Questline==17, which stays true even if the
+	-- player died during the 2-minute wait. Dying inside the arena respawns the player at their temple
+	-- far away, but the scheduled event still fired 2 minutes later and granted credit regardless -
+	-- "surviving" was never actually verified, only that 2 minutes of real time had passed. Requiring
+	-- the player to still be inside the arena area when the timer fires closes this: death (or any other
+	-- way of leaving) means the timer finds them elsewhere and the test silently fails instead of
+	-- granting a false pass. A legitimate survivor is still standing in the arena when the timer ends.
+	if player:getStorageValue(TheNewFrontier.Questline) == 17 and player:getPosition():getDistance(setting.arenaPosition) <= 3 then
 		player:teleportTo(setting.successPosition)
 		player:setStorageValue(TheNewFrontier.Questline, 18)
 		player:setStorageValue(TheNewFrontier.Mission06, 3) --Questlog, The New Frontier Quest "Mission 06: Days Of Doom"

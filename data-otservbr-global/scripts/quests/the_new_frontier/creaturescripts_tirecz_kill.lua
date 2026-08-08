@@ -7,7 +7,11 @@ local function clearArena()
 		spectator = spectators[i]
 		if spectator:isPlayer() then
 			spectator:teleportTo(exitPosition[2])
-			exitPosition[2]:sendMagicEffect(COsNST_ME_TELEPORT)
+			-- CONFIRMED BUG (found in review): typo'd constant (COsNST_ME_TELEPORT) resolved to nil and
+			-- errored out mid-loop, which meant any monster spawned in a wave that never got cleaned up
+			-- by the primary win-loop above (e.g. a straggler outside its spectator range) was never
+			-- swept by this fallback pass either, since the loop aborted on the first remaining entity.
+			exitPosition[2]:sendMagicEffect(CONST_ME_TELEPORT)
 		else
 			spectator:remove()
 		end

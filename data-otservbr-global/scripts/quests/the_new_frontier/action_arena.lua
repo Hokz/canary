@@ -52,14 +52,30 @@ end
 
 local theNewFrontierArena = Action()
 function theNewFrontierArena.onUse(player, item, fromPosition, target, toPosition, isHotkey)
+	-- CONFIRMED GAP (found in review): this only rejected players who had already FINISHED the fight
+	-- (Questline >= 26). It never checked that a platform occupant was actually eligible to be here in
+	-- the first place - Questline == 25 is set only after speaking to Chrak and agreeing to the poison
+	-- ("battle"/"yes"), which is the reference's real entry requirement. Without it, an uninvolved
+	-- bystander standing on the platform (deliberately or by accident) could be pulled into a lethal,
+	-- inescapable arena alongside a real participant, for no possible benefit to either of them, and
+	-- with no way for the bystander to ever be credited at Tirecz's death. The reference also states a
+	-- minimum level of 70, which was not checked anywhere in this quest.
 	for a = 1, #config.playerPos do
 		local creature = Tile(config.playerPos[a]):getTopCreature()
-		if not creature then
-			return false
+		if not creature or not creature:isPlayer() then
+			return player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Both platforms must be occupied by players.")
 		end
 
 		if creature:getStorageValue(TheNewFrontier.Questline) >= 26 then
 			return player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already finished this battle.")
+		end
+
+		if creature:getStorageValue(TheNewFrontier.Questline) ~= 25 then
+			return player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Both competitors must have agreed to the tournament with Chrak first.")
+		end
+
+		if creature:getLevel() < 70 then
+			return player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Both competitors must be at least level 70.")
 		end
 	end
 

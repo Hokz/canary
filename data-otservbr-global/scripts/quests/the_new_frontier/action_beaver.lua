@@ -10,7 +10,10 @@ local TheNewFrontier = Storage.Quest.U8_54.TheNewFrontier
 local beaverTrees = Action()
 
 function beaverTrees.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if toPosition == config.treesBeaver[1] or toPosition == config.treesBeaver[2] or toPosition == config.treesBeaver[3] and player:getStorageValue(TheNewFrontier.Questline) == 5 then
+	-- CONFIRMED BUG (found in review): `and` binds tighter than `or` in Lua, so this previously read as
+	-- "tree1 OR tree2 OR (tree3 AND Questline==5)" - the Questline gate silently applied to tree3 only.
+	-- Parenthesized so all three trees require Questline==5, matching Mission 02's actual active window.
+	if (toPosition == config.treesBeaver[1] or toPosition == config.treesBeaver[2] or toPosition == config.treesBeaver[3]) and player:getStorageValue(TheNewFrontier.Questline) == 5 then
 		if toPosition == config.treesBeaver[1] and player:getStorageValue(TheNewFrontier.Mission02.Beaver1) < 1 then
 			for i = 1, 3 do
 				position = toPosition
