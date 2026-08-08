@@ -15,7 +15,9 @@ function beaverTrees.onUse(player, item, fromPosition, target, toPosition, isHot
 	-- Parenthesized so all three trees require Questline==5, matching Mission 02's actual active window.
 	if (toPosition == config.treesBeaver[1] or toPosition == config.treesBeaver[2] or toPosition == config.treesBeaver[3]) and player:getStorageValue(TheNewFrontier.Questline) == 5 then
 		if toPosition == config.treesBeaver[1] and player:getStorageValue(TheNewFrontier.Mission02.Beaver1) < 1 then
-			for i = 1, 3 do
+			-- CONFIRMED BUG (found in review): reference confirms 4 Enraged Squirrels at this tree
+			-- (32515, 31927, 7), not 3.
+			for i = 1, 4 do
 				position = toPosition
 				Game.createMonster("enraged squirrel", position)
 				toPosition:sendMagicEffect(CONST_ME_TELEPORT)
@@ -23,7 +25,9 @@ function beaverTrees.onUse(player, item, fromPosition, target, toPosition, isHot
 			player:setStorageValue(TheNewFrontier.Mission02.Beaver1, 1)
 			player:say("You have marked the tree, but you also angered the aquirrel family who lived on it!", TALKTYPE_MONSTER_SAY)
 		elseif toPosition == config.treesBeaver[2] and player:getStorageValue(TheNewFrontier.Mission02.Beaver2) < 1 then
-			for i = 1, 5 do
+			-- CONFIRMED BUG (found in review): reference confirms 4 Wolves + 1 War Wolf at this tree
+			-- (32474, 31947, 7), not 5 Wolves + 1 War Wolf.
+			for i = 1, 4 do
 				position = toPosition
 				Game.createMonster("wolf", position)
 				toPosition:sendMagicEffect(CONST_ME_TELEPORT)

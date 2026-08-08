@@ -16,6 +16,14 @@ local function completeTest(cid)
 	-- the player to still be inside the arena area when the timer fires closes this: death (or any other
 	-- way of leaving) means the timer finds them elsewhere and the test silently fails instead of
 	-- granting a false pass. A legitimate survivor is still standing in the arena when the timer ends.
+	--
+	-- getDistance DOES include the z-axis, verified against the engine rather than assumed:
+	-- PositionFunctions::luaPositionGetDistance (src/lua/functions/map/position_functions.cpp:115-121)
+	-- returns max(abs(dx), abs(dy), abs(dz)) - a floor change respawning the player elsewhere pushes
+	-- this over the threshold on its own, on top of the near-certain x/y difference from any real
+	-- temple. A single <= 3 check on this value is therefore already at least as strict as a separate
+	-- "same floor AND within range" check would be, since it requires all three deltas to be small
+	-- simultaneously.
 	if player:getStorageValue(TheNewFrontier.Questline) == 17 and player:getPosition():getDistance(setting.arenaPosition) <= 3 then
 		player:teleportTo(setting.successPosition)
 		player:setStorageValue(TheNewFrontier.Questline, 18)
