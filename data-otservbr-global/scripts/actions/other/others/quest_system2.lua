@@ -364,7 +364,16 @@ function questSystem2.onUse(player, item, fromPosition, target, toPosition, isHo
 		return true
 	end
 
-	if (useItem.time and player:getStorageValue(useItem.storage) > os.time()) or player:getStorageValue(useItem.storage) ~= (useItem.formerValue or -1) then
+	local blocked
+	if useItem.time then
+		-- Time-gated spots (e.g. The Ape City's Witches' Cap Spot) are renewable: only the
+		-- cooldown matters, a prior use must not permanently lock the spot.
+		blocked = player:getStorageValue(useItem.storage) > os.time()
+	else
+		blocked = player:getStorageValue(useItem.storage) ~= (useItem.formerValue or -1)
+	end
+
+	if blocked then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The " .. ItemType(item.itemid):getName() .. " is empty.")
 		return true
 	end
