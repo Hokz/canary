@@ -49,20 +49,16 @@ end
 
 local gate = Action()
 function gate.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	local wall = Tile(Position(32864, 32556, 11)):getItemById(1563)
+	-- CONFIRMED BUG (found in review): the loop returned on the FIRST unpulled lever it found,
+	-- and if the item used was the uid=1041 lever, it called wallRemove right there regardless
+	-- of the other 6 levers - letting a player skip the whole puzzle by using this lever first.
+	-- Both physical lever#2 objects (uid 1040 and 1041) must require all 6 other levers pulled.
 	for i = 1, #config do
-		local table = config[i]
-		if Tile(table.leverpos):getItemById(2772) then
-			if item.uid == 1041 then
-				wallRemove(player, item)
-				return true
-			end
+		if Tile(config[i].leverpos):getItemById(2772) then
 			return player:say("It doesn't move.", TALKTYPE_MONSTER_SAY)
-		elseif i == #config then
-			wallRemove(player, item)
-			return true
 		end
 	end
+	wallRemove(player, item)
 	return true
 end
 
