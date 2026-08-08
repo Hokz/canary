@@ -7,10 +7,22 @@ local boss = {
 
 local wrathEmperorMiss10Message = Action()
 function wrathEmperorMiss10Message.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if boss[target.uid] and target.itemid == 11427 then
+	local aspect = boss[target.uid]
+	if aspect and target.itemid == 11427 then
+		-- CONFIRMED BUG (found in review): this transformed the crystal and set the GLOBAL boss storage
+		-- to 1 before knowing whether the monster was actually created. Game.createMonster returns nil
+		-- on failure (bad name, blocked tile, no free position), which left the encounter permanently
+		-- stuck server-wide: crystal already at 10797 so the sceptre no longer matches 11427, storage
+		-- latched at 1, and no boss alive to run creaturescripts_bosses_kill.lua and reset either one.
+		-- Now transactional: create first, and only commit the two side effects once a monster exists.
+		local monster = Game.createMonster(aspect.name, { x = toPosition.x + 4, y = toPosition.y, z = toPosition.z })
+		if not monster then
+			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The presence of the emperor resists your call. Try again in a moment.")
+			return true
+		end
+
 		target:transform(10797)
-		Game.createMonster(boss[target.uid].name, { x = toPosition.x + 4, y = toPosition.y, z = toPosition.z })
-		Game.setStorageValue(boss[target.uid].storage, 1)
+		Game.setStorageValue(aspect.storage, 1)
 	elseif target.itemid == 11361 then
 		if toPosition.x > 33034 and toPosition.x < 33071 and toPosition.y > 31079 and toPosition.y < 31102 then
 			if player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.BossStatus) == 1 then

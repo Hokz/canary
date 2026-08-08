@@ -12,3 +12,6 @@ dofile(DATA_DIRECTORY .. "/lib/quests/a_pirates_tail.lua")
 dofile(DATA_DIRECTORY .. "/lib/quests/measuring_tibia_areas.lua")
 dofile(DATA_DIRECTORY .. "/lib/quests/measuring_tibia.lua")
 dofile(DATA_DIRECTORY .. "/lib/quests/kilmaresh.lua")
+-- children_tasks must load before zzuppliezz.lua, which registers itself into it.
+dofile(DATA_DIRECTORY .. "/lib/quests/children_tasks.lua")
+dofile(DATA_DIRECTORY .. "/lib/quests/zzuppliezz.lua")

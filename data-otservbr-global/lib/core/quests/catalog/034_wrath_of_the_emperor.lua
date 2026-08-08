@@ -80,7 +80,11 @@ local quest = {
 			startValue = 0,
 			endValue = 5,
 			description = function(player)
-				return string.format("Kill four Magistrati in the office building. Then report back to Zlak. You have killed %d magistrati so far.", (math.max(player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission06), 1)))
+				-- The kill counter is stored offset by one: 0 = mission started, first real kill = 2,
+				-- fourth (final) real kill = 5 = endValue. The questlog must show REAL kills, so the
+				-- raw value is shifted back. Unset storage (-1) and the initial 0 both clamp to 0.
+				local realKills = math.max(player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission06) - 1, 0)
+				return string.format("Kill four Magistrati in the office building. Then report back to Zlak. You have killed %d magistrati so far.", realKills)
 			end,
 		},
 		[7] = {
@@ -90,7 +94,9 @@ local quest = {
 			startValue = 0,
 			endValue = 7,
 			description = function(player)
-				return string.format("Kill six nobles in the city and report back to Zlak. You have killed %d nobles so far.", (math.max(player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission07), 0)))
+				-- Same one-based offset as Mission 06: first real kill = 2, sixth (final) = 7 = endValue.
+				local realKills = math.max(player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission07) - 1, 0)
+				return string.format("Kill six nobles in the city and report back to Zlak. You have killed %d nobles so far.", realKills)
 			end,
 		},
 		[8] = {
