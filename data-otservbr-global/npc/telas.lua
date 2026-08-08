@@ -69,7 +69,18 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("You are starting this discussion again? Why should I listen to you this time, do you have anything to convince me to let you even try?", npc, creature)
 			npcHandler:setTopic(playerId, 2)
 		end
-	elseif MsgContains(message, "reason") or MsgContains(message, "flatter") and player:getStorageValue(TheNewFrontier.Mission05.TelasKeyword) <= 2 and player:getStorageValue(TheNewFrontier.Mission05.Telas) == 1 then
+	-- CONFIRMED BUG (found in review): two separate defects.
+	--   1) `and` binds tighter than `or`, so this previously read as
+	--      "reason OR (flatter AND TelasKeyword<=2 AND Telas==1)" - saying "reason" entered this branch
+	--      regardless of state. Fixed by parenthesizing so both words require the same state.
+	--   2) TelasKeyword was unconditionally bumped to 3 at the end of this branch, even on a MISMATCHED
+	--      guess (e.g. TelasKeyword==2 requiring "flatter" but the player said "reason"). That silently
+	--      unlocked the "plea" branch below with zero cost, bypassing the Universal Tool requirement
+	--      entirely - the reference is explicit that "plea" only becomes the safe answer AFTER delivering
+	--      the item ("po oddaniu przedmiotu, warto uzyc slowa plea"). The bump is removed from here; a
+	--      mismatched guess now falls through to the shared "Wrong Word" handler like every other NPC in
+	--      this mission, and TelasKeyword is set to 3 only where the item is actually verified below.
+	elseif (MsgContains(message, "reason") or MsgContains(message, "flatter")) and player:getStorageValue(TheNewFrontier.Mission05.TelasKeyword) <= 2 and player:getStorageValue(TheNewFrontier.Mission05.Telas) == 1 then
 		if npcHandler:getTopic(playerId) == 1 then
 			if MsgContains(message, "reason") and player:getStorageValue(TheNewFrontier.Mission05.TelasKeyword) == 1 then
 				npcHandler:say("Well it sounds like a good idea to test my golems in some real environment. I think it is acceptable to send some of them to Farmine.", npc, creature)
@@ -77,8 +88,10 @@ local function creatureSayCallback(npc, creature, type, message)
 			elseif MsgContains(message, "flatter") and player:getStorageValue(TheNewFrontier.Mission05.TelasKeyword) == 2 then
 				npcHandler:say("Well, of course my worker golems are quite usefull and it might indeed be a good idea to see who they operate on realistic conditions. I will send some to farmine soon.", npc, creature)
 				player:setStorageValue(TheNewFrontier.Mission05.Telas, 3)
+			else
+				npcHandler:say("Wrong Word.", npc, creature)
+				player:setStorageValue(TheNewFrontier.Mission05.Telas, 2)
 			end
-			player:setStorageValue(TheNewFrontier.Mission05.TelasKeyword, 3)
 		end
 	elseif MsgContains(message, "plea") and player:getStorageValue(TheNewFrontier.Mission05.TelasKeyword) == 3 and player:getStorageValue(TheNewFrontier.Mission05.Telas) == 1 then
 		if npcHandler:getTopic(playerId) == 1 then
@@ -90,6 +103,9 @@ local function creatureSayCallback(npc, creature, type, message)
 			if player:getStorageValue(TheNewFrontier.Mission05.Telas) == 2 and player:removeItem(10027, 1) then
 				npcHandler:say("Oh how nice of you. I might have misjudged you. So let us return to this matter of worker golems. Do you have any better arguments this time?", npc, creature)
 				player:setStorageValue(TheNewFrontier.Mission05.Telas, 1)
+				-- The item is the guaranteed-success signal per the reference ("po oddaniu przedmiotu,
+				-- warto uzyc slowa plea"), so "plea" becomes the valid retry word only from this point.
+				player:setStorageValue(TheNewFrontier.Mission05.TelasKeyword, 3)
 				npcHandler:setTopic(playerId, 1)
 			end
 		end
