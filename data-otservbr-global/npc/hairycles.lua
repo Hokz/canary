@@ -213,7 +213,7 @@ local function creatureSayCallback(npc, creature, type, message)
 		end
 	elseif MsgContains(message, "outfit") or MsgContains(message, "shamanic") then
 		if questProgress == 18 then
-			if player:getStorageValue(Storage.Quest.U7_6.TheApeCity.ShamanOutfit) ~= 1 then
+			if player:getStorageValue(Storage.Quest.U7_6.TheApeCity.ShamanOufit) ~= 1 then
 				npcHandler:say("Me truly proud of you, friend. You learn many about plants, charms and ape people. Me want grant you shamanic power now. You ready?", npc, creature)
 				npcHandler:setTopic(playerId, 18)
 			else
@@ -455,7 +455,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("Friend of the ape people! Take my gift and become me apprentice! Here is shaman clothing for you!", npc, creature)
 			player:addOutfit(154)
 			player:addOutfit(158)
-			player:setStorageValue(Storage.Quest.U7_6.TheApeCity.ShamanOutfit, 1)
+			player:setStorageValue(Storage.Quest.U7_6.TheApeCity.ShamanOufit, 1)
 			player:getPosition():sendMagicEffect(CONST_ME_MAGIC_BLUE)
 		elseif MsgContains(message, "no") then
 			npcHandler:say("Come back if change mind.", npc, creature)
