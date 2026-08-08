@@ -2482,6 +2482,12 @@ ChestUnique = {
 		reward = { { 10189, 1 } },
 		weight = 2.00,
 		storage = Storage.Quest.U8_54.ChildrenOfTheRevolution.FlaskOfExtraGreasyOil,
+		-- CUSTOM_GLOBAL_LIKE_RECOVERY: exact Global renewability for this specific flask is not
+		-- independently confirmed, but it is sourced from the same storage room using the same
+		-- one-time-pickup pattern as Mission 3's Flask of Poison, which IS confirmed renewable
+		-- while its mission step is still active. Applying the same safe recovery here prevents
+		-- a permanent soft-lock if the oil is lost before it's used on the levers.
+		renewWhile = { storage = Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline, value = 13 },
 	},
 	[6291] = {
 		itemId = 2472,

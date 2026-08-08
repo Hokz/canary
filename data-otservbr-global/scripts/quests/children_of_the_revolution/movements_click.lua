@@ -13,20 +13,50 @@ local config = {
 		from = Position(33252, 31105, 7),
 		to = Position(33288, 31134, 7),
 	},
+	-- CONFIRMED (owner PDF main spoiler + TibiaWiki, corroborated by the PDF comment noting a
+	-- "Lizard Gate Guardian" encounter during this mission): 10-minute survival, waves every
+	-- minute, early waves are eternal guardians, later waves are lizard chosen, and the boss
+	-- (Lizard Gate Guardian) spawns additionally at minute 8.
 	waves = {
 		{ monster = "eternal guardian", size = 20 },
 		{ monster = "eternal guardian", size = 20 },
 		{ monster = "eternal guardian", size = 20 },
+		{ monster = "eternal guardian", size = 20 },
+		{ monster = "lizard chosen", size = 20 },
+		{ monster = "lizard chosen", size = 20 },
+		{ monster = "lizard chosen", size = 20 },
+		{ monster = "lizard chosen", size = 20 },
+		{ monster = "lizard chosen", size = 20 },
 		{ monster = "lizard chosen", size = 20 },
 	},
+	bossWaveIndex = 8,
+	boss = "lizard gate guardian",
+	survivalDuration = 10 * 60 * 1000,
 }
 
-function doClearMissionArea()
-	Game.setStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Mission05, -1)
+local Mission05 = Storage.Quest.U8_54.ChildrenOfTheRevolution.Mission05
 
-	local spectators, spectator = Game.getSpectators(config.areaCenter, false, true, 26, 26, 20, 20)
+-- Session-safe: this arena is shared physical map state, not a per-player instance. Each
+-- formation start gets a unique, monotonically increasing run token (module-level counter,
+-- zero collision risk) so a stale callback from an earlier, already-finished or abandoned
+-- attempt can never affect a later attempt sharing this same room - the same pattern used for
+-- The New Frontier's Mortal Combat arena.
+local currentRunToken = 0
+
+local function isCurrentRun(runToken)
+	return runToken > 0 and Game.getStorageValue(Mission05) == runToken
+end
+
+local function doClearMissionArea(runToken)
+	if not isCurrentRun(runToken) then
+		return
+	end
+
+	Game.setStorageValue(Mission05, -1)
+
+	local spectators = Game.getSpectators(config.areaCenter, false, true, 26, 26, 20, 20)
 	for i = 1, #spectators do
-		spectator = spectators[i]
+		local spectator = spectators[i]
 		if spectator:isPlayer() then
 			spectator:teleportTo(config.zalamonPosition)
 			spectator:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
@@ -40,21 +70,43 @@ function doClearMissionArea()
 	return true
 end
 
-local function removeStairs()
+local function removeStairs(runToken)
+	if not isCurrentRun(runToken) then
+		return
+	end
+
 	local stair = Tile(config.stairPosition):getItemById(1977)
 	if stair then
 		stair:transform(1897)
 	end
 end
 
-local function summonWave(i)
+local function summonWave(runToken, i)
+	if not isCurrentRun(runToken) then
+		return
+	end
+
 	local wave = config.waves[i]
 	if wave then
-		for i = 1, wave.size do
-			local summonPosition = Position(math.random(config.summonArea.from.x, config.summonArea.to.x), math.random(config.summonArea.from.y, config.summonArea.to.y), 7)
+		for _ = 1, wave.size do
+			local summonPosition = Position(
+				math.random(config.summonArea.from.x, config.summonArea.to.x),
+				math.random(config.summonArea.from.y, config.summonArea.to.y),
+				7
+			)
 			Game.createMonster(wave.monster, summonPosition)
 			summonPosition:sendMagicEffect(CONST_ME_TELEPORT)
 		end
+	end
+
+	if i == config.bossWaveIndex then
+		local bossPosition = Position(
+			math.random(config.summonArea.from.x, config.summonArea.to.x),
+			math.random(config.summonArea.from.y, config.summonArea.to.y),
+			7
+		)
+		Game.createMonster(config.boss, bossPosition)
+		bossPosition:sendMagicEffect(CONST_ME_TELEPORT)
 	end
 end
 
@@ -66,15 +118,18 @@ function click.onStepIn(creature, item, position, fromPosition)
 		return true
 	end
 
-	if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) ~= 19 or Game.getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Mission05) == 1 then
+	if
+		player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) ~= 19
+		or Game.getStorageValue(Mission05) > 0
+	then
 		return true
 	end
 
 	local players = {}
 	for i = 1, #config.positions do
-		local creature = Tile(Position(config.positions[i])):getTopCreature()
-		if creature and creature:isPlayer() then
-			players[#players + 1] = creature
+		local occupant = Tile(Position(config.positions[i])):getTopCreature()
+		if occupant and occupant:isPlayer() then
+			players[#players + 1] = occupant
 		end
 	end
 
@@ -86,19 +141,28 @@ function click.onStepIn(creature, item, position, fromPosition)
 		return true
 	end
 
-	player:say("The army is complete again. You hear a hatch opening elsewhere, followed by a grinding sound.", TALKTYPE_MONSTER_SAY, false, 0, Position(33261, 31081, 8))
+	player:say(
+		"The army is complete again. You hear a hatch opening elsewhere, followed by a grinding sound.",
+		TALKTYPE_MONSTER_SAY,
+		false,
+		0,
+		Position(33261, 31081, 8)
+	)
 
 	local stair = Tile(config.stairPosition):getItemById(1897)
 	if stair then
 		stair:transform(1977)
 	end
-	Game.setStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Mission05, 1)
+
+	currentRunToken = currentRunToken + 1
+	local runToken = currentRunToken
+	Game.setStorageValue(Mission05, runToken)
 
 	for wave = 1, #config.waves do
-		addEvent(summonWave, wave * 30 * 1000, wave)
+		addEvent(summonWave, wave * 60 * 1000, runToken, wave)
 	end
-	addEvent(removeStairs, 30 * 1000)
-	addEvent(doClearMissionArea, 5 * 30 * 1000)
+	addEvent(removeStairs, 30 * 1000, runToken)
+	addEvent(doClearMissionArea, config.survivalDuration, runToken)
 	return true
 end
 

@@ -180,7 +180,16 @@ function questReward.onUse(player, item, fromPosition, itemEx, toPosition)
 			return true
 		end
 	else
-		if player:getStorageValue(setting.storage) >= 1 then
+		-- CUSTOM_GLOBAL_LIKE_RECOVERY: optional per-entry override. When set, a chest stays
+		-- available for as long as the given storage holds the given value, instead of the
+		-- default one-time-only gate below. Additive only: entries without renewWhile (all
+		-- others using this shared dispatcher) are completely unaffected.
+		if setting.renewWhile then
+			if player:getStorageValue(setting.renewWhile.storage) ~= setting.renewWhile.value then
+				player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The " .. getItemName(setting.itemId) .. " is empty.")
+				return true
+			end
+		elseif player:getStorageValue(setting.storage) >= 1 then
 			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The " .. getItemName(setting.itemId) .. " is empty.")
 			return true
 		end
