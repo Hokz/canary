@@ -7,31 +7,40 @@
 --     completion sequence, first-completion achievement, and the four owner reward groups per
 --     vocation - OWNER REFERENCE (Children of the Revolution PDF, Task 3 "Collect").
 --   * 20-hour repeat interval - CURRENT TIBIA / CipSoft patch evidence (bounded research).
+--   * FORBIDDEN_FRUIT_AVAILABILITY = REFERENCE_CONFLICT: the owner reference shows Forbidden Fruit
+--     starting at Chartan after the WOTE Mission 05 handoff, but external sources disagree with
+--     each other on the exact progression boundary (one says "after WOTE has started", another
+--     says "only after WOTE is completed"; the confirmed CipSoft patch establishes Chartan as the
+--     contractor and the 20h interval but doesn't resolve this). ForbiddenFruit.REQUIRED_CHILDREN_
+--     QUESTLINE plus ChildrenTasks.hasWoteHandoffOccurred (checked in npc/chartan.lua, not in this
+--     file) implements the OWNER REFERENCE reading (WrathOfTheEmperor.Questline >= 13) as this
+--     project's authoritative implementation contract - labeled OWNER_REFERENCE_IMPLEMENTATION, not
+--     claimed as an independently Global-exact match.
 --   * The seven sample item ids - PROJECT DATA (items.xml, resolved by exact name).
 --   * Equal-probability reward group selection - NOT independently proven; bounded research found
 --     no documented exact distribution. CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REWARD_PROBABILITY.
 --   * The reward group is selected once and persisted for the run (KEY_REWARD_GROUP below) rather
 --     than re-rolled on every report attempt, so a player cannot deliberately induce a delivery
 --     failure (e.g. a full inventory) to re-roll for a more convenient group.
---   * PARTIALLY MAP_REQUIRED: 3 of the 7 physical plant/seed source objects. Three audit rounds:
---     round 1 incorrectly searched the OTBM for the seven SAMPLE item ids (12229-12235) - those are
---     the OUTPUT items a plant grants, not the plants themselves, so their absence from the map
---     proved nothing and that conclusion was withdrawn. Round 2 re-audited seven externally-
---     referenced plant coordinates with a +/-5 tile neighborhood scan at each and required LOCAL
---     uniqueness; round 3 relaxed that specifically where habitat corroboration exists, since the
---     reference documents plant locations, not single globally-unique objects. Sprocketwhip (item
---     10718), Carnivortex (10716), Toxic Tulip (10717), and Witherstem (10715) are PROVEN - wired
---     below via actions_forbidden_fruit_collect.lua. The remaining 3 markers still don't clear the
---     bar even under the relaxed standard: Screaming Cherry Tree's marker contains a categorically
---     mismatched object (a "solstice tree", a distinct winter-event decoration), Rotten Witches'
---     Cauldron Plant's marker contains an item independently confirmed (via its dozens of
---     straight-line-aligned occurrences throughout the whole Zao region) to be a generic hedge-ROW
---     border decoration rather than an individual plant, and Wraithtongue's externally-suggested id
---     does not appear anywhere in or near the documented area - only in a distant, differently-
---     themed decoration cluster and scattered unrelated regions/floors across the whole map. See
---     the PR body for the full 7-position audit matrix. Collecting the 4 wired samples is necessary
---     but not sufficient - ForbiddenFruit.hasCollectedAll still requires all 7, so the task remains
---     uncompletable until the other 3 anchors are proven.
+--   * PARTIALLY MAP_REQUIRED: 1 of the 7 physical plant/seed source objects. Four audit rounds
+--     progressively corrected earlier errors: round 1 incorrectly searched the OTBM for the seven
+--     SAMPLE item ids (12229-12235) instead of the plants themselves; round 2 required each plant
+--     to be the ONLY instance of its item id within a +/-5 tile radius of its marker; round 3
+--     relaxed that for Witherstem once habitat corroboration existed; round 4 corrected the Rotten
+--     Witches' Cauldron identity (the marker tile holds a proven hedge-row/border decoration, not
+--     the plant - the real Rotten Plant object sits one tile away) and accepted Wraithtongue's
+--     externally-confirmed identity at a reachable instance within the documented task area rather
+--     than requiring it to sit on the exact marker tile. Sprocketwhip (10718), Carnivortex (10716),
+--     Toxic Tulip (10717), Witherstem (10715), Rotten Plant (9886), and Wraithtongue (10720) are
+--     PROVEN - wired below via actions_forbidden_fruit_collect.lua. Screaming Cherry Tree is the
+--     one remaining sample: its marker resolves to item 10000, which a full-map check shows is the
+--     generic background tree used at ~40 different positions throughout the entire Northern Zao
+--     region (not a distinctively-placed quest object), and no better candidate was found in a
+--     final bounded search of the marker's neighborhood, the wider task route, and every other
+--     unnamed object nearby. See the PR body for the full 7-position audit matrix and Screaming
+--     Cherry Tree's manual map manifest. Collecting the 6 wired samples is necessary but not
+--     sufficient - ForbiddenFruit.hasCollectedAll still requires all 7, so the task remains
+--     uncompletable until Screaming Cherry Tree's anchor is proven.
 
 ForbiddenFruit = ForbiddenFruit or {}
 
@@ -164,11 +173,16 @@ function ForbiddenFruit.canAccept(player)
 	return not ForbiddenFruit.isActive(player) and ForbiddenFruit.cooldownRemaining(player) == 0
 end
 
+---Starts a NEW run. Refuses to touch an already-active run - matching Zzuppliezz.start()'s
+---invariant - so per-run collection/consumption progress and ORIGIN can never be reset or rewritten
+---mid-run, even if a future caller is added later. There is no restart/abandon behavior here; this
+---is purely a defensive guard, since canAccept() already prevents this from being reachable through
+---the current dialogue.
 ---@param player Player
 ---@param origin string
 ---@return boolean
 function ForbiddenFruit.start(player, origin)
-	if not player then
+	if not player or ForbiddenFruit.isActive(player) then
 		return false
 	end
 

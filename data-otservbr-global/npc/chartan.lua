@@ -87,10 +87,12 @@ local function creatureSayCallback(npc, creature, type, message)
 		elseif ChildrenTasks.hasWoteHandoffOccurred(player) then
 			npcHandler:say("I have tazkz for zoze willing to help furzer. Azk about {zzuppliezz} to zupply our warriorz, or {collect} zamplez if you want to earn zomezing extra.", npc, creature)
 		end
-		-- Pre-handoff, Chartan has no tasks to offer yet - Zalamon is still the contractor for all
-		-- three, including Forbidden Fruit (the owner reference starts "Collect" at Chartan only
-		-- after the WOTE Mission 05 handoff, not merely once Chartan's own rebel-camp access is
-		-- reached).
+		-- Pre-handoff, Chartan has no tasks to offer yet - Zalamon is the contractor for Zzuppliezz
+		-- and Zze Art of War until then. Forbidden Fruit is never offered by Zalamon at all: it is
+		-- intentionally unavailable until this project's owner-reference handoff boundary
+		-- (FORBIDDEN_FRUIT_AVAILABILITY = REFERENCE_CONFLICT; see lib/quests/forbidden_fruit.lua
+		-- PROVENANCE and the PR body for the owner-reference-vs-external-source discussion), not
+		-- merely once Chartan's own rebel-camp access is reached.
 	elseif MsgContains(message, "zzuppliezz") or MsgContains(message, "supplies") then
 		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or not ChildrenTasks.hasWoteHandoffOccurred(player) then
 			-- Not offered before Children is finished, or before the WOTE Mission 05 handoff -
@@ -139,10 +141,13 @@ local function creatureSayCallback(npc, creature, type, message)
 		end
 	elseif MsgContains(message, "collect") then
 		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or not ChildrenTasks.hasWoteHandoffOccurred(player) then
-			-- Not offered before Children is finished, or before the WOTE Mission 05 handoff - like
-			-- Zzuppliezz and Zze Art of War, Forbidden Fruit is a POST-handoff Chartan task per the
-			-- owner reference, not available merely because Chartan's own rebel-camp access
-			-- (TeleportAccess.Rebel) was reached.
+			-- Not offered before Children is finished, or before the WOTE Mission 05 handoff. The
+			-- owner reference makes Forbidden Fruit a POST-handoff Chartan task, not available
+			-- merely because Chartan's own rebel-camp access (TeleportAccess.Rebel) was reached.
+			-- External sources conflict on the exact progression boundary
+			-- (FORBIDDEN_FRUIT_AVAILABILITY = REFERENCE_CONFLICT) - this project follows the owner
+			-- reference as its authoritative implementation contract (OWNER_REFERENCE_IMPLEMENTATION),
+			-- not a claimed Global-exact match. See lib/quests/forbidden_fruit.lua PROVENANCE.
 		elseif ForbiddenFruit.isActive(player) then
 			local reason = ForbiddenFruit.blockingReason(player)
 			if reason == "collect" then
