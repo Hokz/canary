@@ -1,25 +1,17 @@
 local childrenMission3 = Action()
 
 function childrenMission3.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	-- CONFIRMED (bounded research): the Flask of Poison is renewable from this storage room for
-	-- as long as Mission 3 is still active and the poison hasn't been used yet - losing it must
-	-- not permanently block the mission. Questline 9 = mission accepted, not yet picked up.
-	-- Questline 10 = already picked up once, not yet poured (i.e. lost and needs a replacement).
-	--
-	-- CONFIRMED BUG (found in review): the flask (item 10183) has no moveable="0" attribute, so
-	-- it can be dropped/traded/deposited like any other item, and player:getItemCount() only
-	-- searches inventory + backpacks (Player::getItemTypeCount, player.cpp) - never the depot.
-	-- Gating on Questline alone let a player holding the flask simply reopen the chest and get a
-	-- second one with no loss at all. Requiring possession == 0 closes that trivial case. A
-	-- player who deposits the flask in their depot could still, in principle, obtain a second
-	-- copy this way, but it buys them nothing: only one flask is ever consumable (the pour action
-	-- requires Questline == 10 exactly and advances it to 11 on success), so a stashed spare is
-	-- permanently inert quest clutter, not a farmable resource.
-	local questline = player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline)
-	if (questline == 9 or questline == 10) and player:getItemCount(10183) == 0 then
-		if questline == 9 then
-			player:setStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline, 10)
-		end
+	-- REVERTED (found in review): an earlier revision made this renewable while Questline == 9
+	-- or 10 to protect against a lost flask, gated only by player:getItemCount() == 0. That check
+	-- only searches inventory/backpacks (Player::getItemTypeCount, player.cpp) - never the depot
+	-- - and both the Flask of Poison and Flask of Extra Greasy Oil are confirmed tradeable/
+	-- marketable, so a player could stash or trade away a "spare" and farm unlimited copies to
+	-- transfer to other characters. No reliable source proves this chest is renewable after loss
+	-- in the first place (LOST ITEM SOURCE RECOVERY: NOT_PROVEN FROM QUEST SOURCE - walkthroughs
+	-- only describe a single pickup). Restored the original one-time gate rather than ship a
+	-- speculative, exploitable recovery mechanism.
+	if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) == 9 then
+		player:setStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline, 10)
 		player:addItem(10183, 1)
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have found a flask of poison.")
 	else

@@ -2477,19 +2477,16 @@ ChestUnique = {
 		storage = Storage.Quest.U8_54.ChildrenOfTheRevolution.ChestTomeOfKnowledge1,
 	},
 	[6290] = {
+		-- REVERTED (found in review): a prior revision added renewWhile to protect against a lost
+		-- flask, but the item is confirmed tradeable/marketable and the possession check only
+		-- covers inventory/backpacks, not the depot - so it was farmable. No reliable source
+		-- proves this chest is renewable after loss (LOST ITEM SOURCE RECOVERY: NOT_PROVEN FROM
+		-- QUEST SOURCE). Restored the standard one-time gate.
 		itemId = 1895,
 		itemPos = { x = 33327, y = 31410, z = 8 },
 		reward = { { 10189, 1 } },
 		weight = 2.00,
 		storage = Storage.Quest.U8_54.ChildrenOfTheRevolution.FlaskOfExtraGreasyOil,
-		-- CUSTOM_GLOBAL_LIKE_RECOVERY: exact Global renewability for this specific flask is not
-		-- independently confirmed, but it is sourced from the same storage room using the same
-		-- one-time-pickup pattern as Mission 3's Flask of Poison, which IS confirmed renewable
-		-- while its mission step is still active. Applying the same safe recovery here prevents
-		-- a permanent soft-lock if the oil is lost before it's used on the levers. itemId gates
-		-- on current possession == 0 (inventory/backpacks only) so reopening the chest while
-		-- still holding the flask is blocked, same as Mission 3's poison fix.
-		renewWhile = { storage = Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline, value = 13, itemId = 10189 },
 	},
 	[6291] = {
 		itemId = 2472,

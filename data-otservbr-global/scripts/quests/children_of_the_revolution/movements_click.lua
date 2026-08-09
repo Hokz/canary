@@ -37,6 +37,11 @@ local config = {
 	},
 	bossWaveIndex = 8,
 	boss = "lizard gate guardian",
+	-- CONFIRMED (bounded external research, cross-checked read-only against the exact configured
+	-- OTBM): a fixed spawn tile near the great gate. The tile sits exactly on the edge of this
+	-- file's own summonArea (y = 31105 = summonArea.from.y) and is confirmed walkable outdoor
+	-- terrain (rock ground + jungle grass, no blocking object) - not guessed.
+	bossPosition = Position(33261, 31105, 7),
 	survivalDuration = 10 * 60 * 1000,
 }
 
@@ -112,18 +117,17 @@ local function summonWave(runToken, i)
 	end
 
 	if i == config.bossWaveIndex then
-		-- No source proves a fixed boss spawn tile, so it stays randomized within the same
-		-- summonArea used for every other wave - but unlike the regular waves (where a handful
-		-- of failed spawns out of 20 is inconsequential), the boss is a named, singular monster,
-		-- so its creation is checked and retried once before giving up silently.
-		local bossPosition = Position(math.random(config.summonArea.from.x, config.summonArea.to.x), math.random(config.summonArea.from.y, config.summonArea.to.y), 7)
-		local boss = Game.createMonster(config.boss, bossPosition)
-		if not boss then
-			bossPosition = Position(math.random(config.summonArea.from.x, config.summonArea.to.x), math.random(config.summonArea.from.y, config.summonArea.to.y), 7)
-			boss = Game.createMonster(config.boss, bossPosition)
-		end
+		-- Unlike the regular waves (where a handful of failed spawns out of 20 is
+		-- inconsequential), the boss is a named, singular monster, so its creation is checked
+		-- rather than fired-and-forgotten. extended=true lets the engine place it on a nearby
+		-- free tile if the exact spot is temporarily occupied. Mission 5 completion is a survival
+		-- objective, not a kill requirement, so a failed spawn must not soft-lock the quest - but
+		-- it must not be silent either.
+		local boss = Game.createMonster(config.boss, config.bossPosition, true)
 		if boss then
-			bossPosition:sendMagicEffect(CONST_ME_TELEPORT)
+			config.bossPosition:sendMagicEffect(CONST_ME_TELEPORT)
+		else
+			logger.warn("[children_of_the_revolution.movements_click] Failed to spawn {} at {} for run {}", config.boss, config.bossPosition:toString(), runToken)
 		end
 	end
 end
