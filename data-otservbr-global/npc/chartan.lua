@@ -80,8 +80,134 @@ local function creatureSayCallback(npc, creature, type, message)
 			player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission01, 3) --Questlog, Wrath of the Emperor "Mission 01: Catering the Lions Den"
 			npcHandler:setTopic(playerId, 0)
 		end
+		-- ZALAMON/CHARTAN TASK FAMILY
+	elseif MsgContains(message, "task") then
+		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 then
+			-- No response: tasks are not offered before Children of the Revolution is finished.
+		elseif ChildrenTasks.hasWoteHandoffOccurred(player) then
+			if ForbiddenFruit.isWorldReady() then
+				npcHandler:say("I have tazkz for zoze willing to help furzer. Azk about {zzuppliezz} to zupply our warriorz, or {collect} zamplez if you want to earn zomezing extra.", npc, creature)
+			else
+				-- Forbidden Fruit's physical map integration is incomplete (see
+				-- lib/quests/forbidden_fruit.lua WORLD_READY) - do not advertise a task players
+				-- cannot legitimately complete.
+				npcHandler:say("I have tazkz for zoze willing to help furzer. Azk about {zzuppliezz} to zupply our warriorz.", npc, creature)
+			end
+		end
+		-- Pre-handoff, Chartan has no tasks to offer yet - Zalamon is the contractor for Zzuppliezz
+		-- and Zze Art of War until then. Forbidden Fruit is never offered by Zalamon at all: it is
+		-- intentionally unavailable until this project's owner-reference handoff boundary
+		-- (FORBIDDEN_FRUIT_AVAILABILITY = REFERENCE_CONFLICT; see lib/quests/forbidden_fruit.lua
+		-- PROVENANCE and the PR body for the owner-reference-vs-external-source discussion), not
+		-- merely once Chartan's own rebel-camp access is reached.
+	elseif MsgContains(message, "zzuppliezz") or MsgContains(message, "supplies") then
+		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or not ChildrenTasks.hasWoteHandoffOccurred(player) then
+			-- Not offered before Children is finished, or before the WOTE Mission 05 handoff -
+			-- Zalamon is still the contractor until then.
+		elseif Zzuppliezz.isActive(player) then
+			local reason = Zzuppliezz.blockingReason(player)
+			if reason == nil then
+				if Zzuppliezz.complete(player) then
+					npcHandler:say("Excellent work! Take zis az a token of our gratitude.", npc, creature)
+				else
+					npcHandler:say("Zomezing went wrong. Make zure you have room, zen azk again.", npc, creature)
+				end
+			elseif reason == "crate-source" then
+				npcHandler:say("You ztill need to raid ze weaponz rack in Chaochai.", npc, creature)
+			elseif reason == "fish-source" then
+				npcHandler:say("You ztill need to take fizh from ze ztore in Chaochai.", npc, creature)
+			elseif reason == "prisoners" then
+				npcHandler:say("You ztill need to feed ze prizonerz zeir fizh.", npc, creature)
+			else
+				-- "crate" or "fish": there is no restart/abandon path - see
+				-- lib/quests/zzuppliezz.lua PROVENANCE.
+				npcHandler:say("You lozt zomezing you needed for zis tazk.", npc, creature)
+			end
+		elseif Zzuppliezz.canAccept(player) then
+			npcHandler:say("Ze warriorz need zuppliez, and ze prizonerz need feeding. Bring me a crate of weaponz and a fizh. Will you help?", npc, creature)
+			npcHandler:setTopic(playerId, 100)
+		else
+			npcHandler:say("You already helped wiz zuppliez recently. Come back later.", npc, creature)
+		end
+	elseif MsgContains(message, "strike") then
+		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or not ChildrenTasks.hasWoteHandoffOccurred(player) then
+			-- Not offered before Children is finished, or before the WOTE Mission 05 handoff.
+		elseif ZzeArtOfWar.isActive(player) then
+			if ZzeArtOfWar.blockingReason(player) == nil then
+				if ZzeArtOfWar.complete(player) then
+					npcHandler:say("Well fought! You have earned your reward.", npc, creature)
+				end
+			else
+				npcHandler:say("You ztill need to zurvive ze phantom army below ze temple.", npc, creature)
+			end
+		elseif ZzeArtOfWar.canAccept(player) then
+			npcHandler:say("Ready to ztrike at ze phantom army again? Gazer your alliez and zurvive az before. Are you prepared?", npc, creature)
+			npcHandler:setTopic(playerId, 102)
+		else
+			npcHandler:say("You muzt rezt before ztriking again.", npc, creature)
+		end
+	elseif MsgContains(message, "collect") then
+		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or not ChildrenTasks.hasWoteHandoffOccurred(player) then
+			-- Not offered before Children is finished, or before the WOTE Mission 05 handoff. The
+			-- owner reference makes Forbidden Fruit a POST-handoff Chartan task, not available
+			-- merely because Chartan's own rebel-camp access (TeleportAccess.Rebel) was reached.
+			-- External sources conflict on the exact progression boundary
+			-- (FORBIDDEN_FRUIT_AVAILABILITY = REFERENCE_CONFLICT) - this project follows the owner
+			-- reference as its authoritative implementation contract (OWNER_REFERENCE_IMPLEMENTATION),
+			-- not a claimed Global-exact match. See lib/quests/forbidden_fruit.lua PROVENANCE.
+		elseif ForbiddenFruit.isActive(player) then
+			local reason = ForbiddenFruit.blockingReason(player)
+			if reason == "collect" then
+				npcHandler:say("You ztill need to gazer all zeven zamplez.", npc, creature)
+			elseif reason == "eat" then
+				npcHandler:say("You have zem all - now eat every zample before you tell me {collect}.", npc, creature)
+			else
+				local baseVocation = player:getVocation():getBaseId()
+				local vocationName = "druid/sorcerer"
+				if baseVocation == VOCATION.BASE_ID.KNIGHT then
+					vocationName = "knight"
+				elseif baseVocation == VOCATION.BASE_ID.PALADIN then
+					vocationName = "paladin"
+				end
+				if ForbiddenFruit.complete(player, vocationName) then
+					npcHandler:say("Fazcinating taztez! You have earned your reward.", npc, creature)
+				end
+			end
+		elseif not ForbiddenFruit.isWorldReady() then
+			-- Forbidden Fruit's physical map integration is incomplete (see
+			-- lib/quests/forbidden_fruit.lua WORLD_READY). ForbiddenFruit.canAccept() already fails
+			-- closed here, but that reads (to a player) identically to "you already helped me
+			-- recently" - a neutral, non-committal line avoids implying a false past completion
+			-- while creating no active state. An existing ForbiddenFruit.isActive() run (handled by
+			-- the branch above) is still reported normally regardless of this gate.
+			npcHandler:say("I have nozing for you zere right now.", npc, creature)
+		elseif ForbiddenFruit.canAccept(player) then
+			npcHandler:say("I zeek zamplez of zeven rare plantz for my zutdy. Bring zem to me, zen eat zem all here zo I can obzerve ze effectz. Will you help?", npc, creature)
+			npcHandler:setTopic(playerId, 103)
+		else
+			npcHandler:say("You already helped me collect zamplez recently. Come back later.", npc, creature)
+		end
+		-- ZALAMON/CHARTAN TASK FAMILY
 	elseif MsgContains(message, "yes") then
-		if npcHandler:getTopic(playerId) == 2 then
+		if npcHandler:getTopic(playerId) == 100 then
+			Zzuppliezz.start(player, ChildrenTasks.ORIGIN_CHARTAN)
+			npcHandler:say("Good. Return to me once you have what we need.", npc, creature)
+			npcHandler:setTopic(playerId, 0)
+		elseif npcHandler:getTopic(playerId) == 102 then
+			ZzeArtOfWar.start(player, ChildrenTasks.ORIGIN_CHARTAN)
+			npcHandler:say("Go zen. Prove your ztrengz onze more.", npc, creature)
+			npcHandler:setTopic(playerId, 0)
+		elseif npcHandler:getTopic(playerId) == 103 then
+			-- Revalidate rather than trusting the topic alone - it could theoretically go stale
+			-- between the offer and this confirmation (e.g. WORLD_READY flips, or a cooldown/other
+			-- daily task starts elsewhere in the meantime). If invalid, silently reset the topic:
+			-- no active task is created and no progress is touched.
+			if ForbiddenFruit.isWorldReady() and ChildrenTasks.hasWoteHandoffOccurred(player) and ForbiddenFruit.canAccept(player) then
+				ForbiddenFruit.start(player, ChildrenTasks.ORIGIN_CHARTAN)
+				npcHandler:say("Excellent. Ze plantz await.", npc, creature)
+			end
+			npcHandler:setTopic(playerId, 0)
+		elseif npcHandler:getTopic(playerId) == 2 then
 			npcHandler:say({
 				"Alright. Well, az you might not be aware of it yet - we are on top of an old temple complex. It haz been abandoned and it haz crumbled over time. ...",
 				"Ze teleporter over zere uzed to work juzt fine to get uz back to ze zouz. But it haz ztopped operating for quite zome time. ... ",

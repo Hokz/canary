@@ -244,6 +244,64 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:setTopic(playerId, 0)
 		end
 		-- CHILDREN OF REVOLUTION QUEST
+
+		-- ZALAMON/CHARTAN TASK FAMILY
+	elseif MsgContains(message, "task") then
+		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 then
+			-- No response: tasks are not offered before Children of the Revolution is finished.
+		elseif ChildrenTasks.hasWoteHandoffOccurred(player) then
+			npcHandler:say("I have no more tazzkzz for you, zzoftzzkin. Chartan handlezz zzuch matterzz now.", npc, creature)
+		else
+			npcHandler:say("I zztill have work for zzoze willing to help furzzer. Azzk about {zzuppliezz} if you want to help zzupply our warriorzz.", npc, creature)
+		end
+	elseif MsgContains(message, "zzuppliezz") or MsgContains(message, "supplies") then
+		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or ChildrenTasks.hasWoteHandoffOccurred(player) then
+			-- Not offered before Children is finished, or after the WOTE Mission 05 handoff.
+		elseif Zzuppliezz.isActive(player) then
+			local reason = Zzuppliezz.blockingReason(player)
+			if reason == nil then
+				if Zzuppliezz.complete(player) then
+					npcHandler:say("Excellent work, zzoftzzkin! Take zzizz azz a token of our gratitude.", npc, creature)
+				else
+					npcHandler:say("Zzomezzing went wrong. Make zzure you have room, zzen azzk again.", npc, creature)
+				end
+			elseif reason == "crate-source" then
+				npcHandler:say("You zztill need to raid zze weaponzz rack in Chaochai.", npc, creature)
+			elseif reason == "fish-source" then
+				npcHandler:say("You zztill need to take fizzh from zze zztore in Chaochai.", npc, creature)
+			elseif reason == "prisoners" then
+				npcHandler:say("You zztill need to feed zze prizzonerzz zzeir fizzh.", npc, creature)
+			else
+				-- "crate" or "fish": the physical item is missing even though the world interaction
+				-- was already proven this cycle. There is no restart/abandon path (see
+				-- lib/quests/zzuppliezz.lua PROVENANCE) - re-opening the source flags on demand
+				-- would let a player farm unlimited supplies before ever reporting.
+				npcHandler:say("You lozzt zzomezzing you needed for zzizz tazzk.", npc, creature)
+			end
+		elseif Zzuppliezz.canAccept(player) then
+			npcHandler:say("Zze warriorzz need zzupplies, and zze prizzonerzz need feeding. Bring me a crate of weaponzz and a fizzh. Will you help?", npc, creature)
+			npcHandler:setTopic(playerId, 100)
+		else
+			npcHandler:say("You already helped wizz zzupplies recently. Come back later, zzoftzzkin.", npc, creature)
+		end
+	elseif MsgContains(message, "strike") then
+		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or ChildrenTasks.hasWoteHandoffOccurred(player) then
+			-- Not offered before Children is finished, or after the WOTE Mission 05 handoff.
+		elseif ZzeArtOfWar.isActive(player) then
+			if ZzeArtOfWar.blockingReason(player) == nil then
+				if ZzeArtOfWar.complete(player) then
+					npcHandler:say("Well fought, zzoftzzkin! You have earned your reward.", npc, creature)
+				end
+			else
+				npcHandler:say("You zztill need to zzurvive zze phantom army below zze temple.", npc, creature)
+			end
+		elseif ZzeArtOfWar.canAccept(player) then
+			npcHandler:say("Ready to zztrike at zze phantom army again? Gazzer your allizz and zzurvive azz before. Are you prepared?", npc, creature)
+			npcHandler:setTopic(playerId, 102)
+		else
+			npcHandler:say("You muzzt rezzt before zztriking again, zzoftzzkin.", npc, creature)
+		end
+		-- ZALAMON/CHARTAN TASK FAMILY
 	elseif MsgContains(message, "yes") then
 		-- CHILDREN OF REVOLUTION QUEST
 		if npcHandler:getTopic(playerId) == 1 then
@@ -415,6 +473,25 @@ local function creatureSayCallback(npc, creature, type, message)
 				npcHandler:setTopic(playerId, 0)
 			end
 			-- WRATH OF THE EMPEROR QUEST
+
+			-- ZALAMON/CHARTAN TASK FAMILY
+		elseif npcHandler:getTopic(playerId) == 100 then
+			if MsgContains(message, "yes") then
+				Zzuppliezz.start(player, ChildrenTasks.ORIGIN_ZALAMON)
+				npcHandler:say("Good. Return to me once you have what we need.", npc, creature)
+			else
+				npcHandler:say("Azz you wizzh.", npc, creature)
+			end
+			npcHandler:setTopic(playerId, 0)
+		elseif npcHandler:getTopic(playerId) == 102 then
+			if MsgContains(message, "yes") then
+				ZzeArtOfWar.start(player, ChildrenTasks.ORIGIN_ZALAMON)
+				npcHandler:say("Go zzen. Prove your zztrengzz once more.", npc, creature)
+			else
+				npcHandler:say("Azz you wizzh.", npc, creature)
+			end
+			npcHandler:setTopic(playerId, 0)
+			-- ZALAMON/CHARTAN TASK FAMILY
 		end
 	end
 	return true

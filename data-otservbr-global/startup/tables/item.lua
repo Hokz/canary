@@ -3460,4 +3460,60 @@ ItemUnique = {
 		itemId = 31357,
 		itemPos = { x = 33914, y = 31639, z = 9 },
 	},
+	-- Zzuppliezz task (Zalamon/Chartan task family). Position-first read-only OTBM evidence, not
+	-- guessed: all three sit inside the exact buildings Children of the Revolution's own Mission 2
+	-- scouting objectives already use (the underground weapons magazine behind AID 8010's wooden
+	-- bars, and the fish-storage building at AID 8009). itemId is the existing decorative object
+	-- physically confirmed at that exact position; the decorative racks/fish spread throughout the
+	-- whole settlement are not otherwise distinguishable from one another, so one representative
+	-- instance inside each already-proven room is wired rather than none.
+	[57570] = {
+		itemId = 10063, -- lizard weapon rack, inside the AID 8010 weapons magazine room
+		itemPos = { x = 33228, y = 31153, z = 8 },
+	},
+	[57571] = {
+		itemId = 10245, -- fish (decorative), inside the AID 8009 fish-storage room
+		itemPos = { x = 33228, y = 31157, z = 7 },
+	},
+	[57572] = {
+		itemId = 2296, -- wooden bars, the small bamboo-enclosed cell south of the settlement
+		itemPos = { x = 33260, y = 31157, z = 7 },
+	},
+	-- Forbidden Fruit task (Zalamon/Chartan task family), 6 of 7 required samples. Position-first
+	-- evidence: each is a physical object of an externally-confirmed identity, reachable within the
+	-- documented Northern Zao task area. The remaining sample, Screaming Cherry Tree, has no
+	-- physical anchor meeting this project's "no guessed coordinate" rule - see the PR body for the
+	-- full 7-position audit matrix and its manual map manifest. All UIDs below confirmed free
+	-- repo-wide AND inside the OTBM's own existing unique-id usage before use - do not assume any
+	-- range is free without scanning it.
+	[57573] = {
+		itemId = 10718, -- Sprocketwhip
+		itemPos = { x = 33143, y = 31096, z = 7 },
+	},
+	[57574] = {
+		itemId = 10716, -- Carnivortex
+		itemPos = { x = 33154, y = 31107, z = 7 },
+	},
+	[57575] = {
+		itemId = 10717, -- Toxic Tulip
+		itemPos = { x = 33161, y = 31099, z = 7 },
+	},
+	[57576] = {
+		itemId = 10715, -- Witherstem
+		itemPos = { x = 33202, y = 31108, z = 7 },
+	},
+	[57577] = {
+		itemId = 9886, -- Rotten Plant (a rotten Witches' Cauldron Plant), one tile from the
+		-- documented marker (33194,31112,7); the marker tile itself holds a proven
+		-- hedge-row/border decoration (9836), not this task's plant.
+		itemPos = { x = 33194, y = 31113, z = 7 },
+	},
+	[57578] = {
+		itemId = 10720, -- Wraithtongue. Occurs many times across a reachable cluster in the
+		-- documented Northern Zao task area (the reference explicitly allows multiple plants of
+		-- the same species) - this is one clean, unobstructed, reachable instance from that
+		-- cluster, not the single closest-to-marker tile (none of that item id sit within the
+		-- immediate marker radius).
+		itemPos = { x = 33177, y = 31108, z = 7 },
+	},
 }
