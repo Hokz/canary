@@ -2477,6 +2477,11 @@ ChestUnique = {
 		storage = Storage.Quest.U8_54.ChildrenOfTheRevolution.ChestTomeOfKnowledge1,
 	},
 	[6290] = {
+		-- REVERTED (found in review): a prior revision added renewWhile to protect against a lost
+		-- flask, but the item is confirmed tradeable/marketable and the possession check only
+		-- covers inventory/backpacks, not the depot - so it was farmable. No reliable source
+		-- proves this chest is renewable after loss (LOST ITEM SOURCE RECOVERY: NOT_PROVEN FROM
+		-- QUEST SOURCE). Restored the standard one-time gate.
 		itemId = 1895,
 		itemPos = { x = 33327, y = 31410, z = 8 },
 		reward = { { 10189, 1 } },
