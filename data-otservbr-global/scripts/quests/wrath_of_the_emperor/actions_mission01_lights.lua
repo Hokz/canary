@@ -48,7 +48,12 @@ function wrathEmperorMiss1Light.onUse(player, item, fromPosition, target, toPosi
 			local wallItem, pos
 			for i = 1, 4 do
 				pos = Position(33355, 31067 + i, 9)
-				if i == 1 or 4 then
+				-- CONFIRMED BUG (found during the WOTE reconciliation audit): "i == 1 or 4" parses as
+				-- "(i == 1) or (4)" - since a non-nil/non-false number is always truthy, this ran
+				-- unconditionally for every i, not just 1 and 4. Currently harmless in practice (item
+				-- 8348 doesn't exist at i=2/3's positions, so those extra lookups just find nothing),
+				-- but it's the wrong check - fixed to match the intended per-i wall item below.
+				if i == 1 or i == 4 then
 					wallItem = Tile(pos):getItemById(8348)
 					if wallItem then
 						wallItem:transform(8290)

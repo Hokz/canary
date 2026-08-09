@@ -206,6 +206,30 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("You - azzembled zze zzeptre? Hand it out, give it to me, will you? ", npc, creature)
 			npcHandler:setTopic(playerId, 21)
 		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 12 then
+			-- WOTE MISSION05 GATE (owner reference): every qualifying task STARTED at Zalamon must
+			-- be finished, and at least one qualifying Zalamon-origin task must have been completed
+			-- at least once before Mission 05 may begin. Uses the dedicated WOTE qualification API
+			-- (lib/quests/children_tasks.lua) rather than reinventing task-completion tracking here.
+			-- Forbidden Fruit and any Chartan-origin completion never qualify (ChildrenTasks.
+			-- hasQualifyingZalamonCompletion/firstIncompleteZalamonTask only count Zzuppliezz/Zze
+			-- Art of War with origin == ZALAMON); a task started at Zalamon and later reported to
+			-- Chartan after this same handoff still counts, since origin is fixed at acceptance.
+			local outstanding = ChildrenTasks.firstIncompleteZalamonTask(player)
+			if outstanding then
+				npcHandler:say("You zztill owe me zze " .. outstanding .. " run you took on. Finizzh what you zztarted before azzking for more. ", npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
+			if not ChildrenTasks.hasQualifyingZalamonCompletion(player) then
+				npcHandler:say({
+					"Not zzo fazzt. You have never once carried for uzz. Before I zzend you into zze zzity itzzelf, prove you can zzupply our people under zzeir very nozzez. ...",
+					"Azzk me about a {task} and complete one for uzz firzzt. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
 			npcHandler:say({
 				"Now we need to get clozzer to zze emperor himzzelf. A hive of beezz would defend zzeir queen wizz zzeir lives in cazze an enemy gained entranzze. Zzizz makezz a formidable defenzze line, nearly inviolable. ... ",
 				"But a zztranger directly in zze midzzt of zze hive will be acczzepted - after all it izz not pozzible to overcome zzuch a formidable defenzze which izz nearly inviolable, or izz it? Ha. ... ",
@@ -415,6 +439,38 @@ local function creatureSayCallback(npc, creature, type, message)
 			}, npc, creature)
 			npcHandler:setTopic(playerId, 15)
 		elseif npcHandler:getTopic(playerId) == 15 then
+			-- GENERAL WOTE PREREQUISITES (owner reference): besides Children of the Revolution being
+			-- finished - which reaching this dialogue already proves - the quest needs The New
+			-- Frontier Mission 9 (Mortal Kombat) STARTED and The Ape City Mission 9 STARTED. Full
+			-- completion of either quest is NOT required.
+			--
+			-- Proven states:
+			--   * TheNewFrontier.Mission09[1] >= 1 is written (per-player) by npc/ztiss.lua when the
+			--     tournament path is accepted, i.e. Mortal Kombat started. The same storage id also
+			--     serves as a separate Game-global arena run-token (see
+			--     scripts/quests/the_new_frontier/action_arena.lua) - the two namespaces (player vs
+			--     Game) never collide, matching the same established pattern used by this project's
+			--     other shared mission/arena storages.
+			--   * TheApeCity.Questline >= 17 is written by npc/hairycles.lua when the final (ninth)
+			--     mission is accepted.
+			if player:getStorageValue(Storage.Quest.U8_54.TheNewFrontier.Mission09[1]) < 1 then
+				npcHandler:say({
+					"Not yet, palezzkin. Zze zzettlerzz in zze norzz zztill dizztruzzt uzz. ...",
+					"Prove yourzzelf in zzeir tournament firzzt - zzen we will zzpeak of zze emperor. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
+			if player:getStorageValue(Storage.Quest.U7_6.TheApeCity.Questline) < 17 then
+				npcHandler:say({
+					"You are not ready. Zze ape people to zze wezzt zztill azzk zzingz of you. ...",
+					"Finizzh what Hairyclezz began wizz you, zzen return. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
 			npcHandler:say({
 				"Your determination izz highly appreciated. To zzneak pazzt zze eyezz of zze enemy, you will have to uzze a diverzzion. Zzere are zzeveral old tunnelzz beneazz zze zzoil of Zzao. ... ",
 				"One of zzem izz uzzed azz a maintenanzze connection by enemy lizardzz. To enter it, you will have to uzze a dizzguizze. Zzomezzing like a crate perhapzz. ... ",
