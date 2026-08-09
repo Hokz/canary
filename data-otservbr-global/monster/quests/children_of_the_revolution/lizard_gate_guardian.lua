@@ -73,16 +73,21 @@ monster.light = {
 -- any specific line - not inventing one.
 monster.voices = {}
 
+-- ITEM PRESENCE: EXTERNAL_REFERENCE_PROVEN (all 10 items confirmed to exist by exact name in
+-- items.xml). DROP CHANCE / maxCount: the source itself states these are estimated from a small
+-- sample (32 kills), not authoritative CipSoft configuration data - kept as conservative,
+-- clearly-labeled estimates (CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE), not asserted exact.
 monster.loot = {
-	{ name = "gold coin", chance = 100000, maxCount = 48 },
-	{ name = "platinum coin", chance = 30000, maxCount = 3 },
-	{ name = "ultimate health potion", chance = 100000 },
-	{ name = "lizard scale", chance = 40000, maxCount = 2 },
-	{ name = "zaoan armor", chance = 2000 },
-	{ name = "zaoan legs", chance = 2000 },
-	{ name = "zaoan shoes", chance = 2000 },
-	{ name = "zaoan helmet", chance = 500 },
-	{ name = "zaoan sword", chance = 500 },
+	{ name = "gold coin", chance = 100000, maxCount = 48 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
+	{ name = "platinum coin", chance = 30000, maxCount = 3 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
+	{ name = "ultimate health potion", chance = 100000 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
+	{ name = "lizard leather", chance = 20000 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
+	{ name = "lizard scale", chance = 40000, maxCount = 2 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
+	{ name = "zaoan armor", chance = 2000 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
+	{ name = "zaoan legs", chance = 2000 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
+	{ name = "zaoan shoes", chance = 2000 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
+	{ name = "zaoan helmet", chance = 500 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
+	{ name = "zaoan sword", chance = 500 }, -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_DROP_RATE
 }
 
 monster.attacks = {
@@ -105,11 +110,20 @@ monster.defenses = {
 	mitigation = 0.94,
 }
 
+-- ELEMENT SEMANTICS PROVEN from engine source (Monster::blockHit, monster.cpp):
+--   damage = damage * (100 - percent) / 100
+-- so `percent` is RESISTANCE, not damage taken - percent = 100 - (damage-taken %).
+-- CURRENT_SOURCE_PROVEN damage-taken figures translated below (unlisted types - life/mana drain -
+-- are not documented by any source and are left at the neutral default, percent = 0):
+--   physical 100% -> 0   | death 100% -> 0   | holy 100% -> 0   | ice 100% -> 0
+--   drown    100% -> 0   | fire   90% -> 10  | energy 80% -> 20 | earth    0% -> 100 (immune)
+-- Earth immunity also matches Lizard Chosen (this creature's closest family member), which
+-- carries the identical { type = COMBAT_EARTHDAMAGE, percent = 100 } entry.
 monster.elements = {
 	{ type = COMBAT_PHYSICALDAMAGE, percent = 0 },
-	{ type = COMBAT_ENERGYDAMAGE, percent = 0 },
-	{ type = COMBAT_EARTHDAMAGE, percent = 0 },
-	{ type = COMBAT_FIREDAMAGE, percent = 0 },
+	{ type = COMBAT_ENERGYDAMAGE, percent = 20 },
+	{ type = COMBAT_EARTHDAMAGE, percent = 100 },
+	{ type = COMBAT_FIREDAMAGE, percent = 10 },
 	{ type = COMBAT_LIFEDRAIN, percent = 0 },
 	{ type = COMBAT_MANADRAIN, percent = 0 },
 	{ type = COMBAT_DROWNDAMAGE, percent = 0 },

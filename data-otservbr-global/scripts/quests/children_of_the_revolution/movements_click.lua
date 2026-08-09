@@ -125,7 +125,9 @@ local function summonWave(runToken, i)
 		-- it must not be silent either.
 		local boss = Game.createMonster(config.boss, config.bossPosition, true)
 		if boss then
-			config.bossPosition:sendMagicEffect(CONST_ME_TELEPORT)
+			-- extended=true may place the boss on a nearby free tile if the exact spot is
+			-- occupied - send the effect at where it actually ended up, not the requested tile.
+			boss:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
 		else
 			logger.warn("[children_of_the_revolution.movements_click] Failed to spawn {} at {} for run {}", config.boss, config.bossPosition:toString(), runToken)
 		end
