@@ -85,7 +85,14 @@ local function creatureSayCallback(npc, creature, type, message)
 		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 then
 			-- No response: tasks are not offered before Children of the Revolution is finished.
 		elseif ChildrenTasks.hasWoteHandoffOccurred(player) then
-			npcHandler:say("I have tazkz for zoze willing to help furzer. Azk about {zzuppliezz} to zupply our warriorz, or {collect} zamplez if you want to earn zomezing extra.", npc, creature)
+			if ForbiddenFruit.isWorldReady() then
+				npcHandler:say("I have tazkz for zoze willing to help furzer. Azk about {zzuppliezz} to zupply our warriorz, or {collect} zamplez if you want to earn zomezing extra.", npc, creature)
+			else
+				-- Forbidden Fruit's physical map integration is incomplete (see
+				-- lib/quests/forbidden_fruit.lua WORLD_READY) - do not advertise a task players
+				-- cannot legitimately complete.
+				npcHandler:say("I have tazkz for zoze willing to help furzer. Azk about {zzuppliezz} to zupply our warriorz.", npc, creature)
+			end
 		end
 		-- Pre-handoff, Chartan has no tasks to offer yet - Zalamon is the contractor for Zzuppliezz
 		-- and Zze Art of War until then. Forbidden Fruit is never offered by Zalamon at all: it is
@@ -166,6 +173,14 @@ local function creatureSayCallback(npc, creature, type, message)
 					npcHandler:say("Fazcinating taztez! You have earned your reward.", npc, creature)
 				end
 			end
+		elseif not ForbiddenFruit.isWorldReady() then
+			-- Forbidden Fruit's physical map integration is incomplete (see
+			-- lib/quests/forbidden_fruit.lua WORLD_READY). ForbiddenFruit.canAccept() already fails
+			-- closed here, but that reads (to a player) identically to "you already helped me
+			-- recently" - a neutral, non-committal line avoids implying a false past completion
+			-- while creating no active state. An existing ForbiddenFruit.isActive() run (handled by
+			-- the branch above) is still reported normally regardless of this gate.
+			npcHandler:say("I have nozing for you zere right now.", npc, creature)
 		elseif ForbiddenFruit.canAccept(player) then
 			npcHandler:say("I zeek zamplez of zeven rare plantz for my zutdy. Bring zem to me, zen eat zem all here zo I can obzerve ze effectz. Will you help?", npc, creature)
 			npcHandler:setTopic(playerId, 103)
@@ -183,8 +198,14 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("Go zen. Prove your ztrengz onze more.", npc, creature)
 			npcHandler:setTopic(playerId, 0)
 		elseif npcHandler:getTopic(playerId) == 103 then
-			ForbiddenFruit.start(player, ChildrenTasks.ORIGIN_CHARTAN)
-			npcHandler:say("Excellent. Ze plantz await.", npc, creature)
+			-- Revalidate rather than trusting the topic alone - it could theoretically go stale
+			-- between the offer and this confirmation (e.g. WORLD_READY flips, or a cooldown/other
+			-- daily task starts elsewhere in the meantime). If invalid, silently reset the topic:
+			-- no active task is created and no progress is touched.
+			if ForbiddenFruit.isWorldReady() and ChildrenTasks.hasWoteHandoffOccurred(player) and ForbiddenFruit.canAccept(player) then
+				ForbiddenFruit.start(player, ChildrenTasks.ORIGIN_CHARTAN)
+				npcHandler:say("Excellent. Ze plantz await.", npc, creature)
+			end
 			npcHandler:setTopic(playerId, 0)
 		elseif npcHandler:getTopic(playerId) == 2 then
 			npcHandler:say({

@@ -40,9 +40,29 @@
 --     unnamed object nearby. See the PR body for the full 7-position audit matrix and Screaming
 --     Cherry Tree's manual map manifest. Collecting the 6 wired samples is necessary but not
 --     sufficient - ForbiddenFruit.hasCollectedAll still requires all 7, so the task remains
---     uncompletable until Screaming Cherry Tree's anchor is proven.
+--     uncompletable until Screaming Cherry Tree's anchor is proven. Rather than ship an acceptable-
+--     but-uncompletable task (a permanent daily-lane soft-lock), player-facing acceptance is gated
+--     off entirely via WORLD_READY/isWorldReady() below until that seventh source is wired - all
+--     other code, state, and rewards in this file are already complete and are not affected by
+--     that gate.
 
 ForbiddenFruit = ForbiddenFruit or {}
+
+-- SAFETY GATE: false because the seventh physical sample source (Screaming Cherry Tree) is not
+-- proven/wired - see PROVENANCE above and the PR body's manual map manifest. Without this gate,
+-- Chartan's canAccept() check would let a player accept the task, collect the 6 available samples,
+-- and never be able to reach ForbiddenFruit.hasCollectedAll() - a PERMANENT daily-lane soft-lock,
+-- since the shared daily cooldown (ChildrenTasks.markDailyReported) never starts without a
+-- successful report, leaving Zzuppliezz blocked indefinitely too. Flip to true ONLY once Screaming
+-- Cherry Tree is wired via actions_forbidden_fruit_collect.lua (all other state/rewards/samples
+-- below are already correct and complete - no other change is expected to be needed at that time).
+ForbiddenFruit.WORLD_READY = false
+
+---Whether Forbidden Fruit may currently be accepted by any player. See WORLD_READY above.
+---@return boolean
+function ForbiddenFruit.isWorldReady()
+	return ForbiddenFruit.WORLD_READY
+end
 
 ForbiddenFruit.REQUIRED_CHILDREN_QUESTLINE = 21
 ForbiddenFruit.REPEAT_INTERVAL = 20 * 60 * 60 -- 20 hours, CURRENT_SOURCE_PROVEN
@@ -155,10 +175,12 @@ function ForbiddenFruit.cooldownRemaining(player)
 	return ChildrenTasks.dailyCooldownRemaining(player)
 end
 
+---Fails closed while the world isn't ready (see WORLD_READY), regardless of caller - the library
+---itself is the enforcement point, not just the NPC dialogue that happens to call this today.
 ---@param player Player
 ---@return boolean
 function ForbiddenFruit.canAccept(player)
-	if not player then
+	if not player or not ForbiddenFruit.isWorldReady() then
 		return false
 	end
 
