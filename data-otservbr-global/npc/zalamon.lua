@@ -273,9 +273,10 @@ local function creatureSayCallback(npc, creature, type, message)
 				npcHandler:say("You zztill need to feed zze prizzonerzz zzeir fizzh.", npc, creature)
 			else
 				-- "crate" or "fish": the physical item is missing even though the world interaction
-				-- was already proven this cycle - a restart is the only way forward.
-				npcHandler:say("You lozzt zzomezzing you needed. Do you want to zztart zze tazzk over? Zzizz clearzz your currezzent progrezzz.", npc, creature)
-				npcHandler:setTopic(playerId, 101)
+				-- was already proven this cycle. There is no restart/abandon path (see
+				-- lib/quests/zzuppliezz.lua PROVENANCE) - re-opening the source flags on demand
+				-- would let a player farm unlimited supplies before ever reporting.
+				npcHandler:say("You lozzt zzomezzing you needed for zzizz tazzk.", npc, creature)
 			end
 		elseif Zzuppliezz.canAccept(player) then
 			npcHandler:say("Zze warriorzz need zzupplies, and zze prizzonerzz need feeding. Bring me a crate of weaponzz and a fizzh. Will you help?", npc, creature)
@@ -478,14 +479,6 @@ local function creatureSayCallback(npc, creature, type, message)
 			if MsgContains(message, "yes") then
 				Zzuppliezz.start(player, ChildrenTasks.ORIGIN_ZALAMON)
 				npcHandler:say("Good. Return to me once you have what we need.", npc, creature)
-			else
-				npcHandler:say("Azz you wizzh.", npc, creature)
-			end
-			npcHandler:setTopic(playerId, 0)
-		elseif npcHandler:getTopic(playerId) == 101 then
-			if MsgContains(message, "yes") then
-				Zzuppliezz.start(player, ChildrenTasks.ORIGIN_ZALAMON)
-				npcHandler:say("Very well, a frezzh zztart.", npc, creature)
 			else
 				npcHandler:say("Azz you wizzh.", npc, creature)
 			end

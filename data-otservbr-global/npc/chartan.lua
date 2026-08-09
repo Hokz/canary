@@ -108,8 +108,9 @@ local function creatureSayCallback(npc, creature, type, message)
 			elseif reason == "prisoners" then
 				npcHandler:say("You ztill need to feed ze prizonerz zeir fizh.", npc, creature)
 			else
-				npcHandler:say("You lozt zomezing you needed. Do you want to ztart ze tazk over? Zis clearz your current progrezz.", npc, creature)
-				npcHandler:setTopic(playerId, 101)
+				-- "crate" or "fish": there is no restart/abandon path - see
+				-- lib/quests/zzuppliezz.lua PROVENANCE.
+				npcHandler:say("You lozt zomezing you needed for zis tazk.", npc, creature)
 			end
 		elseif Zzuppliezz.canAccept(player) then
 			npcHandler:say("Ze warriorz need zuppliez, and ze prizonerz need feeding. Bring me a crate of weaponz and a fizh. Will you help?", npc, creature)
@@ -167,10 +168,6 @@ local function creatureSayCallback(npc, creature, type, message)
 		if npcHandler:getTopic(playerId) == 100 then
 			Zzuppliezz.start(player, ChildrenTasks.ORIGIN_CHARTAN)
 			npcHandler:say("Good. Return to me once you have what we need.", npc, creature)
-			npcHandler:setTopic(playerId, 0)
-		elseif npcHandler:getTopic(playerId) == 101 then
-			Zzuppliezz.start(player, ChildrenTasks.ORIGIN_CHARTAN)
-			npcHandler:say("Very well, a frezh ztart.", npc, creature)
 			npcHandler:setTopic(playerId, 0)
 		elseif npcHandler:getTopic(playerId) == 102 then
 			ZzeArtOfWar.start(player, ChildrenTasks.ORIGIN_CHARTAN)

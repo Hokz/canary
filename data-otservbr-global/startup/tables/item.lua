@@ -3479,4 +3479,26 @@ ItemUnique = {
 		itemId = 2296, -- wooden bars, the small bamboo-enclosed cell south of the settlement
 		itemPos = { x = 33260, y = 31157, z = 7 },
 	},
+	-- Forbidden Fruit task (Zalamon/Chartan task family), 3 of 7 required samples. Position-first
+	-- evidence: each is the exact physical object at an externally-referenced plant marker AND is
+	-- the ONLY instance of its item id within a +/-5 tile radius of that marker (re-scanned against
+	-- the exact configured OTBM) - not a guess among several nearby identical decorations. The
+	-- other 4 samples (Screaming Cherry Tree, Wraithtongue, Rotten Witches' Cauldron Plant,
+	-- Witherstem) remain unwired: their markers either contain a mismatched named object or contain
+	-- several indistinguishable candidate objects within the same radius, so no single instance can
+	-- be identified with the confidence this project's "no guessed coordinate" rule requires. See
+	-- the PR body for the full 7-position audit matrix. 57573-57575 confirmed free repo-wide before
+	-- use (do not assume any range is free without scanning it).
+	[57573] = {
+		itemId = 10718, -- Sprocketwhip
+		itemPos = { x = 33143, y = 31096, z = 7 },
+	},
+	[57574] = {
+		itemId = 10716, -- Carnivortex
+		itemPos = { x = 33154, y = 31107, z = 7 },
+	},
+	[57575] = {
+		itemId = 10717, -- Toxic Tulip
+		itemPos = { x = 33161, y = 31099, z = 7 },
+	},
 }

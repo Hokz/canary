@@ -131,12 +131,15 @@ function ZzeArtOfWar.start(player, origin)
 	return true
 end
 
----Attempts the ONE additional weekly claim of the bonus Tome of Knowledge through the EXISTING
----physical Tome chest (uid 6291, see scripts/actions/system/quest_reward_common.lua). Returns
----false without granting anything when the player isn't an active weekly participant, when this
----run's claim is already used, or when the item fails to fit - a failed grant does NOT burn the
----claim, so a player with a full inventory may simply come back and retry. Never touches the
----permanent Children of the Revolution chest storage.
+---Attempts the ONE weekly claim of the bonus Tome of Knowledge through the EXISTING physical Tome
+---chest (uid 6291). Returns false without granting anything when the player isn't an active weekly
+---participant, when this run's claim is already used, or when the item fails to fit - a failed
+---grant does NOT burn the claim, so a player with a full inventory may simply come back and retry.
+---Only ever grants ONE item per call, regardless of whether the permanent Children of the
+---Revolution claim was already used - the caller (scripts/actions/system/quest_reward_common.lua)
+---additionally marks that permanent storage used (if it wasn't already) whenever this call
+---succeeds, specifically to prevent a weekly participant who never claimed the original Tome from
+---getting a SECOND one out of the normal permanent path immediately afterward.
 ---@param player Player
 ---@return boolean
 function ZzeArtOfWar.tryClaimWeeklyTome(player)

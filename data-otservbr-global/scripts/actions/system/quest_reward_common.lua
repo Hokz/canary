@@ -156,6 +156,25 @@ function questReward.onUse(player, item, fromPosition, itemEx, toPosition)
 		return true
 	end
 
+	-- ZALAMON/CHARTAN TASK FAMILY: this exact chest (uid 6291) is the physical opportunity to
+	-- acquire the bonus weekly Tome of Knowledge for an active Zze Art of War participant. Handled
+	-- BEFORE the generic dispatch below, and identically whether or not the permanent Children of
+	-- the Revolution claim has ever been used - a weekly participant must receive at most ONE Tome
+	-- per run, never two (one from the permanent path below, one from the weekly path). If the
+	-- permanent claim was still unused, it is marked used here too, so the normal path immediately
+	-- after can never hand out a second Tome for the same physical claim. See
+	-- lib/quests/zze_art_of_war.lua.
+	if item.uid == 6291 and ZzeArtOfWar and ZzeArtOfWar.isActive(player) then
+		if ZzeArtOfWar.tryClaimWeeklyTome(player) then
+			if player:getStorageValue(setting.storage) < 1 then
+				player:setStorageValue(setting.storage, 1)
+			end
+		else
+			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The " .. getItemName(setting.itemId) .. " is empty.")
+		end
+		return true
+	end
+
 	if setting.weight then
 		local message = "You have found a " .. getItemName(setting.container) .. "."
 
@@ -181,13 +200,6 @@ function questReward.onUse(player, item, fromPosition, itemEx, toPosition)
 		end
 	else
 		if player:getStorageValue(setting.storage) >= 1 then
-			-- ZALAMON/CHARTAN TASK FAMILY: this exact chest (uid 6291) also grants a separate,
-			-- run-scoped weekly claim to an active Zze Art of War participant once the permanent
-			-- Children of the Revolution claim above is already used - that permanent storage is
-			-- never touched again. See lib/quests/zze_art_of_war.lua.
-			if item.uid == 6291 and ZzeArtOfWar and ZzeArtOfWar.tryClaimWeeklyTome(player) then
-				return true
-			end
 			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The " .. getItemName(setting.itemId) .. " is empty.")
 			return true
 		end

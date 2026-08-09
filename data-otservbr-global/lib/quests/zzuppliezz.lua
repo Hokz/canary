@@ -19,12 +19,16 @@
 --     Forbidden Fruit for the same 20 hours, since only one daily task may be done per interval.
 --   * Physical world-trigger positions - see actions_zzuppliezz.lua / startup wiring; PROJECT-
 --     NATIVE position-first OTBM evidence, not guessed.
---   * Per-run interaction proof, transactional turn-in, and cycle-reacquisition instead of an
---     "abandon" command or per-source replacement counters - CUSTOM_GLOBAL_LIKE_ZZUPPLIEZZ_CYCLE.
---     Exact CipSoft handling of a mid-run lost item is not documented anywhere found. Each source
---     grants its item(s) exactly once per cycle (never a farmable repeat-click); a player who
---     starts fresh (re-accepting the task while it's already active, an explicit choice offered by
---     the NPC, not a separate invented "abandon" keyword) simply reacquires proof from scratch.
+--   * Per-run interaction proof, one-time-per-cycle sources, and NO on-demand restart or "abandon"
+--     command - CUSTOM_GLOBAL_LIKE_ZZUPPLIEZZ_CYCLE. Exact CipSoft handling of a mid-run lost
+--     physical item (traded/stashed after legitimately taking it from its source) is NOT_PROVEN and
+--     intentionally left unresolved: an on-demand restart that re-opens the source flags would let
+--     a player collect crate+fish, move them away, "restart", and repeat indefinitely before ever
+--     reporting - a proven farming exploit, since these items are movable/marketable and the
+--     20-hour cooldown only begins on successful report. If a required physical item is lost after
+--     being legitimately collected, the run stays active with its source-proof intact but
+--     unreportable until the item is reacquired through whatever legitimate means the source
+--     itself allows next cycle - no infinite replacement, no abandon path.
 
 Zzuppliezz = Zzuppliezz or {}
 
@@ -56,6 +60,12 @@ function Zzuppliezz.isActive(player)
 	return player ~= nil and flag(player, KEY_ACTIVE)
 end
 
+---Origin, once set by start(), is fixed for the life of the active run: start() refuses to touch
+---an already-active run (see its own doc comment), getOrigin() only ever reads back the stored
+---value, and complete() derives its "ever completed" flag from THIS value rather than from any
+---parameter a caller could pass - so a task accepted at Zalamon and later reported to Chartan after
+---the WOTE handoff keeps origin == ZALAMON for that entire run, with no code path able to rewrite
+---it in between.
 ---@param player Player
 ---@return string|nil
 function Zzuppliezz.getOrigin(player)
@@ -140,14 +150,16 @@ function Zzuppliezz.canAccept(player)
 	return not Zzuppliezz.isActive(player) and Zzuppliezz.cooldownRemaining(player) == 0
 end
 
----Starts (or restarts) a run. Restarting an already-active run is an explicit player choice
----offered by the NPC dialogue - not a separate invented "abandon" command - and simply clears
----per-cycle proof so a new cycle's completion can never be satisfied by an old cycle's leftovers.
+---Starts a NEW run. Refuses to touch an already-active run - there is no on-demand restart/abandon
+---path (see PROVENANCE: Corned Fish and Weapons Crate are movable/marketable, so an on-demand reset
+---of source-proof flags would let a player farm unlimited supplies before ever reporting). This
+---also guarantees ORIGIN can never be rewritten once a run is accepted, even by a later call from a
+---different NPC after the WOTE handoff.
 ---@param player Player
 ---@param origin string
 ---@return boolean
 function Zzuppliezz.start(player, origin)
-	if not player then
+	if not player or Zzuppliezz.isActive(player) then
 		return false
 	end
 
