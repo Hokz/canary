@@ -85,10 +85,12 @@ local function creatureSayCallback(npc, creature, type, message)
 		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 then
 			-- No response: tasks are not offered before Children of the Revolution is finished.
 		elseif ChildrenTasks.hasWoteHandoffOccurred(player) then
-			npcHandler:say("I have tazkz for zoze willing to help furzer. Azk about {zzuppliezz} to zupply our warriorz.", npc, creature)
-		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.TeleportAccess.Rebel) >= 1 then
-			npcHandler:say("Feeling adventurouz? Azk me to {collect} zamplez if you want to earn zomezing extra.", npc, creature)
+			npcHandler:say("I have tazkz for zoze willing to help furzer. Azk about {zzuppliezz} to zupply our warriorz, or {collect} zamplez if you want to earn zomezing extra.", npc, creature)
 		end
+		-- Pre-handoff, Chartan has no tasks to offer yet - Zalamon is still the contractor for all
+		-- three, including Forbidden Fruit (the owner reference starts "Collect" at Chartan only
+		-- after the WOTE Mission 05 handoff, not merely once Chartan's own rebel-camp access is
+		-- reached).
 	elseif MsgContains(message, "zzuppliezz") or MsgContains(message, "supplies") then
 		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or not ChildrenTasks.hasWoteHandoffOccurred(player) then
 			-- Not offered before Children is finished, or before the WOTE Mission 05 handoff -
@@ -136,9 +138,11 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("You muzt rezt before ztriking again.", npc, creature)
 		end
 	elseif MsgContains(message, "collect") then
-		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.TeleportAccess.Rebel) < 1 then
-			-- Not offered before Children is finished, or before Chartan's own legitimate
-			-- rebel-camp access is reached.
+		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) < 21 or not ChildrenTasks.hasWoteHandoffOccurred(player) then
+			-- Not offered before Children is finished, or before the WOTE Mission 05 handoff - like
+			-- Zzuppliezz and Zze Art of War, Forbidden Fruit is a POST-handoff Chartan task per the
+			-- owner reference, not available merely because Chartan's own rebel-camp access
+			-- (TeleportAccess.Rebel) was reached.
 		elseif ForbiddenFruit.isActive(player) then
 			local reason = ForbiddenFruit.blockingReason(player)
 			if reason == "collect" then

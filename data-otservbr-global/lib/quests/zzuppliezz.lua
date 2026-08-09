@@ -7,8 +7,17 @@
 --   * Weapons crate / corned fish item ids (10247, 10218) - PROJECT DATA (items.xml descriptions
 ---    match: "This crate contains a set of weapons", "prepared as provision for soldiers").
 --   * "Vive la Resistance" achievement on first prisoner feeding - OWNER REFERENCE.
---   * Gem reward pool (red/yellow/green/blue/violet) - OWNER REFERENCE names the pool; PROJECT
---     DATA for the exact item ids.
+--   * Reward pool (Red/Green/Blue Gem, or very rarely Zaoan Armor) - OWNER REFERENCE reward image
+--     names this exact pool. An earlier draft of this PR used a five-gem pool (adding Yellow and
+--     Violet Gem) that does not match the owner reference and has been corrected. All four item ids
+--     resolved by exact PROJECT DATA name (items.xml): Red Gem 3039, Green Gem 3038, Blue Gem 3041,
+--     Zaoan armor 10384.
+--   * Reward probability - exact CipSoft odds NOT_PROVEN; the owner reference only establishes
+--     Zaoan Armor as "very rare" relative to the three gems. Authorized GLOBAL-like fallback: 1%
+--     Zaoan Armor, 33% each gem - CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REWARD_PROBABILITY. The choice
+--     is rolled once and persisted for the run (KEY_REWARD_CHOICE below), not re-rolled on every
+--     report attempt, so a player cannot deliberately induce a delivery failure to re-roll for a
+--     more convenient reward.
 --   * Cooldown anchor (starts on successful REPORT, not on acceptance) - NOT independently proven
 --     from any source; CUSTOM_GLOBAL_LIKE_COOLDOWN_ANCHOR. "Repeatable after N hours" most
 --     naturally reads as N hours after the previous completion, and starting the clock at
@@ -39,7 +48,10 @@ Zzuppliezz.ITEM_WEAPONS_CRATE = 10247
 Zzuppliezz.ITEM_CORNED_FISH = 10218
 Zzuppliezz.FISH_REQUIRED = 2 -- one fed to the prisoners, one returned to the task giver
 
-Zzuppliezz.GEM_REWARDS = { 3039, 3037, 3038, 3041, 3036 } -- red, yellow, green, blue, violet
+Zzuppliezz.REWARD_RED_GEM = 3039
+Zzuppliezz.REWARD_GREEN_GEM = 3038
+Zzuppliezz.REWARD_BLUE_GEM = 3041
+Zzuppliezz.REWARD_ZAOAN_ARMOR = 10384
 
 local KEY_ACTIVE = "zzuppliezz-active"
 local KEY_ORIGIN = "zzuppliezz-origin"
@@ -49,6 +61,9 @@ local KEY_EVER_COMPLETED_CHARTAN = "zzuppliezz-ever-completed-chartan"
 local KEY_CRATE_TAKEN = "zzuppliezz-crate-taken"
 local KEY_FISH_TAKEN = "zzuppliezz-fish-taken"
 local KEY_PRISONERS_FED = "zzuppliezz-prisoners-fed"
+-- The reward chosen for this run's completion attempt, persisted so a failed delivery retry reuses
+-- the same reward instead of re-rolling (see PROVENANCE).
+local KEY_REWARD_CHOICE = "zzuppliezz-reward-choice"
 
 local function flag(player, key)
 	return player:kv():get(key) == true
@@ -168,6 +183,7 @@ function Zzuppliezz.start(player, origin)
 	player:kv():set(KEY_PRISONERS_FED, false)
 	player:kv():set(KEY_ACTIVE, true)
 	player:kv():set(KEY_ORIGIN, origin)
+	player:kv():remove(KEY_REWARD_CHOICE)
 	return true
 end
 
@@ -204,12 +220,46 @@ function Zzuppliezz.blockingReason(player)
 	return nil
 end
 
+---Rolls a NEW reward - only ever called once per run by selectedReward() below.
+---@return number itemId
+local function rollReward()
+	-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REWARD_PROBABILITY: exact CipSoft odds could not be
+	-- recovered; the owner reference only establishes Zaoan Armor as "very rare" relative to the
+	-- three gems. Authorized fallback: 1% armor, 33% each gem (roll 1..100: 1 -> armor,
+	-- 2..34 -> red, 35..67 -> green, 68..100 -> blue).
+	local roll = math.random(100)
+	if roll == 1 then
+		return Zzuppliezz.REWARD_ZAOAN_ARMOR
+	elseif roll <= 34 then
+		return Zzuppliezz.REWARD_RED_GEM
+	elseif roll <= 67 then
+		return Zzuppliezz.REWARD_GREEN_GEM
+	else
+		return Zzuppliezz.REWARD_BLUE_GEM
+	end
+end
+
+---Selects this run's reward on the FIRST completion attempt and persists it, so a later retry
+---(e.g. after a delivery failure) always reuses the same reward instead of re-rolling.
+---@param player Player
+---@return number itemId
+local function selectedReward(player)
+	local choice = player:kv():get(KEY_REWARD_CHOICE)
+	if type(choice) ~= "number" then
+		choice = rollReward()
+		player:kv():set(KEY_REWARD_CHOICE, choice)
+	end
+	return choice
+end
+
 ---Transactional completion. The reward is granted before the required items are consumed, so a
----player whose inventory is too full to receive the gem loses nothing and can simply retry. If the
----second removal ever fails, the first item is restored, so a partial consumption never happens.
----Which "ever completed" flag is set is decided by the ORIGIN RECORDED AT ACCEPTANCE, not by which
----NPC this call happens to be reported to - a task started at Zalamon must still count as a
----Zalamon-origin completion even when reported to Chartan after the WOTE handoff.
+---player whose inventory is too full to receive the reward loses nothing and can simply retry. If
+---the second removal ever fails, the first item is restored, so a partial consumption never
+---happens. The reward itself was already chosen and persisted (selectedReward), so retrying after a
+---failure can never re-roll for a more convenient one. Which "ever completed" flag is set is
+---decided by the ORIGIN RECORDED AT ACCEPTANCE, not by which NPC this call happens to be reported
+---to - a task started at Zalamon must still count as a Zalamon-origin completion even when reported
+---to Chartan after the WOTE handoff.
 ---@param player Player
 ---@return boolean
 function Zzuppliezz.complete(player)
@@ -217,19 +267,19 @@ function Zzuppliezz.complete(player)
 		return false
 	end
 
-	local gem = Zzuppliezz.GEM_REWARDS[math.random(#Zzuppliezz.GEM_REWARDS)]
-	if not player:addItem(gem, 1, false) then
+	local reward = selectedReward(player)
+	if not player:addItem(reward, 1, false) then
 		return false
 	end
 
 	if not player:removeItem(Zzuppliezz.ITEM_WEAPONS_CRATE, 1) then
-		player:removeItem(gem, 1)
+		player:removeItem(reward, 1)
 		return false
 	end
 
 	if not player:removeItem(Zzuppliezz.ITEM_CORNED_FISH, 1) then
 		player:addItem(Zzuppliezz.ITEM_WEAPONS_CRATE, 1, false)
-		player:removeItem(gem, 1)
+		player:removeItem(reward, 1)
 		return false
 	end
 
@@ -240,6 +290,7 @@ function Zzuppliezz.complete(player)
 	else
 		player:kv():set(KEY_EVER_COMPLETED_CHARTAN, true)
 	end
+	player:kv():remove(KEY_REWARD_CHOICE)
 	ChildrenTasks.markDailyReported(player)
 	return true
 end

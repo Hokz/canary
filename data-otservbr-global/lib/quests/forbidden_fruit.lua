@@ -13,22 +13,25 @@
 --   * The reward group is selected once and persisted for the run (KEY_REWARD_GROUP below) rather
 --     than re-rolled on every report attempt, so a player cannot deliberately induce a delivery
 --     failure (e.g. a full inventory) to re-roll for a more convenient group.
---   * PARTIALLY MAP_REQUIRED: 3 of the 7 physical plant/seed source objects. Two audit rounds:
+--   * PARTIALLY MAP_REQUIRED: 3 of the 7 physical plant/seed source objects. Three audit rounds:
 --     round 1 incorrectly searched the OTBM for the seven SAMPLE item ids (12229-12235) - those are
 --     the OUTPUT items a plant grants, not the plants themselves, so their absence from the map
 --     proved nothing and that conclusion was withdrawn. Round 2 re-audited seven externally-
---     referenced plant coordinates with a +/-5 tile neighborhood scan at each: Sprocketwhip (item
---     10718), Carnivortex (10716), and Toxic Tulip (10717) each sit exactly at their documented
---     marker AND are the ONLY instance of their item id within that radius - wired below via
---     actions_forbidden_fruit_collect.lua. The other 4 markers did not clear that bar: Screaming
---     Cherry Tree's marker contains a mismatched named object ("solstice tree"), Rotten Witches'
---     Cauldron Plant's marker contains a generic hedge decoration, and both Wraithtongue's and
---     Witherstem's candidate objects repeat many times within the same radius (Wraithtongue's
---     externally-claimed id doesn't appear in the radius at all; Witherstem's candidate id repeats
---     9 times), so no single instance can be identified with the confidence this project's "no
---     guessed coordinate" rule requires. See the PR body for the full 7-position audit matrix.
---     Collecting the 3 wired samples is necessary but not sufficient - ForbiddenFruit.hasCollectedAll
---     still requires all 7, so the task remains uncompletable until the other 4 anchors are proven.
+--     referenced plant coordinates with a +/-5 tile neighborhood scan at each and required LOCAL
+--     uniqueness; round 3 relaxed that specifically where habitat corroboration exists, since the
+--     reference documents plant locations, not single globally-unique objects. Sprocketwhip (item
+--     10718), Carnivortex (10716), Toxic Tulip (10717), and Witherstem (10715) are PROVEN - wired
+--     below via actions_forbidden_fruit_collect.lua. The remaining 3 markers still don't clear the
+--     bar even under the relaxed standard: Screaming Cherry Tree's marker contains a categorically
+--     mismatched object (a "solstice tree", a distinct winter-event decoration), Rotten Witches'
+--     Cauldron Plant's marker contains an item independently confirmed (via its dozens of
+--     straight-line-aligned occurrences throughout the whole Zao region) to be a generic hedge-ROW
+--     border decoration rather than an individual plant, and Wraithtongue's externally-suggested id
+--     does not appear anywhere in or near the documented area - only in a distant, differently-
+--     themed decoration cluster and scattered unrelated regions/floors across the whole map. See
+--     the PR body for the full 7-position audit matrix. Collecting the 4 wired samples is necessary
+--     but not sufficient - ForbiddenFruit.hasCollectedAll still requires all 7, so the task remains
+--     uncompletable until the other 3 anchors are proven.
 
 ForbiddenFruit = ForbiddenFruit or {}
 
