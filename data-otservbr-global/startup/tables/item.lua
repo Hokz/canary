@@ -3460,4 +3460,23 @@ ItemUnique = {
 		itemId = 31357,
 		itemPos = { x = 33914, y = 31639, z = 9 },
 	},
+	-- Zzuppliezz task (Zalamon/Chartan task family). Position-first read-only OTBM evidence, not
+	-- guessed: all three sit inside the exact buildings Children of the Revolution's own Mission 2
+	-- scouting objectives already use (the underground weapons magazine behind AID 8010's wooden
+	-- bars, and the fish-storage building at AID 8009). itemId is the existing decorative object
+	-- physically confirmed at that exact position; the decorative racks/fish spread throughout the
+	-- whole settlement are not otherwise distinguishable from one another, so one representative
+	-- instance inside each already-proven room is wired rather than none.
+	[57570] = {
+		itemId = 10063, -- lizard weapon rack, inside the AID 8010 weapons magazine room
+		itemPos = { x = 33228, y = 31153, z = 8 },
+	},
+	[57571] = {
+		itemId = 10245, -- fish (decorative), inside the AID 8009 fish-storage room
+		itemPos = { x = 33228, y = 31157, z = 7 },
+	},
+	[57572] = {
+		itemId = 2296, -- wooden bars, the small bamboo-enclosed cell south of the settlement
+		itemPos = { x = 33260, y = 31157, z = 7 },
+	},
 }

@@ -58,14 +58,16 @@ local function isCurrentRun(runToken)
 	return runToken > 0 and Game.getStorageValue(Mission05) == runToken
 end
 
--- CONFIRMED BUG (found in review): only the STEPPING player was checked for Questline == 19;
--- the other three formation tiles were accepted from any isPlayer() occupant at all, letting one
--- eligible player plus three arbitrary bystanders start the encounter. Every one of the four
--- formation occupants must independently satisfy this predicate. Kept as its own function (not
--- inlined) so a future task-family PR can extend it - e.g. "== 19 OR active Zze Art of War
--- participant" - without touching the formation/wave logic at all.
+-- Extended for the Zalamon/Chartan task family: a main-quest participant (Questline == 19) or an
+-- active "Zze Art of War" weekly-task participant may occupy a formation position. All four
+-- positions are still checked independently, so random unrelated players remain invalid, and a
+-- mixed group (some main-quest, some weekly) is allowed as long as every one of the four
+-- qualifies one way or the other.
 local function isEligibleForMission05Formation(player)
-	return player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) == 19
+	if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) == 19 then
+		return true
+	end
+	return ZzeArtOfWar.isActive(player)
 end
 
 local function doClearMissionArea(runToken)
@@ -81,8 +83,15 @@ local function doClearMissionArea(runToken)
 		if spectator:isPlayer() then
 			spectator:teleportTo(config.zalamonPosition)
 			spectator:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
+			-- Route completion by WHY this player was eligible, not just that they survived. A main
+			-- quest participant advances Children of the Revolution's own Questline; a weekly-task
+			-- participant's outcome belongs entirely to Zze Art of War and must never touch
+			-- Questline (Children of the Revolution is already complete for them, per its own
+			-- prerequisite - Questline must not be perturbed).
 			if spectator:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) == 19 then
 				spectator:setStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline, 20)
+			elseif ZzeArtOfWar.isActive(spectator) then
+				ZzeArtOfWar.markObjectiveComplete(spectator)
 			end
 		else
 			spectator:remove()
