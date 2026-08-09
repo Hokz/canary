@@ -64,11 +64,19 @@ supplies:uid(FISH_SOURCE_UID)
 supplies:register()
 
 -- This is the step the task exists for, so completion requires proof it happened
--- (Zzuppliezz.hasFedPrisoners), not merely that the right items are carried. First successful
--- feeding grants "Vive la Resistance" (owner reference), once only.
+-- (Zzuppliezz.hasFedPrisoners), not merely that the right items are carried. The reference
+-- interaction is USING a Corned Fish ON the prisoner bars, not clicking the bars by themselves -
+-- registered on the fish (like falcon_shield.lua's use-with pattern) and gated on the target being
+-- the exact proven prisoner-bars uid, so using a fish on any other wooden bars on the map does
+-- nothing, and clicking the bars empty-handed does nothing either. First successful feeding grants
+-- "Vive la Resistance" (owner reference), once only.
 local prisoners = Action()
 
 function prisoners.onUse(player, item, fromPosition, target, toPosition, isHotkey)
+	if not target or type(target) ~= "userdata" or not target:isItem() or target:getUniqueId() ~= PRISONER_FENCE_UID then
+		return false
+	end
+
 	if not Zzuppliezz.isActive(player) then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Hollow-eyed prisoners watch you from behind the bars.")
 		return true
@@ -86,8 +94,9 @@ function prisoners.onUse(player, item, fromPosition, target, toPosition, isHotke
 		return true
 	end
 
-	if not player:removeItem(Zzuppliezz.ITEM_CORNED_FISH, 1) then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need two salted fish: one for the prisoners, one to bring back.")
+	-- Consume the EXACT fish instance the player used, not an arbitrary matching fish elsewhere in
+	-- the inventory.
+	if not item:remove(1) then
 		return true
 	end
 
@@ -101,5 +110,5 @@ function prisoners.onUse(player, item, fromPosition, target, toPosition, isHotke
 	return true
 end
 
-prisoners:uid(PRISONER_FENCE_UID)
+prisoners:id(Zzuppliezz.ITEM_CORNED_FISH)
 prisoners:register()

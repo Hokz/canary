@@ -10,17 +10,23 @@
 --   * The seven sample item ids - PROJECT DATA (items.xml, resolved by exact name).
 --   * Equal-probability reward group selection - NOT independently proven; bounded research found
 --     no documented exact distribution. CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REWARD_PROBABILITY.
---   * MAP_REQUIRED: the seven physical plant/seed source objects. A full, unbounded scan of the
---     exact configured OTBM (otservbr.otbm v3.6.1) for all seven sample item ids (12229-12235)
---     found zero placements anywhere on the map, and bounded external research did not surface
---     usable coordinates either. This is expected if the items are granted by interacting with a
---     generic decorative plant (the same pattern used throughout this project for other one-time
---     quest pickups), but no candidate decoration could be identified with the confidence this
---     project's standing "no guessed coordinate" rule requires - there was no reliable way to
---     distinguish "the" seven correct plants from the very large number of unrelated decorative
---     plants across the region. The task's dialogue and state machine are implemented in full and
---     ready to use; the seven world interactions are NOT implemented and must be wired once the
---     physical anchors are proven (see the PR body for the exact manual RME manifest).
+--   * The reward group is selected once and persisted for the run (KEY_REWARD_GROUP below) rather
+--     than re-rolled on every report attempt, so a player cannot deliberately induce a delivery
+--     failure (e.g. a full inventory) to re-roll for a more convenient group.
+--   * MAP_REQUIRED: the seven physical plant/seed source objects. A prior audit round incorrectly
+--     searched the OTBM for the seven SAMPLE item ids (12229-12235) - those are the OUTPUT items
+--     granted by interacting with a plant, not the plants themselves, so their absence from the map
+--     proves nothing about the plants' existence and that conclusion has been withdrawn. A re-audit
+--     against seven externally-referenced physical plant coordinates found real, distinct objects
+--     at 4 of 7 positions, but none of the four could be identified BY NAME against current project
+--     item data (items.xml has no entry for their item ids, and items.otb - which would carry their
+--     names - is gitignored and not present in this repository), and the remaining 3 of 7 positions
+--     do not contain a plausible plant object at all (see the PR body for the full per-position
+--     table). Wiring world interactions on physical objects that cannot even be confirmed to BE the
+--     intended plants would be a different flavor of the same guessing this project's "no guessed
+--     coordinate" rule forbids, so the seven world interactions remain NOT implemented. The task's
+--     dialogue and state machine are implemented in full and ready to use once all seven anchors are
+--     positively confirmed.
 
 ForbiddenFruit = ForbiddenFruit or {}
 
@@ -59,13 +65,15 @@ ForbiddenFruit.REWARDS = {
 
 local KEY_ACTIVE = "forbidden-fruit-active"
 local KEY_ORIGIN = "forbidden-fruit-origin"
-local KEY_TIMER = "forbidden-fruit-timer"
 local KEY_EVER_COMPLETED = "forbidden-fruit-ever-completed"
 -- Per-cycle progress: which of the 7 samples were collected THIS cycle and which were eaten THIS
 -- cycle, so an old/stashed sample (collected on a previous cycle, or bought/traded) can never
 -- silently satisfy a new cycle's requirement.
 local KEY_COLLECTED_PREFIX = "forbidden-fruit-collected-"
 local KEY_EATEN_PREFIX = "forbidden-fruit-eaten-"
+-- The reward group chosen for this run's completion attempt, persisted so a failed delivery retry
+-- reuses the same group instead of re-rolling (see provenance note above).
+local KEY_REWARD_GROUP = "forbidden-fruit-reward-group"
 
 local function flag(player, key)
 	return player:kv():get(key) == true
@@ -125,20 +133,12 @@ function ForbiddenFruit.markEaten(player, itemId)
 	player:kv():set(KEY_EATEN_PREFIX .. itemId, true)
 end
 
+---Delegates to the SHARED daily-lane timer - see ChildrenTasks.dailyCooldownRemaining - so a
+---Zzuppliezz completion blocks this task too, and vice versa.
 ---@param player Player
 ---@return number
 function ForbiddenFruit.cooldownRemaining(player)
-	if not player then
-		return 0
-	end
-
-	local finishTime = player:kv():get(KEY_TIMER)
-	if type(finishTime) ~= "number" then
-		return 0
-	end
-
-	local remaining = finishTime - os.time()
-	return remaining > 0 and remaining or 0
+	return ChildrenTasks.dailyCooldownRemaining(player)
 end
 
 ---@param player Player
@@ -173,6 +173,7 @@ function ForbiddenFruit.start(player, origin)
 	end
 	player:kv():set(KEY_ACTIVE, true)
 	player:kv():set(KEY_ORIGIN, origin)
+	player:kv():remove(KEY_REWARD_GROUP)
 	return true
 end
 
@@ -218,18 +219,33 @@ function ForbiddenFruit.blockingReason(player)
 	return nil
 end
 
+---Selects this run's reward group on the FIRST completion attempt and persists it, so a later
+---retry (e.g. after a delivery failure) always reuses the same group instead of re-rolling.
+---@param player Player
 ---@param vocation string
 ---@return table|nil
-local function pickRewardGroup(vocation)
-	local table_ = ForbiddenFruit.REWARDS[vocation]
-	if not table_ then
+local function selectedRewardGroup(player, vocation)
+	local groups = ForbiddenFruit.REWARDS[vocation]
+	if not groups then
 		return nil
 	end
-	-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REWARD_PROBABILITY: equal chance among the four groups, no
-	-- documented exact distribution found.
-	return table_[math.random(#table_)]
+
+	local index = player:kv():get(KEY_REWARD_GROUP)
+	if type(index) ~= "number" or not groups[index] then
+		-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REWARD_PROBABILITY: equal chance among the four groups,
+		-- no documented exact distribution found.
+		index = math.random(#groups)
+		player:kv():set(KEY_REWARD_GROUP, index)
+	end
+
+	return groups[index]
 end
 
+---Transactional completion: either every required item is granted or none are. A failed item grant
+---rolls back everything already granted THIS attempt and leaves the task fully reportable - no
+---partial reward, no EXP, no achievement, no cooldown. The reward group itself was already chosen
+---and persisted (selectedRewardGroup), so retrying after a failure can never re-roll for a more
+---convenient one.
 ---@param player Player
 ---@param vocation string
 ---@return boolean
@@ -238,14 +254,20 @@ function ForbiddenFruit.complete(player, vocation)
 		return false
 	end
 
-	local group = pickRewardGroup(vocation)
+	local group = selectedRewardGroup(player, vocation)
 	if not group then
 		return false
 	end
 
 	if group.items then
+		local granted = {}
 		for _, rewardItem in ipairs(group.items) do
-			if not player:addItem(rewardItem.id, rewardItem.count, false) then
+			if player:addItem(rewardItem.id, rewardItem.count, false) then
+				granted[#granted + 1] = rewardItem
+			else
+				for _, rollbackItem in ipairs(granted) do
+					player:removeItem(rollbackItem.id, rollbackItem.count)
+				end
 				return false
 			end
 		end
@@ -259,7 +281,8 @@ function ForbiddenFruit.complete(player, vocation)
 
 	player:kv():set(KEY_ACTIVE, false)
 	player:kv():set(KEY_EVER_COMPLETED, true)
-	player:kv():set(KEY_TIMER, os.time() + ForbiddenFruit.REPEAT_INTERVAL)
+	player:kv():remove(KEY_REWARD_GROUP)
+	ChildrenTasks.markDailyReported(player)
 	return true
 end
 

@@ -7,12 +7,16 @@
 --   * Task exists, name, dialogue keyword, "repeats Mission 5", 10,000 XP reward - OWNER
 --     REFERENCE (Children of the Revolution PDF, Task 2).
 --   * 6 days 20 hours repeat interval - CURRENT TIBIA / CipSoft patch evidence (bounded research).
---   * Extra Tome of Knowledge claim opportunity - CURRENT TIBIA reference (bounded research); the
---     permanent Children of the Revolution chest storage
---     (ChildrenOfTheRevolution.ChestTomeOfKnowledge2) is never touched by this task - a separate
---     per-run KV flag gates one weekly claim instead, granted directly on report rather than by
---     re-registering an Action on the same physical chest (which would collide with the existing,
---     already-proven main-quest registration).
+--   * Extra Tome of Knowledge claim opportunity - CURRENT TIBIA reference (bounded research). The
+--     Tome is a physical pickup from the EXISTING Tome chest inside the Phantom Army arena (uid
+--     6291, ~(33264,31130,7), see startup/tables/chest.lua), not an NPC-report reward - a player
+--     who skips grabbing it during the encounter has simply missed that opportunity for this run
+--     and it is never compensated afterward. The permanent Children of the Revolution claim
+--     storage (ChildrenOfTheRevolution.ChestTomeOfKnowledge2) is never reset or overwritten; a
+--     separate per-run KV flag (see ZzeArtOfWar.tryClaimWeeklyTome) gates exactly one ADDITIONAL
+--     weekly claim through that same chest, wired as a small scoped extension of the existing
+--     generic reward-chest dispatcher (scripts/actions/system/quest_reward_common.lua) rather than
+--     a second, conflicting Action registered on the same uid.
 
 ZzeArtOfWar = ZzeArtOfWar or {}
 
@@ -127,6 +131,32 @@ function ZzeArtOfWar.start(player, origin)
 	return true
 end
 
+---Attempts the ONE additional weekly claim of the bonus Tome of Knowledge through the EXISTING
+---physical Tome chest (uid 6291, see scripts/actions/system/quest_reward_common.lua). Returns
+---false without granting anything when the player isn't an active weekly participant, when this
+---run's claim is already used, or when the item fails to fit - a failed grant does NOT burn the
+---claim, so a player with a full inventory may simply come back and retry. Never touches the
+---permanent Children of the Revolution chest storage.
+---@param player Player
+---@return boolean
+function ZzeArtOfWar.tryClaimWeeklyTome(player)
+	if not player or not ZzeArtOfWar.isActive(player) then
+		return false
+	end
+
+	if flag(player, KEY_WEEKLY_TOME_CLAIMED) then
+		return false
+	end
+
+	if not player:addItem(ZzeArtOfWar.WEEKLY_TOME_ITEM, 1, false) then
+		return false
+	end
+
+	player:kv():set(KEY_WEEKLY_TOME_CLAIMED, true)
+	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You find a spare Tome of Knowledge left behind for the resistance.")
+	return true
+end
+
 ---@param player Player
 ---@return string|nil
 function ZzeArtOfWar.blockingReason(player)
@@ -141,8 +171,8 @@ function ZzeArtOfWar.blockingReason(player)
 	return nil
 end
 
----Reward sequence: 10,000 XP (owner reference), plus one Tome of Knowledge if this run hasn't
----already claimed it. No additional reward invented.
+---Reward sequence: 10,000 XP (owner reference) ONLY. The bonus Tome of Knowledge is never granted
+---here - see ZzeArtOfWar.tryClaimWeeklyTome for the physical-chest claim path.
 ---@param player Player
 ---@return boolean
 function ZzeArtOfWar.complete(player)
@@ -151,14 +181,6 @@ function ZzeArtOfWar.complete(player)
 	end
 
 	player:addExperience(ZzeArtOfWar.REWARD_EXPERIENCE, true)
-
-	if not flag(player, KEY_WEEKLY_TOME_CLAIMED) then
-		if player:addItem(ZzeArtOfWar.WEEKLY_TOME_ITEM, 1, false) then
-			player:kv():set(KEY_WEEKLY_TOME_CLAIMED, true)
-		end
-		-- A failed grant (e.g. no capacity) is not fatal to completion - the XP and cooldown still
-		-- apply, matching the transactional-but-not-item-blocking nature of a pure bonus reward.
-	end
 
 	player:kv():set(KEY_ACTIVE, false)
 	player:kv():set(KEY_OBJECTIVE_COMPLETE, false)

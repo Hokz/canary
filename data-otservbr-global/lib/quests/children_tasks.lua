@@ -87,11 +87,52 @@ function ChildrenTasks.hasActiveWeeklyTask(player)
 	return hasActiveInLane(player, ChildrenTasks.LANE_WEEKLY)
 end
 
--- Historical audited WOTE state (VERIFIED present on current main: storages.lua reserves
--- Storage.Quest.U8_6.WrathOfTheEmperor.Questline/Mission05, even though the WOTE quest scripts
--- that would ever WRITE to them remain in the frozen, unmerged PR #30). Questline 12 -> 13 /
--- Mission05 = 1 is when Zalamon offers the WOTE Mission 05 continuation. Used ONLY to select which
--- NPC currently offers NEW tasks - this PR does not write to or otherwise modify this storage.
+-- Shared daily-lane cooldown. Only ONE daily task (Zzuppliezz or Forbidden Fruit) may be done per
+-- daily interval - ACTIVE exclusivity alone does not enforce this, since completing one daily task
+-- clears its own isActive flag and leaves the OTHER daily task's independent timer untouched,
+-- letting a player immediately start the other one right after finishing the first. A single
+-- shared timestamp, set by whichever daily task reports successfully, closes that gap. The weekly
+-- lane (Zze Art of War) is completely independent and must never read or write this timer.
+ChildrenTasks.DAILY_LANE_INTERVAL = 20 * 60 * 60 -- 20 hours, matches both daily tasks' own interval
+
+local KEY_DAILY_NEXT_AVAILABLE = "children-tasks-daily-next-available"
+
+---Seconds until the daily lane (either Zzuppliezz or Forbidden Fruit) may be accepted again; 0 when
+---available. Shared across both daily tasks so completing either one blocks the other for the same
+---interval.
+---@param player Player
+---@return number
+function ChildrenTasks.dailyCooldownRemaining(player)
+	if not player then
+		return 0
+	end
+
+	local finishTime = player:kv():get(KEY_DAILY_NEXT_AVAILABLE)
+	if type(finishTime) ~= "number" then
+		return 0
+	end
+
+	local remaining = finishTime - os.time()
+	return remaining > 0 and remaining or 0
+end
+
+---Called by a daily task's own complete() on successful report. Starts the SHARED daily cooldown -
+---not a per-task one - so the other daily task is blocked for the same interval.
+---@param player Player
+function ChildrenTasks.markDailyReported(player)
+	if not player then
+		return
+	end
+	player:kv():set(KEY_DAILY_NEXT_AVAILABLE, os.time() + ChildrenTasks.DAILY_LANE_INTERVAL)
+end
+
+-- Historical audited WOTE state. Storage.Quest.U8_6.WrathOfTheEmperor.Questline/Mission05 are
+-- reserved in storages.lua, and current main ALREADY writes and reads this Questline as far as 13
+-- (npc/zalamon.lua and npc/chartan.lua carry Mission 01-02 dialogue live today, independently of
+-- the frozen WOTE PR #30) - only the FULL WOTE quest past that point remains exclusively in the
+-- frozen branch. Questline 12 -> 13 / Mission05 = 1 is when Zalamon offers the WOTE Mission 05
+-- continuation. Used ONLY to select which NPC currently offers NEW tasks - this PR does not write
+-- to or otherwise modify this storage.
 local WOTE_HANDOFF_QUESTLINE = 13
 
 ---True once WOTE Mission 05 has started: Zalamon stops offering new tasks and Chartan takes over.

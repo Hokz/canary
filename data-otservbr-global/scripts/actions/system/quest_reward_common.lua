@@ -181,6 +181,13 @@ function questReward.onUse(player, item, fromPosition, itemEx, toPosition)
 		end
 	else
 		if player:getStorageValue(setting.storage) >= 1 then
+			-- ZALAMON/CHARTAN TASK FAMILY: this exact chest (uid 6291) also grants a separate,
+			-- run-scoped weekly claim to an active Zze Art of War participant once the permanent
+			-- Children of the Revolution claim above is already used - that permanent storage is
+			-- never touched again. See lib/quests/zze_art_of_war.lua.
+			if item.uid == 6291 and ZzeArtOfWar and ZzeArtOfWar.tryClaimWeeklyTome(player) then
+				return true
+			end
 			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The " .. getItemName(setting.itemId) .. " is empty.")
 			return true
 		end

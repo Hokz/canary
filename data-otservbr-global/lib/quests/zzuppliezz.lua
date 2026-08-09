@@ -14,6 +14,9 @@
 --     naturally reads as N hours after the previous completion, and starting the clock at
 --     acceptance would let a player hold a stale task open indefinitely and then finish it right
 --     as an acceptance-based cooldown was about to expire, effectively shortening the interval.
+--   * The cooldown is the SHARED daily-lane timer (ChildrenTasks.dailyCooldownRemaining/
+--     markDailyReported), not a Zzuppliezz-only timer - completing Zzuppliezz must also block
+--     Forbidden Fruit for the same 20 hours, since only one daily task may be done per interval.
 --   * Physical world-trigger positions - see actions_zzuppliezz.lua / startup wiring; PROJECT-
 --     NATIVE position-first OTBM evidence, not guessed.
 --   * Per-run interaction proof, transactional turn-in, and cycle-reacquisition instead of an
@@ -36,7 +39,6 @@ Zzuppliezz.GEM_REWARDS = { 3039, 3037, 3038, 3041, 3036 } -- red, yellow, green,
 
 local KEY_ACTIVE = "zzuppliezz-active"
 local KEY_ORIGIN = "zzuppliezz-origin"
-local KEY_TIMER = "zzuppliezz-timer"
 local KEY_EVER_COMPLETED_ZALAMON = "zzuppliezz-ever-completed-zalamon"
 local KEY_EVER_COMPLETED_CHARTAN = "zzuppliezz-ever-completed-chartan"
 -- Per-cycle progress. Reset whenever a run starts, so nothing carries between cycles.
@@ -110,21 +112,13 @@ function Zzuppliezz.markPrisonersFed(player)
 	player:kv():set(KEY_PRISONERS_FED, true)
 end
 
----Seconds until the task may be taken again; 0 when available.
+---Seconds until the task may be taken again; 0 when available. Delegates to the SHARED daily-lane
+---timer - see ChildrenTasks.dailyCooldownRemaining - so a Forbidden Fruit completion blocks this
+---task too, and vice versa.
 ---@param player Player
 ---@return number
 function Zzuppliezz.cooldownRemaining(player)
-	if not player then
-		return 0
-	end
-
-	local finishTime = player:kv():get(KEY_TIMER)
-	if type(finishTime) ~= "number" then
-		return 0
-	end
-
-	local remaining = finishTime - os.time()
-	return remaining > 0 and remaining or 0
+	return ChildrenTasks.dailyCooldownRemaining(player)
 end
 
 ---@param player Player
@@ -234,7 +228,7 @@ function Zzuppliezz.complete(player)
 	else
 		player:kv():set(KEY_EVER_COMPLETED_CHARTAN, true)
 	end
-	player:kv():set(KEY_TIMER, os.time() + Zzuppliezz.REPEAT_INTERVAL)
+	ChildrenTasks.markDailyReported(player)
 	return true
 end
 

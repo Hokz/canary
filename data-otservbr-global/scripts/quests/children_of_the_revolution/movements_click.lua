@@ -54,6 +54,14 @@ local Mission05 = Storage.Quest.U8_54.ChildrenOfTheRevolution.Mission05
 -- The New Frontier's Mortal Combat arena.
 local currentRunToken = 0
 
+-- The exact set of player ids who STARTED each run (captured at formation completion, see
+-- click.onStepIn), keyed by runToken. Completion credit at the end of the encounter is tied to
+-- this roster, not to whichever players happen to be standing in the arena when the timer ends -
+-- otherwise a late entrant (an active Zze Art of War participant or a Questline == 19 player who
+-- was not one of the four who formed up) could walk in mid-encounter and receive completion for a
+-- survival they did not fully participate in. Cleared once the run finishes.
+local participantsByRun = {}
+
 local function isCurrentRun(runToken)
 	return runToken > 0 and Game.getStorageValue(Mission05) == runToken
 end
@@ -77,21 +85,29 @@ local function doClearMissionArea(runToken)
 
 	Game.setStorageValue(Mission05, -1)
 
+	local participants = participantsByRun[runToken]
+	participantsByRun[runToken] = nil
+
 	local spectators = Game.getSpectators(config.areaCenter, false, true, 26, 26, 20, 20)
 	for i = 1, #spectators do
 		local spectator = spectators[i]
 		if spectator:isPlayer() then
 			spectator:teleportTo(config.zalamonPosition)
 			spectator:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
-			-- Route completion by WHY this player was eligible, not just that they survived. A main
-			-- quest participant advances Children of the Revolution's own Questline; a weekly-task
-			-- participant's outcome belongs entirely to Zze Art of War and must never touch
-			-- Questline (Children of the Revolution is already complete for them, per its own
-			-- prerequisite - Questline must not be perturbed).
-			if spectator:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) == 19 then
-				spectator:setStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline, 20)
-			elseif ZzeArtOfWar.isActive(spectator) then
-				ZzeArtOfWar.markObjectiveComplete(spectator)
+			-- Completion is tied to the four players who STARTED this exact run (participants,
+			-- captured at formation time), not to whoever happens to be inside the arena when it
+			-- ends - a late entrant must never receive credit for a survival they did not fully
+			-- participate in. Route completion by WHY this player was eligible, not just that they
+			-- survived. A main quest participant advances Children of the Revolution's own
+			-- Questline; a weekly-task participant's outcome belongs entirely to Zze Art of War and
+			-- must never touch Questline (Children of the Revolution is already complete for them,
+			-- per its own prerequisite - Questline must not be perturbed).
+			if participants and participants[spectator:getId()] then
+				if spectator:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) == 19 then
+					spectator:setStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline, 20)
+				elseif ZzeArtOfWar.isActive(spectator) then
+					ZzeArtOfWar.markObjectiveComplete(spectator)
+				end
 			end
 		else
 			spectator:remove()
@@ -181,6 +197,13 @@ function click.onStepIn(creature, item, position, fromPosition)
 	currentRunToken = currentRunToken + 1
 	local runToken = currentRunToken
 	Game.setStorageValue(Mission05, runToken)
+
+	-- Capture the exact four starters as this run's completion roster - see doClearMissionArea.
+	local participantIds = {}
+	for i = 1, #players do
+		participantIds[players[i]:getId()] = true
+	end
+	participantsByRun[runToken] = participantIds
 
 	for wave = 1, #config.waves do
 		addEvent(summonWave, wave * 60 * 1000, runToken, wave)
