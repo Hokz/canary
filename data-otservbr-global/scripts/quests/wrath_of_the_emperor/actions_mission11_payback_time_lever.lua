@@ -13,8 +13,6 @@ local config = {
 	arenaPosition = Position(33359, 31406, 10),
 }
 
-local Mission11 = Storage.Quest.U8_6.WrathOfTheEmperor.Mission11
-
 -- CONFIRMED BUG (found during the WOTE reconciliation audit): the arena lock (Mission11, global
 -- scope via Game.setStorageValue - a separate storage space from the same-numbered PLAYER storage
 -- used elsewhere for personal Mission 11 progress) was a bare boolean, and its 10-minute safety-net
@@ -24,27 +22,9 @@ local Mission11 = Storage.Quest.U8_6.WrathOfTheEmperor.Mission11
 -- below and wipe B's live boss/traps with no kill event ever firing - silently stalling B's Mission11
 -- progress at 1. This is the exact same bug class already found and fixed in
 -- scripts/quests/the_new_frontier/action_arena.lua for that quest's structurally identical lever
--- fight; fixed here the same way, with a run token so a stale callback can never affect a later run.
+-- fight; fixed here the same way, with a run token (shared with creaturescripts_zalamon_kill.lua's
+-- boss-form chain via lib/quests/wote_mission11.lua) so a stale callback can never affect a later run.
 local currentRunToken = 0
-
-local function isCurrentRun(runToken)
-	return runToken > 0 and Game.getStorageValue(Mission11) == runToken
-end
-
-local function sweepArena(runToken)
-	if not isCurrentRun(runToken) then
-		return
-	end
-
-	Game.setStorageValue(Mission11, -1)
-
-	local monsters = Game.getSpectators(config.arenaPosition, false, false, 10, 10, 10, 10)
-	for i = 1, #monsters do
-		if monsters[i]:isMonster() then
-			monsters[i]:remove()
-		end
-	end
-end
 
 local wrathEmperorMiss11Payback = Action()
 function wrathEmperorMiss11Payback.onUse(player, item, fromPosition, target, toPosition, isHotkey)
@@ -58,15 +38,15 @@ function wrathEmperorMiss11Payback.onUse(player, item, fromPosition, target, toP
 		return true
 	end
 
-	if Game.getStorageValue(Mission11) > 0 then
+	if Game.getStorageValue(WoteMission11.Mission11) > 0 then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The arena is already in use.")
 		return true
 	end
 
 	currentRunToken = currentRunToken + 1
 	local runToken = currentRunToken
-	Game.setStorageValue(Mission11, runToken)
-	addEvent(sweepArena, 10 * 60 * 1000, runToken)
+	Game.setStorageValue(WoteMission11.Mission11, runToken)
+	addEvent(WoteMission11.releaseRun, 10 * 60 * 1000, runToken)
 
 	local monsters = Game.getSpectators(config.arenaPosition, false, false, 10, 10, 10, 10)
 	for i = 1, #monsters do
@@ -95,12 +75,13 @@ function wrathEmperorMiss11Payback.onUse(player, item, fromPosition, target, toP
 	-- CONFIRMED GAP (found in review): Game.createMonster's result for the first boss was previously
 	-- discarded. On failure (bad name, blocked tile), the swept-in players would face empty traps
 	-- with no boss ever appearing, stuck until the (previously stale/uncancellable) 10-minute timer
-	-- eventually swept them back out. A failure now aborts only this run - clears the traps and
-	-- releases the lock immediately - rather than leaving players waiting for a boss that was never
+	-- eventually released the lock. A failure now aborts this run immediately via the shared
+	-- WoteMission11 helper (clears the traps, releases the lock, logs the failure, and notifies
+	-- anyone currently in the arena) rather than leaving players waiting for a boss that was never
 	-- going to appear.
 	local boss = Game.createMonster(config.firstboss, config.bossPosition)
 	if not boss then
-		sweepArena(runToken)
+		WoteMission11.abortRun(runToken, "(lever pull)", config.firstboss, config.bossPosition)
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The presence of the emperor resists your call. Try again in a moment.")
 		return true
 	end

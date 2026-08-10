@@ -249,6 +249,19 @@ local function creatureSayCallback(npc, creature, type, message)
 		if npcHandler:getTopic(playerId) == 17 then
 			npcHandler:say("Ah I zzee. You are ready for your mizzion and waiting for me to create and mark zze crate? ", npc, creature)
 			npcHandler:setTopic(playerId, 18)
+			-- WOTE MISSION01 CRATE REBUILD (owner reference: "we can always build a new one if you
+			-- need to"): once the crate has been legitimately built the first time (Questline == 2,
+			-- past the nails/wood construction at topic 18), Zalamon keeps the spare materials and can
+			-- hand over a replacement without charging the nails/wood again. Gated on not already
+			-- carrying one so this cannot become a duplicate-crate source.
+		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 2 then
+			if player:getItemCount(11328) > 0 then
+				npcHandler:say("You alzzeady have zze crate. ", npc, creature)
+			elseif player:addItem(11328, 1, false) then
+				npcHandler:say("Here, I kept zze zzpare materialzz - a new dizzguizze for you. ", npc, creature)
+			else
+				npcHandler:say("Make zzome room firzzt, zzen azzk me again. ", npc, creature)
+			end
 		end
 		-- WRATH OF THE EMPEROR QUEST
 
@@ -265,6 +278,28 @@ local function creatureSayCallback(npc, creature, type, message)
 	elseif MsgContains(message, "poison") or MsgContains(message, "poizzon") then
 		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) == 9 then
 			npcHandler:say("Zze emperor of zze dragonzz hazz tranzzformed himzzelf into an undead creature to lazzt for all eternity, to cheat deazz. Hizz corruption flowzz to zzozze he bound, and from zzem to zzozze zzey bound, and from zzem into zze land.", npc, creature)
+			npcHandler:setTopic(playerId, 0)
+			-- WOTE MISSION03 LOST-FLASK RECOVERY: the owner reference establishes that a lost Flask of
+			-- Plant Poison can be replaced, but not before an hour has passed since the last grant.
+			-- Gated to exactly the objective window (Questline == 7, i.e. sent to poison the garden and
+			-- lure out the Keeper, not yet turned in the tail) so this never interferes with the
+			-- Children of the Revolution "poison" branch above (unreachable at the same time - Children
+			-- must already be far past Questline 9 before WOTE's own Questline can ever reach 7).
+		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 7 then
+			if player:getItemCount(11364) > 0 then
+				npcHandler:say("You zztill have zze plant poizzon I gave you. ", npc, creature)
+			else
+				local lastGrant = player:kv():get("wote-mission03-poison-flask-grant")
+				local elapsed = type(lastGrant) == "number" and (os.time() - lastGrant) or math.huge
+				if elapsed < 60 * 60 then
+					npcHandler:say("I have no more poizzon prepared zzo zzoon. Come back later. ", npc, creature)
+				elseif player:addItem(11364, 1, false) then
+					npcHandler:say("Here, a frezzh flazzk of plant poizzon. Do not lozze zzizz one. ", npc, creature)
+					player:kv():set("wote-mission03-poison-flask-grant", os.time())
+				else
+					npcHandler:say("Make zzome room firzzt, zzen azzk me again. ", npc, creature)
+				end
+			end
 			npcHandler:setTopic(playerId, 0)
 		end
 		-- CHILDREN OF REVOLUTION QUEST
@@ -513,6 +548,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline, 7)
 			player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission03, 1) --Questlog, Wrath of the Emperor "Mission 03: The Keeper"
 			player:addItem(11364, 1)
+			player:kv():set("wote-mission03-poison-flask-grant", os.time())
 			npcHandler:setTopic(playerId, 0)
 		elseif npcHandler:getTopic(playerId) == 20 then
 			if player:removeItem(11367, 1) then

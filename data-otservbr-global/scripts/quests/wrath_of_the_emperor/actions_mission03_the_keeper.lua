@@ -39,7 +39,17 @@ function wrathEmperorMiss3Keeper.onUse(player, item, fromPosition, target, toPos
 				return true
 			end
 
-			player:removeItem(11364, 1)
+			-- Consume the EXACT used Flask instance (the item this Action was invoked on), not an
+			-- arbitrary matching flask found elsewhere via player:removeItem - and only commit the
+			-- Keeper activation if that removal actually succeeds. If it fails for any reason, the
+			-- just-created Keeper is removed again rather than left as an orphan the counter/state
+			-- never accounts for.
+			if not item:remove(1) then
+				monster:remove()
+				player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Something went wrong. Try again.")
+				return true
+			end
+
 			Game.setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission03, 6)
 			toPosition:sendMagicEffect(CONST_ME_YELLOW_RINGS)
 			KEEPER_POSITION:sendMagicEffect(CONST_ME_TELEPORT)
