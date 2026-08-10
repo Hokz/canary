@@ -85,7 +85,12 @@ local function creatureSayCallback(npc, creature, type, message)
 					"Uzing ze zeptre will forze a part of ze emperor'z willpower out of ze cryztal. You will have to kill zoze manifeztationz. ...",
 					"Zen uze your zeptre on ze remainz to deztroy ze emperor'z influenze over ze cryztal. ...",
 					"I recommend not to go alone becauze it will be very dangerouz - but ALL of you will have to uze zeir zeptre replicaz on ze emperor'z remainz to prozeed! ...",
-					"You will need it. Now go to the north of Sleeping Dragon room, {dont need talk} with he! Good luck.",
+					-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE: the owner reference covers Zizzle's
+					-- mission briefing but not this closing directional line. The previous text leaked
+					-- the literal development note "{dont need talk}" to players; replaced with the
+					-- same instruction in Zizzle's established voice - the point being that the
+					-- sleeping dragon need not be spoken to.
+					"You will need it. Now go norz of ze Zleeping Dragon room - you do not need to zpeak wiz him, juzt reach him. Good luck.",
 				}, npc, creature)
 				player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.TeleportAccess.InnerSanctum, 1)
 				player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline, 30)
@@ -94,7 +99,8 @@ local function creatureSayCallback(npc, creature, type, message)
 				player:addItem(11362, 1)
 				npcHandler:setTopic(playerId, 0)
 			else
-				npcHandler:say({ "Now go to the north of Sleeping Dragon room, {dont need talk} with he!" }, npc, creature)
+				-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE: same replacement as the branch above.
+				npcHandler:say({ "Now go norz of ze Zleeping Dragon room - you do not need to zpeak wiz him, juzt reach him." }, npc, creature)
 			end
 		else
 			npcHandler:say("I have no new orderz for you right now, {alliez}. Come back later.", npc, creature)

@@ -34,12 +34,18 @@ function zalamonKill.onDeath(creature)
 		end
 	end
 
-	if not found then
-		local monster = Game.createMonster(bossConfig.newForm, creature:getPosition(), false, true)
-		if monster then
-			monster:say(bossConfig.text, TALKTYPE_MONSTER_SAY)
-		end
+	if found then
+		return true
 	end
+
+	-- CONFIRMED BUG (found during the WOTE reconciliation audit): a failed Game.createMonster used
+	-- to just skip the taunt line and silently drop the rest of the mandatory Snake God Essence ->
+	-- Snake Thing -> Lizard Abomination -> Mutated Zalamon chain, leaving nothing left to fight and
+	-- no way for the run to ever complete. Routed through the shared Mission11 helper
+	-- (lib/quests/wote_mission11.lua) so a hard failure aborts and releases the run instead of
+	-- silently stalling it.
+	local runToken = Game.getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission11)
+	WoteMission11.spawnNextForm(name, bossConfig.newForm, creature:getPosition(), runToken, bossConfig.text)
 	return true
 end
 

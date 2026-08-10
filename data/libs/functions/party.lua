@@ -123,7 +123,16 @@ function Participants(player, requireSharedExperience)
 	if not party then
 		return { player }
 	end
-	if requiredSharedExperience and not party:isSharedExperienceActive() then
+	-- CONFIRMED BUG (found during the WOTE reconciliation audit): this referenced the undeclared
+	-- global "requiredSharedExperience" (extra "d") instead of the "requireSharedExperience"
+	-- parameter above, so the condition was always nil/falsy and the shared-experience gate never
+	-- fired - every onDeathForParty(player, true) caller (23 files repo-wide, including WOTE's
+	-- Magistratus/Noble kill scripts) silently credited the ENTIRE party regardless of shared
+	-- experience, letting an uninvolved party member passively finish a kill-count mission off a
+	-- distant teammate's kills. Restoring the intended parameter name is the fix - this changes
+	-- behavior for every caller that requests the shared-experience gate, all of which were already
+	-- relying on it being enforced.
+	if requireSharedExperience and not party:isSharedExperienceActive() then
 		return { player }
 	end
 	local members = party:getMembers()

@@ -206,6 +206,30 @@ local function creatureSayCallback(npc, creature, type, message)
 			npcHandler:say("You - azzembled zze zzeptre? Hand it out, give it to me, will you? ", npc, creature)
 			npcHandler:setTopic(playerId, 21)
 		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 12 then
+			-- WOTE MISSION05 GATE (owner reference): every qualifying task STARTED at Zalamon must
+			-- be finished, and at least one qualifying Zalamon-origin task must have been completed
+			-- at least once before Mission 05 may begin. Uses the dedicated WOTE qualification API
+			-- (lib/quests/children_tasks.lua) rather than reinventing task-completion tracking here.
+			-- Forbidden Fruit and any Chartan-origin completion never qualify (ChildrenTasks.
+			-- hasQualifyingZalamonCompletion/firstIncompleteZalamonTask only count Zzuppliezz/Zze
+			-- Art of War with origin == ZALAMON); a task started at Zalamon and later reported to
+			-- Chartan after this same handoff still counts, since origin is fixed at acceptance.
+			local outstanding = ChildrenTasks.firstIncompleteZalamonTask(player)
+			if outstanding then
+				npcHandler:say("You zztill owe me zze " .. outstanding .. " run you took on. Finizzh what you zztarted before azzking for more. ", npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
+			if not ChildrenTasks.hasQualifyingZalamonCompletion(player) then
+				npcHandler:say({
+					"Not zzo fazzt. You have never once carried for uzz. Before I zzend you into zze zzity itzzelf, prove you can zzupply our people under zzeir very nozzez. ...",
+					"Azzk me about a {task} and complete one for uzz firzzt. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
 			npcHandler:say({
 				"Now we need to get clozzer to zze emperor himzzelf. A hive of beezz would defend zzeir queen wizz zzeir lives in cazze an enemy gained entranzze. Zzizz makezz a formidable defenzze line, nearly inviolable. ... ",
 				"But a zztranger directly in zze midzzt of zze hive will be acczzepted - after all it izz not pozzible to overcome zzuch a formidable defenzze which izz nearly inviolable, or izz it? Ha. ... ",
@@ -225,6 +249,19 @@ local function creatureSayCallback(npc, creature, type, message)
 		if npcHandler:getTopic(playerId) == 17 then
 			npcHandler:say("Ah I zzee. You are ready for your mizzion and waiting for me to create and mark zze crate? ", npc, creature)
 			npcHandler:setTopic(playerId, 18)
+			-- WOTE MISSION01 CRATE REBUILD (owner reference: "we can always build a new one if you
+			-- need to"): once the crate has been legitimately built the first time (Questline == 2,
+			-- past the nails/wood construction at topic 18), Zalamon keeps the spare materials and can
+			-- hand over a replacement without charging the nails/wood again. Gated on not already
+			-- carrying one so this cannot become a duplicate-crate source.
+		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 2 then
+			if player:getItemCount(11328) > 0 then
+				npcHandler:say("You alzzeady have zze crate. ", npc, creature)
+			elseif player:addItem(11328, 1, false) then
+				npcHandler:say("Here, I kept zze zzpare materialzz - a new dizzguizze for you. ", npc, creature)
+			else
+				npcHandler:say("Make zzome room firzzt, zzen azzk me again. ", npc, creature)
+			end
 		end
 		-- WRATH OF THE EMPEROR QUEST
 
@@ -241,6 +278,28 @@ local function creatureSayCallback(npc, creature, type, message)
 	elseif MsgContains(message, "poison") or MsgContains(message, "poizzon") then
 		if player:getStorageValue(Storage.Quest.U8_54.ChildrenOfTheRevolution.Questline) == 9 then
 			npcHandler:say("Zze emperor of zze dragonzz hazz tranzzformed himzzelf into an undead creature to lazzt for all eternity, to cheat deazz. Hizz corruption flowzz to zzozze he bound, and from zzem to zzozze zzey bound, and from zzem into zze land.", npc, creature)
+			npcHandler:setTopic(playerId, 0)
+			-- WOTE MISSION03 LOST-FLASK RECOVERY: the owner reference establishes that a lost Flask of
+			-- Plant Poison can be replaced, but not before an hour has passed since the last grant.
+			-- Gated to exactly the objective window (Questline == 7, i.e. sent to poison the garden and
+			-- lure out the Keeper, not yet turned in the tail) so this never interferes with the
+			-- Children of the Revolution "poison" branch above (unreachable at the same time - Children
+			-- must already be far past Questline 9 before WOTE's own Questline can ever reach 7).
+		elseif player:getStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline) == 7 then
+			if player:getItemCount(11364) > 0 then
+				npcHandler:say("You zztill have zze plant poizzon I gave you. ", npc, creature)
+			else
+				local lastGrant = player:kv():get("wote-mission03-poison-flask-grant")
+				local elapsed = type(lastGrant) == "number" and (os.time() - lastGrant) or math.huge
+				if elapsed < 60 * 60 then
+					npcHandler:say("I have no more poizzon prepared zzo zzoon. Come back later. ", npc, creature)
+				elseif player:addItem(11364, 1, false) then
+					npcHandler:say("Here, a frezzh flazzk of plant poizzon. Do not lozze zzizz one. ", npc, creature)
+					player:kv():set("wote-mission03-poison-flask-grant", os.time())
+				else
+					npcHandler:say("Make zzome room firzzt, zzen azzk me again. ", npc, creature)
+				end
+			end
 			npcHandler:setTopic(playerId, 0)
 		end
 		-- CHILDREN OF REVOLUTION QUEST
@@ -415,6 +474,38 @@ local function creatureSayCallback(npc, creature, type, message)
 			}, npc, creature)
 			npcHandler:setTopic(playerId, 15)
 		elseif npcHandler:getTopic(playerId) == 15 then
+			-- GENERAL WOTE PREREQUISITES (owner reference): besides Children of the Revolution being
+			-- finished - which reaching this dialogue already proves - the quest needs The New
+			-- Frontier Mission 9 (Mortal Kombat) STARTED and The Ape City Mission 9 STARTED. Full
+			-- completion of either quest is NOT required.
+			--
+			-- Proven states:
+			--   * TheNewFrontier.Mission09[1] >= 1 is written (per-player) by npc/ztiss.lua when the
+			--     tournament path is accepted, i.e. Mortal Kombat started. The same storage id also
+			--     serves as a separate Game-global arena run-token (see
+			--     scripts/quests/the_new_frontier/action_arena.lua) - the two namespaces (player vs
+			--     Game) never collide, matching the same established pattern used by this project's
+			--     other shared mission/arena storages.
+			--   * TheApeCity.Questline >= 17 is written by npc/hairycles.lua when the final (ninth)
+			--     mission is accepted.
+			if player:getStorageValue(Storage.Quest.U8_54.TheNewFrontier.Mission09[1]) < 1 then
+				npcHandler:say({
+					"Not yet, palezzkin. Zze zzettlerzz in zze norzz zztill dizztruzzt uzz. ...",
+					"Prove yourzzelf in zzeir tournament firzzt - zzen we will zzpeak of zze emperor. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
+			if player:getStorageValue(Storage.Quest.U7_6.TheApeCity.Questline) < 17 then
+				npcHandler:say({
+					"You are not ready. Zze ape people to zze wezzt zztill azzk zzingz of you. ...",
+					"Finizzh what Hairyclezz began wizz you, zzen return. ",
+				}, npc, creature)
+				npcHandler:setTopic(playerId, 0)
+				return true
+			end
+
 			npcHandler:say({
 				"Your determination izz highly appreciated. To zzneak pazzt zze eyezz of zze enemy, you will have to uzze a diverzzion. Zzere are zzeveral old tunnelzz beneazz zze zzoil of Zzao. ... ",
 				"One of zzem izz uzzed azz a maintenanzze connection by enemy lizardzz. To enter it, you will have to uzze a dizzguizze. Zzomezzing like a crate perhapzz. ... ",
@@ -457,6 +548,7 @@ local function creatureSayCallback(npc, creature, type, message)
 			player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Questline, 7)
 			player:setStorageValue(Storage.Quest.U8_6.WrathOfTheEmperor.Mission03, 1) --Questlog, Wrath of the Emperor "Mission 03: The Keeper"
 			player:addItem(11364, 1)
+			player:kv():set("wote-mission03-poison-flask-grant", os.time())
 			npcHandler:setTopic(playerId, 0)
 		elseif npcHandler:getTopic(playerId) == 20 then
 			if player:removeItem(11367, 1) then
