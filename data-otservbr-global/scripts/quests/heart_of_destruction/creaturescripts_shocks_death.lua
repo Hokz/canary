@@ -9,17 +9,27 @@ local REALITYQUAKE_ROOM_FROM = { x = 32197, y = 31236, z = 14 }
 local REALITYQUAKE_ROOM_TO = { x = 32220, y = 31260, z = 14 }
 local REALITYQUAKE_EXIT = { x = 32230, y = 31358, z = 11 }
 
--- CUSTOM_GLOBAL_LIKE_FAILURE_RECOVERY (executor contract, section I): logging alone is not
--- recovery for a mandatory encounter handoff. Both Foreshock->Aftershock and Aftershock->
--- Realityquake are now bounded-retried below; if retries are exhausted, the encounter is cleanly
--- aborted here - remaining temporary encounter monsters removed, current participants moved to
--- the established Realityquake exit, the relevant global stage/health state reset, and the
--- Realityquake boss cooldown rolled back. That cooldown matters specifically because
--- actions_foreshock.lua's BossLever commits it up front, at lever-pull time, before the player
--- ever reaches the real Realityquake - without rolling it back, an internal spawn failure here
--- would lock affected players out of a fight they never actually got to have.
-local function abortRealityquakeEncounter(reason)
-	logger.error("HeartOfDestruction: Realityquake encounter aborted - {}", reason)
+-- CUSTOM_GLOBAL_LIKE_FAILURE_RECOVERY (executor contract, section I of the prior pass; token
+-- ownership added in section H of this pass): logging alone is not recovery for a mandatory
+-- encounter handoff. Both Foreshock->Aftershock and Aftershock->Realityquake are bounded-retried
+-- below, every retry captures and re-checks the encounter token from
+-- actions_foreshock.lua's HODRealityquakeEncounter, and a stale retry from an already-finished or
+-- aborted encounter can never spawn into (or abort) a newer one. On exhaustion, the encounter is
+-- cleanly aborted: token invalidated FIRST, remaining temporary monsters removed, current
+-- participants moved to the established exit, the relevant global stage/health state reset, and
+-- the Realityquake boss cooldown rolled back (actions_foreshock.lua's BossLever commits it up
+-- front, at lever-pull time, before the player ever reaches the real Realityquake - without
+-- rolling it back, an internal spawn failure here would lock affected players out of a fight they
+-- never actually got to have).
+local function abortRealityquakeEncounter(token, reason)
+	if not HODRealityquakeEncounterIsCurrent(token) then
+		return
+	end
+	logger.error("HeartOfDestruction: Realityquake encounter {} aborted - {}", token, reason)
+
+	-- Invalidate first (contract-mandated order) so any retry racing in after this point is a
+	-- no-op.
+	HODRealityquakeEncounterFinish(token)
 
 	for i = REALITYQUAKE_ROOM_FROM.x, REALITYQUAKE_ROOM_TO.x do
 		for j = REALITYQUAKE_ROOM_FROM.y, REALITYQUAKE_ROOM_TO.y do
@@ -53,8 +63,11 @@ local function abortRealityquakeEncounter(reason)
 	Game.setStorageValue(GlobalStorage.HeartOfDestruction.AftershockStage, -1)
 end
 
-local function attemptAftershockSpawn(retriesLeft)
+local function attemptAftershockSpawn(token, retriesLeft)
 	retriesLeft = retriesLeft or 3
+	if not HODRealityquakeEncounterIsCurrent(token) then
+		return
+	end
 	local monster = Game.createMonster("Aftershock", Position(32208, 31248, 14), false, true)
 	if monster then
 		local aftershockHealth = Game.getStorageValue(GlobalStorage.HeartOfDestruction.AftershockHealth) > 0 and Game.getStorageValue(GlobalStorage.HeartOfDestruction.AftershockHealth) or 0
@@ -64,24 +77,30 @@ local function attemptAftershockSpawn(retriesLeft)
 	end
 	logger.error("HeartOfDestruction: failed to create Aftershock (retries left: {})", retriesLeft)
 	if retriesLeft > 0 then
-		addEvent(attemptAftershockSpawn, 3000, retriesLeft - 1)
+		addEvent(attemptAftershockSpawn, 3000, token, retriesLeft - 1)
 	else
-		abortRealityquakeEncounter("Aftershock failed to spawn after bounded retries")
+		abortRealityquakeEncounter(token, "Aftershock failed to spawn after bounded retries")
 	end
 end
 
-local function attemptRealityquakeSpawn(position, retriesLeft)
+local function attemptRealityquakeSpawn(token, position, retriesLeft)
 	retriesLeft = retriesLeft or 3
+	if not HODRealityquakeEncounterIsCurrent(token) then
+		return
+	end
 	local monster = Game.createMonster("Realityquake", position, false, true)
 	if monster then
 		createSparksOfDestruction()
+		-- The chain is complete - nothing further will ever retry under this token, so it's
+		-- finished cleanly rather than left inertly "active" (executor contract, section H).
+		HODRealityquakeEncounterFinish(token)
 		return
 	end
 	logger.error("HeartOfDestruction: failed to create Realityquake (retries left: {})", retriesLeft)
 	if retriesLeft > 0 then
-		addEvent(attemptRealityquakeSpawn, 3000, position, retriesLeft - 1)
+		addEvent(attemptRealityquakeSpawn, 3000, token, position, retriesLeft - 1)
 	else
-		abortRealityquakeEncounter("Realityquake failed to spawn after bounded retries")
+		abortRealityquakeEncounter(token, "Realityquake failed to spawn after bounded retries")
 	end
 end
 
@@ -93,10 +112,11 @@ function shocksDeath.onDeath(creature)
 	end
 
 	local creatureName = creature:getName():lower()
+	local token = HODRealityquakeEncounterCurrentToken()
 	if creatureName == "foreshock" then
-		attemptAftershockSpawn()
+		attemptAftershockSpawn(token)
 	elseif creatureName == "aftershock" then
-		attemptRealityquakeSpawn(creature:getPosition())
+		attemptRealityquakeSpawn(token, creature:getPosition())
 	end
 	return true
 end

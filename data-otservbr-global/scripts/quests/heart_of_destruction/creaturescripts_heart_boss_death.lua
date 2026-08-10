@@ -1,67 +1,43 @@
--- Runs 60 seconds after World Devourer's death: kicks any remaining players to the same
--- exit position used by the sibling Hunger/Destruction/Rage rooms, and removes leftover
--- monsters/summons. Named distinctly (not `clearDevourer`) to avoid the pre-existing global
--- function name collision with actions_final_lever.lua's own `clearDevourer` (used there for
--- the 30-minute failsafe and for clearing stale state before a fresh attempt).
-local function finalBattleRoomCleanup()
-	local upConer = { x = 32260, y = 31336, z = 14 } -- upLeftCorner
-	local downConer = { x = 32283, y = 31360, z = 14 } -- downRightCorner
+-- CORRECTION (executor contract, section E): the previous 60-second delayed cleanup scheduled a
+-- bare addEvent with no run token and outside HODFinalRun.events - a full, generation-blind sweep
+-- of the room by POSITION. If a new run had already started in the 60-second window (unlikely
+-- given normal play, but not impossible), this would have removed that NEWER run's own players
+-- and monsters. This replacement operates ONLY on a snapshot of the completed run's own
+-- participant ids and owned monster ids, captured by the caller BEFORE HODFinalRunTerminate clears
+-- HODFinalRun's collections - it is intentionally independent of any mutable current-run state, so
+-- it can never touch anything belonging to a run that starts later. Corpses/dropped items are
+-- still swept by room position, since an item can never be mistaken for a newer run's own player
+-- or monster the way a creature could.
+local function finalRunSuccessCleanup(participantIds, ownedMonsterIds)
 	local exitPosition = { x = 32208, y = 31372, z = 14 }
 
+	for _, playerId in ipairs(participantIds) do
+		local participant = Player(playerId)
+		if participant then
+			participant:teleportTo(exitPosition)
+			participant:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
+		end
+	end
+
+	for _, monsterId in ipairs(ownedMonsterIds) do
+		local monster = Monster(monsterId)
+		if monster then
+			monster:remove()
+		end
+	end
+
+	local upConer = { x = 32260, y = 31336, z = 14 } -- upLeftCorner
+	local downConer = { x = 32283, y = 31360, z = 14 } -- downRightCorner
 	for i = upConer.x, downConer.x do
 		for j = upConer.y, downConer.y do
 			for k = upConer.z, downConer.z do
 				local tile = Tile(i, j, k)
 				if tile then
-					local creatures = tile:getCreatures()
-					if creatures and #creatures > 0 then
-						for _, creatureUid in pairs(creatures) do
-							local creature = Creature(creatureUid)
-							if creature then
-								if creature:isPlayer() then
-									creature:teleportTo(exitPosition)
-									creature:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
-								elseif creature:isMonster() then
-									creature:remove()
-								end
-							end
-						end
-					end
 					for _, item in ipairs(tile:getItems() or {}) do
 						if not item:hasAttribute("aid") and not item:hasAttribute("uid") then
 							local itemType = ItemType(item:getId())
 							if itemType:isMagicField() or itemType:isCorpse() or (itemType:isMovable() and itemType:isPickupable()) then
 								item:remove()
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-end
-
--- CORRECTION (executor contract, section J): "Ender of the End" is granted here, on the actual
--- World Devourer kill, to every legitimate participant still in the room - not in
--- actions_reward.lua on chest delivery. A player who legitimately defeats World Devourer must not
--- lose the achievement just because their inventory couldn't accept the reward backpack afterward.
-local function setStorageDevourer()
-	local upConer = { x = 32260, y = 31336, z = 14 } -- upLeftCorner
-	local downConer = { x = 32283, y = 31360, z = 14 } -- downRightCorner
-
-	for i = upConer.x, downConer.x do
-		for j = upConer.y, downConer.y do
-			for k = upConer.z, downConer.z do
-				local tile = Tile(i, j, k)
-				if tile then
-					local creatures = tile:getCreatures()
-					if creatures and #creatures > 0 then
-						for _, creature in pairs(creatures) do
-							if creature:isPlayer() then -- éPlayer
-								creature:setStorageValue(60835, 1)
-								creature:setStorageValue(60814, 1)
-								creature:setStorageValue(60828, 1)
-								creature:addAchievement("Ender of the End")
 							end
 						end
 					end
@@ -173,18 +149,51 @@ function heartBossDeath.onDeath(creature, corpse, killer, mostDamageKiller, unju
 			stopEvent(eradicatorEvent)
 		end
 	elseif monsterName == "world devourer" then
+		-- CORRECTION (executor contract, section D): World Devourer success is only accepted if
+		-- this exact creature belongs to the currently active final run. A stale/unowned World
+		-- Devourer (e.g. a leftover from an already-terminated run that somehow still exists) must
+		-- not transform the vortex, grant completion, or terminate whatever run IS currently
+		-- active - it isn't that run's boss.
+		if not HODFinalRunOwnsMonster(creature) then
+			return true
+		end
+
+		local token = HODFinalRun.token
+		local participantIds = {}
+		for playerId in pairs(HODFinalRun.participants) do
+			participantIds[#participantIds + 1] = playerId
+		end
+		local ownedMonsterIds = {}
+		for monsterId in pairs(HODFinalRun.monsters) do
+			ownedMonsterIds[#ownedMonsterIds + 1] = monsterId
+		end
+
 		local vortex = Tile({ x = 32281, y = 31348, z = 14 }):getItemById(23483)
 		if vortex then
 			vortex:transform(23482)
 			vortex:setActionId(14354)
 		end
-		setStorageDevourer()
-		-- Stop the failsafe timers immediately (the fight is over), but wait 60 seconds
-		-- before kicking players/removing monsters so reward and exit logic has time to run.
-		stopEvent(areaDevourer4)
-		stopEvent(areaDevourer5)
-		stopEvent(areaDevourer6)
-		addEvent(finalBattleRoomCleanup, 60 * 1000)
+
+		-- Completion storages and "Ender of the End" go only to this exact run's own legitimate
+		-- participants (HODFinalRun.participants, the authoritative roster of players still
+		-- committed to this run) - not to bystanders who happen to occupy the room.
+		for _, playerId in ipairs(participantIds) do
+			local participant = Player(playerId)
+			if participant then
+				participant:setStorageValue(60835, 1)
+				participant:setStorageValue(60814, 1)
+				participant:setStorageValue(60828, 1)
+				participant:addAchievement("Ender of the End")
+			end
+		end
+
+		-- SUCCESS lifecycle: stops every event this run owns, releases team storages/
+		-- DevourerStorage, but (unlike abort/timeout) does NOT refund charges, does NOT roll back
+		-- the cooldown, and does NOT immediately teleport participants out - the existing
+		-- reward/exit flow gets a short window first, via the snapshot-based cleanup below.
+		HODFinalRunTerminate(token, "success", "World Devourer defeated")
+
+		addEvent(finalRunSuccessCleanup, 60 * 1000, participantIds, ownedMonsterIds)
 	end
 	return true
 end

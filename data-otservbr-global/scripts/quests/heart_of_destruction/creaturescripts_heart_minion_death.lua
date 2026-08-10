@@ -16,14 +16,20 @@
 -- generation-blind: boss generation A dying schedules the cleanup; generation B can then respawn
 -- (for a rotated-in team) and itself die before the 60s elapse; A's stale callback fires, sees the
 -- shared killed flag true again (now meaning B, not A), and wipes B's legitimate room. Removed
--- entirely per the preferred fix - the existing 45-minute failsafe (areaDevourer1/2/3, unchanged,
--- run-owned as of actions_final_lever.lua's run-token rewrite) remains the safety net for a room
--- abandoned for good; the owner reference does not require a 60-second cleanup on top of that.
+-- entirely per the preferred fix - the single run-owned miniboss-phase timeout
+-- (areaDevourerMinibossTimeout, 45 minutes, terminates the whole run through
+-- HODFinalRunTerminate - see actions_final_lever.lua) remains the safety net for a room abandoned
+-- for good; the owner reference does not require a 60-second cleanup on top of that.
 --
--- Every mutation below that touches final-battle run state (devourerBossesKilled/theXKilled) now
+-- CORRECTION (executor contract, section F): every mutation below that touches final-run state now
 -- only fires for a monster this run actually owns (HODFinalRunOwnsMonster, from
--- actions_final_lever.lua) - a stale Hunger/Destruction/Rage instance from an aborted or
--- already-finished run can no longer corrupt a newer run's counters.
+-- actions_final_lever.lua) - a stale monster from an aborted or already-finished run can no longer
+-- corrupt a newer run's counters. This now covers Frenzy/Disruption/Charged Disruption/Overcharged
+-- Disruption (rageSummon/destructionSummon/devourerSummon) as well as The Hunger/Destruction/Rage,
+-- since all of these are registered to the active run at creation (rage_summon.lua,
+-- destruction_summon.lua, the Disruption escalation transforms). "Damage Resonance" is
+-- deliberately NOT gated - it belongs to the unrelated Rupture master-boss encounter, not the
+-- final run.
 local heartMinionDeath = CreatureEvent("HeartMinionDeath")
 function heartMinionDeath.onDeath(creature, corpse, killer, mostDamageKiller, unjustified, mostDamageUnjustified)
 	if not creature or not creature:isMonster() then -- éMonstro!
@@ -31,16 +37,22 @@ function heartMinionDeath.onDeath(creature, corpse, killer, mostDamageKiller, un
 	end
 	local monster = creature:getName():lower()
 	if monster == "frenzy" then
-		rageSummon = rageSummon - 1
-		devourerSummon = devourerSummon - 1
+		if HODFinalRunOwnsMonster(creature) then
+			rageSummon = rageSummon - 1
+			devourerSummon = devourerSummon - 1
+		end
 	elseif monster == "damage resonance" then
 		Game.setStorageValue(GlobalStorage.HeartOfDestruction.RuptureResonanceActive, 0)
 	elseif monster == "disruption" then
-		destructionSummon = destructionSummon - 1
-		devourerSummon = devourerSummon - 1
+		if HODFinalRunOwnsMonster(creature) then
+			destructionSummon = destructionSummon - 1
+			devourerSummon = devourerSummon - 1
+		end
 	elseif monster == "charged disruption" or monster == "overcharged disruption" then
-		destructionSummon = destructionSummon - 1
-		devourerSummon = devourerSummon - 1
+		if HODFinalRunOwnsMonster(creature) then
+			destructionSummon = destructionSummon - 1
+			devourerSummon = devourerSummon - 1
+		end
 	elseif monster == "the hunger" then
 		if HODFinalRunOwnsMonster(creature) then
 			devourerBossesKilled = devourerBossesKilled + 1

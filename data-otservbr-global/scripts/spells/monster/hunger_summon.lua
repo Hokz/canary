@@ -16,7 +16,9 @@ local spell = Spell("instant")
 function spell.onCastSpell(creature, var)
 	if hungerSummonDelay == false then
 		if hungerSummon < 3 then
-			Game.createMonster("Greed", { x = creature:getPosition().x + math.random(-1, 1), y = creature:getPosition().y + math.random(-1, 1), z = creature:getPosition().z }, false, true)
+			-- CORRECTION (executor contract, section F): registered to the active final run so it
+			-- can be identified/cleaned up as this run's own temporary monster.
+			HODFinalRunTrackMonster(Game.createMonster("Greed", { x = creature:getPosition().x + math.random(-1, 1), y = creature:getPosition().y + math.random(-1, 1), z = creature:getPosition().z }, false, true))
 			hungerSummon = hungerSummon + 1
 
 			hungerSummonDelay = true

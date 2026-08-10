@@ -1,3 +1,55 @@
+-- ===== REALITYQUAKE ENCOUNTER OWNERSHIP (executor contract, section H) =====
+-- A small namespaced encounter token for the Foreshock->Aftershock->Realityquake chain, used by
+-- creaturescripts_shocks_death.lua's bounded-retry handoffs so a stale retry from a finished/
+-- aborted encounter can never spawn into (or abort) a newer one.
+--
+-- Mechanically verified against data/libs/functions/lever.lua's Lever:checkConditions(): the
+-- BossLever condition wrapper (and therefore onUseExtra below) is called ONCE PER OCCUPIED
+-- PLATFORM POSITION (up to 5 times for this lever's 5 playerPositions), not once per lever pull -
+-- naively creating a new token directly in onUseExtra's body would increment it up to 5 times for
+-- a single legitimate encounter start. `infoPositions` (BossLever's own per-pull snapshot array,
+-- from Lever:checkPositions()) is the SAME table object across every onUseExtra call within one
+-- lever pull and a NEW object on the next pull, so memoizing on its identity gives exactly one
+-- token per actual encounter start regardless of how many positions are occupied.
+local HODRealityquakeEncounter = {
+	token = 0,
+	active = false,
+}
+
+local seenPulls = setmetatable({}, { __mode = "k" })
+
+local function currentEncounterToken(infoPositions)
+	local token = seenPulls[infoPositions]
+	if token then
+		return token
+	end
+	HODRealityquakeEncounter.token = HODRealityquakeEncounter.token + 1
+	token = HODRealityquakeEncounter.token
+	HODRealityquakeEncounter.active = true
+	seenPulls[infoPositions] = token
+	return token
+end
+
+function HODRealityquakeEncounterIsCurrent(token)
+	return token ~= nil and token > 0 and HODRealityquakeEncounter.active and HODRealityquakeEncounter.token == token
+end
+
+function HODRealityquakeEncounterCurrentToken()
+	if HODRealityquakeEncounter.active then
+		return HODRealityquakeEncounter.token
+	end
+	return nil
+end
+
+-- Called on a technical abort (invalidates FIRST, before any cleanup) and on the successful
+-- Aftershock->Realityquake handoff (the chain is complete - nothing further will ever retry under
+-- this token, so it's finished cleanly rather than left inertly "active").
+function HODRealityquakeEncounterFinish(token)
+	if HODRealityquakeEncounter.active and HODRealityquakeEncounter.token == token then
+		HODRealityquakeEncounter.active = false
+	end
+end
+
 local config = {
 	boss = {
 		name = "Foreshock",
@@ -21,7 +73,8 @@ local config = {
 		{ name = "Spark of Destruction", pos = Position(32210, 31251, 14) },
 		{ name = "Spark of Destruction", pos = Position(32212, 31246, 14) },
 	},
-	onUseExtra = function(player)
+	onUseExtra = function(player, infoPositions)
+		currentEncounterToken(infoPositions)
 		Game.setStorageValue(GlobalStorage.HeartOfDestruction.ForeshockHealth, 105000)
 		Game.setStorageValue(GlobalStorage.HeartOfDestruction.AftershockHealth, 105000)
 		Game.setStorageValue(GlobalStorage.HeartOfDestruction.ForeshockStage, -1)

@@ -55,12 +55,18 @@ local overchargePositions = {
 	{ x = 32158, y = 31352, z = 15 },
 }
 
--- CORRECTION (executor contract, section G): the 6th Overcharge's creation is now checked, with a
--- small bounded retry. If it still can't be created, the pre-mission is released promptly
--- (reusing actions_charges_lever.lua's own clearArea sweep, promoted to global for this) instead
--- of leaving a room that can never reach 6 kills sitting on its full 15-minute timer.
-local function attemptSixthOvercharge(retriesLeft)
+-- CORRECTION (executor contract, section G): the 6th Overcharge's creation is checked, with a
+-- small bounded retry, and is now owned by the SAME attempt token as the pre-mission that spawned
+-- the original 5 (actions_charges_lever.lua's HODAnomalyPremission) - a stale retry from an
+-- already-cleared attempt can no longer act on (or abort) a newer attempt that has since started.
+-- If it still can't be created, the pre-mission is released promptly via the namespaced
+-- HODAnomalyPremissionAbort instead of leaving a room that can never reach 6 kills sitting on its
+-- full 15-minute timer.
+local function attemptSixthOvercharge(token, retriesLeft)
 	retriesLeft = retriesLeft or 3
+	if not HODAnomalyPremissionIsCurrent(token) then
+		return
+	end
 	local pos = overchargePositions[math.random(1, #overchargePositions)]
 	local monster = Game.createMonster("Overcharge", pos, false, true)
 	if monster then
@@ -68,10 +74,10 @@ local function attemptSixthOvercharge(retriesLeft)
 	end
 	logger.error("HeartOfDestruction: failed to create the 6th Overcharge (retries left: {})", retriesLeft)
 	if retriesLeft > 0 then
-		addEvent(attemptSixthOvercharge, 3000, retriesLeft - 1)
+		addEvent(attemptSixthOvercharge, 3000, token, retriesLeft - 1)
 	else
 		Game.setStorageValue(14321, -1)
-		clearArea()
+		HODAnomalyPremissionAbort(token, "6th Overcharge failed to spawn after bounded retries")
 	end
 end
 
@@ -85,7 +91,7 @@ function overchargeDeath.onDeath(creature)
 		creature:say("You have reached enough charges to pass further into the destruction!", TALKTYPE_MONSTER_YELL, isInGhostMode, pid, { x = 32162, y = 31356, z = 15 })
 		Game.setStorageValue(14321, -1)
 	elseif count == 5 then
-		attemptSixthOvercharge()
+		attemptSixthOvercharge(HODAnomalyPremissionCurrentToken())
 	end
 
 	return true

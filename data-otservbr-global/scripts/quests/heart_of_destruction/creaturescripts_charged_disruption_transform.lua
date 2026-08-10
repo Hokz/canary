@@ -15,7 +15,8 @@ local function minionExplode(creature)
 	end
 
 	if exhaust >= explodeExhaust then
-		Game.createMonster("overcharged disruption", creature:getPosition(), false, true)
+		-- CORRECTION (executor contract, section F): registered to the active final run.
+		HODFinalRunTrackMonster(Game.createMonster("overcharged disruption", creature:getPosition(), false, true))
 		creature:remove()
 	else
 		minionExhaust[cid] = exhaust + 1

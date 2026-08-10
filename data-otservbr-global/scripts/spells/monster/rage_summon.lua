@@ -9,7 +9,8 @@ local spell = Spell("instant")
 
 function spell.onCastSpell(creature, var)
 	if rageSummon < 3 then
-		Game.createMonster("Frenzy", { x = creature:getPosition().x + math.random(-1, 1), y = creature:getPosition().y + math.random(-1, 1), z = creature:getPosition().z }, false, true)
+		-- CORRECTION (executor contract, section F): registered to the active final run.
+		HODFinalRunTrackMonster(Game.createMonster("Frenzy", { x = creature:getPosition().x + math.random(-1, 1), y = creature:getPosition().y + math.random(-1, 1), z = creature:getPosition().z }, false, true))
 		rageSummon = rageSummon + 1
 	end
 
