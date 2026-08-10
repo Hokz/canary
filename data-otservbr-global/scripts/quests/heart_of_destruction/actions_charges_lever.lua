@@ -58,7 +58,10 @@ local function doCheckArea()
 	return false
 end
 
-local function clearArea()
+-- Made global (was local) so creaturescripts_overcharge_death.lua can reuse this exact sweep as
+-- its release path if the mandatory 6th Overcharge can never be created (executor contract,
+-- section G) - avoids duplicating the room-clear logic in a second file.
+function clearArea()
 	--Room 1
 	local upConer = { x = 32133, y = 31341, z = 14 } -- upLeftCorner
 	local downConer = { x = 32174, y = 31375, z = 14 } -- downRightCorner
@@ -150,7 +153,9 @@ function teleportToCrackler()
 			end
 		end
 	end
-	areaHeart3 = addEvent(teleportToCharger, 10000)
+	-- CORRECTION (executor contract, section G): the owner reference proves ~12 seconds of
+	-- shifted-phase residence, not 10.
+	areaHeart3 = addEvent(teleportToCharger, 12000)
 end
 
 function teleportToCharger()
@@ -215,6 +220,40 @@ function heartDestructionCharges.onUse(player, item, fromPosition, itemEx, toPos
 				if doCheckArea() == false then
 					clearArea()
 
+					-- CORRECTION (executor contract, section G): the 5 initial Overcharges are
+					-- mandatory - the 6th (spawned later at the 5th kill, see
+					-- creaturescripts_overcharge_death.lua) only ever exists because these 5 already
+					-- do. All 5 are now created and verified BEFORE the group is committed/teleported
+					-- in; a failure removes only what this attempt created and leaves the room
+					-- retryable, instead of committing a mission that can never reach 6 kills.
+					local overchargePositions = {
+						{ x = 32152, y = 31355, z = 15 },
+						{ x = 32154, y = 31360, z = 15 },
+						{ x = 32160, y = 31360, z = 15 },
+						{ x = 32162, y = 31356, z = 15 },
+						{ x = 32158, y = 31352, z = 15 },
+					}
+					local overcharges = {}
+					local allSpawned = true
+					for i = 1, #overchargePositions do
+						local monster = Game.createMonster("Overcharge", overchargePositions[i], false, true)
+						if monster then
+							overcharges[#overcharges + 1] = monster
+						else
+							allSpawned = false
+							break
+						end
+					end
+
+					if not allSpawned then
+						for i = 1, #overcharges do
+							overcharges[i]:remove()
+						end
+						logger.error("HeartOfDestruction: failed to create the mandatory 5 initial Overcharges")
+						player:sendTextMessage(19, "The heart of destruction resists your assault. Try again.")
+						return true
+					end
+
 					local players
 
 					for i = 1, #storePlayers do
@@ -242,12 +281,6 @@ function heartDestructionCharges.onUse(player, item, fromPosition, itemEx, toPos
 					Game.createMonster("Charger", { x = 32163, y = 31356, z = 14 }, false, true)
 					Game.createMonster("Charger", { x = 32162, y = 31352, z = 14 }, false, true)
 					Game.createMonster("Charger", { x = 32158, y = 31350, z = 14 }, false, true)
-
-					Game.createMonster("Overcharge", { x = 32152, y = 31355, z = 15 }, false, true)
-					Game.createMonster("Overcharge", { x = 32154, y = 31360, z = 15 }, false, true)
-					Game.createMonster("Overcharge", { x = 32160, y = 31360, z = 15 }, false, true)
-					Game.createMonster("Overcharge", { x = 32162, y = 31356, z = 15 }, false, true)
-					Game.createMonster("Overcharge", { x = 32158, y = 31352, z = 15 }, false, true)
 				else
 					player:sendTextMessage(19, "Someone is in the area.")
 				end

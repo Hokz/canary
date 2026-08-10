@@ -41,6 +41,10 @@ local function finalBattleRoomCleanup()
 	end
 end
 
+-- CORRECTION (executor contract, section J): "Ender of the End" is granted here, on the actual
+-- World Devourer kill, to every legitimate participant still in the room - not in
+-- actions_reward.lua on chest delivery. A player who legitimately defeats World Devourer must not
+-- lose the achievement just because their inventory couldn't accept the reward backpack afterward.
 local function setStorageDevourer()
 	local upConer = { x = 32260, y = 31336, z = 14 } -- upLeftCorner
 	local downConer = { x = 32283, y = 31360, z = 14 } -- downRightCorner
@@ -57,6 +61,7 @@ local function setStorageDevourer()
 								creature:setStorageValue(60835, 1)
 								creature:setStorageValue(60814, 1)
 								creature:setStorageValue(60828, 1)
+								creature:addAchievement("Ender of the End")
 							end
 						end
 					end
@@ -66,7 +71,14 @@ local function setStorageDevourer()
 	end
 end
 
-local function setStorage(fromPos, toPos, storage)
+-- CORRECTION (executor contract, section F): charge attribution moved from killer/mostDamageKiller
+-- only to every legitimate player in the boss's room, using the exact same room-participant scope
+-- already used for that boss's completion credit (the fromPos/toPos sweep below) - so progression
+-- credit and charge recipient can no longer diverge. Capped at 5, one grant per player per death.
+-- Also wires section L: once a player holds BOTH Eradicator (14330) and Outburst (14332) storages,
+-- Mission 7 becomes visible in the questlog for the first time (RewardClaimed initialized to 0,
+-- from its unset -1 - never regressed if already 1 from an earlier World Devourer kill).
+local function creditBossRoomParticipants(fromPos, toPos, storage)
 	local upConer = fromPos -- upLeftCorner
 	local downConer = toPos -- downRightCorner
 
@@ -79,8 +91,17 @@ local function setStorage(fromPos, toPos, storage)
 					local creatures = tile:getCreatures()
 					if creatures and #creatures > 0 then
 						for _, creature in pairs(creatures) do
-							if creature:isPlayer() and creature:getStorageValue(storage) < 1 then
-								creature:setStorageValue(storage, 1) -- Access to boss Anomaly
+							if creature:isPlayer() then
+								if creature:getStorageValue(storage) < 1 then
+									creature:setStorageValue(storage, 1) -- Access to boss Anomaly
+								end
+
+								local charges = math.min(math.max(creature:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0) + 1, 5)
+								creature:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, charges)
+
+								if creature:getStorageValue(14330) >= 1 and creature:getStorageValue(14332) >= 1 and creature:getStorageValue(Storage.HeartOfDestructionFinalBattle.RewardClaimed) == -1 then
+									creature:setStorageValue(Storage.HeartOfDestructionFinalBattle.RewardClaimed, 0)
+								end
 							end
 						end
 					end
@@ -88,22 +109,6 @@ local function setStorage(fromPos, toPos, storage)
 			end
 		end
 	end
-end
-
--- PROJECT_ARCHITECTURE_DECISION (HOD repair audit): destructive charges are granted here, on the
--- death of any of the 5 master bosses (Anomaly/Rupture/Realityquake/Eradicator/Outburst) —
--- previously they were granted on final-battle minion deaths (Frenzy/Charged/Overcharged
--- Disruption), which contradicted the owner reference. World Devourer does NOT grant a charge —
--- killing it is the payoff the charges are spent to reach, not another source of them. Recipient
--- is the killer/mostDamageKiller only, matching the single-recipient shape of the prior
--- implementation; per-room-participant distribution would be new architecture and is out of scope.
-local function grantDestructiveCharge(killer, mostDamageKiller)
-	local player = mostDamageKiller and mostDamageKiller:getPlayer() or (killer and killer:getPlayer())
-	if not player then
-		return
-	end
-	local charges = math.min(math.max(player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0) + 1, 5)
-	player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, charges)
 end
 
 local bosses = {
@@ -159,8 +164,7 @@ function heartBossDeath.onDeath(creature, corpse, killer, mostDamageKiller, unju
 			vortex:transform(23482)
 			vortex:setActionId(bossName.actionId)
 		end
-		setStorage(bossName.fromPos, bossName.toPos, bossName.storage)
-		grantDestructiveCharge(killer, mostDamageKiller)
+		creditBossRoomParticipants(bossName.fromPos, bossName.toPos, bossName.storage)
 		if monsterName == "eradicator" then
 			-- CONFIRMED GAP (found during the HOD repair audit): creaturescripts_eradicator_transform.lua
 			-- schedules a recurring release timer (eradicatorEvent) for as long as the fight is

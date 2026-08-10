@@ -11,83 +11,19 @@
 -- team. A boss can therefore die and respawn several times before all three are simultaneously
 -- dead (devourerBossesKilled reaching 3) and the fight moves on to World Devourer.
 --
--- Because of that rotation, a flat "60 seconds after death, clear the room" is unsafe on its own:
--- by the time the timer fires, changeArea() may already have respawned the boss for a new team,
--- and nuking the room would kill a legitimate in-progress fight. The guard below only runs the
--- cleanup if the boss is STILL in the dead/not-yet-respawned state 60 seconds later - i.e. nothing
--- has rotated back into that room since this specific death.
+-- CORRECTION (executor contract, section C): the previous per-death "clean this room 60 seconds
+-- later if it's still marked dead" callback used a bare boolean guard (isStillDead), which is
+-- generation-blind: boss generation A dying schedules the cleanup; generation B can then respawn
+-- (for a rotated-in team) and itself die before the 60s elapse; A's stale callback fires, sees the
+-- shared killed flag true again (now meaning B, not A), and wipes B's legitimate room. Removed
+-- entirely per the preferred fix - the existing 45-minute failsafe (areaDevourer1/2/3, unchanged,
+-- run-owned as of actions_final_lever.lua's run-token rewrite) remains the safety net for a room
+-- abandoned for good; the owner reference does not require a 60-second cleanup on top of that.
 --
--- No empty-room watchdog is implemented for these three rooms. Unlike a static BossLever room,
--- these rooms are *routinely* empty of players for stretches of totally normal play - every
--- 30-second rotation empties one room while filling another - so "0 players present" is not a
--- reliable failure signal here. Wiring one up would risk aborting legitimate, in-progress attempts
--- during a normal rotation gap. The existing 45-minute failsafe (areaDevourer1/2/3, unchanged)
--- remains the safety net for a room that's abandoned for good.
-local miniBossRooms = {
-	hunger = {
-		from = { x = 32233, y = 31360, z = 14 },
-		to = { x = 32256, y = 31384, z = 14 },
-		isStillDead = function()
-			return theHungerKilled == true
-		end,
-	},
-	destruction = {
-		from = { x = 32260, y = 31304, z = 14 },
-		to = { x = 32283, y = 31328, z = 14 },
-		isStillDead = function()
-			return theDestructionKilled == true
-		end,
-	},
-	rage = {
-		from = { x = 32288, y = 31360, z = 14 },
-		to = { x = 32311, y = 31384, z = 14 },
-		isStillDead = function()
-			return theRageKilled == true
-		end,
-	},
-}
-local miniBossExitPosition = { x = 32208, y = 31372, z = 14 }
-
-local function cleanMiniBossRoom(key)
-	local room = miniBossRooms[key]
-	if not room or not room.isStillDead() then
-		-- Already respawned for a rotated-in team (or the encounter has since moved on) -
-		-- a live fight may be using this room now, so leave it alone.
-		return
-	end
-	for i = room.from.x, room.to.x do
-		for j = room.from.y, room.to.y do
-			for k = room.from.z, room.to.z do
-				local tile = Tile(i, j, k)
-				if tile then
-					local creatures = tile:getCreatures()
-					if creatures and #creatures > 0 then
-						for _, creatureUid in pairs(creatures) do
-							local creature = Creature(creatureUid)
-							if creature then
-								if creature:isPlayer() then
-									creature:teleportTo(miniBossExitPosition)
-									creature:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
-								elseif creature:isMonster() then
-									creature:remove()
-								end
-							end
-						end
-					end
-					for _, item in ipairs(tile:getItems() or {}) do
-						if not item:hasAttribute("aid") and not item:hasAttribute("uid") then
-							local itemType = ItemType(item:getId())
-							if itemType:isMagicField() or itemType:isCorpse() or (itemType:isMovable() and itemType:isPickupable()) then
-								item:remove()
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-end
-
+-- Every mutation below that touches final-battle run state (devourerBossesKilled/theXKilled) now
+-- only fires for a monster this run actually owns (HODFinalRunOwnsMonster, from
+-- actions_final_lever.lua) - a stale Hunger/Destruction/Rage instance from an aborted or
+-- already-finished run can no longer corrupt a newer run's counters.
 local heartMinionDeath = CreatureEvent("HeartMinionDeath")
 function heartMinionDeath.onDeath(creature, corpse, killer, mostDamageKiller, unjustified, mostDamageUnjustified)
 	if not creature or not creature:isMonster() then -- éMonstro!
@@ -106,17 +42,20 @@ function heartMinionDeath.onDeath(creature, corpse, killer, mostDamageKiller, un
 		destructionSummon = destructionSummon - 1
 		devourerSummon = devourerSummon - 1
 	elseif monster == "the hunger" then
-		devourerBossesKilled = devourerBossesKilled + 1
-		theHungerKilled = true
-		addEvent(cleanMiniBossRoom, 60 * 1000, "hunger")
+		if HODFinalRunOwnsMonster(creature) then
+			devourerBossesKilled = devourerBossesKilled + 1
+			theHungerKilled = true
+		end
 	elseif monster == "the destruction" then
-		devourerBossesKilled = devourerBossesKilled + 1
-		theDestructionKilled = true
-		addEvent(cleanMiniBossRoom, 60 * 1000, "destruction")
+		if HODFinalRunOwnsMonster(creature) then
+			devourerBossesKilled = devourerBossesKilled + 1
+			theDestructionKilled = true
+		end
 	elseif monster == "the rage" then
-		devourerBossesKilled = devourerBossesKilled + 1
-		theRageKilled = true
-		addEvent(cleanMiniBossRoom, 60 * 1000, "rage")
+		if HODFinalRunOwnsMonster(creature) then
+			devourerBossesKilled = devourerBossesKilled + 1
+			theRageKilled = true
+		end
 	end
 	return true
 end

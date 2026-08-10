@@ -55,13 +55,28 @@ local overchargePositions = {
 	{ x = 32158, y = 31352, z = 15 },
 }
 
+-- CORRECTION (executor contract, section G): the 6th Overcharge's creation is now checked, with a
+-- small bounded retry. If it still can't be created, the pre-mission is released promptly
+-- (reusing actions_charges_lever.lua's own clearArea sweep, promoted to global for this) instead
+-- of leaving a room that can never reach 6 kills sitting on its full 15-minute timer.
+local function attemptSixthOvercharge(retriesLeft)
+	retriesLeft = retriesLeft or 3
+	local pos = overchargePositions[math.random(1, #overchargePositions)]
+	local monster = Game.createMonster("Overcharge", pos, false, true)
+	if monster then
+		return
+	end
+	logger.error("HeartOfDestruction: failed to create the 6th Overcharge (retries left: {})", retriesLeft)
+	if retriesLeft > 0 then
+		addEvent(attemptSixthOvercharge, 3000, retriesLeft - 1)
+	else
+		Game.setStorageValue(14321, -1)
+		clearArea()
+	end
+end
+
 local overchargeDeath = CreatureEvent("OverchargeDeath")
 function overchargeDeath.onDeath(creature)
-	-- CONFIRMED BUG (found during the HOD repair audit): the owner reference requires 6 Overcharge
-	-- kills to complete the Anomaly pre-mission, not 5 - but the lever only ever spawns 5. Rather
-	-- than guess an unproven 6th map coordinate, the 5th kill spawns one extra Overcharge on one of
-	-- the 5 tiles already proven valid (the lever already spawns monsters there), making 6 kills
-	-- actually reachable.
 	local count = Game.getStorageValue(14321) + 1
 	Game.setStorageValue(14321, count)
 
@@ -70,8 +85,7 @@ function overchargeDeath.onDeath(creature)
 		creature:say("You have reached enough charges to pass further into the destruction!", TALKTYPE_MONSTER_YELL, isInGhostMode, pid, { x = 32162, y = 31356, z = 15 })
 		Game.setStorageValue(14321, -1)
 	elseif count == 5 then
-		local pos = overchargePositions[math.random(1, #overchargePositions)]
-		Game.createMonster("Overcharge", pos, false, true)
+		attemptSixthOvercharge()
 	end
 
 	return true

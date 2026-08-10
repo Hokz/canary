@@ -90,18 +90,18 @@ function teleportHeart.onStepIn(creature, item, position, fromPosition)
 			if not player:canFightBoss("World Devourer") then
 				denyAndReturn(player, fromPosition, "It's too early for you to endure this challenge again.")
 			else
-				-- PROJECT_ARCHITECTURE_DECISION (HOD repair audit, owner reference section G): every
-				-- committed entry into the World Devourer's lair costs 5 destructive charges, including
-				-- the very first attempt — the previous "free first entry" exemption (gated on already
-				-- holding the Ender of the End achievement) contradicted the owner reference and is
-				-- removed. Deduction happens only here, after every other gate (access storages,
-				-- cooldown) has already passed — this is the actual commit point, immediately before
-				-- the teleport that can't itself fail.
+				-- CORRECTION (executor contract, section A): this portal is a checkpoint, not the
+				-- commit point. It still requires 5 charges to proceed past it, but no longer deducts
+				-- them here - actions_final_lever.lua independently re-validates every participant
+				-- (including this same >=5 charge check) and only deducts charges once the full
+				-- encounter (roster, room, all 3 mandatory boss spawns) has actually been committed.
+				-- Deducting at this portal let a player pay the cost and then have the attempt fail for
+				-- an unrelated reason (room occupied, a participant not qualifying, a spawn failure)
+				-- with no way to recover the spent charges.
 				local charges = math.max(player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0)
 				if charges < 5 then
 					denyAndReturn(player, fromPosition, "To face the heart of destruction, you have to gather destructive charges to enter its lair. You gain charges by defeating the masters of the incursions. You have gathered " .. charges .. " of 5 charges.")
 				else
-					player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, charges - 5)
 					player:teleportTo(Position(32272, 31384, 14))
 				end
 			end

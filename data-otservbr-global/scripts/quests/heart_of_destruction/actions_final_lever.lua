@@ -5,28 +5,125 @@ The Destruction = 14335 (DestructionTeam)
 The Rage = 14336 (RageTeam)
 ]]
 --
--- FUNCTIONS
 
--- CONFIRMED GAP (found during the HOD repair audit, section H): World Devourer's creation was
--- previously unchecked. By the point this runs, all 15 players have already been rotated out of
--- the 3 mini-boss rooms and into the World Devourer room, and the 30-second rotation timer has
--- already been stopped - a silent creation failure here would leave a full room of committed
--- players with no boss and no reason for the fight to ever progress. Bounded retry (a handful of
--- attempts a few seconds apart, not indefinite) plus the pre-existing 30-minute failsafe
--- (areaDevourer5, scheduled unconditionally by the caller regardless of retry outcome) means
--- players are never permanently trapped even if every retry fails.
-function spawnWorldDevourer(retriesLeft)
+-- ===== RUN OWNERSHIP (executor contract, section C) =====
+-- A single shared runtime table making every final-battle timer/monster provably belong to the
+-- CURRENT attempt. Only one final run may be active at a time. Every addEvent callback the final
+-- encounter schedules captures the run's token and re-checks HODFinalRunIsCurrent before doing
+-- anything; a callback whose token no longer matches the active run is a silent no-op. This is the
+-- same run-token shape already proven in the_new_frontier/action_arena.lua, adapted for a
+-- multi-phase, multi-room encounter (this one owns events AND temporary monsters, not just a lock).
+HODFinalRun = HODFinalRun or {
+	token = 0,
+	active = false,
+	participants = {}, -- set: playerId -> true
+	events = {}, -- set: eventId -> true
+	monsters = {}, -- set: creatureId -> true
+	pendingRespawns = {}, -- set: monster name -> true, guards against duplicate concurrent respawn attempts
+}
+
+function HODFinalRunIsCurrent(token)
+	return token ~= nil and token > 0 and HODFinalRun.active and HODFinalRun.token == token
+end
+
+-- Used by creaturescripts_heart_minion_death.lua so a stale Hunger/Destruction/Rage instance from
+-- an aborted or already-finished run can't mutate a newer run's counters.
+function HODFinalRunOwnsMonster(monster)
+	if not monster then
+		return false
+	end
+	return HODFinalRun.monsters[monster:getId()] == true
+end
+
+local function trackEvent(token, eventId)
+	if HODFinalRunIsCurrent(token) and eventId then
+		HODFinalRun.events[eventId] = true
+	end
+end
+
+local function trackMonster(token, monster)
+	if HODFinalRunIsCurrent(token) and monster then
+		HODFinalRun.monsters[monster:getId()] = true
+	end
+end
+
+-- Forward declarations - these are mutually referential (changeArea's respawn helper can abort
+-- the run, abortRun uses the room-sweep helpers, spawnWorldDevourer can also abort the run).
+local clearHunger, clearDestruction, clearRage, clearDevourer, changeArea, spawnWorldDevourer, sparkDevourerSpawn, abortRun, attemptMinibossRespawn
+
+-- All cleanup/abort paths (success, abort, timeout, internal spawn failure) funnel through here:
+-- invalidates the token first, stops every owned event, clears this run's participants' team
+-- storages, removes only this run's own temporary monsters, and releases this run's own
+-- participants - leaving the next run clean. Never touches a different run's state.
+abortRun = function(token, reason)
+	if not HODFinalRunIsCurrent(token) then
+		return
+	end
+	logger.error("HeartOfDestruction: final battle run {} aborted - {}", token, reason)
+
+	-- Invalidate first (contract-mandated order) so any callback racing in after this point and
+	-- re-checking HODFinalRunIsCurrent sees the run as already gone.
+	HODFinalRun.active = false
+
+	for eventId in pairs(HODFinalRun.events) do
+		stopEvent(eventId)
+	end
+
+	for _, online in ipairs(Game.getPlayers()) do
+		if online:isPlayer() and HODFinalRun.participants[online:getId()] then
+			online:setStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam, -1)
+			online:setStorageValue(Storage.HeartOfDestructionFinalBattle.DestructionTeam, -1)
+			online:setStorageValue(Storage.HeartOfDestructionFinalBattle.RageTeam, -1)
+			online:unregisterEvent("DevourerStorage")
+			online:teleportTo({ x = 32208, y = 31372, z = 14 })
+			online:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
+			online:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The heart of destruction's power falters and releases you - the attempt has failed. You may try again.")
+		end
+	end
+
+	for monsterId in pairs(HODFinalRun.monsters) do
+		local monster = Monster(monsterId)
+		if monster then
+			monster:remove()
+		end
+	end
+
+	HODFinalRun.participants = {}
+	HODFinalRun.events = {}
+	HODFinalRun.monsters = {}
+	HODFinalRun.pendingRespawns = {}
+end
+
+-- ===== FUNCTIONS =====
+
+-- CORRECTION (executor contract, section E): World Devourer's creation is bounded-retried and
+-- run-owned. By the point this runs, all 15 players have already been rotated into the World
+-- Devourer room and the 30-second rotation timer has already been stopped - a silent creation
+-- failure here would leave a full room of committed players with no boss. If every retry fails,
+-- the run is aborted immediately (release players/room) rather than leaving them to wait out the
+-- unrelated 30-minute failsafe, which is a backstop for abandonment, not a response to a failed
+-- mandatory spawn.
+spawnWorldDevourer = function(token, retriesLeft)
+	if not HODFinalRunIsCurrent(token) then
+		return
+	end
 	local monster = Game.createMonster("World Devourer", { x = 32271, y = 31347, z = 14 }, false, true)
 	if monster then
+		trackMonster(token, monster)
 		return
 	end
 	logger.error("HeartOfDestruction: failed to create World Devourer (retries left: {})", retriesLeft)
 	if retriesLeft > 0 then
-		addEvent(spawnWorldDevourer, 5000, retriesLeft - 1)
+		trackEvent(token, addEvent(spawnWorldDevourer, 5000, token, retriesLeft - 1))
+	else
+		abortRun(token, "World Devourer failed to spawn after bounded retries")
 	end
 end
 
-function sparkDevourerSpawn()
+sparkDevourerSpawn = function(token)
+	if not HODFinalRunIsCurrent(token) then
+		return
+	end
 	local positions = {
 		{ x = 32268, y = 31341, z = 14 },
 		{ x = 32275, y = 31342, z = 14 },
@@ -36,11 +133,12 @@ function sparkDevourerSpawn()
 
 	if sparkSpawnCount > 0 then
 		for i = 1, sparkSpawnCount do
-			Game.createMonster("Spark of Destruction2", positions[i], false, true)
+			trackMonster(token, Game.createMonster("Spark of Destruction2", positions[i], false, true))
 		end
 		sparkSpawnCount = 0
 	end
-	areaDevourer6 = addEvent(sparkDevourerSpawn, 10000)
+	areaDevourer6 = addEvent(sparkDevourerSpawn, 10000, token)
+	trackEvent(token, areaDevourer6)
 end
 
 local function doCheckArea()
@@ -77,7 +175,41 @@ local function doCheckArea()
 	return false
 end
 
-local function changeArea()
+-- CORRECTION (executor contract, section D): a mandatory miniboss respawn used to decrement
+-- devourerBossesKilled and flip theXKilled=false unconditionally, before ever checking whether
+-- Game.createMonster actually succeeded. Now: attempt create, and only on success register the
+-- monster to the run and update the counter/flag. On failure, bounded retry (3 attempts, 3s
+-- apart); if retries are exhausted, cleanly abort the whole run rather than let the encounter
+-- continue with that room permanently bossless. `pendingRespawns` prevents a second occupied tile
+-- in the same room-sweep tick (or a later tick, while a retry is still in flight) from triggering
+-- a duplicate concurrent respawn attempt for the same boss.
+attemptMinibossRespawn = function(token, name, position, setKilled, retriesLeft)
+	retriesLeft = retriesLeft or 3
+	if not HODFinalRunIsCurrent(token) then
+		return
+	end
+	local monster = Game.createMonster(name, position, false, true)
+	if monster then
+		trackMonster(token, monster)
+		devourerBossesKilled = devourerBossesKilled - 1
+		setKilled(false)
+		HODFinalRun.pendingRespawns[name] = nil
+		return
+	end
+	logger.error("HeartOfDestruction: failed to respawn {} (retries left: {})", name, retriesLeft)
+	if retriesLeft > 0 then
+		trackEvent(token, addEvent(attemptMinibossRespawn, 3000, token, name, position, setKilled, retriesLeft - 1))
+	else
+		HODFinalRun.pendingRespawns[name] = nil
+		abortRun(token, "mandatory miniboss respawn (" .. name .. ") failed after bounded retries")
+	end
+end
+
+changeArea = function(token)
+	if not HODFinalRunIsCurrent(token) then
+		return
+	end
+
 	local function organizeHunger()
 		local upConer = { x = 32233, y = 31360, z = 14 } -- upLeftCorner
 		local downConer = { x = 32256, y = 31384, z = 14 } -- downRightCorner
@@ -95,10 +227,11 @@ local function changeArea()
 										monster:teleportTo({ x = 32244, y = 31369, z = 14 })
 									end
 								end
-							else
-								devourerBossesKilled = devourerBossesKilled - 1
-								Game.createMonster("The Hunger", { x = 32244, y = 31372, z = 14 }, false, true)
-								theHungerKilled = false
+							elseif not HODFinalRun.pendingRespawns["The Hunger"] then
+								HODFinalRun.pendingRespawns["The Hunger"] = true
+								attemptMinibossRespawn(token, "The Hunger", { x = 32244, y = 31372, z = 14 }, function(v)
+									theHungerKilled = v
+								end)
 							end
 						end
 					end
@@ -124,10 +257,11 @@ local function changeArea()
 										monster:teleportTo({ x = 32271, y = 31313, z = 14 })
 									end
 								end
-							else
-								devourerBossesKilled = devourerBossesKilled - 1
-								Game.createMonster("The Destruction", { x = 32271, y = 31316, z = 14 }, false, true)
-								theDestructionKilled = false
+							elseif not HODFinalRun.pendingRespawns["The Destruction"] then
+								HODFinalRun.pendingRespawns["The Destruction"] = true
+								attemptMinibossRespawn(token, "The Destruction", { x = 32271, y = 31316, z = 14 }, function(v)
+									theDestructionKilled = v
+								end)
 							end
 						end
 					end
@@ -153,10 +287,11 @@ local function changeArea()
 										monster:teleportTo({ x = 32299, y = 31369, z = 14 })
 									end
 								end
-							else
-								devourerBossesKilled = devourerBossesKilled - 1
-								Game.createMonster("The Rage", { x = 32299, y = 31372, z = 14 }, false, true)
-								theRageKilled = false
+							elseif not HODFinalRun.pendingRespawns["The Rage"] then
+								HODFinalRun.pendingRespawns["The Rage"] = true
+								attemptMinibossRespawn(token, "The Rage", { x = 32299, y = 31372, z = 14 }, function(v)
+									theRageKilled = v
+								end)
 							end
 						end
 					end
@@ -195,7 +330,8 @@ local function changeArea()
 		organizeHunger()
 		organizeDestruction()
 		organizeRage()
-		areaDevourer4 = addEvent(changeArea, 30000)
+		areaDevourer4 = addEvent(changeArea, 30000, token)
+		trackEvent(token, areaDevourer4)
 	else
 		stopEvent(areaDevourer1)
 		stopEvent(areaDevourer2)
@@ -228,19 +364,46 @@ local function changeArea()
 			end
 		end
 
-		spawnWorldDevourer(3)
-		Game.createMonster("Spark of Destruction2", { x = 32268, y = 31341, z = 14 }, false, true)
-		Game.createMonster("Spark of Destruction2", { x = 32275, y = 31342, z = 14 }, false, true)
-		Game.createMonster("Spark of Destruction2", { x = 32269, y = 31352, z = 14 }, false, true)
-		Game.createMonster("Spark of Destruction2", { x = 32277, y = 31351, z = 14 }, false, true)
+		spawnWorldDevourer(token, 3)
+
+		-- CONFIRMED GAP (executor contract, section E): these 4 initial Spark of Destruction2 were
+		-- unchecked. Not treated as abort-worthy (World Devourer itself, checked above, is the
+		-- mandatory encounter-defining spawn; these are supplementary hazards, matching the
+		-- non-mandatory "Spark of Destruction" adds used by the other 5 boss rooms) - checked and
+		-- logged only, so a failure is visible rather than silently committing an incomplete phase.
+		local sparkPositions = {
+			{ x = 32268, y = 31341, z = 14 },
+			{ x = 32275, y = 31342, z = 14 },
+			{ x = 32269, y = 31352, z = 14 },
+			{ x = 32277, y = 31351, z = 14 },
+		}
+		for i = 1, #sparkPositions do
+			local spark = Game.createMonster("Spark of Destruction2", sparkPositions[i], false, true)
+			if spark then
+				trackMonster(token, spark)
+			else
+				logger.error("HeartOfDestruction: failed to create initial Spark of Destruction2 #{}", i)
+			end
+		end
+
 		sparkSpawnCount = 0
 		devourerSummon = 0
-		areaDevourer5 = addEvent(clearDevourer, 30 * 60000)
-		areaDevourer6 = addEvent(sparkDevourerSpawn, 10000)
+		areaDevourer5 = addEvent(clearDevourer, 30 * 60000, token)
+		trackEvent(token, areaDevourer5)
+		areaDevourer6 = addEvent(sparkDevourerSpawn, 10000, token)
+		trackEvent(token, areaDevourer6)
 	end
 end
 
-local function clearHunger()
+-- The 4 room-sweep functions below double as both run-owned SCHEDULED callbacks (token supplied,
+-- checked against HODFinalRunIsCurrent) and unconditional PRE-RUN hygiene sweeps (token omitted,
+-- used once at lever-pull time to physically clear any leftover players/monsters before a fresh
+-- attempt is even started - there is no run yet at that point, so there's nothing to check
+-- ownership against).
+clearHunger = function(token)
+	if token ~= nil and not HODFinalRunIsCurrent(token) then
+		return
+	end
 	local upConer = { x = 32233, y = 31360, z = 14 } -- upLeftCorner
 	local downConer = { x = 32256, y = 31384, z = 14 } -- downRightCorner
 
@@ -269,7 +432,10 @@ local function clearHunger()
 	stopEvent(areaDevourer1)
 end
 
-local function clearDestruction()
+clearDestruction = function(token)
+	if token ~= nil and not HODFinalRunIsCurrent(token) then
+		return
+	end
 	local upConer = { x = 32260, y = 31304, z = 14 } -- upLeftCorner
 	local downConer = { x = 32283, y = 31328, z = 14 } -- downRightCorner
 
@@ -298,7 +464,10 @@ local function clearDestruction()
 	stopEvent(areaDevourer2)
 end
 
-local function clearRage()
+clearRage = function(token)
+	if token ~= nil and not HODFinalRunIsCurrent(token) then
+		return
+	end
 	local upConer = { x = 32288, y = 31360, z = 14 } -- upLeftCorner
 	local downConer = { x = 32311, y = 31384, z = 14 } -- downRightCorner
 
@@ -327,7 +496,10 @@ local function clearRage()
 	stopEvent(areaDevourer3)
 end
 
-function clearDevourer()
+clearDevourer = function(token)
+	if token ~= nil and not HODFinalRunIsCurrent(token) then
+		return
+	end
 	local upConer = { x = 32260, y = 31336, z = 14 } -- upLeftCorner
 	local downConer = { x = 32283, y = 31360, z = 14 } -- downRightCorner
 
@@ -427,8 +599,11 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 					return true
 				end
 
-				-- ACCESS GATE (found missing during the HOD repair audit): level 150 + Premium,
-				-- checked for every participant across all 3 columns, not just the lever-puller.
+				-- CORRECTION (executor contract, section A.2): the lever independently revalidates
+				-- EVERY participant - access gates, level, Premium, final boss cooldown, and charges -
+				-- rather than trusting that reaching this room already proves eligibility (a
+				-- participant could have arrived by any means other than the green portal's own
+				-- checks). No side effects run before this passes for every single participant.
 				for _, columnPlayers in ipairs({ storeHunger, storeDestruction, storeRage }) do
 					for _, participant in ipairs(columnPlayers) do
 						if participant:getLevel() < 150 then
@@ -437,6 +612,18 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 						end
 						if not participant:isPremium() then
 							player:sendTextMessage(19, "All participants must have a premium account.")
+							return true
+						end
+						if participant:getStorageValue(14330) < 1 or participant:getStorageValue(14332) < 1 then
+							player:sendTextMessage(19, "All participants must have defeated the Eradicator and the Outburst.")
+							return true
+						end
+						if not participant:canFightBoss("World Devourer") then
+							player:sendTextMessage(19, "One of the participants must wait before facing the World Devourer again.")
+							return true
+						end
+						if math.max(participant:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0) < 5 then
+							player:sendTextMessage(19, "All participants need 5 destructive charges to enter.")
 							return true
 						end
 					end
@@ -448,12 +635,12 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 					clearRage()
 					clearDevourer()
 
-					-- CONFIRMED GAP (found during the HOD repair audit, section H): the 3 initial boss
-					-- spawns were previously unchecked and ran AFTER players were already teleported in
-					-- and cooldowns/storages already committed - a creation failure would strand players
-					-- inside a partially-set-up encounter. Spawning is checked here, before any player is
-					-- moved or any state committed, so a failure aborts cleanly with nobody moved and
-					-- nothing consumed.
+					-- CORRECTION (executor contract, sections A.3-A.6 and B): create and verify the
+					-- ONLY copy of the mandatory trio here, before any player is moved or any state
+					-- committed - the previous duplicate/unverified second creation block further
+					-- below has been removed. A creation failure aborts cleanly: only the bosses this
+					-- attempt created are removed, nobody is teleported/committed, no charge is
+					-- deducted, no cooldown is set, and the room is left retryable.
 					local theHunger = Game.createMonster("The Hunger", { x = 32244, y = 31372, z = 14 }, false, true)
 					local theDestruction = Game.createMonster("The Destruction", { x = 32271, y = 31316, z = 14 }, false, true)
 					local theRage = Game.createMonster("The Rage", { x = 32299, y = 31372, z = 14 }, false, true)
@@ -472,6 +659,31 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 						return true
 					end
 
+					-- COMMIT POINT: the complete encounter has passed validation and all 3 mandatory
+					-- bosses exist. Only now: start the run, deduct 5 charges from every participant,
+					-- set the final cooldown, assign teams, and teleport.
+					local participantIds = {}
+					for _, columnPlayers in ipairs({ storeHunger, storeDestruction, storeRage }) do
+						for _, participant in ipairs(columnPlayers) do
+							participantIds[#participantIds + 1] = participant:getId()
+						end
+					end
+
+					HODFinalRun.token = HODFinalRun.token + 1
+					local token = HODFinalRun.token
+					HODFinalRun.active = true
+					HODFinalRun.participants = {}
+					for _, id in ipairs(participantIds) do
+						HODFinalRun.participants[id] = true
+					end
+					HODFinalRun.events = {}
+					HODFinalRun.monsters = {}
+					HODFinalRun.pendingRespawns = {}
+
+					trackMonster(token, theHunger)
+					trackMonster(token, theDestruction)
+					trackMonster(token, theRage)
+
 					local teamHunger
 					local teamDestruction
 					local teamRage
@@ -483,6 +695,7 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 						teamHunger:setBossCooldown("World Devourer", os.time() + 13 * 24 * 60 * 60 + 20 * 60 * 60)
 						teamHunger:setStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam, 1) --storage Hunger
 						teamHunger:registerEvent("DevourerStorage")
+						teamHunger:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, math.max(teamHunger:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0) - 5)
 					end
 
 					for i = 1, #storeDestruction do
@@ -492,6 +705,7 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 						teamDestruction:setBossCooldown("World Devourer", os.time() + 13 * 24 * 60 * 60 + 20 * 60 * 60)
 						teamDestruction:setStorageValue(Storage.HeartOfDestructionFinalBattle.DestructionTeam, 1) --storage Destruction
 						teamDestruction:registerEvent("DevourerStorage")
+						teamDestruction:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, math.max(teamDestruction:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0) - 5)
 					end
 
 					for i = 1, #storeRage do
@@ -501,6 +715,7 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 						teamRage:setBossCooldown("World Devourer", os.time() + 13 * 24 * 60 * 60 + 20 * 60 * 60)
 						teamRage:setStorageValue(Storage.HeartOfDestructionFinalBattle.RageTeam, 1) --storage Rage
 						teamRage:registerEvent("DevourerStorage")
+						teamRage:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, math.max(teamRage:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0) - 5)
 					end
 
 					Position(config.hungerNewPos):sendMagicEffect(11)
@@ -511,10 +726,14 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 					-- The World Devourer room itself (areaDevourer5, below in changeArea()) keeps its own
 					-- separate 30-minute budget, since the reference doesn't specify how 45 minutes should
 					-- split between the two phases and this is the more conservative reading.
-					areaDevourer1 = addEvent(clearHunger, 45 * 60000)
-					areaDevourer2 = addEvent(clearDestruction, 45 * 60000)
-					areaDevourer3 = addEvent(clearRage, 45 * 60000)
-					areaDevourer4 = addEvent(changeArea, 30000) --mudar
+					areaDevourer1 = addEvent(clearHunger, 45 * 60000, token)
+					trackEvent(token, areaDevourer1)
+					areaDevourer2 = addEvent(clearDestruction, 45 * 60000, token)
+					trackEvent(token, areaDevourer2)
+					areaDevourer3 = addEvent(clearRage, 45 * 60000, token)
+					trackEvent(token, areaDevourer3)
+					areaDevourer4 = addEvent(changeArea, 30000, token) --mudar
+					trackEvent(token, areaDevourer4)
 
 					--Variables
 					devourerBossesKilled = 0
@@ -526,10 +745,6 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 					rageSummon = 0
 					destructionSummon = 0
 					devourerSummon = 0
-
-					Game.createMonster("The Hunger", { x = 32244, y = 31372, z = 14 }, false, true)
-					Game.createMonster("The Destruction", { x = 32271, y = 31316, z = 14 }, false, true)
-					Game.createMonster("The Rage", { x = 32299, y = 31372, z = 14 }, false, true)
 
 					local vortex = Tile({ x = 32281, y = 31348, z = 14 })
 					local vortexId = vortex:getItemById(23482)

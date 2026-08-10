@@ -37,8 +37,13 @@ function heartDestructionReward.onUse(player, item, fromPosition, target, toPosi
 			return true
 		end
 
+		-- CORRECTION (executor contract, section J): "Ender of the End" is granted on the actual
+		-- World Devourer kill (creaturescripts_heart_boss_death.lua), not here - a player who
+		-- legitimately defeats World Devourer must not lose the achievement just because their
+		-- inventory couldn't accept the reward backpack. Reward delivery stays transactional on its
+		-- own terms (RewardClaimed only after the backpack is actually delivered), independently of
+		-- the achievement.
 		player:setStorageValue(Storage.HeartOfDestructionFinalBattle.RewardClaimed, 1)
-		player:addAchievement("Ender of the End")
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have found an energetic backpack.")
 	end
 

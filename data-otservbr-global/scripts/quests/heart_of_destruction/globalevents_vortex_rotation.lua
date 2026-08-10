@@ -17,7 +17,18 @@ vortexRotationStartup:register()
 
 local vortexRotation = GlobalEvent("HeartOfDestructionVortexRotation")
 function vortexRotation.onThink(interval)
-	Game.setStorageValue(GlobalStorage.HeartOfDestruction.ActiveVortex, math.random(1, 3))
+	-- CORRECTION (owner reference: the active portal changes every 2 hours): math.random(1, 3) could
+	-- reselect the already-active route, meaning a rotation tick could produce no visible change at
+	-- all. Every tick now picks one of the OTHER two routes - no deterministic sequence is assumed,
+	-- since the owner reference doesn't prove one, only that it "changes."
+	local current = Game.getStorageValue(GlobalStorage.HeartOfDestruction.ActiveVortex)
+	local candidates = {}
+	for routeId = 1, 3 do
+		if routeId ~= current then
+			candidates[#candidates + 1] = routeId
+		end
+	end
+	Game.setStorageValue(GlobalStorage.HeartOfDestruction.ActiveVortex, candidates[math.random(1, #candidates)])
 	return true
 end
 vortexRotation:interval(VORTEX_ROTATION_INTERVAL)
