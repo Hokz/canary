@@ -2,17 +2,6 @@ local team = {}
 
 -- FUNCTIONS
 
-local function shuffleTable(t, count, ri, rj)
-	ri = ri or 1
-	rj = rj or #t
-	for x = 1, count or 1 do
-		for i = rj, ri + 1, -1 do
-			local j = math.random(ri, rj)
-			t[i], t[j] = t[j], t[i]
-		end
-	end
-end
-
 local function doCheckArea()
 	--Room 1
 	local upConer = { x = 32133, y = 31341, z = 14 } -- upLeftCorner
@@ -132,7 +121,11 @@ local function clearArea()
 end
 
 function teleportToCrackler()
-	shuffleTable(team, 2, ri, rj) -- Embaralha a tabela para dar um random teleport
+	-- CONFIRMED BUG (found during the HOD repair audit): this used to shuffle the whole team and
+	-- always phase-shift whichever 2 players landed in slots 1/2 after the shuffle - a random pair
+	-- each cycle. The owner reference requires a fixed positional grouping instead: the 2nd and 4th
+	-- players to enter (by original lever-slot order, preserved in `team`'s insertion order) are the
+	-- ones who shift phase, while the 1st/3rd/5th group stays behind - deterministic, not random.
 
 	--Room 1
 	local upConer = { x = 32142, y = 31341, z = 14 } -- upLeftCorner
@@ -147,7 +140,7 @@ function teleportToCrackler()
 					local creatures = tile:getCreatures()
 					if creatures and #creatures > 0 then
 						for _, c in pairs(creatures) do
-							if c == team[1] or c == team[2] then
+							if c == team[2] or c == team[4] then
 								c:teleportTo({ x = c:getPosition().x, y = c:getPosition().y, z = c:getPosition().z + 1 })
 								c:say("A shift in polarity switches creatures with coresponding polarity into another phase of existence!", TALKTYPE_MONSTER_YELL, isInGhostMode, pid, { x = 32158, y = 31355, z = 14 })
 							end

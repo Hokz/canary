@@ -89,15 +89,21 @@ function teleportHeart.onStepIn(creature, item, position, fromPosition)
 		if player:getStorageValue(14330) >= 1 and player:getStorageValue(14332) >= 1 then
 			if not player:canFightBoss("World Devourer") then
 				denyAndReturn(player, fromPosition, "It's too early for you to endure this challenge again.")
-			elseif player:hasAchievement("Ender of the End") and player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges) < 5 then
-				-- Repeat visits only (first-time entry is not gated by charges) — see 05_HOD_BOSS_MECHANICS_CONTRACT.md.
-				local charges = math.max(player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0)
-				denyAndReturn(player, fromPosition, "To face the heart of destruction again, you have to gather destructive charges to enter its lair. You gain charges by killing any higher minion of destruction. You have gathered " .. charges .. " of 5 charges.")
 			else
-				if player:hasAchievement("Ender of the End") then
-					player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges) - 5)
+				-- PROJECT_ARCHITECTURE_DECISION (HOD repair audit, owner reference section G): every
+				-- committed entry into the World Devourer's lair costs 5 destructive charges, including
+				-- the very first attempt — the previous "free first entry" exemption (gated on already
+				-- holding the Ender of the End achievement) contradicted the owner reference and is
+				-- removed. Deduction happens only here, after every other gate (access storages,
+				-- cooldown) has already passed — this is the actual commit point, immediately before
+				-- the teleport that can't itself fail.
+				local charges = math.max(player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0)
+				if charges < 5 then
+					denyAndReturn(player, fromPosition, "To face the heart of destruction, you have to gather destructive charges to enter its lair. You gain charges by defeating the masters of the incursions. You have gathered " .. charges .. " of 5 charges.")
+				else
+					player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, charges - 5)
+					player:teleportTo(Position(32272, 31384, 14))
 				end
-				player:teleportTo(Position(32272, 31384, 14))
 			end
 		else
 			denyAndReturn(player, fromPosition, "You don't have access to this portal.")

@@ -46,14 +46,32 @@ local function setStorage()
 	end
 end
 
+-- Same 5 tiles actions_charges_lever.lua already spawns Overcharge on (proven-valid, not guessed).
+local overchargePositions = {
+	{ x = 32152, y = 31355, z = 15 },
+	{ x = 32154, y = 31360, z = 15 },
+	{ x = 32160, y = 31360, z = 15 },
+	{ x = 32162, y = 31356, z = 15 },
+	{ x = 32158, y = 31352, z = 15 },
+}
+
 local overchargeDeath = CreatureEvent("OverchargeDeath")
 function overchargeDeath.onDeath(creature)
-	Game.setStorageValue(14321, Game.getStorageValue(14321) + 1)
+	-- CONFIRMED BUG (found during the HOD repair audit): the owner reference requires 6 Overcharge
+	-- kills to complete the Anomaly pre-mission, not 5 - but the lever only ever spawns 5. Rather
+	-- than guess an unproven 6th map coordinate, the 5th kill spawns one extra Overcharge on one of
+	-- the 5 tiles already proven valid (the lever already spawns monsters there), making 6 kills
+	-- actually reachable.
+	local count = Game.getStorageValue(14321) + 1
+	Game.setStorageValue(14321, count)
 
-	if Game.getStorageValue(14321) == 5 then
+	if count == 6 then
 		setStorage()
 		creature:say("You have reached enough charges to pass further into the destruction!", TALKTYPE_MONSTER_YELL, isInGhostMode, pid, { x = 32162, y = 31356, z = 15 })
 		Game.setStorageValue(14321, -1)
+	elseif count == 5 then
+		local pos = overchargePositions[math.random(1, #overchargePositions)]
+		Game.createMonster("Overcharge", pos, false, true)
 	end
 
 	return true

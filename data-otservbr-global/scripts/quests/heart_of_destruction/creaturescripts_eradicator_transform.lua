@@ -9,15 +9,22 @@ function eradicatorTransform.onThink(creature)
 	if eradicatorReleaseT > 0 then
 		local bossPosition = creature:getPosition()
 		local bossHealth = creature:getHealth()
-		creature:remove()
 
 		local eradicatorWeak = Game.getStorageValue(GlobalStorage.HeartOfDestruction.EradicatorWeak) > 0 and 1 or 0
 		local monsterName = eradicatorWeak == 1 and "Eradicator" or "Eradicator2"
+
+		-- CONFIRMED BUG (found during the HOD repair audit): the original was removed BEFORE the
+		-- replacement form was created - the failure was already logged, but by then the boss was
+		-- already gone and the room was unrecoverable. Creating the replacement first (force=true
+		-- bypasses tile occupancy, same as the other 4 boss transforms) and only removing the
+		-- original on success means a transient failure just leaves the current form alive; onThink
+		-- retries automatically next tick instead of bricking the encounter.
 		local monster = Game.createMonster(monsterName, bossPosition, false, true)
 		if not monster then
 			logger.error("Cannot create " .. monsterName)
 			return false
 		end
+		creature:remove()
 		monster:addHealth(-monster:getHealth() + bossHealth, COMBAT_PHYSICALDAMAGE)
 
 		if eradicatorWeak == 0 then

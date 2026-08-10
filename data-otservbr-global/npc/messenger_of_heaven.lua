@@ -134,11 +134,23 @@ local function creatureSayCallback(npc, creature, type, message)
 		npcHandler:say("Your future is still not written because the forces of uncreation are still tearing on reality. For the sake of your world, please hurry!", npc, creature)
 		npcHandler:setTopic(playerId, 12)
 	elseif MsgContains(message, "yes") and topic == 12 then
-		-- TODO_EXACT_TEXT: owner reference does not provide Messenger of Heaven's exact line here.
-		-- Functional placeholder only, per explicit authorization not to block the quest on missing text.
-		npcHandler:say("Go now. The cave nearby holds a way into the incursion. May the gods watch over you.", npc, creature)
-		player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.CaveAccess, 1)
-		npcHandler:setTopic(playerId, 0)
+		-- ACCESS GATE (found missing during the HOD repair audit): the owner reference requires
+		-- level 150 and Premium for Heart of Destruction; nothing in the quest enforced either
+		-- anywhere. This is the primary/first gate - see movements_vortex_route_entrances.lua for
+		-- the defense-in-depth check at the actual incursion entrances.
+		if player:getLevel() < 150 then
+			npcHandler:say("You are not yet ready for this task. Return to me once you have grown stronger - at least level 150.", npc, creature)
+			npcHandler:setTopic(playerId, 0)
+		elseif not player:isPremium() then
+			npcHandler:say("This task requires the benefits only a premium account provides. Return once you have secured premium time.", npc, creature)
+			npcHandler:setTopic(playerId, 0)
+		else
+			-- TODO_EXACT_TEXT: owner reference does not provide Messenger of Heaven's exact line here.
+			-- Functional placeholder only, per explicit authorization not to block the quest on missing text.
+			npcHandler:say("Go now. The cave nearby holds a way into the incursion. May the gods watch over you.", npc, creature)
+			player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.CaveAccess, 1)
+			npcHandler:setTopic(playerId, 0)
+		end
 	end
 
 	return true

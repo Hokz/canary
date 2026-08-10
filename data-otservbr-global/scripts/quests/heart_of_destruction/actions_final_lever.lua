@@ -6,6 +6,26 @@ The Rage = 14336 (RageTeam)
 ]]
 --
 -- FUNCTIONS
+
+-- CONFIRMED GAP (found during the HOD repair audit, section H): World Devourer's creation was
+-- previously unchecked. By the point this runs, all 15 players have already been rotated out of
+-- the 3 mini-boss rooms and into the World Devourer room, and the 30-second rotation timer has
+-- already been stopped - a silent creation failure here would leave a full room of committed
+-- players with no boss and no reason for the fight to ever progress. Bounded retry (a handful of
+-- attempts a few seconds apart, not indefinite) plus the pre-existing 30-minute failsafe
+-- (areaDevourer5, scheduled unconditionally by the caller regardless of retry outcome) means
+-- players are never permanently trapped even if every retry fails.
+function spawnWorldDevourer(retriesLeft)
+	local monster = Game.createMonster("World Devourer", { x = 32271, y = 31347, z = 14 }, false, true)
+	if monster then
+		return
+	end
+	logger.error("HeartOfDestruction: failed to create World Devourer (retries left: {})", retriesLeft)
+	if retriesLeft > 0 then
+		addEvent(spawnWorldDevourer, 5000, retriesLeft - 1)
+	end
+end
+
 function sparkDevourerSpawn()
 	local positions = {
 		{ x = 32268, y = 31341, z = 14 },
@@ -208,7 +228,7 @@ local function changeArea()
 			end
 		end
 
-		Game.createMonster("World Devourer", { x = 32271, y = 31347, z = 14 }, false, true)
+		spawnWorldDevourer(3)
 		Game.createMonster("Spark of Destruction2", { x = 32268, y = 31341, z = 14 }, false, true)
 		Game.createMonster("Spark of Destruction2", { x = 32275, y = 31342, z = 14 }, false, true)
 		Game.createMonster("Spark of Destruction2", { x = 32269, y = 31352, z = 14 }, false, true)
@@ -407,11 +427,50 @@ function heartDestructionFinal.onUse(player, item, fromPosition, itemEx, toPosit
 					return true
 				end
 
+				-- ACCESS GATE (found missing during the HOD repair audit): level 150 + Premium,
+				-- checked for every participant across all 3 columns, not just the lever-puller.
+				for _, columnPlayers in ipairs({ storeHunger, storeDestruction, storeRage }) do
+					for _, participant in ipairs(columnPlayers) do
+						if participant:getLevel() < 150 then
+							player:sendTextMessage(19, "All participants must be at least level 150.")
+							return true
+						end
+						if not participant:isPremium() then
+							player:sendTextMessage(19, "All participants must have a premium account.")
+							return true
+						end
+					end
+				end
+
 				if doCheckArea() == false then
 					clearHunger()
 					clearDestruction()
 					clearRage()
 					clearDevourer()
+
+					-- CONFIRMED GAP (found during the HOD repair audit, section H): the 3 initial boss
+					-- spawns were previously unchecked and ran AFTER players were already teleported in
+					-- and cooldowns/storages already committed - a creation failure would strand players
+					-- inside a partially-set-up encounter. Spawning is checked here, before any player is
+					-- moved or any state committed, so a failure aborts cleanly with nobody moved and
+					-- nothing consumed.
+					local theHunger = Game.createMonster("The Hunger", { x = 32244, y = 31372, z = 14 }, false, true)
+					local theDestruction = Game.createMonster("The Destruction", { x = 32271, y = 31316, z = 14 }, false, true)
+					local theRage = Game.createMonster("The Rage", { x = 32299, y = 31372, z = 14 }, false, true)
+					if not theHunger or not theDestruction or not theRage then
+						if theHunger then
+							theHunger:remove()
+						end
+						if theDestruction then
+							theDestruction:remove()
+						end
+						if theRage then
+							theRage:remove()
+						end
+						logger.error("HeartOfDestruction: failed to create initial Hunger/Destruction/Rage trio")
+						player:sendTextMessage(19, "The heart of destruction resists your assault. Try again.")
+						return true
+					end
 
 					local teamHunger
 					local teamDestruction

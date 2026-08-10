@@ -1,17 +1,9 @@
--- "Higher minions of destruction" for the destructive-charges system (see movements_teleport_heart.lua
--- worldDevourerEnter and 05_HOD_BOSS_MECHANICS_CONTRACT.md): Frenzy, Charged Disruption, and Overcharged
--- Disruption. This is an inferred classification, not exact wiki text — reasoning: these are the escalated/
--- empowered forms that appear during the final battle and World Devourer fight (as opposed to the base
--- "Disruption" or common "Spark of Destruction" spawns), and they die via normal combat (unlike Greed,
--- which is despawned via the vortex mechanic and never actually "killed").
-local function grantDestructiveCharge(killer, mostDamageKiller)
-	local player = mostDamageKiller and mostDamageKiller:getPlayer() or (killer and killer:getPlayer())
-	if not player then
-		return
-	end
-	local charges = math.min(math.max(player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0) + 1, 5)
-	player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, charges)
-end
+-- PROJECT_ARCHITECTURE_DECISION (HOD repair audit): destructive charges are sourced from the 5
+-- master bosses only (Anomaly/Rupture/Realityquake/Eradicator/Outburst — see
+-- creaturescripts_heart_boss_death.lua), not from any final-battle minion. The previous
+-- grantDestructiveCharge() calls on Frenzy/Charged Disruption/Overcharged Disruption death were
+-- removed from here per the owner reference correction; the function itself moved to
+-- creaturescripts_heart_boss_death.lua, the new single source of charge grants.
 
 -- The Hunger/Destruction/Rage rotate through 3 rooms via changeArea() (actions_final_lever.lua):
 -- every 30 seconds players are moved Hunger->Rage->Destruction->Hunger, and whichever of these
@@ -105,7 +97,6 @@ function heartMinionDeath.onDeath(creature, corpse, killer, mostDamageKiller, un
 	if monster == "frenzy" then
 		rageSummon = rageSummon - 1
 		devourerSummon = devourerSummon - 1
-		grantDestructiveCharge(killer, mostDamageKiller)
 	elseif monster == "damage resonance" then
 		Game.setStorageValue(GlobalStorage.HeartOfDestruction.RuptureResonanceActive, 0)
 	elseif monster == "disruption" then
@@ -114,7 +105,6 @@ function heartMinionDeath.onDeath(creature, corpse, killer, mostDamageKiller, un
 	elseif monster == "charged disruption" or monster == "overcharged disruption" then
 		destructionSummon = destructionSummon - 1
 		devourerSummon = devourerSummon - 1
-		grantDestructiveCharge(killer, mostDamageKiller)
 	elseif monster == "the hunger" then
 		devourerBossesKilled = devourerBossesKilled + 1
 		theHungerKilled = true

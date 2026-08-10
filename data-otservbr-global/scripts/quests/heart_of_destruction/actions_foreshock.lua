@@ -3,6 +3,7 @@ local config = {
 		name = "Foreshock",
 		position = Position(32208, 31248, 14),
 	},
+	requiredLevel = 150,
 	playerPositions = {
 		{ pos = Position(32182, 31244, 14), teleport = Position(32208, 31256, 14), effect = CONST_ME_TELEPORT },
 		{ pos = Position(32182, 31245, 14), teleport = Position(32208, 31256, 14), effect = CONST_ME_TELEPORT },

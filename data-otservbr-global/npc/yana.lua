@@ -185,11 +185,31 @@ local function creatureSayCallback(npc, creature, type, message)
 	if MsgContains(message, "information") then
 		npcHandler:say({ "{Tokens} are small objects made of metal or other materials. You can use them to buy superior equipment from token traders like me.", "There are several ways to obtain the tokens I'm interested in - killing certain bosses, for example. In exchange for a certain amount of tokens, I can offer you some first-class items." }, npc, creature)
 	elseif MsgContains(message, "worth") then
-		if player:hasAchievement("Ender of the End") then
+		-- CONFIRMED BUG (found during the HOD repair audit): this used to check only the Ender of
+		-- the End achievement, and never actually wrote the imbuement storages - so even a
+		-- qualifying player was only ever told they were worthy, without receiving anything.
+		-- PROJECT_ARCHITECTURE_DECISION: the owner reference requires BOTH the Ender of the End
+		-- achievement (Heart of Destruction) AND the 5 Heavy Old Tomes already turned in to
+		-- Albinius (Forgotten Knowledge, Storage.Quest.U11_02.ForgottenKnowledge.Tomes - the same
+		-- flag npc/albinius.lua sets on that turn-in). Storage writes below use the exact
+		-- imbuementStorage values already confirmed live in data/XML/imbuements.xml and already
+		-- used by forgotten_knowledge/creaturescripts_bosses_kill.lua for the same 8 imbuement
+		-- types (50488=Reap/Vampirism/Lich Shroud, 50494=Scorch/Void/Dragon Hide, 50501=Strike/
+		-- Epiphany) - idempotent, safe to run every time this branch is reached.
+		local hasEnderOfTheEnd = player:hasAchievement("Ender of the End")
+		local hasTomes = player:getStorageValue(Storage.Quest.U11_02.ForgottenKnowledge.Tomes) >= 1
+		if hasEnderOfTheEnd and hasTomes then
+			player:setStorageValue(50488, 1)
+			player:setStorageValue(50494, 1)
+			player:setStorageValue(50501, 1)
 			npcHandler:say({
 				"I see, you disrupted the Heart of Destruction, defeated the World Devourer and bought our world some time. You are truly worthy. ...",
 				"You are granted the power to imbue 'Powerful Strike', 'Powerful Epiphany', 'Powerful Void', 'Powerful Vampirism', 'Power Lich Shroud', 'Power Reap', 'Power Dragon Hide' and 'Power Scorch'.",
 			}, npc, creature)
+		elseif hasEnderOfTheEnd and not hasTomes then
+			-- TODO_EXACT_TEXT: owner reference does not provide Yana's exact line for this
+			-- partially-qualified state. Functional placeholder only.
+			npcHandler:say("You have proven your worth against the Heart of Destruction, but the Shapers' knowledge is not yet complete - bring Albinius his Heavy Old Tomes first.", npc, creature)
 		else
 			npcHandler:say("Disrupt the Heart of Destruction, fell the World Devourer to prove your worth and you will be granted the power to imbue 'Powerful Strike', 'Powerful Epiphany', 'Powerful Void', 'Powerful Vampirism', 'Power Lich Shroud', 'Power Reap', 'Power Dragon Hide' and 'Power Scorch'.", npc, creature)
 		end

@@ -3,6 +3,7 @@ local config = {
 		name = "Outburst",
 		position = Position(32234, 31284, 14),
 	},
+	requiredLevel = 150,
 	playerPositions = {
 		{ pos = Position(32207, 31284, 14), teleport = Position(32234, 31292, 14), effect = CONST_ME_TELEPORT },
 		{ pos = Position(32207, 31285, 14), teleport = Position(32234, 31292, 14), effect = CONST_ME_TELEPORT },

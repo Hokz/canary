@@ -3,6 +3,7 @@ local config = {
 		name = "Rupture",
 		position = Position(32332, 31250, 14),
 	},
+	requiredLevel = 150,
 	playerPositions = {
 		{ pos = Position(32309, 31248, 14), teleport = Position(32335, 31257, 14), effect = CONST_ME_TELEPORT },
 		{ pos = Position(32309, 31249, 14), teleport = Position(32335, 31257, 14), effect = CONST_ME_TELEPORT },

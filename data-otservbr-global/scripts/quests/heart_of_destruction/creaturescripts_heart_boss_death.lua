@@ -90,6 +90,22 @@ local function setStorage(fromPos, toPos, storage)
 	end
 end
 
+-- PROJECT_ARCHITECTURE_DECISION (HOD repair audit): destructive charges are granted here, on the
+-- death of any of the 5 master bosses (Anomaly/Rupture/Realityquake/Eradicator/Outburst) —
+-- previously they were granted on final-battle minion deaths (Frenzy/Charged/Overcharged
+-- Disruption), which contradicted the owner reference. World Devourer does NOT grant a charge —
+-- killing it is the payoff the charges are spent to reach, not another source of them. Recipient
+-- is the killer/mostDamageKiller only, matching the single-recipient shape of the prior
+-- implementation; per-room-participant distribution would be new architecture and is out of scope.
+local function grantDestructiveCharge(killer, mostDamageKiller)
+	local player = mostDamageKiller and mostDamageKiller:getPlayer() or (killer and killer:getPlayer())
+	if not player then
+		return
+	end
+	local charges = math.min(math.max(player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0) + 1, 5)
+	player:setStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges, charges)
+end
+
 local bosses = {
 	["anomaly"] = {
 		tile = { x = 32261, y = 31250, z = 14 },
@@ -130,7 +146,7 @@ local bosses = {
 
 local heartBossDeath = CreatureEvent("HeartBossDeath")
 
-function heartBossDeath.onDeath(creature)
+function heartBossDeath.onDeath(creature, corpse, killer, mostDamageKiller, unjustified, mostDamageUnjustified)
 	if not creature or not creature:getMonster() then
 		return true
 	end
@@ -144,6 +160,14 @@ function heartBossDeath.onDeath(creature)
 			vortex:setActionId(bossName.actionId)
 		end
 		setStorage(bossName.fromPos, bossName.toPos, bossName.storage)
+		grantDestructiveCharge(killer, mostDamageKiller)
+		if monsterName == "eradicator" then
+			-- CONFIRMED GAP (found during the HOD repair audit): creaturescripts_eradicator_transform.lua
+			-- schedules a recurring release timer (eradicatorEvent) for as long as the fight is
+			-- ongoing. Without stopping it here, the timer keeps firing after the boss is already
+			-- dead and the room reset, flipping a stale EradicatorReleaseT storage for no live boss.
+			stopEvent(eradicatorEvent)
+		end
 	elseif monsterName == "world devourer" then
 		local vortex = Tile({ x = 32281, y = 31348, z = 14 }):getItemById(23483)
 		if vortex then
