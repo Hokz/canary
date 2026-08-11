@@ -1,43 +1,67 @@
--- CORRECTION (executor contract, section E): the previous 60-second delayed cleanup scheduled a
--- bare addEvent with no run token and outside HODFinalRun.events - a full, generation-blind sweep
--- of the room by POSITION. If a new run had already started in the 60-second window (unlikely
--- given normal play, but not impossible), this would have removed that NEWER run's own players
--- and monsters. This replacement operates ONLY on a snapshot of the completed run's own
--- participant ids and owned monster ids, captured by the caller BEFORE HODFinalRunTerminate clears
--- HODFinalRun's collections - it is intentionally independent of any mutable current-run state, so
--- it can never touch anything belonging to a run that starts later. Corpses/dropped items are
--- still swept by room position, since an item can never be mistaken for a newer run's own player
--- or monster the way a creature could.
-local function finalRunSuccessCleanup(participantIds, ownedMonsterIds)
-	local exitPosition = { x = 32208, y = 31372, z = 14 }
+local WD_ROOM_FROM = { x = 32260, y = 31336, z = 14 }
+local WD_ROOM_TO = { x = 32283, y = 31360, z = 14 }
+local WD_EXIT = { x = 32208, y = 31372, z = 14 }
 
+local function isInsideWorldDevourerRoom(creature)
+	local pos = creature:getPosition()
+	return pos.x >= WD_ROOM_FROM.x and pos.x <= WD_ROOM_TO.x and pos.y >= WD_ROOM_FROM.y and pos.y <= WD_ROOM_TO.y and pos.z >= WD_ROOM_FROM.z and pos.z <= WD_ROOM_TO.z
+end
+
+-- CORRECTION (micro-correction, section C): the 60-second delayed cleanup operates on a snapshot
+-- of the run that just succeeded, captured by the caller BEFORE HODFinalRunTerminate clears
+-- HODFinalRun's collections. That snapshot alone isn't enough to guarantee this cleanup can never
+-- touch a later run's own state, so every action below is additionally conditioned on present-tense
+-- facts checked at the moment this callback actually fires, 60 seconds later:
+--   PLAYER  - only teleports a snapshotted participant who is STILL physically inside the room;
+--             someone who already left through the legitimate exit/reward flow is left alone,
+--             never yanked back from wherever they went.
+--   MONSTER - removes a snapshotted monster id UNLESS that exact id has since been reclaimed by a
+--             currently-active newer run (defensive against creature-id reuse across runs).
+--   ROOM SWEEP - a positional fallback for anything neither snapshot could have known about (e.g.
+--             a Disruption that transformed into a Charged Disruption after this run's own token
+--             was already invalidated, and so was never registered as anyone's owned monster at
+--             all) - but ONLY runs when no newer HOD run is active. If a newer run IS active, its
+--             own pre-run hygiene sweep already cleared this room before it committed, and a
+--             positional sweep here could otherwise remove that newer run's own players/monsters.
+local function finalRunSuccessCleanup(participantIds, ownedMonsterIds)
 	for _, playerId in ipairs(participantIds) do
 		local participant = Player(playerId)
-		if participant then
-			participant:teleportTo(exitPosition)
+		if participant and isInsideWorldDevourerRoom(participant) then
+			participant:teleportTo(WD_EXIT)
 			participant:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
 		end
 	end
 
 	for _, monsterId in ipairs(ownedMonsterIds) do
-		local monster = Monster(monsterId)
-		if monster then
-			monster:remove()
+		if not (HODFinalRun.active and HODFinalRun.monsters[monsterId]) then
+			local monster = Monster(monsterId)
+			if monster then
+				monster:remove()
+			end
 		end
 	end
 
-	local upConer = { x = 32260, y = 31336, z = 14 } -- upLeftCorner
-	local downConer = { x = 32283, y = 31360, z = 14 } -- downRightCorner
-	for i = upConer.x, downConer.x do
-		for j = upConer.y, downConer.y do
-			for k = upConer.z, downConer.z do
-				local tile = Tile(i, j, k)
-				if tile then
-					for _, item in ipairs(tile:getItems() or {}) do
-						if not item:hasAttribute("aid") and not item:hasAttribute("uid") then
-							local itemType = ItemType(item:getId())
-							if itemType:isMagicField() or itemType:isCorpse() or (itemType:isMovable() and itemType:isPickupable()) then
-								item:remove()
+	if not HODFinalRun.active then
+		for i = WD_ROOM_FROM.x, WD_ROOM_TO.x do
+			for j = WD_ROOM_FROM.y, WD_ROOM_TO.y do
+				for k = WD_ROOM_FROM.z, WD_ROOM_TO.z do
+					local tile = Tile(i, j, k)
+					if tile then
+						local creatures = tile:getCreatures()
+						if creatures and #creatures > 0 then
+							for _, creatureUid in pairs(creatures) do
+								local creature = Creature(creatureUid)
+								if creature and creature:isMonster() then
+									creature:remove()
+								end
+							end
+						end
+						for _, item in ipairs(tile:getItems() or {}) do
+							if not item:hasAttribute("aid") and not item:hasAttribute("uid") then
+								local itemType = ItemType(item:getId())
+								if itemType:isMagicField() or itemType:isCorpse() or (itemType:isMovable() and itemType:isPickupable()) then
+									item:remove()
+								end
 							end
 						end
 					end
@@ -174,12 +198,15 @@ function heartBossDeath.onDeath(creature, corpse, killer, mostDamageKiller, unju
 			vortex:setActionId(14354)
 		end
 
-		-- Completion storages and "Ender of the End" go only to this exact run's own legitimate
-		-- participants (HODFinalRun.participants, the authoritative roster of players still
-		-- committed to this run) - not to bystanders who happen to occupy the room.
+		-- CORRECTION (micro-correction, section B): completion storages and "Ender of the End" go
+		-- only to players who are BOTH a member of HODFinalRun.participants (the authoritative
+		-- roster - a bystander in the room who isn't on this roster still receives nothing) AND
+		-- still physically inside the World Devourer room at the moment it actually dies. A run
+		-- participant who already died, left, or teleported out earlier does not get credit for a
+		-- kill they weren't present for.
 		for _, playerId in ipairs(participantIds) do
 			local participant = Player(playerId)
-			if participant then
+			if participant and isInsideWorldDevourerRoom(participant) then
 				participant:setStorageValue(60835, 1)
 				participant:setStorageValue(60814, 1)
 				participant:setStorageValue(60828, 1)

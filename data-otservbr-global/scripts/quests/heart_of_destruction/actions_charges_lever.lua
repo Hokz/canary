@@ -23,6 +23,21 @@ function HODAnomalyPremissionCurrentToken()
 	return nil
 end
 
+-- CORRECTION (micro-correction, section D): called on the successful 6th Overcharge kill. Unlike
+-- HODAnomalyPremissionAbort, this does NOT sweep the rooms or teleport anyone - the mission was
+-- won, and the successful party leaves normally through the established mission exit. It only
+-- invalidates the token (first) and stops the attempt's own phase/timeout callbacks, so a
+-- completed attempt doesn't sit active until its full 15-minute timeout fires for no reason.
+function HODAnomalyPremissionFinish(token)
+	if not HODAnomalyPremissionIsCurrent(token) then
+		return
+	end
+	HODAnomalyPremission.active = false
+	stopEvent(areaHeart1)
+	stopEvent(areaHeart2)
+	stopEvent(areaHeart3)
+end
+
 -- FUNCTIONS
 
 local function doCheckArea()

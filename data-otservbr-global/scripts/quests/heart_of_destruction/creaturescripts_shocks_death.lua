@@ -77,7 +77,10 @@ local function attemptAftershockSpawn(token, retriesLeft)
 	end
 	logger.error("HeartOfDestruction: failed to create Aftershock (retries left: {})", retriesLeft)
 	if retriesLeft > 0 then
-		addEvent(attemptAftershockSpawn, 3000, token, retriesLeft - 1)
+		-- CORRECTION (micro-correction, section E): the retry's own event id is registered to the
+		-- encounter so HODRealityquakeEncounterFinish can positively cancel it instead of merely
+		-- relying on the token check the callback would otherwise perform on its own.
+		HODRealityquakeEncounterTrackEvent(token, addEvent(attemptAftershockSpawn, 3000, token, retriesLeft - 1))
 	else
 		abortRealityquakeEncounter(token, "Aftershock failed to spawn after bounded retries")
 	end
@@ -98,7 +101,7 @@ local function attemptRealityquakeSpawn(token, position, retriesLeft)
 	end
 	logger.error("HeartOfDestruction: failed to create Realityquake (retries left: {})", retriesLeft)
 	if retriesLeft > 0 then
-		addEvent(attemptRealityquakeSpawn, 3000, token, position, retriesLeft - 1)
+		HODRealityquakeEncounterTrackEvent(token, addEvent(attemptRealityquakeSpawn, 3000, token, position, retriesLeft - 1))
 	else
 		abortRealityquakeEncounter(token, "Realityquake failed to spawn after bounded retries")
 	end

@@ -90,6 +90,10 @@ function overchargeDeath.onDeath(creature)
 		setStorage()
 		creature:say("You have reached enough charges to pass further into the destruction!", TALKTYPE_MONSTER_YELL, isInGhostMode, pid, { x = 32162, y = 31356, z = 15 })
 		Game.setStorageValue(14321, -1)
+		-- CORRECTION (micro-correction, section D): terminate this attempt's token on success so
+		-- it doesn't remain active (and its phase/timeout callbacks alive) until the full
+		-- 15-minute timeout - without sweeping the room or teleporting the successful party.
+		HODAnomalyPremissionFinish(HODAnomalyPremissionCurrentToken())
 	elseif count == 5 then
 		attemptSixthOvercharge(HODAnomalyPremissionCurrentToken())
 	end

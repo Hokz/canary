@@ -400,6 +400,17 @@ changeArea = function(token)
 		trackEvent(token, areaDevourer4)
 	else
 		stopEvent(areaDevourer4)
+
+		-- CORRECTION (micro-correction, section A): the 45-minute miniboss-phase timeout governs
+		-- ONLY that phase. Without stopping it here, it kept counting down through the World
+		-- Devourer phase too, so the encounter could expire at whichever fired first - the stale
+		-- remainder of the 45-minute timer or the fresh 30-minute World-Devourer-phase timer.
+		if areaDevourerMinibossTimeout then
+			stopEvent(areaDevourerMinibossTimeout)
+			HODFinalRun.events[areaDevourerMinibossTimeout] = nil
+			areaDevourerMinibossTimeout = nil
+		end
+
 		for _, online in ipairs(Game.getPlayers()) do
 			if online:isPlayer() then
 				if online:getStorageValue(Storage.HeartOfDestructionFinalBattle.HungerTeam) >= 1 then

@@ -14,6 +14,7 @@
 local HODRealityquakeEncounter = {
 	token = 0,
 	active = false,
+	events = {}, -- set: eventId -> true, every retry addEvent this encounter owns
 }
 
 local seenPulls = setmetatable({}, { __mode = "k" })
@@ -41,13 +42,29 @@ function HODRealityquakeEncounterCurrentToken()
 	return nil
 end
 
+-- CORRECTION (micro-correction, section E): lets creaturescripts_shocks_death.lua register every
+-- retry addEvent id it schedules under this encounter, so a stale retry can be positively
+-- identified and cancelled rather than merely ignored via the token check.
+function HODRealityquakeEncounterTrackEvent(token, eventId)
+	if HODRealityquakeEncounterIsCurrent(token) and eventId then
+		HODRealityquakeEncounter.events[eventId] = true
+	end
+end
+
 -- Called on a technical abort (invalidates FIRST, before any cleanup) and on the successful
 -- Aftershock->Realityquake handoff (the chain is complete - nothing further will ever retry under
--- this token, so it's finished cleanly rather than left inertly "active").
+-- this token, so it's finished cleanly rather than left inertly "active"). Either way, every
+-- still-pending retry event this encounter owns is stopped/cleared - a new legitimate encounter
+-- never inherits scheduled work from a prior one.
 function HODRealityquakeEncounterFinish(token)
-	if HODRealityquakeEncounter.active and HODRealityquakeEncounter.token == token then
-		HODRealityquakeEncounter.active = false
+	if not (HODRealityquakeEncounter.active and HODRealityquakeEncounter.token == token) then
+		return
 	end
+	HODRealityquakeEncounter.active = false
+	for eventId in pairs(HODRealityquakeEncounter.events) do
+		stopEvent(eventId)
+	end
+	HODRealityquakeEncounter.events = {}
 end
 
 local config = {
