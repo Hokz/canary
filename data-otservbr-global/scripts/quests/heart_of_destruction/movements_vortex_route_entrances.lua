@@ -45,6 +45,22 @@ function vortexEntrance.onStepIn(creature, item, position, fromPosition)
 		return true
 	end
 
+	-- ACCESS GATE (found missing during the HOD repair audit): defense-in-depth, independent of
+	-- the Messenger of Heaven check - this is the one physical choke point every route funnels
+	-- through, so a level/premium check here protects the whole incursion network even if
+	-- CaveAccess was ever granted to an ineligible player by some other path.
+	if player:getLevel() < 150 then
+		player:teleportTo(fromPosition)
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You are not yet ready for this - at least level 150 is required.")
+		return true
+	end
+
+	if not player:isPremium() then
+		player:teleportTo(fromPosition)
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "This incursion can only be entered with a premium account.")
+		return true
+	end
+
 	local hasPermanentAccess = player:getStorageValue(route.permanentStorage) >= 1
 	local isActiveVortex = Game.getStorageValue(GlobalStorage.HeartOfDestruction.ActiveVortex) == route.activeVortexId
 

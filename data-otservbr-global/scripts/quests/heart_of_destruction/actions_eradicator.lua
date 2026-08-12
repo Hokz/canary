@@ -3,6 +3,7 @@ local config = {
 		name = "Eradicator",
 		position = Position(32309, 31283, 14),
 	},
+	requiredLevel = 150,
 	playerPositions = {
 		{ pos = Position(32334, 31284, 14), teleport = Position(32309, 31290, 14), effect = CONST_ME_TELEPORT },
 		{ pos = Position(32334, 31285, 14), teleport = Position(32309, 31290, 14), effect = CONST_ME_TELEPORT },

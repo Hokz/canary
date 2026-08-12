@@ -81,10 +81,21 @@ local quest = {
 			missionId = 20007,
 			startValue = 0,
 			endValue = 1,
-			states = {
-				[0] = "With the Eradicator and Outburst defeated, the way to the World Devourer itself lies open. Gather your allies — this battle needs many hands.",
-				[1] = "You have disrupted the Heart of Destruction and defeated the World Devourer. To face it again, you will need to gather destructive charges and wait for its power to wane.",
-			},
+			-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE: dynamic charge count added during the HOD
+			-- repair audit (owner reference confirms the re-entry cost is charge-based, but not this
+			-- exact questlog wording) - follows the same description-function pattern already used by
+			-- 034_wrath_of_the_emperor.lua's missions 6/7 for a live counter instead of a static state.
+			-- CORRECTION: the charge progression is no longer gated behind RewardClaimed >= 1 - since
+			-- the owner reference now requires 5 charges on every committed entry including the first
+			-- (see actions_final_lever.lua), the player must be able to see that requirement/progress
+			-- BEFORE ever defeating World Devourer once, not only on repeat visits.
+			description = function(player)
+				local charges = math.max(player:getStorageValue(Storage.Quest.U10_94.HeartOfDestruction.DestructiveCharges), 0)
+				if player:getStorageValue(Storage.HeartOfDestructionFinalBattle.RewardClaimed) < 1 then
+					return "With the Eradicator and Outburst defeated, the way to the World Devourer itself lies open. Entering its lair costs 5 destructive charges, gathered by defeating the masters of the incursions - you have gathered " .. charges .. " of 5. Gather your allies — this battle needs many hands."
+				end
+				return "You have disrupted the Heart of Destruction and defeated the World Devourer. To face it again, you will need to gather destructive charges and wait for its power to wane. You have gathered " .. charges .. " of 5 charges."
+			end,
 		},
 	},
 }

@@ -97,7 +97,12 @@ function createSparks()
 		{ x = 32157, y = 31302, z = 14 },
 	}
 
-	if unstableSparksCount < 11 then
+	-- CONFIRMED BUG (found during the HOD repair audit): this used "< 11", one past the actual
+	-- 10-kill requirement, keeping an 11th wave of Unstable Spark available - paired with the
+	-- matching off-by-one in creaturescripts_spark_death.lua (now fixed), which required that
+	-- spare 11th kill to ever detect completion. Now that the 10th kill's own death event
+	-- completes the mission immediately, no wave beyond the one that reaches 10 kills is needed.
+	if unstableSparksCount < 10 then
 		shuffleTable(positions, 2, ri, rj)
 
 		for i = 1, 15 do

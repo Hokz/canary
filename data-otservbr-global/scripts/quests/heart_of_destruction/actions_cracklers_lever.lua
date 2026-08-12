@@ -165,6 +165,45 @@ function heartDestructionCracklers.onUse(player, item, fromPosition, itemEx, toP
 				if doCheckArea() == false then
 					clearArea()
 
+					-- CORRECTION (executor contract, section H): creaturescripts_depolarized_death.lua
+					-- requires exactly 10 successful Depolarized Crackler deaths - so all 10 initial
+					-- Cracklers are mandatory. Created and verified BEFORE the group is
+					-- committed/teleported in; a failure removes only what this attempt created and
+					-- leaves the room retryable (no quest cooldown either way), instead of committing a
+					-- mission that can never reach 10 kills.
+					local cracklerPositions = {
+						{ x = 32200, y = 31322, z = 14 },
+						{ x = 32202, y = 31327, z = 14 },
+						{ x = 32199, y = 31330, z = 14 },
+						{ x = 32201, y = 31334, z = 14 },
+						{ x = 32207, y = 31335, z = 14 },
+						{ x = 32211, y = 31334, z = 14 },
+						{ x = 32215, y = 31332, z = 14 },
+						{ x = 32208, y = 31327, z = 14 },
+						{ x = 32207, y = 31323, z = 14 },
+						{ x = 32213, y = 31323, z = 14 },
+					}
+					local cracklers = {}
+					local allSpawned = true
+					for i = 1, #cracklerPositions do
+						local monster = Game.createMonster("Crackler", cracklerPositions[i], false, true)
+						if monster then
+							cracklers[#cracklers + 1] = monster
+						else
+							allSpawned = false
+							break
+						end
+					end
+
+					if not allSpawned then
+						for i = 1, #cracklers do
+							cracklers[i]:remove()
+						end
+						logger.error("HeartOfDestruction: failed to create the mandatory 10 initial Cracklers")
+						player:sendTextMessage(19, "The heart of destruction resists your assault. Try again.")
+						return true
+					end
+
 					local players
 
 					for i = 1, #storePlayers do
@@ -175,17 +214,6 @@ function heartDestructionCracklers.onUse(player, item, fromPosition, itemEx, toP
 					Position(config.newPos):sendMagicEffect(11)
 
 					areaCrackler1 = addEvent(clearArea, 15 * 60000)
-
-					Game.createMonster("Crackler", { x = 32200, y = 31322, z = 14 }, false, true)
-					Game.createMonster("Crackler", { x = 32202, y = 31327, z = 14 }, false, true)
-					Game.createMonster("Crackler", { x = 32199, y = 31330, z = 14 }, false, true)
-					Game.createMonster("Crackler", { x = 32201, y = 31334, z = 14 }, false, true)
-					Game.createMonster("Crackler", { x = 32207, y = 31335, z = 14 }, false, true)
-					Game.createMonster("Crackler", { x = 32211, y = 31334, z = 14 }, false, true)
-					Game.createMonster("Crackler", { x = 32215, y = 31332, z = 14 }, false, true)
-					Game.createMonster("Crackler", { x = 32208, y = 31327, z = 14 }, false, true)
-					Game.createMonster("Crackler", { x = 32207, y = 31323, z = 14 }, false, true)
-					Game.createMonster("Crackler", { x = 32213, y = 31323, z = 14 }, false, true)
 
 					Game.setStorageValue(14323, 0) -- Depolarized Cracklers Count
 					vortexPositions = 0

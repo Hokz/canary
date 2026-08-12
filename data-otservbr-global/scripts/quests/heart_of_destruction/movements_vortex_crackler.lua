@@ -1,3 +1,8 @@
+-- CONFIRMED BUG (found during the HOD repair audit): Tile(pos):getTopCreature() returns nil when
+-- no creature stands on that tile - since players step onto their 4 vortex tiles one at a time
+-- (not simultaneously), the very first player to step on any tile would call :isPlayer() on nil
+-- for every still-empty tile and throw a Lua runtime error, aborting the handler before the
+-- "all 4 occupied" check could ever be reached. Fixed with a nil guard on all 4 duplicated blocks.
 local positions1 = {
 	{ x = 32197, y = 31322, z = 14 },
 	{ x = 32202, y = 31328, z = 14 },
@@ -39,7 +44,7 @@ function vortexCrackler.onStepIn(creature, item, position, fromPosition)
 			local storePlayers, playerTile = {}
 			for i = 1, #positions1 do
 				playerTile = Tile(positions1[i]):getTopCreature()
-				if playerTile:isPlayer() then
+				if playerTile and playerTile:isPlayer() then
 					storePlayers[#storePlayers + 1] = playerTile
 				end
 			end
@@ -50,7 +55,7 @@ function vortexCrackler.onStepIn(creature, item, position, fromPosition)
 			local storePlayers, playerTile = {}
 			for i = 1, #positions2 do
 				playerTile = Tile(positions2[i]):getTopCreature()
-				if playerTile:isPlayer() then
+				if playerTile and playerTile:isPlayer() then
 					storePlayers[#storePlayers + 1] = playerTile
 				end
 			end
@@ -61,7 +66,7 @@ function vortexCrackler.onStepIn(creature, item, position, fromPosition)
 			local storePlayers, playerTile = {}
 			for i = 1, #positions3 do
 				playerTile = Tile(positions3[i]):getTopCreature()
-				if playerTile:isPlayer() then
+				if playerTile and playerTile:isPlayer() then
 					storePlayers[#storePlayers + 1] = playerTile
 				end
 			end
@@ -72,7 +77,7 @@ function vortexCrackler.onStepIn(creature, item, position, fromPosition)
 			local storePlayers, playerTile = {}
 			for i = 1, #positions4 do
 				playerTile = Tile(positions4[i]):getTopCreature()
-				if playerTile:isPlayer() then
+				if playerTile and playerTile:isPlayer() then
 					storePlayers[#storePlayers + 1] = playerTile
 				end
 			end

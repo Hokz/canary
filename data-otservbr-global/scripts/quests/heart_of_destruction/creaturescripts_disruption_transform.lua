@@ -15,7 +15,9 @@ local function minionExplode(monster)
 
 	if exhaust >= explodeExhaust then
 		local monsterPos = monster:getPosition()
-		Game.createMonster("Charged Disruption", monsterPos, false, true)
+		-- CORRECTION (executor contract, section F): registered to the active final run - this is
+		-- a new creature id, distinct from the "Disruption" that was already registered at spawn.
+		HODFinalRunTrackMonster(Game.createMonster("Charged Disruption", monsterPos, false, true))
 		monster:remove()
 	else
 		minionExhaust[cid] = exhaust + 1

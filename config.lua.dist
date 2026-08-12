@@ -363,7 +363,7 @@ toggleSaveIntervalCleanMap = true
 saveIntervalTime = 1
 
 -- Imbuement
-toggleImbuementShrineStorage = false
+toggleImbuementShrineStorage = true
 toggleImbuementNonAggressiveFightOnly = false
 
 -- Free quests
