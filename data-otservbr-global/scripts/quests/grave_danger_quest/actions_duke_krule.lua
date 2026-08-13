@@ -12,9 +12,12 @@
 DukeKruleRun = {
 	token = 0,
 	active = false,
+	bossId = nil, -- the one Duke Krule instance this run owns
 	participants = {}, -- map: playerId -> "fire" | "water"
 	events = {}, -- set: eventId -> true
 }
+
+local EXIT_POSITION = Position(32347, 32167, 12)
 
 function DukeKruleRunIsCurrent(token)
 	return token ~= nil and token > 0 and DukeKruleRun.active and DukeKruleRun.token == token
@@ -25,6 +28,16 @@ function DukeKruleRunCurrentToken()
 		return DukeKruleRun.token
 	end
 	return nil
+end
+
+-- CORRECTION (correction pass section I): the exact boss identity check - success/credit must belong
+-- only to the current run's own Duke Krule, not any monster sharing the same name.
+function DukeKruleRunOwnsBoss(creature)
+	return creature ~= nil and DukeKruleRun.active and DukeKruleRun.bossId == creature:getId()
+end
+
+function DukeKruleRunIsParticipant(token, playerId)
+	return DukeKruleRunIsCurrent(token) and DukeKruleRun.participants[playerId] ~= nil
 end
 
 local function trackEvent(token, eventId)
@@ -71,10 +84,31 @@ function DukeKruleRunTerminate(token, kind, reason)
 			local player = Player(playerId)
 			if player then
 				player:setBossCooldown("duke krule", 0)
+				player:teleportTo(EXIT_POSITION)
 			end
 		end
 	end
 
+	-- CORRECTION (correction pass section N): closes out BossLever's own internal state via a local
+	-- reference so a technical_abort/timeout that never reaches a natural boss death cannot leave
+	-- bossAlive/timeoutEvent/emptyRoomEvent stuck mid-fight.
+	local bossLever = BossLever["duke krule"]
+	if bossLever and bossLever.bossAlive then
+		bossLever.bossAlive = false
+		if bossLever.emptyRoomEvent then
+			stopEvent(bossLever.emptyRoomEvent)
+			bossLever.emptyRoomEvent = nil
+		end
+		if bossLever.timeoutEvent then
+			stopEvent(bossLever.timeoutEvent)
+			bossLever.timeoutEvent = nil
+		end
+		local zone = bossLever:getZone()
+		zone:refresh()
+		zone:cleanRoom()
+	end
+
+	DukeKruleRun.bossId = nil
 	DukeKruleRun.participants = {}
 	DukeKruleRun.events = {}
 end
@@ -142,6 +176,21 @@ end
 -- createDukeKruleEncounter() moments later in the same synchronous BossLever:onUse() call.
 local lastInfoPositions = nil
 
+-- CORRECTION (correction pass section I/N): a 20-second empty-room poll (mirroring BossLever's own
+-- emptyRoomCheckInterval) so a room that empties out early is not held hostage for the full 20-minute
+-- default before this run's own state is released for a future attempt.
+local function watchEmptyRoom(token)
+	if not DukeKruleRunIsCurrent(token) then
+		return
+	end
+	local zone = Zone("boss." .. toKey("duke krule"))
+	if zone and zone:countPlayers() == 0 then
+		DukeKruleRunTerminate(token, "normal_timeout", "room emptied before the encounter concluded")
+		return
+	end
+	trackEvent(token, addEvent(watchEmptyRoom, 20 * 1000, token))
+end
+
 -- CORRECTION (executor contract, section 13): mirrors the Count Vlarkorth / Lord Azaram / King Zelos
 -- fix - the boss is now created via config.boss.createFunction (invoked after Zone:removeMonsters())
 -- so his mandatory creation is verified before the lever commits cooldown/teleport, and the
@@ -161,6 +210,7 @@ local function createDukeKruleEncounter()
 	DukeKruleRun.token = DukeKruleRun.token + 1
 	local token = DukeKruleRun.token
 	DukeKruleRun.active = true
+	DukeKruleRun.bossId = boss:getId()
 	DukeKruleRun.participants = {}
 	DukeKruleRun.events = {}
 
@@ -192,6 +242,7 @@ local function createDukeKruleEncounter()
 			DukeKruleRunTerminate(token, "normal_timeout", "encounter time limit exceeded")
 		end, 20 * 60 * 1000, token)
 	)
+	trackEvent(token, addEvent(watchEmptyRoom, 20 * 1000, token))
 
 	return true
 end
@@ -213,9 +264,22 @@ local config = {
 		from = Position(33447, 31464, 13),
 		to = Position(33464, 31481, 13),
 	},
-	exit = Position(32347, 32167, 12),
+	exit = EXIT_POSITION,
+	-- CORRECTION (correction pass section A): the lever now independently verifies Premium and that
+	-- the Lich line has actually been started for every occupied platform position.
 	onUseExtra = function(creature, infoPositions)
 		lastInfoPositions = infoPositions
+		if not creature or not creature:isPlayer() then
+			return true
+		end
+		if not creature:isPremium() then
+			creature:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need a premium account to face Duke Krule.")
+			return false
+		end
+		if creature:getStorageValue(Storage.Quest.U12_20.GraveDanger.Questline) < 1 then
+			creature:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have not yet started this quest.")
+			return false
+		end
 		return true
 	end,
 }

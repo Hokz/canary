@@ -10,6 +10,12 @@ function duke_krule_success.onDeath(creature)
 		return true
 	end
 
+	-- CORRECTION (correction pass section I): must be the exact boss this run owns - an unrelated/
+	-- stale Duke Krule death must never terminate a different, currently active run.
+	if not DukeKruleRunOwnsBoss(creature) then
+		return true
+	end
+
 	local token = DukeKruleRunCurrentToken()
 	if token then
 		DukeKruleRunTerminate(token, "success", "Duke Krule defeated")

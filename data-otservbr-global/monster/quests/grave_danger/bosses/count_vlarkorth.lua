@@ -18,6 +18,13 @@ monster.events = {
 	"grave_danger_death",
 	-- Releases VlarkorthRun's own bookkeeping on a legitimate kill (executor contract, section 8).
 	"count_vlarkorth_success",
+	-- CORRECTION (correction pass section N): createFunction-created bosses never went through
+	-- boss_lever.lua's generic `monster:registerEvent("BossLeverOnDeath")` path (that only runs for
+	-- the unverified self.bossPosition branch), so this boss never got the framework's own
+	-- post-victory grace-period message / bossAlive+timeoutEvent+emptyRoomEvent cleanup / eventual
+	-- zone reset on a legitimate kill. Registering it here (the boss's own name is the exact key
+	-- BossLever[self.name] is stored under) restores that for free.
+	"BossLeverOnDeath",
 }
 
 monster.health = 75000

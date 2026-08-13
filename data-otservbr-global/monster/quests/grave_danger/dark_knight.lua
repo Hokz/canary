@@ -20,6 +20,11 @@ monster.corpse = 31203
 monster.speed = 125
 monster.manaCost = 0
 
+-- CORRECTION (correction pass section D): see dark_sorcerer.lua for rationale.
+monster.events = {
+	"count_vlarkorth_remains_tag",
+}
+
 monster.changeTarget = {
 	interval = 4000,
 	chance = 10,

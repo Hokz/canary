@@ -2948,6 +2948,18 @@ Storage = {
 				},
 				CobraBastion = {
 					Questline = 46891,
+					-- CORRECTION (correction pass section K): the Cart Packed With Gold escort and the
+					-- roof/chess/Roaring Lion puzzle are both mandatory Order of the Cobra mechanics per
+					-- the owner reference, but neither has a proven physical surface in the configured
+					-- OTBM available to this pass (MAP_AUDIT_NOT_RUN - see the Manual RME Manifest).
+					-- These two storages are allocated now, from the next free id in this quest's own
+					-- reserved tail (highest previously used in the whole U12_20 range was 46941 -
+					-- RevengeOfTheOgres.Questline), so downstream progression can fail closed on them
+					-- rather than being silently skipped. Nothing in this codebase writes either one yet
+					-- - they become settable only once the physical Cart/chess mechanics are built
+					-- against a proven map (see 01_GRAVE_DANGER_MAP_MANIFEST_REPAIR_PASS.md).
+					CartComplete = 46942,
+					ChessComplete = 46943,
 				},
 				-- GLOBAL (Game) storage, not per-player: the os.time() at which the King Zelos lever was
 				-- pulled. The source states the king grows stronger the longer the ritual runs, and

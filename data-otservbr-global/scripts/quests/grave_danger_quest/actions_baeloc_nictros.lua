@@ -1,5 +1,6 @@
 local nictrosPosition = Position(33427, 31428, 13)
 local baelocPosition = Position(33422, 31428, 13)
+local EXIT_POSITION = Position(33290, 32474, 9)
 
 local healthStates = {
 	nictros60 = false,
@@ -7,11 +8,15 @@ local healthStates = {
 }
 
 -- ================================================================
--- NICTROS/BAELOC RUN OWNERSHIP (executor contract, section 12)
+-- NICTROS/BAELOC RUN OWNERSHIP (executor contract, section 12; correction pass section A/H/N/O)
 -- ================================================================
 local NictrosBaelocRun = {
 	token = 0,
 	active = false,
+	nictrosId = nil, -- the one Sir Nictros instance this run owns
+	baelocId = nil, -- the one Sir Baeloc instance this run owns
+	participants = {}, -- set: playerId -> true
+	timerWritten = {}, -- set: playerId -> true (this attempt wrote Bosses.BaelocNictros.Timer for them)
 	events = {}, -- set: eventId -> true
 }
 
@@ -25,59 +30,157 @@ local function isCurrent(token)
 	return token ~= nil and token > 0 and NictrosBaelocRun.active and NictrosBaelocRun.token == token
 end
 
--- Bare global so BossHealthCheck (further below) and the Lesser Hex handler can read run state.
+-- Bare globals so BossHealthCheck/nictros_baeloc_success (further below and in creaturescripts_
+-- boss_kill.lua) and the Lesser Hex handler can read run state.
 NictrosBaelocRunIsActive = function()
 	return NictrosBaelocRun.active
 end
 
-local ROOM_FROM = Position(33414, 31426, 13)
-local ROOM_TO = Position(33433, 31449, 13)
-
-local function isInsideRoom(creature)
-	local pos = creature:getPosition()
-	return pos.x >= ROOM_FROM.x and pos.x <= ROOM_TO.x and pos.y >= ROOM_FROM.y and pos.y <= ROOM_TO.y and pos.z == ROOM_FROM.z
+function NictrosBaelocRunCurrentToken()
+	if NictrosBaelocRun.active then
+		return NictrosBaelocRun.token
+	end
+	return nil
 end
 
--- CORRECTION (executor contract, section 12): functional Lesser Hex - the source gives "these bosses
--- can reduce the power of healing spells" with no exact numeric value, so 50% is used here.
--- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_VALUE - not claimed Global-exact. Encounter-scoped/transient: it
--- only ever applies while NictrosBaelocRun is active AND the player is physically in the room, so
--- there is no persistent condition to clean up on leave/success/timeout.
-local lesser_hex_healing = CreatureEvent("NictrosBaelocLesserHex")
-
-function lesser_hex_healing.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType)
-	if primaryType ~= COMBAT_HEALING or not creature or not creature:isPlayer() then
-		return primaryDamage, primaryType, secondaryDamage, secondaryType
+-- CORRECTION (section H): true either boss belongs to the current run.
+function NictrosBaelocRunOwnsBoss(creature)
+	if not creature or not NictrosBaelocRun.active then
+		return false
 	end
-	if not NictrosBaelocRun.active or not isInsideRoom(creature) then
-		return primaryDamage, primaryType, secondaryDamage, secondaryType
-	end
-	return primaryDamage * 0.5, primaryType, secondaryDamage, secondaryType
+	local id = creature:getId()
+	return id == NictrosBaelocRun.nictrosId or id == NictrosBaelocRun.baelocId
 end
 
-lesser_hex_healing:register()
+-- CORRECTION (section B): the exact boss identity check used by grave_danger_death to require actual
+-- run ownership before crediting Sir Baeloc's grave/boss kill.
+function NictrosBaelocRunOwnsBaeloc(creature)
+	return creature ~= nil and NictrosBaelocRun.active and NictrosBaelocRun.baelocId == creature:getId()
+end
 
--- Mirrors the King Zelos Greater Hex registration pattern (soul_war_mechanics.lua's SoulWarLogin
--- precedent) - CREATURE_EVENT_HEALTHCHANGE only fires on the recipient's own registered events, so
--- reducing healing a PLAYER receives needs registration on players, not on Nictros/Baeloc.
-local lesser_hex_login = CreatureEvent("NictrosBaelocLesserHexLogin")
+function NictrosBaelocRunIsParticipant(token, playerId)
+	return isCurrent(token) and NictrosBaelocRun.participants[playerId] == true
+end
 
-function lesser_hex_login.onLogin(player)
-	player:registerEvent("NictrosBaelocLesserHex")
+function NictrosBaelocRunMarkTimerWritten(token, playerId)
+	if isCurrent(token) then
+		NictrosBaelocRun.timerWritten[playerId] = true
+	end
+end
+
+-- CORRECTION (section H): both bosses have died - the only true completion signal. Closes the local
+-- BossLever["sir nictros"] state too (the lever is keyed on Nictros's own name; a per-monster
+-- "BossLeverOnDeath" registration cannot correctly represent "the WHOLE two-boss encounter is over",
+-- since either boss could die first while the other still fights - so this two-boss encounter
+-- replicates that cleanup manually instead of relying on the generic per-monster event).
+local function terminateRun(kind, reason)
+	if not NictrosBaelocRun.active then
+		return
+	end
+	local token = NictrosBaelocRun.token
+	logger.info("GraveDanger/NictrosBaeloc: run {} terminated ({}) - {}", token, kind, reason or "")
+
+	NictrosBaelocRun.active = false
+	for eventId in pairs(NictrosBaelocRun.events) do
+		stopEvent(eventId)
+	end
+
+	if kind == "technical_abort" then
+		for playerId in pairs(NictrosBaelocRun.participants) do
+			local player = Player(playerId)
+			if player then
+				player:setBossCooldown("sir nictros", 0)
+				if NictrosBaelocRun.timerWritten[playerId] then
+					player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Bosses.BaelocNictros.Timer, 0)
+				end
+				player:teleportTo(EXIT_POSITION)
+			end
+		end
+	end
+
+	if kind ~= "success" then
+		local nictros = Creature(NictrosBaelocRun.nictrosId)
+		if nictros then
+			nictros:remove()
+		end
+		local baeloc = Creature(NictrosBaelocRun.baelocId)
+		if baeloc then
+			baeloc:remove()
+		end
+	end
+
+	local bossLever = BossLever["sir nictros"]
+	if bossLever and bossLever.bossAlive then
+		bossLever.bossAlive = false
+		if bossLever.emptyRoomEvent then
+			stopEvent(bossLever.emptyRoomEvent)
+			bossLever.emptyRoomEvent = nil
+		end
+		if bossLever.timeoutEvent then
+			stopEvent(bossLever.timeoutEvent)
+			bossLever.timeoutEvent = nil
+		end
+		local zone = bossLever:getZone()
+		zone:refresh()
+		zone:cleanRoom()
+	end
+
+	healthStates.nictros60 = false
+	healthStates.baeloc60 = false
+	NictrosBaelocRun.nictrosId = nil
+	NictrosBaelocRun.baelocId = nil
+	NictrosBaelocRun.participants = {}
+	NictrosBaelocRun.timerWritten = {}
+	NictrosBaelocRun.events = {}
+end
+
+-- CORRECTION (section H): previously no watchdog existed at all - a timed-out or emptied attempt left
+-- NictrosBaelocRun.active stuck true forever (only the both-dead success path ever cleared it),
+-- permanently blocking every future Nictros/Baeloc attempt. Mirrors the fix already applied to Count
+-- Vlarkorth/Lord Azaram/Earl Osam.
+local function watchEmptyRoom(token)
+	if not isCurrent(token) then
+		return
+	end
+	local zone = Zone("boss." .. toKey("sir nictros"))
+	if zone and zone:countPlayers() == 0 then
+		terminateRun("normal_timeout", "room emptied before the encounter concluded")
+		return
+	end
+	trackEvent(token, addEvent(watchEmptyRoom, 20 * 1000, token))
+end
+
+-- CORRECTION (section A): the lever now independently verifies Premium and that the Lich line has
+-- actually been started for every occupied platform position.
+local function validateParticipant(creature)
+	if not creature or not creature:isPlayer() then
+		return true
+	end
+	if not creature:isPremium() then
+		creature:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need a premium account to face Sir Nictros and Sir Baeloc.")
+		return false
+	end
+	if creature:getStorageValue(Storage.Quest.U12_20.GraveDanger.Questline) < 1 then
+		creature:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have not yet started this quest.")
+		return false
+	end
 	return true
 end
 
-lesser_hex_login:register()
-
--- CORRECTION (executor contract, section 12): mandatory bounded-verified creation of BOTH bosses was
--- already correctly implemented here (config.boss.createFunction) - unchanged. Reads the token
--- onUseExtra already incremented for this pull (see below; onUseExtra runs during
--- Lever:checkConditions(), before createFunction, so the token must originate there) and only marks
--- the run active once both bosses are confirmed created.
+-- CORRECTION (executor contract, section 12; correction pass section H): mandatory bounded-verified
+-- creation of BOTH bosses was already correctly implemented here (config.boss.createFunction) -
+-- unchanged in that respect. Now also establishes bossId ownership for both bosses and schedules the
+-- narrative dialogue chain (moved out of onUseExtra - see the note on the old onUseExtra below) and
+-- the run's own watchdog timers only once the run is genuinely active.
 local config = {
 	boss = {
 		name = "Sir Nictros",
 		createFunction = function()
+			if NictrosBaelocRun.active then
+				logger.error("GraveDanger/NictrosBaeloc: a run is already active, refusing a second concurrent start")
+				return false
+			end
+
 			local nictros = Game.createMonster("Sir Nictros", nictrosPosition, true, true)
 			local baeloc = Game.createMonster("Sir Baeloc", baelocPosition, true, true)
 
@@ -104,8 +207,75 @@ local config = {
 
 			healthStates.nictros60 = false
 			healthStates.baeloc60 = false
+			NictrosBaelocRun.token = NictrosBaelocRun.token + 1
+			local token = NictrosBaelocRun.token
 			NictrosBaelocRun.active = true
+			NictrosBaelocRun.nictrosId = nictros:getId()
+			NictrosBaelocRun.baelocId = baeloc:getId()
+			NictrosBaelocRun.participants = {}
+			NictrosBaelocRun.timerWritten = {}
 			NictrosBaelocRun.events = {}
+
+			if config.lastInfoPositions then
+				for _, posInfo in pairs(config.lastInfoPositions) do
+					local player = posInfo.creature
+					if player and player:isPlayer() then
+						NictrosBaelocRun.participants[player:getId()] = true
+					end
+				end
+			end
+
+			trackEvent(
+				token,
+				addEvent(function()
+					if not isCurrent(token) then
+						return
+					end
+					local currentBaeloc = Creature(NictrosBaelocRun.baelocId)
+					if currentBaeloc then
+						currentBaeloc:say("Ah look my Brother! Challengers! After all this time finally a chance to prove our skills!")
+						trackEvent(
+							token,
+							addEvent(function()
+								if not isCurrent(token) then
+									return
+								end
+								local currentNictros = Creature(NictrosBaelocRun.nictrosId)
+								if currentNictros then
+									currentNictros:say("Indeed! It has been a while! As the elder one I request the right of the first battle!")
+								end
+							end, 6 * 1000)
+						)
+					end
+
+					trackEvent(
+						token,
+						addEvent(function()
+							if not isCurrent(token) then
+								return
+							end
+							local finalBaeloc = Creature(NictrosBaelocRun.baelocId)
+							local finalNictros = Creature(NictrosBaelocRun.nictrosId)
+							if finalBaeloc then
+								finalBaeloc:say("Oh, man! You always get the fun!")
+								finalBaeloc:setMoveLocked(true)
+							end
+							if finalNictros then
+								finalNictros:teleportTo(Position(33426, 31437, 13))
+								finalNictros:setMoveLocked(false)
+							end
+						end, 12 * 1000)
+					)
+				end, 4 * 1000)
+			)
+
+			trackEvent(
+				token,
+				addEvent(function()
+					terminateRun("normal_timeout", "encounter time limit exceeded")
+				end, configManager.getNumber(configKeys.BOSS_DEFAULT_TIME_TO_DEFEAT) * 1000)
+			)
+			trackEvent(token, addEvent(watchEmptyRoom, 20 * 1000, token))
 
 			return true
 		end,
@@ -122,76 +292,19 @@ local config = {
 		from = Position(33414, 31426, 13),
 		to = Position(33433, 31449, 13),
 	},
-	-- CORRECTION (executor contract, section 12): Lever:checkConditions() calls this once per
-	-- occupied platform position (mechanically confirmed against data/libs/functions/lever.lua during
-	-- the King Zelos work in this same pass), not once per lever pull - previously this scheduled the
-	-- whole narrative dialogue/retreat-setup addEvent chain unconditionally on every call, so a
-	-- 2-5 player pull could schedule the same banter and Nictros repositioning 2-5 times over. Now
-	-- memoized on infoPositions' own identity (the same table object across every call within one
-	-- pull, a new object on the next pull) so the sequence is scheduled exactly once, and every event
-	-- it schedules is tracked under this pull's token so a later encounter can never inherit or be
-	-- disrupted by a stale chain from an earlier one.
+	-- CORRECTION (section H): the narrative dialogue chain that used to be scheduled here (during
+	-- Lever:checkConditions(), i.e. BEFORE the run is active) has moved into createFunction above,
+	-- where trackEvent's `NictrosBaelocRun.active and NictrosBaelocRun.token == token` guard can
+	-- actually succeed - previously it always evaluated against the STALE active/token state from the
+	-- prior attempt (or the initial false), so trackEvent silently discarded every event id from this
+	-- chain and none of it was ever cancellable by a terminate. Only the level/Premium/Questline
+	-- validation and the infoPositions snapshot remain here, matching the King Zelos/Count Vlarkorth/
+	-- Lord Azaram/Duke Krule onUseExtra pattern.
 	onUseExtra = function(player, infoPositions)
-		if NictrosBaelocRun.seenPulls == nil then
-			NictrosBaelocRun.seenPulls = setmetatable({}, { __mode = "k" })
-		end
-		if NictrosBaelocRun.seenPulls[infoPositions] then
-			return true
-		end
-		NictrosBaelocRun.seenPulls[infoPositions] = true
-
-		NictrosBaelocRun.token = NictrosBaelocRun.token + 1
-		local token = NictrosBaelocRun.token
-
-		trackEvent(
-			token,
-			addEvent(function()
-				if not isCurrent(token) then
-					return
-				end
-				local baeloc = Creature("Sir Baeloc")
-				local nictros = Creature("Sir Nictros")
-
-				if baeloc then
-					baeloc:say("Ah look my Brother! Challengers! After all this time finally a chance to prove our skills!")
-					trackEvent(
-						token,
-						addEvent(function()
-							if not isCurrent(token) then
-								return
-							end
-							local currentNictros = Creature("Sir Nictros")
-							if currentNictros then
-								currentNictros:say("Indeed! It has been a while! As the elder one I request the right of the first battle!")
-							end
-						end, 6 * 1000)
-					)
-				end
-
-				trackEvent(
-					token,
-					addEvent(function()
-						if not isCurrent(token) then
-							return
-						end
-						local currentBaeloc = Creature("Sir Baeloc")
-						local currentNictros = Creature("Sir Nictros")
-						if currentBaeloc then
-							currentBaeloc:say("Oh, man! You always get the fun!")
-							currentBaeloc:setMoveLocked(true)
-						end
-						if currentNictros then
-							currentNictros:teleportTo(Position(33426, 31437, 13))
-							currentNictros:setMoveLocked(false)
-						end
-					end, 12 * 1000)
-				)
-			end, 4 * 1000)
-		)
-
-		return true
+		config.lastInfoPositions = infoPositions
+		return validateParticipant(player)
 	end,
-	exit = Position(33290, 32474, 9),
+	exit = EXIT_POSITION,
 }
 
 local lever = BossLever(config)
@@ -208,8 +321,8 @@ end
 -- either boss's monster.events, so it never actually ran). If the sibling is meaningfully healthier
 -- (>5 percentage points) while this boss has dropped below 55%, this boss heals - the accepted
 -- sibling-healing behavior the source describes, now on the one live health-change path.
-local function siblingHeal(creature, siblingName)
-	local sibling = Creature(siblingName)
+local function siblingHeal(creature, siblingId)
+	local sibling = Creature(siblingId)
 	if not sibling then
 		return
 	end
@@ -231,24 +344,25 @@ function BossHealthCheck.onHealthChange(creature, attacker, primaryDamage, prima
 		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
 
-	-- CORRECTION (executor contract, section 12): run-owned - a stale Nictros/Baeloc instance left
-	-- over from an already-terminated encounter can no longer sibling-heal or transition state.
-	if not NictrosBaelocRun.active then
+	-- CORRECTION (executor contract, section 12; correction pass section H): run-owned - a stale
+	-- Nictros/Baeloc instance left over from an already-terminated encounter can no longer sibling-heal
+	-- or transition state.
+	if not NictrosBaelocRunOwnsBoss(creature) then
 		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
 
-	local name = creature:getName()
+	local id = creature:getId()
 
-	if name == "Sir Nictros" then
-		siblingHeal(creature, "Sir Baeloc")
-	elseif name == "Sir Baeloc" then
-		siblingHeal(creature, "Sir Nictros")
+	if id == NictrosBaelocRun.nictrosId then
+		siblingHeal(creature, NictrosBaelocRun.baelocId)
+	elseif id == NictrosBaelocRun.baelocId then
+		siblingHeal(creature, NictrosBaelocRun.nictrosId)
 	end
 
 	local healthPercent = getHealthPercentage(creature)
 
 	-- CORRECTION (executor contract, section 12): thresholds corrected from 85% to the accepted 60%.
-	if name == "Sir Nictros" and not healthStates.nictros60 and healthPercent <= 60 then
+	if id == NictrosBaelocRun.nictrosId and not healthStates.nictros60 and healthPercent <= 60 then
 		healthStates.nictros60 = true
 
 		creature:say("I'll step back now. Let's see how you handle my brother!")
@@ -256,20 +370,20 @@ function BossHealthCheck.onHealthChange(creature, attacker, primaryDamage, prima
 		creature:setMoveLocked(true)
 
 		-- Release Baeloc to fight
-		local baeloc = Creature("Sir Baeloc")
+		local baeloc = Creature(NictrosBaelocRun.baelocId)
 		if baeloc then
 			baeloc:teleportTo(Position(33426, 31435, 13))
 			baeloc:setDirection(DIRECTION_SOUTH)
 			baeloc:setMoveLocked(false)
 			baeloc:say("My turn! Let me show you my skills!")
 		end
-	elseif name == "Sir Baeloc" and healthStates.nictros60 and not healthStates.baeloc60 and healthPercent <= 60 then
+	elseif id == NictrosBaelocRun.baelocId and healthStates.nictros60 and not healthStates.baeloc60 and healthPercent <= 60 then
 		healthStates.baeloc60 = true
 
 		creature:say("Brother! I need your assistance!")
 
 		-- Release Nictros to join the fight
-		local nictros = Creature("Sir Nictros")
+		local nictros = Creature(NictrosBaelocRun.nictrosId)
 		if nictros then
 			nictros:setMoveLocked(false)
 			nictros:teleportTo(Position(33424, 31435, 13))
@@ -283,10 +397,12 @@ end
 BossHealthCheck:register()
 
 -- Deactivates the run (stopping Lesser Hex/sibling-heal from applying to any leftover/future
--- creature and cancelling any still-pending dialogue events) once BOTH brothers are confirmed dead -
--- not on the first death, since the survivor's sibling-heal/Lesser Hex must keep applying until the
--- fight is actually over. Their own grave/boss credit is unaffected - handled separately by the
--- pre-existing generic creaturescripts_boss_kill.lua path (sir baeloc -> Graves.Darashia).
+-- creature, cancelling any still-pending dialogue/watchdog events, and closing out BossLever's own
+-- local state - see terminateRun above) once BOTH brothers are confirmed dead - not on the first
+-- death, since the survivor's sibling-heal/Lesser Hex must keep applying until the fight is actually
+-- over. Their own grave/boss credit is unaffected - handled separately by the pre-existing generic
+-- creaturescripts_boss_kill.lua path (sir baeloc -> Graves.Darashia), gated there on
+-- NictrosBaelocRunOwnsBaeloc.
 local nictros_baeloc_success = CreatureEvent("nictros_baeloc_success")
 
 function nictros_baeloc_success.onDeath(creature)
@@ -294,13 +410,14 @@ function nictros_baeloc_success.onDeath(creature)
 	if not targetMonster or targetMonster:getMaster() then
 		return true
 	end
+	if not NictrosBaelocRunOwnsBoss(creature) then
+		return true
+	end
 
-	if not Creature("Sir Nictros") and not Creature("Sir Baeloc") then
-		NictrosBaelocRun.active = false
-		for eventId in pairs(NictrosBaelocRun.events) do
-			stopEvent(eventId)
-		end
-		NictrosBaelocRun.events = {}
+	local nictros = Creature(NictrosBaelocRun.nictrosId)
+	local baeloc = Creature(NictrosBaelocRun.baelocId)
+	if not nictros and not baeloc then
+		terminateRun("success", "Sir Nictros and Sir Baeloc defeated")
 	end
 
 	return true

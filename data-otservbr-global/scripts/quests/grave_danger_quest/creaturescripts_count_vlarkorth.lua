@@ -30,11 +30,21 @@ local config = {
 -- Count Vlarkorth instance. Each dark summon is verified with bounded retry; a mandatory summon that
 -- ultimately fails to spawn technical-aborts the run rather than silently lowering the obligation
 -- count (a vocation actually present in the fight must not be able to slip past its own obligation).
+--
+-- CORRECTION (section D): every wave gets its own shield generation, stamped on the boss (storage 5)
+-- and on each dark summon spawned this wave (storage 1). This is what lets each dark's own corpse
+-- (tagged on death, see count_vlarkorth_remains_tag below) be verified against the CURRENT generation
+-- before a remains item is allowed to weaken the shield - remains saved from an earlier wave can never
+-- weaken a newer one.
 local function summonDarks(boss, token)
 	local spectators = Game.getSpectators(boss:getPosition(), false, true, config.x, config.x, config.y, config.y)
 	if #spectators == 0 then
 		return true
 	end
+
+	local generation = math.max(boss:getStorageValue(5), 0) + 1
+	boss:setStorageValue(5, generation)
+	VlarkorthRun.generation = generation
 
 	local anySpoke = false
 	for _, player in pairs(spectators) do
@@ -54,6 +64,7 @@ local function summonDarks(boss, token)
 				if dark then
 					local summonCount = boss:getStorageValue(3)
 					boss:setStorageValue(3, math.max(0, summonCount) + 1)
+					dark:setStorageValue(1, generation)
 					VlarkorthRunTrackMonster(dark)
 					anySpoke = true
 				else
@@ -85,6 +96,9 @@ function count_vlarkorth_transform.onHealthChange(creature, attacker, primaryDam
 		if player:isPlayer() then
 			if player:getStorageValue(config.timer) < os.time() then
 				player:setStorageValue(config.timer, os.time() + 20 * 3600)
+				-- CORRECTION (section O): remembers that THIS attempt wrote the legacy Timer lockout
+				-- for this player, so a later technical_abort knows it is safe to roll back.
+				VlarkorthRunMarkTimerWritten(token, player:getId())
 			end
 			if player:getStorageValue(config.room) < os.time() then
 				player:setStorageValue(config.room, os.time() + 30 * 60)
@@ -134,7 +148,9 @@ function count_vlarkorth_success.onDeath(creature)
 	if not targetMonster or targetMonster:getMaster() then
 		return true
 	end
-	if not VlarkorthRunOwnsMonster(creature) then
+	-- CORRECTION (section I precedent applied here too): must be the exact boss this run owns, not
+	-- merely any monster tracked in VlarkorthRun.monsters (which also includes the dark summons).
+	if not VlarkorthRunOwnsBoss(creature) then
 		return true
 	end
 	VlarkorthRunTerminate(VlarkorthRunCurrentToken(), "success", "Count Vlarkorth defeated")
@@ -142,3 +158,28 @@ function count_vlarkorth_success.onDeath(creature)
 end
 
 count_vlarkorth_success:register()
+
+-- ================================================================
+-- REMAINS GENERATION TAGGING (correction pass section D)
+-- ================================================================
+-- Registered on each of the 4 dark summon monster types (see monster.events additions in
+-- dark_sorcerer.lua/dark_druid.lua/dark_paladin.lua/dark_knight.lua). Tags this dark's own corpse with
+-- the current run token and the shield generation it was summoned for (stamped on itself at creation
+-- by summonDarks above), so actions_dark_remains.lua can reject a remains item that outlived its own
+-- generation or run.
+local count_vlarkorth_remains_tag = CreatureEvent("count_vlarkorth_remains_tag")
+
+function count_vlarkorth_remains_tag.onDeath(creature, corpse)
+	if not corpse or not VlarkorthRunOwnsMonster(creature) then
+		return true
+	end
+	local token = VlarkorthRunCurrentToken()
+	if not token then
+		return true
+	end
+	corpse:setCustomAttribute("VlarkorthRunToken", token)
+	corpse:setCustomAttribute("VlarkorthGeneration", creature:getStorageValue(1))
+	return true
+end
+
+count_vlarkorth_remains_tag:register()

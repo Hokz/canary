@@ -1,6 +1,7 @@
 local armorId = 31482
 local armorPos = Position(33398, 32640, 6)
 local metalWallId = 31449
+local EXIT_POSITION = Position(33395, 32665, 6)
 
 local function createArmor(id, amount, pos)
 	local armor = Game.createItem(id, amount, pos)
@@ -10,12 +11,20 @@ local function createArmor(id, amount, pos)
 end
 
 -- ================================================================
--- SCARLETT RUN OWNERSHIP (executor contract, sections 31/34)
+-- SCARLETT RUN OWNERSHIP (executor contract, sections 31/34; correction pass section M/N)
 -- ================================================================
 ScarlettRun = {
 	token = 0,
 	active = false,
+	bossId = nil, -- the one Scarlett Etzel instance this run owns
 	participants = {}, -- set: playerId -> true
+	events = {}, -- set: eventId -> true
+	-- CORRECTION (section M): replaces the previous bare globals SCARLETT_MAY_TRANSFORM/
+	-- SCARLETT_MAY_DIE, which belonged to no run/token and could be mutated by a stale callback from
+	-- an already-finished attempt affecting a brand new one.
+	transformArmed = false, -- mirrors are correctly aligned and the transform sequence may begin
+	vulnerable = false, -- Scarlett is currently in her 8-second vulnerability window
+	strikeConsumed = false, -- the one legitimate hit for the CURRENT vulnerability window has landed
 }
 
 function ScarlettRunIsCurrent(token)
@@ -29,29 +38,147 @@ function ScarlettRunCurrentToken()
 	return nil
 end
 
+-- CORRECTION (section B/M3): the exact boss identity check - a monster named Scarlett Etzel dying (or
+-- taking damage) must belong to the current run before any of it counts.
+function ScarlettRunOwnsBoss(creature)
+	return creature ~= nil and ScarlettRun.active and ScarlettRun.bossId == creature:getId()
+end
+
 function ScarlettRunIsParticipant(token, playerId)
 	return ScarlettRunIsCurrent(token) and ScarlettRun.participants[playerId] == true
 end
 
-function ScarlettRunTerminate(token, kind, reason)
+function ScarlettRunTrackEvent(token, eventId)
+	if ScarlettRunIsCurrent(token) and eventId then
+		ScarlettRun.events[eventId] = true
+	end
+end
+
+function ScarlettRunSetTransformArmed(token, armed)
+	if ScarlettRunIsCurrent(token) then
+		ScarlettRun.transformArmed = armed
+	end
+end
+
+function ScarlettRunIsTransformArmed(token)
+	return ScarlettRunIsCurrent(token) and ScarlettRun.transformArmed == true
+end
+
+function ScarlettRunSetVulnerable(token, vulnerable)
+	if ScarlettRunIsCurrent(token) then
+		ScarlettRun.vulnerable = vulnerable
+		if vulnerable then
+			ScarlettRun.strikeConsumed = false
+		end
+	end
+end
+
+function ScarlettRunIsVulnerable(token)
+	return ScarlettRunIsCurrent(token) and ScarlettRun.vulnerable == true and ScarlettRun.strikeConsumed == false
+end
+
+-- CORRECTION (section M2): atomic (single synchronous call, no addEvent boundary in between) check-
+-- and-set. The FIRST caller within a vulnerability window to reach this sees strikeConsumed still
+-- false, flips it to true AND closes vulnerable in the same call, and receives true back; every
+-- subsequent call within the same window (even one arriving moments later, before the delayed
+-- eventDoDamage callback has actually unlocked her) sees strikeConsumed already true and receives
+-- false - it cannot schedule a second special hit.
+function ScarlettRunTryConsumeStrike(token)
+	if not ScarlettRunIsCurrent(token) or not ScarlettRun.vulnerable or ScarlettRun.strikeConsumed then
+		return false
+	end
+	ScarlettRun.strikeConsumed = true
+	ScarlettRun.vulnerable = false
+	return true
+end
+
+local function terminateRun(token, kind, reason)
 	if not ScarlettRunIsCurrent(token) then
 		return
 	end
 	logger.info("GraveDanger/Scarlett: run {} terminated ({}) - {}", token, kind, reason or "")
 	ScarlettRun.active = false
+
+	for eventId in pairs(ScarlettRun.events) do
+		stopEvent(eventId)
+	end
+
+	if kind == "technical_abort" then
+		for playerId in pairs(ScarlettRun.participants) do
+			local player = Player(playerId)
+			if player then
+				player:setBossCooldown("scarlett etzel", 0)
+				player:teleportTo(EXIT_POSITION)
+			end
+		end
+	end
+
+	if kind ~= "success" then
+		local boss = Creature(ScarlettRun.bossId)
+		if boss then
+			boss:remove()
+		end
+	end
+
+	-- CORRECTION (correction pass section N): closes out BossLever's own internal state via a local
+	-- reference so a technical_abort/timeout that never reaches a natural boss death cannot leave
+	-- bossAlive/timeoutEvent/emptyRoomEvent stuck mid-fight.
+	local bossLever = BossLever["scarlett etzel"]
+	if bossLever and bossLever.bossAlive then
+		bossLever.bossAlive = false
+		if bossLever.emptyRoomEvent then
+			stopEvent(bossLever.emptyRoomEvent)
+			bossLever.emptyRoomEvent = nil
+		end
+		if bossLever.timeoutEvent then
+			stopEvent(bossLever.timeoutEvent)
+			bossLever.timeoutEvent = nil
+		end
+		local zone = bossLever:getZone()
+		zone:refresh()
+		zone:cleanRoom()
+	end
+
+	ScarlettRun.bossId = nil
 	ScarlettRun.participants = {}
+	ScarlettRun.events = {}
+	ScarlettRun.transformArmed = false
+	ScarlettRun.vulnerable = false
+	ScarlettRun.strikeConsumed = false
 end
 
--- Snapshot of the most recent onUseExtra call's infoPositions, consumed synchronously by
--- createFunction below in the same synchronous BossLever:onUse() call.
-local lastInfoPositions = nil
+function ScarlettRunTerminate(token, kind, reason)
+	terminateRun(token, kind, reason)
+end
+
+-- CORRECTION (section M): a timed-out or emptied attempt previously left ScarlettRun.active stuck
+-- true forever (only a legitimate Scarlett kill ever cleared it via creaturescripts_boss_kill.lua),
+-- permanently blocking every future Scarlett attempt. Mirrors the fix already applied to every other
+-- Lich/Cobra boss in this quest: a flat deadline at the shared BOSS_DEFAULT_TIME_TO_DEFEAT (no custom
+-- timeToDefeat is set below) plus a 20-second empty-room poll.
+local function watchEmptyRoom(token)
+	if not ScarlettRunIsCurrent(token) then
+		return
+	end
+	local zone = Zone("boss." .. toKey("scarlett etzel"))
+	if zone and zone:countPlayers() == 0 then
+		terminateRun(token, "normal_timeout", "room emptied before the encounter concluded")
+		return
+	end
+	ScarlettRunTrackEvent(token, addEvent(watchEmptyRoom, 20 * 1000, token))
+end
 
 -- CORRECTION (executor contract, section 31): every room occupant is now independently verified
 -- (level/Premium/Gaffir/Custodian/Quaid), not just whichever single player had earlier interacted
--- with the pillar item at aid 40003. Chess/Roaring Lion completion is deliberately NOT checked here:
--- confirmed absent from the repository (no chess puzzle implementation exists anywhere - see the PR's
--- Manual RME Manifest) - gating on a storage nothing can ever set would permanently brick this boss,
--- which is worse than the pre-existing gap. This is a known, documented limitation, not a silent bypass.
+-- with the pillar item at aid 40003.
+--
+-- CORRECTION (correction pass section K/M4): chess/Roaring Lion completion (ChessComplete) is now
+-- REQUIRED, reversing the original pass's deliberate omission. That omission reasoned that gating on
+-- an unsatisfiable storage would permanently brick the boss - which is true only if nothing can ever
+-- set ChessComplete. This correction pass instead builds the fail-closed path deliberately: the
+-- physical chess/Roaring Lion mechanic remains MAP_REQUIRED (see the Manual RME Manifest) and no code
+-- path sets ChessComplete yet, so Scarlett is intentionally unreachable until that mechanic is built -
+-- this is the explicit project decision in section K, not an accidental brick.
 local function validateParticipant(creature)
 	if not creature or not creature:isPlayer() then
 		return true
@@ -68,8 +195,16 @@ local function validateParticipant(creature)
 		creature:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You are not allowed to face Scarlett yet.")
 		return false
 	end
+	if creature:getStorageValue(Storage.Quest.U12_20.GraveDanger.CobraBastion.ChessComplete) < 1 then
+		creature:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You are not allowed to face Scarlett yet.")
+		return false
+	end
 	return true
 end
+
+-- Snapshot of the most recent onUseExtra call's infoPositions, consumed synchronously by
+-- createFunction below in the same synchronous BossLever:onUse() call.
+local lastInfoPositions = nil
 
 local function createScarlettEncounter()
 	if ScarlettRun.active then
@@ -93,8 +228,15 @@ local function createScarlettEncounter()
 	scarlett:setStorageValue(Storage.Quest.U12_20.GraveDanger.CobraBastion.Questline, 1)
 
 	ScarlettRun.token = ScarlettRun.token + 1
+	local token = ScarlettRun.token
 	ScarlettRun.active = true
+	ScarlettRun.bossId = scarlett:getId()
 	ScarlettRun.participants = {}
+	ScarlettRun.events = {}
+	ScarlettRun.transformArmed = false
+	ScarlettRun.vulnerable = false
+	ScarlettRun.strikeConsumed = false
+
 	if lastInfoPositions then
 		for _, posInfo in pairs(lastInfoPositions) do
 			local player = posInfo.creature
@@ -104,7 +246,14 @@ local function createScarlettEncounter()
 		end
 	end
 
-	SCARLETT_MAY_TRANSFORM = 0
+	ScarlettRunTrackEvent(
+		token,
+		addEvent(function()
+			terminateRun(token, "normal_timeout", "encounter time limit exceeded")
+		end, configManager.getNumber(configKeys.BOSS_DEFAULT_TIME_TO_DEFEAT) * 1000)
+	)
+	ScarlettRunTrackEvent(token, addEvent(watchEmptyRoom, 20 * 1000, token))
+
 	return true
 end
 
@@ -129,7 +278,7 @@ local config = {
 		lastInfoPositions = infoPositions
 		return validateParticipant(creature)
 	end,
-	exit = Position(33395, 32665, 6),
+	exit = EXIT_POSITION,
 }
 
 local lever = BossLever(config)
@@ -174,10 +323,16 @@ function graveScarlettAid.onUse(player, item, fromPosition, target, toPosition, 
 	-- blocked a player who had killed NONE of the three minibosses - killing any single one granted
 	-- full access to the Scarlett encounter. The source requires all three (Gaffir, Custodian, Guard
 	-- Captain Quaid). Also switched `~= 1` to `< 1` so any future value >1 still counts as done.
-	if player:getStorageValue(Storage.Quest.U12_20.GraveDanger.GaffirKilled) < 1 or player:getStorageValue(Storage.Quest.U12_20.GraveDanger.CustodianKilled) < 1 or player:getStorageValue(Storage.Quest.U12_20.GraveDanger.QuaidKilled) < 1 then
+	--
+	-- CORRECTION (correction pass section K/M4): also requires ChessComplete, matching the lever's own
+	-- validateParticipant - defense in depth for this in-room mechanic, though the lever remains the
+	-- authoritative gate.
+	if player:getStorageValue(Storage.Quest.U12_20.GraveDanger.GaffirKilled) < 1 or player:getStorageValue(Storage.Quest.U12_20.GraveDanger.CustodianKilled) < 1 or player:getStorageValue(Storage.Quest.U12_20.GraveDanger.QuaidKilled) < 1 or player:getStorageValue(Storage.Quest.U12_20.GraveDanger.CobraBastion.ChessComplete) < 1 then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You are not allowed to use this yet.")
 		return true
 	end
+
+	local token = ScarlettRunCurrentToken()
 
 	if table.contains(transformTo, item.itemid) then
 		local pilar = transformTo[item.itemid]
@@ -189,12 +344,21 @@ function graveScarlettAid.onUse(player, item, fromPosition, target, toPosition, 
 		item:getPosition():sendMagicEffect(CONST_ME_THUNDER)
 		item:remove(1)
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You hold the old chestplate of Galthein in front of you. It does not fit and far too old to withstand any attack.")
-		addEvent(createArmor, 20 * 1000, armorId, 1, armorPos)
-		addEvent(backMirror, 10 * 1000)
-		SCARLETT_MAY_TRANSFORM = 1
-		addEvent(function()
-			SCARLETT_MAY_TRANSFORM = 0
-		end, 2000)
+		-- CORRECTION (correction pass section M1): armor respawn corrected from 20 to the frozen
+		-- execution contract's ~30 seconds. Every delayed callback triggered from this interaction is
+		-- now run-owned/tracked so a stale chain from an already-finished attempt can never fire
+		-- against a newer one.
+		ScarlettRunTrackEvent(token, addEvent(createArmor, 30 * 1000, armorId, 1, armorPos))
+		ScarlettRunTrackEvent(token, addEvent(backMirror, 10 * 1000))
+		if token then
+			ScarlettRunSetTransformArmed(token, true)
+			ScarlettRunTrackEvent(
+				token,
+				addEvent(function()
+					ScarlettRunSetTransformArmed(token, false)
+				end, 2000)
+			)
+		end
 	elseif item.itemid == metalWallId then
 		if player:getPosition().y == 32666 then
 			player:teleportTo(Position(33395, 32668, 6))

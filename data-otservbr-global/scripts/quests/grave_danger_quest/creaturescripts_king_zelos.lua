@@ -92,6 +92,18 @@ local zelos_login = CreatureEvent("GraveDangerZelosLogin")
 
 function zelos_login.onLogin(player)
 	player:registerEvent("zelos_outgoing_damage")
+
+	-- CORRECTION (correction pass section J8): defensive cleanup - if this player is carrying a
+	-- Greater Hex condition (CONDITION_ATTRIBUTES tagged GREATER_HEX_SUBID) but is NOT a legitimate
+	-- participant of the currently-active King Zelos run (e.g. they logged out mid-encounter and the
+	-- run has since ended, or the condition otherwise survived past its owning encounter), it is
+	-- removed here. Only ever touches the GREATER_HEX_SUBID-tagged instance - never any unrelated
+	-- CONDITION_ATTRIBUTES effect.
+	local token = KingZelosRunCurrentToken()
+	if not KingZelosRunIsParticipant(token, player:getId()) then
+		removeGreaterHex(player)
+	end
+
 	return true
 end
 
@@ -146,12 +158,45 @@ function zelos_success.onDeath(creature)
 		end
 	end
 
-	KingZelosRunTerminate(token, "success", "King Zelos defeated")
+	-- CORRECTION (correction pass section J2): King Zelos's own corpse/reward pipeline is still being
+	-- processed by the engine at this point (we are inside his own onDeath handler chain) - passing
+	-- his id here excludes only him from KingZelosRunTerminate's owned-monster sweep, while every other
+	-- still-alive run-owned temporary entity (Risen Soldiers, an Unleashed Hex, wing leftovers) is
+	-- still removed even on this success path.
+	KingZelosRunTerminate(token, "success", "King Zelos defeated", creature:getId())
 
 	return true
 end
 
 zelos_success:register()
+
+-- CORRECTION (correction pass section J6): replaces the previous "are all six names absent" global
+-- scan (fooled by Rewar's own live-name transform on his invulnerable form, and by any stale/unrelated
+-- monster sharing one of those six names) with this run's own authoritative wing state. Stamps the
+-- elapsed ritual-clear time onto the CURRENT run's own owned King Zelos only, exactly once, the moment
+-- the fourth wing legitimately completes. Called both from zelos_init (on every relevant wing-entity
+-- death) and from massTimeoutCheck below (Nargol's own wing can complete on a TIMED poll, with no
+-- further death to re-trigger zelos_init afterward) so the stamp cannot be missed regardless of which
+-- wing happens to finish last.
+local function stampRitualClearTimeIfComplete(token)
+	if not KingZelosRunAllWingsComplete(token) then
+		return
+	end
+	local zelos = Creature(KingZelosRun.bossId)
+	if not zelos or not KingZelosRunOwnsBoss(zelos) then
+		return
+	end
+	if zelos:getStorageValue(1) > 0 then
+		-- Already stamped for this run - do not overwrite with a later, larger elapsed value.
+		return
+	end
+	local startedAt = Game.getStorageValue(Storage.Quest.U12_20.GraveDanger.KingZelosRitualStart)
+	local elapsed = 0
+	if startedAt > 0 then
+		elapsed = math.max(os.time() - startedAt, 0)
+	end
+	zelos:setStorageValue(1, elapsed)
+end
 
 local zelos_init = CreatureEvent("zelos_init")
 
@@ -163,45 +208,28 @@ function zelos_init.onDeath(creature)
 	end
 
 	-- CORRECTION (executor contract, sections 16/17): explicit per-wing completion, independent of
-	-- the "are all six names absent" check further below. That check is fooled by Rewar's own
-	-- transform (his live name changes from "Rewar The Bloody" to "Rewar The Bloody Inv" mid-fight,
-	-- so a name-presence lookup cannot tell "transformed" apart from "dead") - relying on it for the
-	-- green teleport's wing-complete gate would have let players through while Rewar was still alive
-	-- in his invulnerable form. Marking directly off which entity's own onDeath just fired is exact.
+	-- any generation-blind global name presence/absence check. Rewar's own transform (his live name
+	-- changes from "Rewar The Bloody" to "Rewar The Bloody Inv" mid-fight) means a name-presence
+	-- lookup cannot tell "transformed" apart from "dead" - relying on one for the green teleport's
+	-- wing-complete gate would have let players through while Rewar was still alive in his
+	-- invulnerable form. Marking directly off which entity's own onDeath just fired is exact.
 	local token = KingZelosRunCurrentToken()
-	if token and KingZelosRunOwnsMonster(creature) then
-		local dyingName = creature:getName():lower()
-		if dyingName == "the red knight" then
-			KingZelosRunMarkWing(token, "redKnight")
-		elseif dyingName == "rewar the bloody" or dyingName == "rewar the bloody inv" then
-			KingZelosRunMarkWing(token, "rewar")
-		end
-		-- Nargol's wing is marked by massTimeoutCheck() (his Regenerating Mass staying dead through
-		-- its window) and Magnor's by shard_death() (all four Shards Of Magnor gone) further below -
-		-- both are the true completion signal for those two wings, not their primary boss's death.
+	if not token or not KingZelosRunOwnsMonster(creature) then
+		return true
 	end
 
-	local knights = { "Nargol The Impaler", "Magnor Mournbringer", "The Red Knight", "Rewar The Bloody", "Shard Of Magnor", "Regenerating Mass" }
-
-	for _, knight in pairs(knights) do
-		local boss = Creature(knight)
-		if boss and boss:getId() ~= creature:getId() then
-			return true
-		end
+	local dyingName = creature:getName():lower()
+	if dyingName == "the red knight" then
+		KingZelosRunMarkWing(token, "redKnight")
+	elseif dyingName == "rewar the bloody" or dyingName == "rewar the bloody inv" then
+		KingZelosRunMarkWing(token, "rewar")
 	end
+	-- Nargol's wing is marked by massTimeoutCheck() (his exact owned Regenerating Mass staying dead
+	-- through its window) and Magnor's by shard_death() (all four exact owned Shards Of Magnor gone)
+	-- further below - both are the true completion signal for those two wings, not their primary
+	-- boss's death.
 
-	local zelos = Creature("King Zelos")
-
-	if zelos then
-		local startedAt = Game.getStorageValue(Storage.Quest.U12_20.GraveDanger.KingZelosRitualStart)
-		local elapsed = 0
-
-		if startedAt > 0 then
-			elapsed = math.max(os.time() - startedAt, 0)
-		end
-
-		zelos:setStorageValue(1, elapsed)
-	end
+	stampRitualClearTimeIfComplete(token)
 
 	return true
 end
@@ -277,16 +305,22 @@ end
 -- PROJECT DECISION (REFERENCE_CONFLICT, executor contract, section 16): the owner reference gives
 -- approximately one minute; the pre-repair implementation used a flat 60 seconds. Per this
 -- contract's explicit instruction, this pass uses 30 seconds.
+--
+-- CORRECTION (correction pass section J3): decides off the CURRENT run's own exact owned Regenerating
+-- Mass id (KingZelosRun.nargolMassId, set by attemptRegeneratingMassSpawn below) instead of a
+-- generation-blind `Creature("Regenerating Mass")` name lookup, which could not tell this run's own
+-- mass apart from a stale/unrelated one and had no way to detect "already handled".
 massTimeoutCheck = function(token)
 	if not KingZelosRunIsCurrent(token) then
 		return
 	end
-	local mass = Creature("Regenerating Mass")
-	if mass then
+	local mass = Creature(KingZelosRun.nargolMassId)
+	if mass and KingZelosRunOwnsNargolMass(mass) then
 		mass:remove()
 		attemptNargolRespawn(token, 3)
 	else
 		KingZelosRunMarkWing(token, "nargol")
+		stampRitualClearTimeIfComplete(token)
 	end
 end
 
@@ -298,6 +332,7 @@ attemptRegeneratingMassSpawn = function(token, retriesLeft)
 	local mass = Game.createMonster("Regenerating Mass", NARGOL_CENTER_ROOM, false, true)
 	if mass then
 		KingZelosRunTrackMonster(mass)
+		KingZelosRunSetNargolMass(token, mass)
 		KingZelosRunTrackEvent(token, addEvent(massTimeoutCheck, 30 * 1000, token))
 		return
 	end
@@ -363,11 +398,20 @@ function shard_death.onDeath(creature)
 
 	shard_explode:execute(creature, var)
 
-	-- All four shards share one life pool, so they die together; whichever death event happens to
-	-- run last will find none left and mark the wing complete. Idempotent - safe to call repeatedly.
+	-- CORRECTION (correction pass section J4): decides off the CURRENT run's own exact owned Shard Of
+	-- Magnor generation (KingZelosRun.magnorShardIds, set by attemptMagnorShards below) instead of a
+	-- generation-blind `not Creature("Shard Of Magnor")` name-absence check, which could be fooled by
+	-- a stale/unrelated shard elsewhere in the world and had no notion of "this run's own set". All
+	-- four shards share one life pool, so they die together; whichever death event happens to run last
+	-- will find none of THIS run's own tracked shards still alive and mark the wing complete.
+	-- Idempotent - safe to call repeatedly.
 	local token = KingZelosRunCurrentToken()
-	if token and not Creature("Shard Of Magnor") then
-		KingZelosRunMarkWing(token, "magnor")
+	if token and KingZelosRunOwnsMagnorShard(creature) then
+		KingZelosRunClearMagnorShard(creature:getId())
+		if not KingZelosRunAnyMagnorShardAlive() then
+			KingZelosRunMarkWing(token, "magnor")
+			stampRitualClearTimeIfComplete(token)
+		end
 	end
 
 	return true
@@ -397,12 +441,17 @@ local function attemptMagnorShards(token, position, retriesLeft)
 	end
 
 	if allOk then
+		local shardIds = {}
 		for _, shard in pairs(shards) do
 			shard:beginSharedLife(id)
 			shard:registerEvent("SharedLife")
 			shard:registerEvent("shard_death")
 			KingZelosRunTrackMonster(shard)
+			shardIds[shard:getId()] = true
 		end
+		-- CORRECTION (correction pass section J4): establishes this wave as the current run's own
+		-- exact-owned shard set, consumed by shard_death above.
+		KingZelosRunSetMagnorShards(token, shardIds)
 		return
 	end
 
@@ -456,6 +505,7 @@ local function attemptFetters(token, bossId, retriesLeft)
 	local fetters = math.random(1, 3)
 	local fromPos, toPos = Position(33458, 31556, 13), Position(33467, 31566, 13)
 	local spawnedCount = 0
+	local fetterIds = {}
 
 	for _ = 1, fetters do
 		local position = Position(math.random(fromPos.x, toPos.x), math.random(fromPos.y, toPos.y), fromPos.z)
@@ -464,10 +514,15 @@ local function attemptFetters(token, bossId, retriesLeft)
 			spawnedCount = spawnedCount + 1
 			creature:setStorageValue(2, creature:getStorageValue(2) + 1)
 			KingZelosRunTrackMonster(fetter)
+			fetterIds[fetter:getId()] = true
 		end
 	end
 
 	if spawnedCount > 0 then
+		-- CORRECTION (correction pass section J5): establishes this wave as the current run's own
+		-- exact-owned Fetter cycle, consumed by fetter_death below - a leftover Fetter from an earlier
+		-- cycle can no longer decrement THIS cycle's obligation.
+		KingZelosRunSetRewarFetters(token, fetterIds)
 		-- CORRECTION (executor contract, section 16): never transform into the invulnerable form
 		-- unless at least one Fetter actually exists to end it - the pre-repair code transformed
 		-- unconditionally, so an all-Fetter-spawns-failed edge case left Rewar permanently
@@ -492,6 +547,14 @@ function fetter_death.onDeath(creature)
 	if not targetMonster or targetMonster:getMaster() then
 		return true
 	end
+
+	-- CORRECTION (correction pass section J5): the dying Fetter must belong to the CURRENT run's
+	-- CURRENT cycle before it may decrement Rewar's obligation - a Fetter left over from an earlier
+	-- cycle/run must never unlock the current one.
+	if not KingZelosRunOwnsRewarFetter(creature) then
+		return true
+	end
+	KingZelosRunClearRewarFetter(creature:getId())
 
 	local boss = Creature("Rewar The Bloody Inv") or Creature("Rewar The Bloody")
 

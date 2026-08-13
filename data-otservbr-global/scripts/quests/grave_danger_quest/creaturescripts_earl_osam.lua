@@ -16,15 +16,19 @@ local config = {
 	},
 }
 
--- CORRECTION (executor contract, section 10): "Sphere movement callbacks must be attempt-owned."
--- Earl Osam's own storage(4) is a monotonic "generation" counter, bumped once per initMech() call.
--- Each Magical Sphere is tagged with the generation that spawned it (storage(1)). moveSphere's
--- recurring addEvent chain and sphere_death's count-decrement both verify their generation still
--- matches the boss's CURRENT one before acting - a late callback from a superseded phase can no
--- longer move/heal-check for, or decrement the count of, a newer phase's spheres.
-local function moveSphere(generation)
-	local boss = Creature("Earl Osam")
-	if not boss or boss:getStorageValue(4) ~= generation or boss:getStorageValue(3) <= 0 then
+-- CORRECTION (executor contract, section 10; correction pass section G): "Sphere movement callbacks
+-- must be attempt-owned." Earl Osam's own storage(4) is a monotonic "generation" counter, bumped once
+-- per initMech() call. Each Magical Sphere is tagged with the generation that spawned it (storage(1)).
+-- moveSphere's recurring addEvent chain and sphere_death's count-decrement both verify BOTH the
+-- current run token AND their generation still matches the boss's CURRENT one before acting - a late
+-- callback from a superseded phase, OR from an already-terminated run, can no longer move/heal-check
+-- for, or decrement the count of, a newer phase's or a newer run's spheres.
+local function moveSphere(token, generation)
+	if not EarlOsamRunIsCurrent(token) then
+		return true
+	end
+	local boss = Creature(EarlOsamRun.bossId)
+	if not boss or not EarlOsamRunOwnsBoss(boss) or boss:getStorageValue(4) ~= generation or boss:getStorageValue(3) <= 0 then
 		return true
 	end
 
@@ -54,10 +58,12 @@ local function moveSphere(generation)
 				if nextTile then
 					local nextCreature = nextTile:getTopCreature()
 					if nextCreature then
-						if nextPos == config.centerRoom and nextCreature:getName():lower() == "earl osam" then
+						if nextPos == config.centerRoom and nextCreature:getName():lower() == "earl osam" and EarlOsamRunOwnsBoss(nextCreature) then
 							spheres:remove()
 							nextCreature:addHealth(80000)
-							nextCreature:setStorageValue(3, nextCreature:getStorageValue(3) - 1)
+							-- CORRECTION: never allow this obligation counter to go negative (matches
+							-- the same clamp applied to Count Vlarkorth's shield counter).
+							nextCreature:setStorageValue(3, math.max(0, nextCreature:getStorageValue(3) - 1))
 							if nextCreature:isMoveLocked() then
 								nextCreature:setMoveLocked(false)
 							end
@@ -73,20 +79,25 @@ local function moveSphere(generation)
 	end
 
 	if boss:getHealth() > 0 and boss:getStorageValue(4) == generation then
-		addEvent(moveSphere, 4 * 1000, generation)
+		EarlOsamRunTrackEvent(token, addEvent(moveSphere, 4 * 1000, token, generation))
 	end
 
 	return true
 end
 
--- CORRECTION (executor contract, section 10): the four Magical Spheres are one mandatory phase
--- generation - verified with bounded retry, never silently accepting a partial 1/2/3. If recovery is
--- exhausted, the boss's move-lock is released rather than leaving him permanently immobile with no
--- spheres left in the world able to unlock him.
-local function attemptSpheres(generation, retriesLeft)
+-- CORRECTION (executor contract, section 10; correction pass section G): the four Magical Spheres are
+-- one mandatory phase generation - verified with bounded retry, never silently accepting a partial
+-- 1/2/3. Recovery exhaustion previously released the boss's move-lock and let the fight continue with
+-- the mandatory mechanic simply skipped (fail-open); it now technical-aborts the whole encounter
+-- instead, matching the Lord Azaram Tainted Soul Splinters / King Zelos wing-entity precedent - a
+-- mandatory phase entity that cannot be verified must end the attempt, not quietly make it easier.
+local function attemptSpheres(token, generation, retriesLeft)
 	retriesLeft = retriesLeft or 3
-	local boss = Creature("Earl Osam")
-	if not boss or boss:getStorageValue(4) ~= generation then
+	if not EarlOsamRunIsCurrent(token) then
+		return
+	end
+	local boss = Creature(EarlOsamRun.bossId)
+	if not boss or not EarlOsamRunOwnsBoss(boss) or boss:getStorageValue(4) ~= generation then
 		return
 	end
 
@@ -103,8 +114,11 @@ local function attemptSpheres(generation, retriesLeft)
 	end
 
 	if allOk then
+		for _, sphere in pairs(spheres) do
+			EarlOsamRunTrackMonster(sphere)
+		end
 		boss:setStorageValue(3, #spheres)
-		addEvent(moveSphere, 4 * 1000, generation)
+		EarlOsamRunTrackEvent(token, addEvent(moveSphere, 4 * 1000, token, generation))
 		return
 	end
 
@@ -113,19 +127,19 @@ local function attemptSpheres(generation, retriesLeft)
 	end
 	logger.error("GraveDanger/EarlOsam: Magical Spheres failed to fully spawn (retries left: {})", retriesLeft)
 	if retriesLeft > 0 then
-		addEvent(attemptSpheres, 1000, generation, retriesLeft - 1)
+		EarlOsamRunTrackEvent(token, addEvent(attemptSpheres, 1000, token, generation, retriesLeft - 1))
 	else
-		boss:setStorageValue(3, 0)
-		if boss:isMoveLocked() then
-			boss:setMoveLocked(false)
-		end
-		logger.error("GraveDanger/EarlOsam: technical abort - Magical Spheres failed to spawn after bounded retries, releasing move-lock")
+		logger.error("GraveDanger/EarlOsam: technical abort - Magical Spheres failed to spawn after bounded retries")
+		EarlOsamRunTerminate(token, "technical_abort", "Magical Spheres failed to spawn after bounded retries")
 	end
 end
 
-local function initMech()
-	local boss = Creature("Earl Osam")
-	if boss then
+local function initMech(token)
+	if not EarlOsamRunIsCurrent(token) then
+		return true
+	end
+	local boss = Creature(EarlOsamRun.bossId)
+	if boss and EarlOsamRunOwnsBoss(boss) then
 		local topCenter = Tile(config.centerRoom):getTopCreature()
 		if topCenter and topCenter ~= boss then
 			topCenter:teleportTo(Position(config.centerRoom.x, config.centerRoom.y + 2, config.centerRoom.z))
@@ -141,7 +155,7 @@ local function initMech()
 		generation = generation + 1
 		boss:setStorageValue(4, generation)
 
-		attemptSpheres(generation, 3)
+		attemptSpheres(token, generation, 3)
 	end
 
 	return true
@@ -150,11 +164,21 @@ end
 local earl_osam_transform = CreatureEvent("earl_osam_transform")
 
 function earl_osam_transform.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType)
+	-- CORRECTION (correction pass section G): run-owned - a stale Earl Osam instance left over from an
+	-- already-terminated encounter can no longer progress or gate this handler's phase logic.
+	if not creature or not EarlOsamRunOwnsBoss(creature) then
+		return primaryDamage, primaryType, secondaryDamage, secondaryType
+	end
+	local token = EarlOsamRunCurrentToken()
+
 	local players = Game.getSpectators(config.centerRoom, false, true, config.x, config.x, config.y, config.y)
 	for _, player in pairs(players) do
 		if player:isPlayer() then
 			if player:getStorageValue(config.timer) < os.time() then
 				player:setStorageValue(config.timer, os.time() + 20 * 3600)
+				-- CORRECTION (section O): remembers that THIS attempt wrote the legacy Timer lockout
+				-- for this player, so a later technical_abort knows it is safe to roll back.
+				EarlOsamRunMarkTimerWritten(token, player:getId())
 			end
 			if player:getStorageValue(config.room) < os.time() then
 				player:setStorageValue(config.room, os.time() + 30 * 60)
@@ -180,9 +204,13 @@ function earl_osam_transform.onHealthChange(creature, attacker, primaryDamage, p
 		creature:setStorageValue(1, 0)
 	end
 
+	-- CORRECTION (correction pass section G): true invulnerability while mandatory Magical Spheres
+	-- remain - previously this only displayed the BLOCKHIT effect while returning the incoming damage
+	-- completely unmodified, so Earl Osam kept taking full damage during what looked like a shielded
+	-- phase (the exact same bug already fixed for Count Vlarkorth's own shield in the original pass).
 	if creature:getStorageValue(3) > 0 then
 		creature:getPosition():sendMagicEffect(CONST_ME_BLOCKHIT)
-		return primaryDamage, primaryType, secondaryDamage, secondaryType
+		return 0, primaryType, 0, secondaryType
 	end
 
 	creature:setStorageValue(1, currentDamage + primaryDamage + secondaryDamage)
@@ -190,7 +218,7 @@ function earl_osam_transform.onHealthChange(creature, attacker, primaryDamage, p
 	if creature:getStorageValue(1) >= healthThreshold then
 		creature:setStorageValue(1, 0)
 		creature:setStorageValue(3, 0)
-		initMech()
+		initMech(token)
 	end
 
 	return primaryDamage, primaryType, -secondaryDamage, secondaryType
@@ -201,8 +229,12 @@ earl_osam_transform:register()
 local sphere_death = CreatureEvent("sphere_death")
 
 function sphere_death.onDeath(creature)
-	local boss = Creature("Earl Osam")
-	if not boss then
+	local token = EarlOsamRunCurrentToken()
+	if not token then
+		return true
+	end
+	local boss = Creature(EarlOsamRun.bossId)
+	if not boss or not EarlOsamRunOwnsBoss(boss) then
 		return true
 	end
 	-- A sphere from a superseded generation dying late must not decrement the CURRENT generation's
@@ -219,3 +251,25 @@ function sphere_death.onDeath(creature)
 end
 
 sphere_death:register()
+
+-- ================================================================
+-- EARL OSAM SUCCESS (correction pass section G)
+-- ================================================================
+-- Releases EarlOsamRun's own bookkeeping on a legitimate kill. Earl Osam's own grave/boss credit is
+-- unaffected - handled separately by the pre-existing generic creaturescripts_boss_kill.lua path
+-- (earl osam -> Graves.Cormaya).
+local earl_osam_success = CreatureEvent("earl_osam_success")
+
+function earl_osam_success.onDeath(creature)
+	local targetMonster = creature:getMonster()
+	if not targetMonster or targetMonster:getMaster() then
+		return true
+	end
+	if not EarlOsamRunOwnsBoss(creature) then
+		return true
+	end
+	EarlOsamRunTerminate(EarlOsamRunCurrentToken(), "success", "Earl Osam defeated")
+	return true
+end
+
+earl_osam_success:register()

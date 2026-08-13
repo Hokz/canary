@@ -16,6 +16,14 @@ monster.outfit = {
 monster.events = {
 	"earl_osam_transform",
 	"grave_danger_death",
+	-- CORRECTION (correction pass section G): releases EarlOsamRun's own bookkeeping on a legitimate
+	-- kill - previously no run object existed at all, so nothing terminated a successful attempt.
+	"earl_osam_success",
+	-- CORRECTION (correction pass section N): Earl Osam moved from the generic self.bossPosition
+	-- creation path to config.boss.createFunction (see actions_earl_osam.lua) - registering this here
+	-- keeps the framework's own post-victory grace-period/cleanup it previously already had for free
+	-- via the generic path's automatic monster:registerEvent("BossLeverOnDeath") call.
+	"BossLeverOnDeath",
 }
 
 monster.health = 75000

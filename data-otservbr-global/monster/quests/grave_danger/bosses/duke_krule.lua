@@ -17,6 +17,10 @@ monster.events = {
 	"grave_danger_death",
 	-- Releases DukeKruleRun's transform/event state on a legitimate kill (executor contract, section 13).
 	"duke_krule_success",
+	-- CORRECTION (correction pass section N): restores BossLever's own post-victory grace-period/
+	-- cleanup, which createFunction-created bosses never received (see count_vlarkorth.lua for the
+	-- full rationale).
+	"BossLeverOnDeath",
 }
 
 monster.health = 75000

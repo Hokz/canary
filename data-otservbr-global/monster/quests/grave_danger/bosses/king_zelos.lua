@@ -28,6 +28,11 @@ monster.events = {
 	-- now needs run-participant + physical-presence verification, which the generic damage-map
 	-- handler in creaturescripts_boss_kill.lua cannot do - "zelos_success" replaces it.
 	"zelos_success",
+	-- CORRECTION (correction pass section J1/N): restores BossLever's own post-victory grace-period/
+	-- cleanup, which createFunction-created bosses never received (see count_vlarkorth.lua for the
+	-- full rationale). Only King Zelos's own name matches BossLever["king zelos"]'s key, so this
+	-- cannot fire prematurely off any of the four wing bosses' deaths.
+	"BossLeverOnDeath",
 }
 
 monster.bosstiary = {

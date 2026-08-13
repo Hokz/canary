@@ -18,10 +18,13 @@ local config = {
 	toPos = Position(33433, 31481, 13),
 }
 
+-- CORRECTION (section F): scoped to entities the CURRENT run actually owns - a generation-blind
+-- name-based sweep could otherwise remove a stale/unrelated Tainted Soul Splinter (or, worse, one
+-- belonging to a different concurrent room state) rather than only this run's own.
 local function removeTainted()
 	local spectators = Game.getSpectators(config.centerRoom, false, false, config.x, config.x, config.y, config.y)
 	for _, creature in pairs(spectators) do
-		if creature:isMonster() and creature:getName():lower() == "tainted soul splinter" then
+		if creature:isMonster() and creature:getName():lower() == "tainted soul splinter" and AzaramRunOwnsMonster(creature) then
 			creature:remove()
 		end
 	end
@@ -79,6 +82,9 @@ function azaram_health.onHealthChange(creature, attacker, primaryDamage, primary
 		if player:isPlayer() then
 			if player:getStorageValue(config.timer) < os.time() then
 				player:setStorageValue(config.timer, os.time() + 20 * 3600)
+				-- CORRECTION (section O): remembers that THIS attempt wrote the legacy Timer lockout
+				-- for this player, so a later technical_abort knows it is safe to roll back.
+				AzaramRunMarkTimerWritten(token, player:getId())
 			end
 			if player:getStorageValue(config.room) < os.time() then
 				player:setStorageValue(config.room, os.time() + 30 * 60)
@@ -100,8 +106,10 @@ function azaram_health.onHealthChange(creature, attacker, primaryDamage, primary
 			creature:teleportTo(config.bossPos)
 		end
 		creature:setStorageValue(1, 0)
-		local soul = Creature("Azaram's Soul")
-		if soul then
+		-- CORRECTION (section F): resolved through the current run's own owned Soul id, never a bare
+		-- name lookup - a stale Soul instance from a finished attempt could otherwise be found here.
+		local soul = Creature(AzaramRun.soulId)
+		if soul and AzaramRunOwnsSoul(soul) then
 			soul:teleportTo(config.centerRoom)
 			attemptTaintedSplinters(token, 3)
 		end
@@ -149,6 +157,11 @@ azaram_summon:register()
 local soul_heal = CreatureEvent("soul_heal")
 
 function soul_heal.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType)
+	-- CORRECTION (section F): the Soul itself must belong to the current run - a stale Soul left over
+	-- from an already-terminated attempt can no longer progress that attempt's phase.
+	if not creature or not AzaramRunOwnsSoul(creature) then
+		return primaryDamage, primaryType, secondaryDamage, secondaryType
+	end
 	if not attacker or not attacker:isPlayer() then
 		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
@@ -167,8 +180,8 @@ function soul_heal.onHealthChange(creature, attacker, primaryDamage, primaryType
 			removeTainted()
 			-- CORRECTION (executor contract, section 9): ownership-checked - never teleports a stale/
 			-- unrelated "Lord Azaram" instance.
-			local boss = Creature("Lord Azaram")
-			if boss and AzaramRunOwnsMonster(boss) and config.centerRoom:isWalkable() then
+			local boss = Creature(AzaramRun.bossId)
+			if boss and AzaramRunOwnsBoss(boss) and config.centerRoom:isWalkable() then
 				boss:teleportTo(config.centerRoom)
 			end
 		end
@@ -177,3 +190,25 @@ function soul_heal.onHealthChange(creature, attacker, primaryDamage, primaryType
 end
 
 soul_heal:register()
+
+-- ================================================================
+-- LORD AZARAM SUCCESS (correction pass section F)
+-- ================================================================
+-- Releases AzaramRun's own bookkeeping on a legitimate kill. Lord Azaram's own grave/boss credit is
+-- unaffected - handled separately by the pre-existing generic creaturescripts_boss_kill.lua path
+-- (lord azaram -> Graves.Ghostlands).
+local azaram_success = CreatureEvent("azaram_success")
+
+function azaram_success.onDeath(creature)
+	local targetMonster = creature:getMonster()
+	if not targetMonster or targetMonster:getMaster() then
+		return true
+	end
+	if not AzaramRunOwnsBoss(creature) then
+		return true
+	end
+	AzaramRunTerminate(AzaramRunCurrentToken(), "success", "Lord Azaram defeated")
+	return true
+end
+
+azaram_success:register()
