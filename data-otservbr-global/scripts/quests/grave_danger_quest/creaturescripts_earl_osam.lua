@@ -16,6 +16,41 @@ local config = {
 	},
 }
 
+-- CORRECTION (two-blocker closure pass section A): a Magical Sphere permanently removed by script
+-- (either because it legitimately reached Earl, or because its path was blocked by some other
+-- creature and the design discards it) must resolve Earl's sphere-obligation count exactly once, in
+-- the SAME step as the removal - previously the obstructed-path branch untracked and removed the
+-- sphere but never decremented storage(3), so a player/creature merely standing in a sphere's path
+-- could leave Earl permanently invulnerable/move-locked with no sphere left in the world able to
+-- resolve that count (a legitimate encounter soft-lock). sphere_death (further below) already handles
+-- the "sphere is killed in combat" case correctly and independently - :remove() on a still-alive
+-- creature does not fire its own onDeath, so this and sphere_death can never both resolve the same
+-- sphere.
+local function resolveCurrentSphere(token, generation, sphere, boss, healBoss)
+	if not EarlOsamRunIsCurrent(token) then
+		return
+	end
+	if not boss or not EarlOsamRunOwnsBoss(boss) or boss:getStorageValue(4) ~= generation then
+		return
+	end
+	if not sphere or not EarlOsamRunOwnsMonster(sphere) or sphere:getStorageValue(1) ~= generation then
+		return
+	end
+
+	EarlOsamRunUntrackMonster(sphere:getId())
+	sphere:remove()
+
+	if healBoss then
+		boss:addHealth(80000)
+	end
+	-- CORRECTION: never allow this obligation counter to go negative (matches the same clamp applied
+	-- to Count Vlarkorth's shield counter).
+	boss:setStorageValue(3, math.max(0, boss:getStorageValue(3) - 1))
+	if boss:getStorageValue(3) <= 0 and boss:isMoveLocked() then
+		boss:setMoveLocked(false)
+	end
+end
+
 -- CORRECTION (executor contract, section 10; correction pass section G): "Sphere movement callbacks
 -- must be attempt-owned." Earl Osam's own storage(4) is a monotonic "generation" counter, bumped once
 -- per initMech() call. Each Magical Sphere is tagged with the generation that spawned it (storage(1)).
@@ -64,18 +99,16 @@ local function moveSphere(token, generation)
 					local nextCreature = nextTile:getTopCreature()
 					if nextCreature then
 						if nextPos == config.centerRoom and nextCreature:getName():lower() == "earl osam" and EarlOsamRunOwnsBoss(nextCreature) then
-							EarlOsamRunUntrackMonster(spheres:getId())
-							spheres:remove()
-							nextCreature:addHealth(80000)
-							-- CORRECTION: never allow this obligation counter to go negative (matches
-							-- the same clamp applied to Count Vlarkorth's shield counter).
-							nextCreature:setStorageValue(3, math.max(0, nextCreature:getStorageValue(3) - 1))
-							if nextCreature:isMoveLocked() then
-								nextCreature:setMoveLocked(false)
-							end
+							-- Sphere legitimately reaches Earl: resolve the obligation AND heal him.
+							resolveCurrentSphere(token, generation, spheres, boss, true)
 						else
-							EarlOsamRunUntrackMonster(spheres:getId())
-							spheres:remove()
+							-- CORRECTION (two-blocker closure pass section A): the sphere's path is
+							-- blocked by some other creature (not the owned Earl) - it is still
+							-- discarded, but its obligation must now be resolved in the same step so
+							-- Earl's storage(3) count can never outlive the physical sphere that backed
+							-- it. No heal in this branch - only a sphere that legitimately reaches Earl
+							-- heals him.
+							resolveCurrentSphere(token, generation, spheres, boss, false)
 						end
 					else
 						spheres:teleportTo(nextPos)

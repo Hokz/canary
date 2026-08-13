@@ -10,6 +10,54 @@ local function createArmor(id, amount, pos)
 	end
 end
 
+local mirror = {
+	fromPos = Position(33389, 32641, 6),
+	toPos = Position(33403, 32655, 6),
+	mirrors = { 31474, 31475, 31476, 31477 },
+}
+
+-- CORRECTION (two-blocker closure pass section B): moved above terminateRun (was previously declared
+-- much later in this file, after the run-lifecycle section) so terminateRun's own room-state
+-- restoration can call it directly as a local upvalue instead of risking a forward reference to a
+-- not-yet-defined local.
+local function backMirror()
+	for x = mirror.fromPos.x, mirror.toPos.x do
+		for y = mirror.fromPos.y, mirror.toPos.y do
+			local sqm = Tile(Position(x, y, 6))
+
+			if sqm then
+				for _, id in pairs(mirror.mirrors) do
+					local item = sqm:getItemById(id)
+					if item then
+						item:transform(mirror.mirrors[math.random(#mirror.mirrors)])
+						item:getPosition():sendMagicEffect(CONST_ME_POFF)
+					end
+				end
+			end
+		end
+	end
+end
+
+-- CORRECTION (two-blocker closure pass section B): run-independent room-state restoration - Galthen's
+-- chestplate's own 30-second respawn and the 10-second mirror reset are both scheduled as ScarlettRun-
+-- owned events (see graveScarlettAid below) and get cancelled outright by terminateRun's own event
+-- sweep on EVERY terminal path, including a success that happens well before either timer fires. Left
+-- alone, that meant the next attempt could start with no chestplate on the ground and mirrors left in
+-- a solved/stale state. Called synchronously, once, from terminateRun AFTER old run events are
+-- stopped, on every terminal kind (success/normal_timeout/technical_abort) - this restores physical
+-- room state, it is not BossLever lifecycle cleanup (see the comment on the BossLever block below).
+local function restoreScarlettRoomState()
+	local tile = Tile(armorPos)
+	local existingArmor = tile and tile:getItemById(armorId)
+	if existingArmor then
+		-- Idempotent - ensures the action id is correct without duplicating the item.
+		existingArmor:setActionId(40003)
+	else
+		createArmor(armorId, 1, armorPos)
+	end
+	backMirror()
+end
+
 -- ================================================================
 -- SCARLETT RUN OWNERSHIP (executor contract, sections 31/34; correction pass section M/N)
 -- ================================================================
@@ -102,6 +150,15 @@ local function terminateRun(token, kind, reason)
 	for eventId in pairs(ScarlettRun.events) do
 		stopEvent(eventId)
 	end
+
+	-- CORRECTION (two-blocker closure pass section B): stale run events (the pending 30s armor
+	-- respawn, the pending 10s mirror reset) are cancelled above before they ever run - restoring the
+	-- room synchronously here, on every terminal kind, is what actually leaves it ready for the next
+	-- attempt instead of depending on those now-dead callbacks. This is physical room-state
+	-- restoration only, not BossLever lifecycle cleanup - it runs even on success, where the
+	-- kind ~= "success" block below (BossLever's own bossAlive/timeoutEvent/emptyRoomEvent/zone state)
+	-- is intentionally still skipped.
+	restoreScarlettRoomState()
 
 	if kind == "technical_abort" then
 		for playerId in pairs(ScarlettRun.participants) do
@@ -296,30 +353,6 @@ local transformTo = {
 	[31476] = 31477,
 	[31477] = 31474,
 }
-
-local mirror = {
-	fromPos = Position(33389, 32641, 6),
-	toPos = Position(33403, 32655, 6),
-	mirrors = { 31474, 31475, 31476, 31477 },
-}
-
-local function backMirror()
-	for x = mirror.fromPos.x, mirror.toPos.x do
-		for y = mirror.fromPos.y, mirror.toPos.y do
-			local sqm = Tile(Position(x, y, 6))
-
-			if sqm then
-				for _, id in pairs(mirror.mirrors) do
-					local item = sqm:getItemById(id)
-					if item then
-						item:transform(mirror.mirrors[math.random(#mirror.mirrors)])
-						item:getPosition():sendMagicEffect(CONST_ME_POFF)
-					end
-				end
-			end
-		end
-	end
-end
 
 local graveScarlettAid = Action()
 
