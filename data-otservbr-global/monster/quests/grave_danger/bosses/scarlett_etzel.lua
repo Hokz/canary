@@ -17,6 +17,10 @@ monster.events = {
 	"scarlettThink",
 	"scarlettHealth",
 	"grave_danger_death",
+	-- CORRECTION (correction pass section N): restores BossLever's own post-victory grace-period/
+	-- cleanup, which createFunction-created bosses never received (see count_vlarkorth.lua for the
+	-- full rationale).
+	"BossLeverOnDeath",
 }
 
 monster.bosstiary = {

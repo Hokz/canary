@@ -1,29 +1,30 @@
-local mType = Game.createMonsterType("Dark Paladin")
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE (executor contract, section 21): "Unleashed Hex" is
+-- confirmed absent from the repository before this pass (no monster file, no script reference
+-- anywhere). No canonical stats/looktype are provable from the owner reference, so this is a
+-- functional placeholder, not claimed Global-exact. lookType 235 reuses the existing "Spectre"
+-- outfit (monster/undeads/spectre.lua) as a thematically fitting, already-real client asset rather
+-- than inventing a new looktype id.
+local mType = Game.createMonsterType("Unleashed Hex")
 local monster = {}
 
-monster.description = "a dark paladin"
+monster.description = "an unleashed hex"
 monster.experience = 0
 monster.outfit = {
-	lookType = 129,
-	lookHead = 95,
-	lookBody = 95,
-	lookLegs = 95,
-	lookFeet = 95,
-	lookAddons = 1,
+	lookType = 235,
+	lookHead = 0,
+	lookBody = 0,
+	lookLegs = 0,
+	lookFeet = 0,
+	lookAddons = 0,
 	lookMount = 0,
 }
 
-monster.health = 1800
-monster.maxHealth = 1800
-monster.race = "blood"
-monster.corpse = 31204
-monster.speed = 125
+monster.health = 18000
+monster.maxHealth = 18000
+monster.race = "undead"
+monster.corpse = 0
+monster.speed = 120
 monster.manaCost = 0
-
--- CORRECTION (correction pass section D): see dark_sorcerer.lua for rationale.
-monster.events = {
-	"count_vlarkorth_remains_tag",
-}
 
 monster.changeTarget = {
 	interval = 4000,
@@ -67,14 +68,13 @@ monster.voices = {
 monster.loot = {}
 
 monster.attacks = {
-	{ name = "melee", interval = 2000, chance = 100, minDamage = 0, maxDamage = -300 },
-	{ name = "combat", interval = 2000, chance = 20, type = COMBAT_PHYSICALDAMAGE, minDamage = 0, maxDamage = -200, range = 7, target = false },
+	{ name = "melee", interval = 2000, chance = 100, minDamage = 0, maxDamage = -600 },
+	{ name = "combat", interval = 2000, chance = 20, type = COMBAT_DEATHDAMAGE, minDamage = 0, maxDamage = -700, range = 7, radius = 3, effect = CONST_ME_MORTAREA, target = false },
 }
 
 monster.defenses = {
-	defense = 40,
-	armor = 40,
-	--	mitigation = ???,
+	defense = 45,
+	armor = 45,
 }
 
 monster.elements = {
@@ -87,7 +87,7 @@ monster.elements = {
 	{ type = COMBAT_DROWNDAMAGE, percent = 0 },
 	{ type = COMBAT_ICEDAMAGE, percent = 0 },
 	{ type = COMBAT_HOLYDAMAGE, percent = 0 },
-	{ type = COMBAT_DEATHDAMAGE, percent = 0 },
+	{ type = COMBAT_DEATHDAMAGE, percent = 100 },
 }
 
 monster.immunities = {

@@ -55,6 +55,13 @@ function grave_sanctify.onUse(player, item, fromPosition, itemEx, toPosition)
 		return true
 	end
 
+	-- CORRECTION (executor contract, section 4): sanctifying a grave is Lich-line progression and
+	-- must require level >= 250, Premium, and the Lich line actually started, per participant.
+	if player:getLevel() < 250 or not player:isPremium() or player:getStorageValue(Storage.Quest.U12_20.GraveDanger.Questline) < 1 then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You are not eligible to sanctify this grave.")
+		return true
+	end
+
 	if player:getStorageValue(thing.stor) < 1 then
 		player:setStorageValue(thing.stor, 1)
 		itemEx:getPosition():sendMagicEffect(CONST_ME_HOLYAREA)

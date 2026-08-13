@@ -20,6 +20,13 @@ monster.corpse = 31206
 monster.speed = 125
 monster.manaCost = 0
 
+-- CORRECTION (correction pass section D): tags this dark's own corpse with the current Count
+-- Vlarkorth run/shield-generation it was summoned for, so a stale remains item can never weaken a
+-- later shield phase. See count_vlarkorth_remains_tag in creaturescripts_count_vlarkorth.lua.
+monster.events = {
+	"count_vlarkorth_remains_tag",
+}
+
 monster.changeTarget = {
 	interval = 4000,
 	chance = 10,

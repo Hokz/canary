@@ -15,7 +15,17 @@ monster.outfit = {
 
 monster.events = {
 	"count_vlarkorth_transform",
+	-- CORRECTION (lifecycle closure pass section B): grave_danger_death now also handles this boss's
+	-- custom-run success termination directly (see creaturescripts_boss_kill.lua) - the separate
+	-- "count_vlarkorth_success" handler that used to live here was removed.
 	"grave_danger_death",
+	-- CORRECTION (correction pass section N): createFunction-created bosses never went through
+	-- boss_lever.lua's generic `monster:registerEvent("BossLeverOnDeath")` path (that only runs for
+	-- the unverified self.bossPosition branch), so this boss never got the framework's own
+	-- post-victory grace-period message / bossAlive+timeoutEvent+emptyRoomEvent cleanup / eventual
+	-- zone reset on a legitimate kill. Registering it here (the boss's own name is the exact key
+	-- BossLever[self.name] is stored under) restores that for free.
+	"BossLeverOnDeath",
 }
 
 monster.health = 75000

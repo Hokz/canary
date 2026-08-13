@@ -27,6 +27,8 @@ monster.changeTarget = {
 
 monster.events = {
 	"BossHealthCheck",
+	-- Deactivates NictrosBaelocRun once both brothers are confirmed dead (executor contract, section 12).
+	"nictros_baeloc_success",
 }
 
 monster.bosstiary = {

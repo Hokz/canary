@@ -20,7 +20,14 @@ monster.events = {
 	-- never credited the Ghostlands grave (creaturescripts_boss_kill.lua maps "lord azaram" ->
 	-- Graves.Ghostlands). Combined with the same omission on Sir Baeloc, Graves.Progress could only
 	-- ever reach 10, so Jack Springer's ">= 12" gate never opened and the quest was uncompletable.
+	-- CORRECTION (lifecycle closure pass section B): grave_danger_death now also handles this boss's
+	-- custom-run success termination directly (see creaturescripts_boss_kill.lua) - the separate
+	-- "azaram_success" handler that used to live here was removed.
 	"grave_danger_death",
+	-- CORRECTION (correction pass section N): restores BossLever's own post-victory grace-period/
+	-- cleanup, which createFunction-created bosses never received (see count_vlarkorth.lua for the
+	-- full rationale).
+	"BossLeverOnDeath",
 }
 
 monster.health = 300000

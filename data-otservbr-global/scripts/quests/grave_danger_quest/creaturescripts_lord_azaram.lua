@@ -18,24 +18,77 @@ local config = {
 	toPos = Position(33433, 31481, 13),
 }
 
+-- CORRECTION (section F): scoped to entities the CURRENT run actually owns - a generation-blind
+-- name-based sweep could otherwise remove a stale/unrelated Tainted Soul Splinter (or, worse, one
+-- belonging to a different concurrent room state) rather than only this run's own.
 local function removeTainted()
 	local spectators = Game.getSpectators(config.centerRoom, false, false, config.x, config.x, config.y, config.y)
 	for _, creature in pairs(spectators) do
-		if creature:isMonster() and creature:getName():lower() == "tainted soul splinter" then
+		if creature:isMonster() and creature:getName():lower() == "tainted soul splinter" and AzaramRunOwnsMonster(creature) then
 			creature:remove()
 		end
 	end
 	return true
 end
 
+-- CORRECTION (executor contract, section 9): the four Tainted Soul Splinters are a mandatory phase
+-- entity - verified with bounded retry, and a technical abort (rather than silently continuing with
+-- a partially-created phase) if recovery is exhausted.
+local function attemptTaintedSplinters(token, retriesLeft)
+	retriesLeft = retriesLeft or 3
+	if not AzaramRunIsCurrent(token) then
+		return
+	end
+
+	local spawned = {}
+	local allOk = true
+	for _, pos in pairs(config.tainted) do
+		local splinter = Game.createMonster("Tainted Soul Splinter", pos, true, true)
+		if splinter then
+			table.insert(spawned, splinter)
+		else
+			allOk = false
+		end
+	end
+
+	if allOk then
+		for _, splinter in pairs(spawned) do
+			AzaramRunTrackMonster(splinter)
+		end
+		return
+	end
+
+	for _, splinter in pairs(spawned) do
+		splinter:remove()
+	end
+	logger.error("GraveDanger/LordAzaram: Tainted Soul Splinters failed to fully spawn (retries left: {})", retriesLeft)
+	if retriesLeft > 0 then
+		-- CORRECTION (lifecycle closure pass section G): tracked through AzaramRunTrackEvent, matching
+		-- every other bounded retry in this quest - this specific retry addEvent was previously raw
+		-- and untracked, so it could not be cancelled by a technical_abort/normal_timeout that fired
+		-- while it was still pending.
+		AzaramRunTrackEvent(token, addEvent(attemptTaintedSplinters, 1000, token, retriesLeft - 1))
+	else
+		AzaramRunTerminate(token, "technical_abort", "Tainted Soul Splinters failed to spawn after bounded retries")
+	end
+end
+
 local azaram_health = CreatureEvent("azaram_health")
 
 function azaram_health.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType)
+	if not creature or not AzaramRunOwnsMonster(creature) then
+		return primaryDamage, primaryType, secondaryDamage, secondaryType
+	end
+	local token = AzaramRunCurrentToken()
+
 	local players = Game.getSpectators(config.centerRoom, false, true, config.x, config.x, config.y, config.y)
 	for _, player in pairs(players) do
 		if player:isPlayer() then
 			if player:getStorageValue(config.timer) < os.time() then
 				player:setStorageValue(config.timer, os.time() + 20 * 3600)
+				-- CORRECTION (section O): remembers that THIS attempt wrote the legacy Timer lockout
+				-- for this player, so a later technical_abort knows it is safe to roll back.
+				AzaramRunMarkTimerWritten(token, player:getId())
 			end
 			if player:getStorageValue(config.room) < os.time() then
 				player:setStorageValue(config.room, os.time() + 30 * 60)
@@ -43,9 +96,6 @@ function azaram_health.onHealthChange(creature, attacker, primaryDamage, primary
 		end
 	end
 
-	if not creature then
-		return primaryDamage, primaryType, secondaryDamage, secondaryType
-	end
 	local health = creature:getMaxHealth() * 0.10
 	local damageStorage = creature:getStorageValue(1)
 	if damageStorage == -1 then
@@ -60,12 +110,12 @@ function azaram_health.onHealthChange(creature, attacker, primaryDamage, primary
 			creature:teleportTo(config.bossPos)
 		end
 		creature:setStorageValue(1, 0)
-		local soul = Creature("Azaram's Soul")
-		if soul then
+		-- CORRECTION (section F): resolved through the current run's own owned Soul id, never a bare
+		-- name lookup - a stale Soul instance from a finished attempt could otherwise be found here.
+		local soul = Creature(AzaramRun.soulId)
+		if soul and AzaramRunOwnsSoul(soul) then
 			soul:teleportTo(config.centerRoom)
-			for _, pos in pairs(config.tainted) do
-				Game.createMonster("Tainted Soul Splinter", pos, true, true)
-			end
+			attemptTaintedSplinters(token, 3)
 		end
 	end
 	return primaryDamage, primaryType, -secondaryDamage, secondaryType
@@ -76,7 +126,7 @@ azaram_health:register()
 local azaram_summon = CreatureEvent("azaram_summon")
 
 function azaram_summon.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType)
-	if not creature then
+	if not creature or not AzaramRunOwnsMonster(creature) then
 		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
 	local chance = math.random(1, 100)
@@ -87,14 +137,20 @@ function azaram_summon.onHealthChange(creature, attacker, primaryDamage, primary
 	local position = Position(math.random(config.fromPos.x, config.toPos.x), math.random(config.fromPos.y, config.toPos.y), config.fromPos.z)
 	local tile = Tile(position)
 	if tile and tile:isWalkable() then
+		local spawnPos = position
 		local topThing = tile:getTopCreature()
 		if topThing then
-			local newPosition = topThing:getClosestFreePosition(topThing:getPosition(), true)
-			if newPosition then
-				Game.createMonster("Condensed Sin", newPosition, false, true)
+			spawnPos = topThing:getClosestFreePosition(topThing:getPosition(), true) or position
+		end
+		-- Condensed Sin is a recurring flavour add (not a mandatory phase gate like the Tainted Soul
+		-- Splinters above) - a light bounded retry is enough; a miss here does not abort the fight.
+		for attempt = 1, 2 do
+			local sin = Game.createMonster("Condensed Sin", spawnPos, false, true)
+			if sin then
+				AzaramRunTrackMonster(sin)
+				break
 			end
-		else
-			Game.createMonster("Condensed Sin", position, false, true)
+			logger.error("GraveDanger/LordAzaram: failed to create Condensed Sin (attempt {}/2)", attempt)
 		end
 	end
 	return primaryDamage, primaryType, -secondaryDamage, secondaryType
@@ -105,6 +161,11 @@ azaram_summon:register()
 local soul_heal = CreatureEvent("soul_heal")
 
 function soul_heal.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType)
+	-- CORRECTION (section F): the Soul itself must belong to the current run - a stale Soul left over
+	-- from an already-terminated attempt can no longer progress that attempt's phase.
+	if not creature or not AzaramRunOwnsSoul(creature) then
+		return primaryDamage, primaryType, secondaryDamage, secondaryType
+	end
 	if not attacker or not attacker:isPlayer() then
 		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
@@ -121,8 +182,10 @@ function soul_heal.onHealthChange(creature, attacker, primaryDamage, primaryType
 				creature:teleportTo(config.soulPos)
 			end
 			removeTainted()
-			local boss = Creature("Lord Azaram")
-			if boss and config.centerRoom:isWalkable() then
+			-- CORRECTION (executor contract, section 9): ownership-checked - never teleports a stale/
+			-- unrelated "Lord Azaram" instance.
+			local boss = Creature(AzaramRun.bossId)
+			if boss and AzaramRunOwnsBoss(boss) and config.centerRoom:isWalkable() then
 				boss:teleportTo(config.centerRoom)
 			end
 		end
@@ -131,3 +194,8 @@ function soul_heal.onHealthChange(creature, attacker, primaryDamage, primaryType
 end
 
 soul_heal:register()
+
+-- CORRECTION (lifecycle closure pass section B): the standalone azaram_success onDeath handler that
+-- used to live here was removed - see the matching comment in creaturescripts_count_vlarkorth.lua for
+-- the full cross-CreatureEvent ordering race it closed. Success termination now happens inside
+-- creaturescripts_boss_kill.lua's grave_danger_death itself, via AzaramRun's own terminateFn entry.
