@@ -24,7 +24,10 @@ monster.events = {
 	-- "zelos_init" removed: it stamps the elapsed ritual time when the last WING lich-knight dies, and
 	-- is now registered on those four bosses (and their intermediate forms) instead. Registered here
 	-- it could only ever fire on King Zelos's own death - after the fight it was meant to scale.
-	"grave_danger_death",
+	-- "grave_danger_death" removed (executor contract, section 24): King Zelos's own completion credit
+	-- now needs run-participant + physical-presence verification, which the generic damage-map
+	-- handler in creaturescripts_boss_kill.lua cannot do - "zelos_success" replaces it.
+	"zelos_success",
 }
 
 monster.bosstiary = {
@@ -92,6 +95,9 @@ monster.attacks = {
 	{ name = "combat", type = COMBAT_LIFEDRAIN, interval = 2000, chance = 10, length = 8, spread = 0, minDamage = -600, maxDamage = -1600, effect = CONST_ME_SMALLCLOUDS },
 	{ name = "combat", type = COMBAT_DEATHDAMAGE, interval = 2000, chance = 30, radius = 6, minDamage = -1200, maxDamage = -1500, effect = CONST_ME_MORTAREA, target = false },
 	{ name = "combat", type = COMBAT_DEATHDAMAGE, interval = 2000, chance = 20, length = 8, minDamage = -1700, maxDamage = -2000, effect = CONST_ME_MORTAREA, target = false },
+	-- Greater Hex (executor contract, section 20): a functional interval/chance, since neither is
+	-- provable from the owner reference. CUSTOM_GLOBAL_LIKE_PENDING_EXACT_TIMING - not claimed Global-exact.
+	{ name = "king zelos greater hex", interval = 12000, chance = 20, range = 8 },
 }
 
 monster.defenses = {
@@ -111,6 +117,16 @@ monster.elements = {
 	{ type = COMBAT_ICEDAMAGE, percent = 0 },
 	{ type = COMBAT_HOLYDAMAGE, percent = 0 },
 	{ type = COMBAT_DEATHDAMAGE, percent = 0 },
+}
+
+-- CORRECTION (executor contract, section 19): Death damage should heal/absorb him rather than
+-- behave as ordinary neutral damage (monster.elements' COMBAT_DEATHDAMAGE percent=0 above only zeroes
+-- resistance, it cannot convert damage to healing). monster.heals is the repository-established
+-- mechanism for this (mtype:addHealing, data/scripts/lib/register_monster_type.lua) - percent = 100
+-- (full conversion) matches every other existing use of this field in the repository (e.g.
+-- monster/elementals/lava_lurker.lua, monster/quests/dangerous_depth/bosses/the_duke_of_the_depths.lua).
+monster.heals = {
+	{ type = COMBAT_DEATHDAMAGE, percent = 100 },
 }
 
 monster.immunities = {

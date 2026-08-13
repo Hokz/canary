@@ -10,9 +10,11 @@ local config = {
 	},
 	["scarlett etzel"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.ScarlettKilled,
+		cobraFinalBoss = true,
 	},
 	["earl osam"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.Bosses.EarlOsam.Killed,
+		lichLine = true,
 		extra = {
 			stor = Storage.Quest.U12_20.GraveDanger.Graves.Cormaya,
 			value = 1,
@@ -20,6 +22,7 @@ local config = {
 	},
 	["count vlarkorth"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.Bosses.CountVlarkorth.Killed,
+		lichLine = true,
 		extra = {
 			stor = Storage.Quest.U12_20.GraveDanger.Graves.Edron,
 			value = 1,
@@ -27,6 +30,7 @@ local config = {
 	},
 	["sir baeloc"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.Bosses.BaelocNictros.Killed,
+		lichLine = true,
 		extra = {
 			stor = Storage.Quest.U12_20.GraveDanger.Graves.Darashia,
 			value = 1,
@@ -34,6 +38,7 @@ local config = {
 	},
 	["duke krule"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.Bosses.DukeKrule.Killed,
+		lichLine = true,
 		extra = {
 			stor = Storage.Quest.U12_20.GraveDanger.Graves.Thais,
 			value = 1,
@@ -41,14 +46,17 @@ local config = {
 	},
 	["lord azaram"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.Bosses.LordAzaram.Killed,
+		lichLine = true,
 		extra = {
 			stor = Storage.Quest.U12_20.GraveDanger.Graves.Ghostlands,
 			value = 1,
 		},
 	},
-	["king zelos"] = {
-		stor = Storage.Quest.U12_20.GraveDanger.Bosses.KingZelos.Killed,
-	},
+	-- King Zelos is deliberately absent from this table (executor contract, section 24): credit for
+	-- him must belong only to the current King Zelos run's participants who are still physically
+	-- present at the legitimate kill, not to every entry in a generic damage map. That check needs
+	-- the run/token state built in creaturescripts_king_zelos.lua, so his completion storage is
+	-- granted there instead of through this generic handler.
 }
 
 local grave_danger_death = CreatureEvent("grave_danger_death")
@@ -63,7 +71,22 @@ function grave_danger_death.onDeath(creature, corpse, killer, mostDamageKiller)
 	local attackers = creature:getDamageMap()
 	for attackerId, _ in pairs(attackers) do
 		local player = Player(attackerId)
-		if player and player:getStorageValue(bossConfig.stor) < 1 then
+		-- CORRECTION (executor contract, section 4): a damage-map entry alone is not a legitimate
+		-- Lich-line participant. Require level >= 250, Premium, and the Lich line actually started
+		-- before granting any Lich-line boss/grave credit, so a low-level or non-quest bystander who
+		-- merely tags a boss with damage cannot earn progress. Cobra-line entries (gaffir/custodian/
+		-- quaid/scarlett) are unaffected - out of this section's scope.
+		local eligible = player ~= nil
+		if eligible and bossConfig.lichLine then
+			eligible = player:getLevel() >= 250 and player:isPremium() and player:getStorageValue(Storage.Quest.U12_20.GraveDanger.Questline) >= 1
+		end
+		-- CORRECTION (executor contract, section 34): Scarlett's completion/achievement/Cobra-line
+		-- credit belongs only to the current attempt's own participants - a bystander who tags her
+		-- with damage from outside the legitimate encounter roster earns nothing.
+		if eligible and bossConfig.cobraFinalBoss then
+			eligible = ScarlettRunIsParticipant(ScarlettRunCurrentToken(), attackerId)
+		end
+		if eligible and player:getStorageValue(bossConfig.stor) < 1 then
 			player:setStorageValue(bossConfig.stor, 1)
 
 			if creature:getName():lower() == "scarlett etzel" then
@@ -85,6 +108,13 @@ function grave_danger_death.onDeath(creature, corpse, killer, mostDamageKiller)
 				local graves = math.max(player:getStorageValue(Storage.Quest.U12_20.GraveDanger.Graves.Progress), 0)
 				player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Graves.Progress, graves + 1)
 			end
+		end
+	end
+
+	if bossConfig.cobraFinalBoss then
+		local token = ScarlettRunCurrentToken()
+		if token then
+			ScarlettRunTerminate(token, "success", "Scarlett Etzel defeated")
 		end
 	end
 

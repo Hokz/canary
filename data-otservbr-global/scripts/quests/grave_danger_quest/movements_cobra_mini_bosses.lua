@@ -7,6 +7,13 @@ function FireWall.onStepIn(creature, item, position, fromPosition)
 
 	if fromPosition.y == 32691 then
 		if creature:getStorageValue(Storage.Quest.U12_20.GraveDanger.FireWall) >= 1 then
+			-- CORRECTION (executor contract, section 27): one-use per crossing, not a permanent
+			-- authorization. Consuming the flag here means the next outward crossing needs a fresh
+			-- pass through the x==33385 gate below - which CustodianKilled (a permanent flag) always
+			-- allows, but only grants ONE further outward crossing at a time, matching "if the player
+			-- returns behind the barrier, they must again qualify (re-cross the gate) before crossing
+			-- outward again" rather than an infinite FireWall=1 authorization.
+			creature:setStorageValue(Storage.Quest.U12_20.GraveDanger.FireWall, 0)
 			creature:teleportTo(Position(position.x, position.y + 2, position.z))
 		else
 			creature:teleportTo(fromPosition)

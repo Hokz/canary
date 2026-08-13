@@ -27,6 +27,8 @@ monster.events = {
 	-- Graves.Darashia). See the matching comment on lord_azaram.lua - together these two omissions
 	-- capped Graves.Progress at 10 and made the quest uncompletable.
 	"grave_danger_death",
+	-- Deactivates NictrosBaelocRun once both brothers are confirmed dead (executor contract, section 12).
+	"nictros_baeloc_success",
 }
 
 monster.changeTarget = {

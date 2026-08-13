@@ -16,59 +16,111 @@ local config = {
 	},
 }
 
-local function moveSphere()
+-- CORRECTION (executor contract, section 10): "Sphere movement callbacks must be attempt-owned."
+-- Earl Osam's own storage(4) is a monotonic "generation" counter, bumped once per initMech() call.
+-- Each Magical Sphere is tagged with the generation that spawned it (storage(1)). moveSphere's
+-- recurring addEvent chain and sphere_death's count-decrement both verify their generation still
+-- matches the boss's CURRENT one before acting - a late callback from a superseded phase can no
+-- longer move/heal-check for, or decrement the count of, a newer phase's spheres.
+local function moveSphere(generation)
+	local boss = Creature("Earl Osam")
+	if not boss or boss:getStorageValue(4) ~= generation or boss:getStorageValue(3) <= 0 then
+		return true
+	end
+
 	local spectators = Game.getSpectators(config.centerRoom, false, false, config.x, config.x, config.y, config.y)
 	local nextPos = nil
-	local boss = Creature("Earl Osam")
 
-	if boss and boss:getStorageValue(3) > 0 then
-		for _, spheres in pairs(spectators) do
-			if spheres:isMonster() and spheres:getName():lower() == "magical sphere" then
-				local pos = spheres:getPosition()
+	for _, spheres in pairs(spectators) do
+		if spheres:isMonster() and spheres:getName():lower() == "magical sphere" then
+			local pos = spheres:getPosition()
 
-				if pos.y == 31438 then
-					if pos.x > 33488 then
-						nextPos = Position(pos.x - 1, pos.y, pos.z)
-					elseif pos.x < 33488 then
-						nextPos = Position(pos.x + 1, pos.y, pos.z)
-					end
-				elseif pos.x == 33488 then
-					if pos.y > 31438 then
-						nextPos = Position(pos.x, pos.y - 1, pos.z)
-					elseif pos.y < 31438 then
-						nextPos = Position(pos.x, pos.y + 1, pos.z)
-					end
+			if pos.y == 31438 then
+				if pos.x > 33488 then
+					nextPos = Position(pos.x - 1, pos.y, pos.z)
+				elseif pos.x < 33488 then
+					nextPos = Position(pos.x + 1, pos.y, pos.z)
 				end
+			elseif pos.x == 33488 then
+				if pos.y > 31438 then
+					nextPos = Position(pos.x, pos.y - 1, pos.z)
+				elseif pos.y < 31438 then
+					nextPos = Position(pos.x, pos.y + 1, pos.z)
+				end
+			end
 
-				if nextPos then
-					local nextTile = Tile(nextPos)
-					if nextTile then
-						local nextCreature = nextTile:getTopCreature()
-						if nextCreature then
-							if nextPos == config.centerRoom and nextCreature:getName():lower() == "earl osam" then
-								spheres:remove()
-								nextCreature:addHealth(80000)
-								nextCreature:setStorageValue(3, nextCreature:getStorageValue(3) - 1)
-								if nextCreature:isMoveLocked() then
-									nextCreature:setMoveLocked(false)
-								end
-							else
-								spheres:remove()
+			if nextPos then
+				local nextTile = Tile(nextPos)
+				if nextTile then
+					local nextCreature = nextTile:getTopCreature()
+					if nextCreature then
+						if nextPos == config.centerRoom and nextCreature:getName():lower() == "earl osam" then
+							spheres:remove()
+							nextCreature:addHealth(80000)
+							nextCreature:setStorageValue(3, nextCreature:getStorageValue(3) - 1)
+							if nextCreature:isMoveLocked() then
+								nextCreature:setMoveLocked(false)
 							end
 						else
-							spheres:teleportTo(nextPos)
+							spheres:remove()
 						end
+					else
+						spheres:teleportTo(nextPos)
 					end
 				end
 			end
 		end
+	end
 
-		if boss:getHealth() > 0 then
-			addEvent(moveSphere, 4 * 1000)
-		end
+	if boss:getHealth() > 0 and boss:getStorageValue(4) == generation then
+		addEvent(moveSphere, 4 * 1000, generation)
 	end
 
 	return true
+end
+
+-- CORRECTION (executor contract, section 10): the four Magical Spheres are one mandatory phase
+-- generation - verified with bounded retry, never silently accepting a partial 1/2/3. If recovery is
+-- exhausted, the boss's move-lock is released rather than leaving him permanently immobile with no
+-- spheres left in the world able to unlock him.
+local function attemptSpheres(generation, retriesLeft)
+	retriesLeft = retriesLeft or 3
+	local boss = Creature("Earl Osam")
+	if not boss or boss:getStorageValue(4) ~= generation then
+		return
+	end
+
+	local spheres = {}
+	local allOk = true
+	for _, sphereSpot in pairs(config.spheres) do
+		local sphere = Game.createMonster("Magical Sphere", sphereSpot, false, true)
+		if sphere then
+			sphere:setStorageValue(1, generation)
+			table.insert(spheres, sphere)
+		else
+			allOk = false
+		end
+	end
+
+	if allOk then
+		boss:setStorageValue(3, #spheres)
+		addEvent(moveSphere, 4 * 1000, generation)
+		return
+	end
+
+	for _, sphere in pairs(spheres) do
+		sphere:remove()
+	end
+	logger.error("GraveDanger/EarlOsam: Magical Spheres failed to fully spawn (retries left: {})", retriesLeft)
+	if retriesLeft > 0 then
+		addEvent(attemptSpheres, 1000, generation, retriesLeft - 1)
+	else
+		boss:setStorageValue(3, 0)
+		if boss:isMoveLocked() then
+			boss:setMoveLocked(false)
+		end
+		logger.error("GraveDanger/EarlOsam: technical abort - Magical Spheres failed to spawn after bounded retries, releasing move-lock")
+	end
 end
 
 local function initMech()
@@ -82,14 +134,14 @@ local function initMech()
 		boss:teleportTo(config.centerRoom)
 		boss:setMoveLocked(true)
 
-		for _, sphereSpot in pairs(config.spheres) do
-			local sphere = Game.createMonster("Magical Sphere", sphereSpot, false, true)
-			if sphere then
-				boss:setStorageValue(3, math.max(0, boss:getStorageValue(3)) + 1)
-			end
+		local generation = boss:getStorageValue(4)
+		if generation < 0 then
+			generation = 0
 		end
+		generation = generation + 1
+		boss:setStorageValue(4, generation)
 
-		addEvent(moveSphere, 4 * 1000)
+		attemptSpheres(generation, 3)
 	end
 
 	return true
@@ -150,12 +202,18 @@ local sphere_death = CreatureEvent("sphere_death")
 
 function sphere_death.onDeath(creature)
 	local boss = Creature("Earl Osam")
-	if boss then
-		local currentSphereCount = boss:getStorageValue(3)
-		boss:setStorageValue(3, math.max(0, currentSphereCount - 1))
-		if boss:getStorageValue(3) <= 0 and boss:isMoveLocked() then
-			boss:setMoveLocked(false)
-		end
+	if not boss then
+		return true
+	end
+	-- A sphere from a superseded generation dying late must not decrement the CURRENT generation's
+	-- count (see the comment on moveSphere/attemptSpheres above).
+	if creature:getStorageValue(1) ~= boss:getStorageValue(4) then
+		return true
+	end
+	local currentSphereCount = boss:getStorageValue(3)
+	boss:setStorageValue(3, math.max(0, currentSphereCount - 1))
+	if boss:getStorageValue(3) <= 0 and boss:isMoveLocked() then
+		boss:setMoveLocked(false)
 	end
 	return true
 end

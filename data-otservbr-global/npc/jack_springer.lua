@@ -104,8 +104,12 @@ local function creatureSayCallback(npc, creature, type, message)
 		return false
 	end
 
+	-- CORRECTION (executor contract, section 4): ScarlettKilled removed from this list. It belongs
+	-- to the independent "Order of the Cobra" line (Cobra does not require the Lich line to be
+	-- started, so a player can legitimately kill Scarlett before ever greeting Jack Springer here) -
+	-- wiping it alongside the Lich-line storages below was destructive cross-contamination of an
+	-- unrelated, already-earned quest line.
 	local storages = {
-		Storage.Quest.U12_20.GraveDanger.ScarlettKilled,
 		Storage.Quest.U12_20.GraveDanger.Graves.Progress,
 		Storage.Quest.U12_20.GraveDanger.Graves.Edron,
 		Storage.Quest.U12_20.GraveDanger.Graves.DarkCathedral,
@@ -138,8 +142,14 @@ local function creatureSayCallback(npc, creature, type, message)
 				"While you travel and fight the threat where it arises, we will put all our resources into researching the ultimate plans of the legion. Perhaps I can tell you more when you {report} back. ...",
 				"Don't forget that you'll need very potent holy water for your task. If you need some, just ask me for a {trade}.",
 			}, npc, creature)
+			-- CORRECTION (executor contract, section 4): only normalize a storage that is genuinely
+			-- unset (-1). A Lich-line boss/grave storage can already be legitimately positive here
+			-- (e.g. a player who walked into a grave room and earned credit before ever greeting Jack
+			-- Springer) - blindly overwriting every entry to 0 destroyed that already-earned progress.
 			for _, stor in pairs(storages) do
-				player:setStorageValue(stor, 0)
+				if player:getStorageValue(stor) < 0 then
+					player:setStorageValue(stor, 0)
+				end
 			end
 			player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Stage, 0)
 			player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Questline, 1)

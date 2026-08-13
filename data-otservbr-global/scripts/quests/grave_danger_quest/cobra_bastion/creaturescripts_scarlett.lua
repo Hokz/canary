@@ -46,7 +46,13 @@ local function isMirrorsCorrect(fromPosition, toPosition)
 	return false
 end
 
-local eventDoDamage = function(creatureid, attackerid, type)
+-- CORRECTION (executor contract, section 34): every delayed callback below verifies the current
+-- Scarlett attempt token before acting, so a stale chain from an already-finished/aborted attempt
+-- can never mutate a newer one.
+local eventDoDamage = function(creatureid, attackerid, type, token)
+	if not ScarlettRunIsCurrent(token) then
+		return
+	end
 	local creature = Creature(creatureid)
 	local attacker = Creature(attackerid)
 	if not creature or not attacker then
@@ -62,13 +68,22 @@ local eventDoDamage = function(creatureid, attackerid, type)
 	creature:setMoveLocked(false)
 end
 
-local eventRemoveFreeze = function(creatureid, evented)
+local eventRemoveFreeze = function(creatureid, evented, token)
+	if not ScarlettRunIsCurrent(token) then
+		return
+	end
 	local creature = Creature(creatureid)
 	if not creature then
 		return
 	end
 
 	if creature:isMoveLocked() then
+		-- CORRECTION (executor contract, section 33): if nobody lands the legitimate hit during the
+		-- window, the source still fires the explosion ("...after 8 seconds of immobilization OR at
+		-- the moment a player lands an attack") before returning her to normal - previously this path
+		-- silently unlocked her with no explosion/reset behavior at all.
+		creature:say("AHHHHHHHHHHH!", TALKTYPE_MONSTER_SAY)
+		combat:execute(creature, Variant(creature:getPosition()))
 		creature:setMoveLocked(false)
 		if evented then
 			SCARLETT_MAY_DIE = 0
@@ -76,7 +91,10 @@ local eventRemoveFreeze = function(creatureid, evented)
 	end
 end
 
-local function changeScarlett(creatureid)
+local function changeScarlett(creatureid, token)
+	if not ScarlettRunIsCurrent(token) then
+		return
+	end
 	local creature = Creature(creatureid)
 	if not creature then
 		return
@@ -86,12 +104,18 @@ local function changeScarlett(creatureid)
 	SCARLETT_MAY_DIE = 1
 	SCARLETT_MAY_TRANSFORM = 0
 	creature:setMoveLocked(true)
-	addEvent(eventRemoveFreeze, 4 * 1000, creature:getId(), true)
+	-- CORRECTION (executor contract, section 33): vulnerability window corrected from 4 to 8 seconds.
+	addEvent(eventRemoveFreeze, 8 * 1000, creature:getId(), true, token)
 end
 
 local scarlettThink = CreatureEvent("scarlettThink")
 function scarlettThink.onThink(creature)
 	if not creature:isMonster() then
+		return true
+	end
+
+	local token = ScarlettRunCurrentToken()
+	if not token then
 		return true
 	end
 
@@ -103,7 +127,7 @@ function scarlettThink.onThink(creature)
 	for _, p in pairs(rooms) do
 		if creature:getPosition():isInRange(p.fromPos, p.toPos) then
 			if isMirrorsCorrect(p.fromPos, p.toPos) then
-				addEvent(changeScarlett, 50, creature:getId())
+				addEvent(changeScarlett, 50, creature:getId(), token)
 				return true
 			end
 		end
@@ -123,11 +147,21 @@ function scarlettHealth.onHealthChange(creature, attacker, primaryDamage, primar
 		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
 
-	if not creature:isMoveLocked() then
-		return primaryDamage * 0.01, primaryType, secondaryDamage * 0.01, secondaryType
+	local token = ScarlettRunCurrentToken()
+	if not token then
+		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
 
-	addEvent(eventDoDamage, 200, creature:getId(), attacker:getId(), primaryType)
+	if not creature:isMoveLocked() then
+		-- CORRECTION (executor contract, section 33): Scarlett is genuinely invulnerable in her
+		-- normal state, not merely reduced to 1% damage - attacks against her while invulnerable now
+		-- actually heal her by 5000, matching the accepted mechanic, instead of a fake near-full-damage
+		-- passthrough.
+		creature:addHealth(5000)
+		return 0, primaryType, 0, secondaryType
+	end
+
+	addEvent(eventDoDamage, 200, creature:getId(), attacker:getId(), primaryType, token)
 	SCARLETT_MAY_DIE = 0
 	return primaryDamage, primaryType, secondaryDamage, secondaryType
 end

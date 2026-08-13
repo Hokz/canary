@@ -16,6 +16,8 @@ monster.outfit = {
 monster.events = {
 	"count_vlarkorth_transform",
 	"grave_danger_death",
+	-- Releases VlarkorthRun's own bookkeeping on a legitimate kill (executor contract, section 8).
+	"count_vlarkorth_success",
 }
 
 monster.health = 75000

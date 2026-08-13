@@ -40,6 +40,11 @@ local quest = {
 
 					return string.format("Prevent the raising of twelve lich knights. Sanctify the graves yet untouched and destroy any lich knights that might have been raised. Graves explored: %d/12", cleansed)
 				end,
+				-- ADDED (executor contract, section 35): "King Zelos unlock" was not exposed anywhere -
+				-- once all twelve graves are secured (Questline reaches 2, the same moment Jack Springer
+				-- sends the player to the Isle of Kings), the mission previously showed nothing here.
+				-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_REFERENCE - functional text, not claimed Global-exact.
+				[2] = "All twelve graves have been secured. The Shiron'Fal's ritual to raise king Zelos must now be stopped - travel to the isle of the kings.",
 			},
 		},
 		[2] = {
@@ -162,7 +167,66 @@ local quest = {
 				[1] = "The grave on the southern ice islands was visited.",
 			},
 		},
+		-- ADDED (executor contract, section 35): King Zelos completion was not exposed anywhere in the
+		-- questlog before this pass.
 		[14] = {
+			name = "13 King Zelos",
+			storageId = Storage.Quest.U12_20.GraveDanger.Bosses.KingZelos.Killed,
+			missionId = 10451,
+			startValue = 1,
+			endValue = 1,
+			states = {
+				[1] = "You defeated king Zelos and put an end to the Shiron'Fal's ritual.",
+			},
+		},
+		-- ADDED (executor contract, section 35): "The Order of the Cobra" line previously collapsed
+		-- its entire progression into one flat completion flag with no visibility into Gaffir/
+		-- Custodian/Quaid/Scarlett individually. Cart Packed With Gold progress and the chess/Roaring
+		-- Lion puzzle are deliberately NOT given entries here - both are confirmed absent from the
+		-- repository (no escort mechanic, no chess puzzle implementation exists anywhere) and no
+		-- storage tracks them; adding a mission entry for a storage nothing can ever set would expose
+		-- progress gameplay cannot legitimately earn. See the PR's Manual RME Manifest.
+		[15] = {
+			name = "14 Gaffir",
+			storageId = Storage.Quest.U12_20.GraveDanger.GaffirKilled,
+			missionId = 10452,
+			startValue = 1,
+			endValue = 1,
+			states = {
+				[1] = "You defeated Gaffir.",
+			},
+		},
+		[16] = {
+			name = "15 The Custodian",
+			storageId = Storage.Quest.U12_20.GraveDanger.CustodianKilled,
+			missionId = 10453,
+			startValue = 1,
+			endValue = 1,
+			states = {
+				[1] = "You defeated the Custodian.",
+			},
+		},
+		[17] = {
+			name = "16 Guard Captain Quaid",
+			storageId = Storage.Quest.U12_20.GraveDanger.QuaidKilled,
+			missionId = 10454,
+			startValue = 1,
+			endValue = 1,
+			states = {
+				[1] = "You defeated Guard Captain Quaid.",
+			},
+		},
+		[18] = {
+			name = "17 Scarlett Etzel",
+			storageId = Storage.Quest.U12_20.GraveDanger.ScarlettKilled,
+			missionId = 10455,
+			startValue = 1,
+			endValue = 1,
+			states = {
+				[1] = "You struck down Scarlett Etzel.",
+			},
+		},
+		[19] = {
 			name = "The Order of the Cobra",
 			storageId = Storage.Quest.U12_20.GraveDanger.Cobra,
 			missionId = 10450,

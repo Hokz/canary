@@ -15,6 +15,8 @@ monster.outfit = {
 
 monster.events = {
 	"grave_danger_death",
+	-- Releases DukeKruleRun's transform/event state on a legitimate kill (executor contract, section 13).
+	"duke_krule_success",
 }
 
 monster.health = 75000

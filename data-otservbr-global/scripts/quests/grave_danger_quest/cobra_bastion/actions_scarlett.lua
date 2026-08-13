@@ -9,15 +9,111 @@ local function createArmor(id, amount, pos)
 	end
 end
 
+-- ================================================================
+-- SCARLETT RUN OWNERSHIP (executor contract, sections 31/34)
+-- ================================================================
+ScarlettRun = {
+	token = 0,
+	active = false,
+	participants = {}, -- set: playerId -> true
+}
+
+function ScarlettRunIsCurrent(token)
+	return token ~= nil and token > 0 and ScarlettRun.active and ScarlettRun.token == token
+end
+
+function ScarlettRunCurrentToken()
+	if ScarlettRun.active then
+		return ScarlettRun.token
+	end
+	return nil
+end
+
+function ScarlettRunIsParticipant(token, playerId)
+	return ScarlettRunIsCurrent(token) and ScarlettRun.participants[playerId] == true
+end
+
+function ScarlettRunTerminate(token, kind, reason)
+	if not ScarlettRunIsCurrent(token) then
+		return
+	end
+	logger.info("GraveDanger/Scarlett: run {} terminated ({}) - {}", token, kind, reason or "")
+	ScarlettRun.active = false
+	ScarlettRun.participants = {}
+end
+
+-- Snapshot of the most recent onUseExtra call's infoPositions, consumed synchronously by
+-- createFunction below in the same synchronous BossLever:onUse() call.
+local lastInfoPositions = nil
+
+-- CORRECTION (executor contract, section 31): every room occupant is now independently verified
+-- (level/Premium/Gaffir/Custodian/Quaid), not just whichever single player had earlier interacted
+-- with the pillar item at aid 40003. Chess/Roaring Lion completion is deliberately NOT checked here:
+-- confirmed absent from the repository (no chess puzzle implementation exists anywhere - see the PR's
+-- Manual RME Manifest) - gating on a storage nothing can ever set would permanently brick this boss,
+-- which is worse than the pre-existing gap. This is a known, documented limitation, not a silent bypass.
+local function validateParticipant(creature)
+	if not creature or not creature:isPlayer() then
+		return true
+	end
+	if creature:getLevel() < 250 then
+		creature:sendTextMessage(MESSAGE_EVENT_ADVANCE, "All players need to be level 250 or higher.")
+		return false
+	end
+	if not creature:isPremium() then
+		creature:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need a premium account to face Scarlett.")
+		return false
+	end
+	if creature:getStorageValue(Storage.Quest.U12_20.GraveDanger.GaffirKilled) < 1 or creature:getStorageValue(Storage.Quest.U12_20.GraveDanger.CustodianKilled) < 1 or creature:getStorageValue(Storage.Quest.U12_20.GraveDanger.QuaidKilled) < 1 then
+		creature:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You are not allowed to face Scarlett yet.")
+		return false
+	end
+	return true
+end
+
+local function createScarlettEncounter()
+	if ScarlettRun.active then
+		logger.error("GraveDanger/Scarlett: a run is already active, refusing a second concurrent start")
+		return false
+	end
+
+	local scarlett = nil
+	for attempt = 1, 3 do
+		scarlett = Game.createMonster("Scarlett Etzel", Position(33396, 32643, 6), true, true)
+		if scarlett then
+			break
+		end
+		logger.error("GraveDanger/Scarlett: failed to create Scarlett Etzel (attempt {}/3)", attempt)
+	end
+	if not scarlett then
+		logger.error("GraveDanger/Scarlett: technical abort - Scarlett Etzel failed to spawn")
+		return false
+	end
+
+	scarlett:setStorageValue(Storage.Quest.U12_20.GraveDanger.CobraBastion.Questline, 1)
+
+	ScarlettRun.token = ScarlettRun.token + 1
+	ScarlettRun.active = true
+	ScarlettRun.participants = {}
+	if lastInfoPositions then
+		for _, posInfo in pairs(lastInfoPositions) do
+			local player = posInfo.creature
+			if player and player:isPlayer() then
+				ScarlettRun.participants[player:getId()] = true
+			end
+		end
+	end
+
+	SCARLETT_MAY_TRANSFORM = 0
+	return true
+end
+
 local config = {
 	boss = {
 		name = "Scarlett Etzel",
-		createFunction = function()
-			local scarlett = Game.createMonster("Scarlett Etzel", Position(33396, 32643, 6), true, true)
-			scarlett:setStorageValue(Storage.Quest.U12_20.GraveDanger.CobraBastion.Questline, 1)
-			return scarlett
-		end,
+		createFunction = createScarlettEncounter,
 	},
+	requiredLevel = 250,
 	playerPositions = {
 		{ pos = Position(33395, 32661, 6), teleport = Position(33396, 32651, 6) },
 		{ pos = Position(33394, 32662, 6), teleport = Position(33396, 32651, 6) },
@@ -29,8 +125,9 @@ local config = {
 		from = Position(33385, 32638, 6),
 		to = Position(33406, 32660, 6),
 	},
-	onUseExtra = function()
-		SCARLETT_MAY_TRANSFORM = 0
+	onUseExtra = function(creature, infoPositions)
+		lastInfoPositions = infoPositions
+		return validateParticipant(creature)
 	end,
 	exit = Position(33395, 32665, 6),
 }

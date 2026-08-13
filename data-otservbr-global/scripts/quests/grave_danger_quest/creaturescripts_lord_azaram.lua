@@ -28,9 +28,52 @@ local function removeTainted()
 	return true
 end
 
+-- CORRECTION (executor contract, section 9): the four Tainted Soul Splinters are a mandatory phase
+-- entity - verified with bounded retry, and a technical abort (rather than silently continuing with
+-- a partially-created phase) if recovery is exhausted.
+local function attemptTaintedSplinters(token, retriesLeft)
+	retriesLeft = retriesLeft or 3
+	if not AzaramRunIsCurrent(token) then
+		return
+	end
+
+	local spawned = {}
+	local allOk = true
+	for _, pos in pairs(config.tainted) do
+		local splinter = Game.createMonster("Tainted Soul Splinter", pos, true, true)
+		if splinter then
+			table.insert(spawned, splinter)
+		else
+			allOk = false
+		end
+	end
+
+	if allOk then
+		for _, splinter in pairs(spawned) do
+			AzaramRunTrackMonster(splinter)
+		end
+		return
+	end
+
+	for _, splinter in pairs(spawned) do
+		splinter:remove()
+	end
+	logger.error("GraveDanger/LordAzaram: Tainted Soul Splinters failed to fully spawn (retries left: {})", retriesLeft)
+	if retriesLeft > 0 then
+		addEvent(attemptTaintedSplinters, 1000, token, retriesLeft - 1)
+	else
+		AzaramRunTerminate(token, "technical_abort", "Tainted Soul Splinters failed to spawn after bounded retries")
+	end
+end
+
 local azaram_health = CreatureEvent("azaram_health")
 
 function azaram_health.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType)
+	if not creature or not AzaramRunOwnsMonster(creature) then
+		return primaryDamage, primaryType, secondaryDamage, secondaryType
+	end
+	local token = AzaramRunCurrentToken()
+
 	local players = Game.getSpectators(config.centerRoom, false, true, config.x, config.x, config.y, config.y)
 	for _, player in pairs(players) do
 		if player:isPlayer() then
@@ -43,9 +86,6 @@ function azaram_health.onHealthChange(creature, attacker, primaryDamage, primary
 		end
 	end
 
-	if not creature then
-		return primaryDamage, primaryType, secondaryDamage, secondaryType
-	end
 	local health = creature:getMaxHealth() * 0.10
 	local damageStorage = creature:getStorageValue(1)
 	if damageStorage == -1 then
@@ -63,9 +103,7 @@ function azaram_health.onHealthChange(creature, attacker, primaryDamage, primary
 		local soul = Creature("Azaram's Soul")
 		if soul then
 			soul:teleportTo(config.centerRoom)
-			for _, pos in pairs(config.tainted) do
-				Game.createMonster("Tainted Soul Splinter", pos, true, true)
-			end
+			attemptTaintedSplinters(token, 3)
 		end
 	end
 	return primaryDamage, primaryType, -secondaryDamage, secondaryType
@@ -76,7 +114,7 @@ azaram_health:register()
 local azaram_summon = CreatureEvent("azaram_summon")
 
 function azaram_summon.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType)
-	if not creature then
+	if not creature or not AzaramRunOwnsMonster(creature) then
 		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
 	local chance = math.random(1, 100)
@@ -87,14 +125,20 @@ function azaram_summon.onHealthChange(creature, attacker, primaryDamage, primary
 	local position = Position(math.random(config.fromPos.x, config.toPos.x), math.random(config.fromPos.y, config.toPos.y), config.fromPos.z)
 	local tile = Tile(position)
 	if tile and tile:isWalkable() then
+		local spawnPos = position
 		local topThing = tile:getTopCreature()
 		if topThing then
-			local newPosition = topThing:getClosestFreePosition(topThing:getPosition(), true)
-			if newPosition then
-				Game.createMonster("Condensed Sin", newPosition, false, true)
+			spawnPos = topThing:getClosestFreePosition(topThing:getPosition(), true) or position
+		end
+		-- Condensed Sin is a recurring flavour add (not a mandatory phase gate like the Tainted Soul
+		-- Splinters above) - a light bounded retry is enough; a miss here does not abort the fight.
+		for attempt = 1, 2 do
+			local sin = Game.createMonster("Condensed Sin", spawnPos, false, true)
+			if sin then
+				AzaramRunTrackMonster(sin)
+				break
 			end
-		else
-			Game.createMonster("Condensed Sin", position, false, true)
+			logger.error("GraveDanger/LordAzaram: failed to create Condensed Sin (attempt {}/2)", attempt)
 		end
 	end
 	return primaryDamage, primaryType, -secondaryDamage, secondaryType
@@ -121,8 +165,10 @@ function soul_heal.onHealthChange(creature, attacker, primaryDamage, primaryType
 				creature:teleportTo(config.soulPos)
 			end
 			removeTainted()
+			-- CORRECTION (executor contract, section 9): ownership-checked - never teleports a stale/
+			-- unrelated "Lord Azaram" instance.
 			local boss = Creature("Lord Azaram")
-			if boss and config.centerRoom:isWalkable() then
+			if boss and AzaramRunOwnsMonster(boss) and config.centerRoom:isWalkable() then
 				boss:teleportTo(config.centerRoom)
 			end
 		end

@@ -14,7 +14,10 @@ function dark_remains.onUse(player, item, fromPosition, target, toPosition, isHo
 		return false
 	end
 
-	if target:getName():lower() == "count vlarkorth" then
+	-- CORRECTION (executor contract, section 8): ownership-scoped instead of a bare name lookup - a
+	-- remains item can only weaken the shield of the CURRENT run's own Count Vlarkorth, never a stale
+	-- reference or an unrelated instance sharing the same name.
+	if target:isMonster() and target:getName():lower() == "count vlarkorth" and VlarkorthRunOwnsMonster(target) then
 		item:remove(1)
 		target:setStorageValue(3, target:getStorageValue(3) - 1)
 		target:say("The magic shield of protection is weakened!")
