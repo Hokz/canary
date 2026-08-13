@@ -15,10 +15,10 @@ monster.outfit = {
 
 monster.events = {
 	"earl_osam_transform",
+	-- CORRECTION (lifecycle closure pass section B): grave_danger_death now also handles this boss's
+	-- custom-run success termination directly (see creaturescripts_boss_kill.lua) - the separate
+	-- "earl_osam_success" handler that used to live here was removed.
 	"grave_danger_death",
-	-- CORRECTION (correction pass section G): releases EarlOsamRun's own bookkeeping on a legitimate
-	-- kill - previously no run object existed at all, so nothing terminated a successful attempt.
-	"earl_osam_success",
 	-- CORRECTION (correction pass section N): Earl Osam moved from the generic self.bossPosition
 	-- creation path to config.boss.createFunction (see actions_earl_osam.lua) - registering this here
 	-- keeps the framework's own post-victory grace-period/cleanup it previously already had for free

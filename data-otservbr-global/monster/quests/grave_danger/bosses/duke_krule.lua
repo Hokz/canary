@@ -14,9 +14,11 @@ monster.outfit = {
 }
 
 monster.events = {
+	-- CORRECTION (lifecycle closure pass section B): grave_danger_death now also handles this boss's
+	-- custom-run success termination directly (see creaturescripts_boss_kill.lua) - the separate
+	-- "duke_krule_success" handler/file (creaturescripts_duke_krule_success.lua) that used to live
+	-- alongside this one was removed entirely.
 	"grave_danger_death",
-	-- Releases DukeKruleRun's transform/event state on a legitimate kill (executor contract, section 13).
-	"duke_krule_success",
 	-- CORRECTION (correction pass section N): restores BossLever's own post-victory grace-period/
 	-- cleanup, which createFunction-created bosses never received (see count_vlarkorth.lua for the
 	-- full rationale).

@@ -18,6 +18,12 @@ KingZelosRun = {
 	nargolMassId = nil, -- exact Regenerating Mass this run owns (correction pass section J3)
 	magnorShardIds = {}, -- set: creatureId -> true, exact Shards Of Magnor this run owns (section J4)
 	rewarFetterIds = {}, -- set: creatureId -> true, exact Fetters this run owns (section J5)
+	-- CORRECTION (lifecycle closure pass section F): the exact Rewar creature id this run owns, set
+	-- once at wing creation and never re-derived by name. Survives Rewar's own setType transformation
+	-- between "Rewar The Bloody" and "Rewar The Bloody Inv" (setType changes the monster type in place,
+	-- the underlying creature instance/id is unchanged), so fetter_death/attemptFetters no longer need
+	-- to guess which of the two names currently applies.
+	rewarId = nil,
 }
 
 local EXIT_POSITION = Position(32172, 31918, 8)
@@ -141,6 +147,14 @@ function KingZelosRunClearRewarFetter(creatureId)
 	KingZelosRun.rewarFetterIds[creatureId] = nil
 end
 
+-- CORRECTION (lifecycle closure pass section F): the exact-id equivalent of KingZelosRunOwnsMonster,
+-- specific to Rewar - used instead of a name-based `Creature("Rewar The Bloody Inv") or Creature("Rewar
+-- The Bloody")` lookup, which had to guess which of his two names currently applies and had no
+-- ownership check of its own before this correction.
+function KingZelosRunOwnsRewar(creature)
+	return creature ~= nil and KingZelosRun.active and KingZelosRun.rewarId == creature:getId()
+end
+
 -- Single terminal lifecycle path (mirrors the HOD HODFinalRunTerminate pattern accepted in the
 -- Heart of Destruction repair). kind is one of "technical_abort", "normal_timeout", "success".
 -- skipMonsterId (optional) is the boss id whose own death triggered a "success" termination - it is
@@ -172,7 +186,7 @@ function KingZelosRunTerminate(token, kind, reason, skipMonsterId)
 
 	-- Only a technical abort refunds the server-caused cooldown; a normal timeout is a legitimate
 	-- loss and its cooldown is preserved. Both non-success paths eject the run's own participants to
-	-- the established exit (correction pass section J1) and close BossLever's own internal state.
+	-- the established exit (correction pass section J1).
 	if kind ~= "success" then
 		for playerId in pairs(KingZelosRun.participants) do
 			local player = Player(playerId)
@@ -180,7 +194,6 @@ function KingZelosRunTerminate(token, kind, reason, skipMonsterId)
 				if kind == "technical_abort" then
 					player:setBossCooldown("king zelos", 0)
 				end
-				player:teleportTo(EXIT_POSITION)
 			end
 		end
 	end
@@ -188,7 +201,9 @@ function KingZelosRunTerminate(token, kind, reason, skipMonsterId)
 	-- CORRECTION (correction pass section J2): a legitimate boss death does not need King Zelos's own
 	-- corpse force-removed (skipMonsterId), but every OTHER still-alive run-owned temporary entity -
 	-- Risen Soldiers, an Unleashed Hex, wing leftovers/adds - must not be left behind for the next run
-	-- regardless of whether this termination was a success or not.
+	-- regardless of whether this termination was a success or not. This sweep is intentionally NOT
+	-- gated on kind - lifecycle closure pass section A allows success to remove run-owned temporary
+	-- adds, it only forbids success from touching BossLever's own internal zone/room state below.
 	for monsterId in pairs(KingZelosRun.monsters) do
 		if monsterId ~= skipMonsterId then
 			local monster = Creature(monsterId)
@@ -198,27 +213,37 @@ function KingZelosRunTerminate(token, kind, reason, skipMonsterId)
 		end
 	end
 
-	-- CORRECTION (correction pass section J1/N): closes out BossLever's own internal state via a
-	-- local reference (not a change to the shared framework file) so a technical_abort/timeout that
-	-- never reaches a natural boss death cannot leave bossAlive/timeoutEvent/emptyRoomEvent stuck as
-	-- if the fight were still in progress. On a legitimate success this is a no-op in practice - King
-	-- Zelos's own "BossLeverOnDeath" registration (monster.events) already closes this same state via
-	-- the generic framework path moments before this function runs - but is harmless to repeat since
-	-- both branches guard on bossAlive already being true.
-	local bossLever = BossLever["king zelos"]
-	if bossLever and bossLever.bossAlive then
-		bossLever.bossAlive = false
-		if bossLever.emptyRoomEvent then
-			stopEvent(bossLever.emptyRoomEvent)
-			bossLever.emptyRoomEvent = nil
+	-- CORRECTION (lifecycle closure pass section A): success cleanup belongs entirely to
+	-- BossLeverOnDeath (registered on King Zelos's own monster.events, AFTER zelos_success in
+	-- registration order - meaning this function, called from zelos_success, would otherwise race
+	-- ahead of it). The prior version of this comment incorrectly assumed BossLeverOnDeath had already
+	-- run by this point ("harmless no-op") - it had not: closing bossAlive/timeoutEvent/emptyRoomEvent
+	-- and wiping the zone here, before BossLeverOnDeath's own onDeath handler runs moments later, made
+	-- BossLeverOnDeath's own duplicate-cleanup guard treat it as already-handled and silently skip the
+	-- victory message/grace period entirely - exactly the race this correction closes. Only
+	-- technical_abort/normal_timeout close BossLever's own internal state here now.
+	if kind ~= "success" then
+		-- CORRECTION (correction pass section J1/N, refined by lifecycle closure pass section A):
+		-- closes out BossLever's own internal state via a local reference. Order matches BossLever's
+		-- own generic timeout callback exactly (refresh, then remove players, then clean) so a
+		-- normal_timeout racing ahead of and cancelling BossLever's own timeoutEvent cannot leave
+		-- players stranded in an already-cleaned room.
+		local bossLever = BossLever["king zelos"]
+		if bossLever and bossLever.bossAlive then
+			bossLever.bossAlive = false
+			if bossLever.emptyRoomEvent then
+				stopEvent(bossLever.emptyRoomEvent)
+				bossLever.emptyRoomEvent = nil
+			end
+			if bossLever.timeoutEvent then
+				stopEvent(bossLever.timeoutEvent)
+				bossLever.timeoutEvent = nil
+			end
+			local zone = bossLever:getZone()
+			zone:refresh()
+			zone:removePlayers()
+			zone:cleanRoom()
 		end
-		if bossLever.timeoutEvent then
-			stopEvent(bossLever.timeoutEvent)
-			bossLever.timeoutEvent = nil
-		end
-		local zone = bossLever:getZone()
-		zone:refresh()
-		zone:cleanRoom()
 	end
 
 	KingZelosRun.bossId = nil
@@ -230,6 +255,7 @@ function KingZelosRunTerminate(token, kind, reason, skipMonsterId)
 	KingZelosRun.nargolMassId = nil
 	KingZelosRun.magnorShardIds = {}
 	KingZelosRun.rewarFetterIds = {}
+	KingZelosRun.rewarId = nil
 	Game.setStorageValue(Storage.Quest.U12_20.GraveDanger.KingZelosRitualStart, 0)
 end
 
@@ -417,6 +443,9 @@ local function createKingZelosEncounter()
 	KingZelosRun.nargolMassId = nil
 	KingZelosRun.magnorShardIds = {}
 	KingZelosRun.rewarFetterIds = {}
+	-- CORRECTION (lifecycle closure pass section F): stamped once here, at creation, from the actual
+	-- spawned wing monster - never re-derived from Rewar's own (transform-mutable) name afterward.
+	KingZelosRun.rewarId = wings.rewar and wings.rewar:getId() or nil
 
 	if lastInfoPositions then
 		for _, posInfo in pairs(lastInfoPositions) do

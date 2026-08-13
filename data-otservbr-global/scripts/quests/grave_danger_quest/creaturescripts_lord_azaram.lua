@@ -63,7 +63,11 @@ local function attemptTaintedSplinters(token, retriesLeft)
 	end
 	logger.error("GraveDanger/LordAzaram: Tainted Soul Splinters failed to fully spawn (retries left: {})", retriesLeft)
 	if retriesLeft > 0 then
-		addEvent(attemptTaintedSplinters, 1000, token, retriesLeft - 1)
+		-- CORRECTION (lifecycle closure pass section G): tracked through AzaramRunTrackEvent, matching
+		-- every other bounded retry in this quest - this specific retry addEvent was previously raw
+		-- and untracked, so it could not be cancelled by a technical_abort/normal_timeout that fired
+		-- while it was still pending.
+		AzaramRunTrackEvent(token, addEvent(attemptTaintedSplinters, 1000, token, retriesLeft - 1))
 	else
 		AzaramRunTerminate(token, "technical_abort", "Tainted Soul Splinters failed to spawn after bounded retries")
 	end
@@ -191,24 +195,7 @@ end
 
 soul_heal:register()
 
--- ================================================================
--- LORD AZARAM SUCCESS (correction pass section F)
--- ================================================================
--- Releases AzaramRun's own bookkeeping on a legitimate kill. Lord Azaram's own grave/boss credit is
--- unaffected - handled separately by the pre-existing generic creaturescripts_boss_kill.lua path
--- (lord azaram -> Graves.Ghostlands).
-local azaram_success = CreatureEvent("azaram_success")
-
-function azaram_success.onDeath(creature)
-	local targetMonster = creature:getMonster()
-	if not targetMonster or targetMonster:getMaster() then
-		return true
-	end
-	if not AzaramRunOwnsBoss(creature) then
-		return true
-	end
-	AzaramRunTerminate(AzaramRunCurrentToken(), "success", "Lord Azaram defeated")
-	return true
-end
-
-azaram_success:register()
+-- CORRECTION (lifecycle closure pass section B): the standalone azaram_success onDeath handler that
+-- used to live here was removed - see the matching comment in creaturescripts_count_vlarkorth.lua for
+-- the full cross-CreatureEvent ordering race it closed. Success termination now happens inside
+-- creaturescripts_boss_kill.lua's grave_danger_death itself, via AzaramRun's own terminateFn entry.

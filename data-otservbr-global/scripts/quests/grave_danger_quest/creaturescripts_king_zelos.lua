@@ -497,8 +497,11 @@ local function attemptFetters(token, bossId, retriesLeft)
 	if not KingZelosRunIsCurrent(token) then
 		return
 	end
+	-- CORRECTION (lifecycle closure pass section F): resolved and verified through the exact owned
+	-- Rewar id (KingZelosRun.rewarId, stamped once at wing creation) instead of generic monster-set
+	-- membership.
 	local creature = Creature(bossId)
-	if not creature or not KingZelosRunOwnsMonster(creature) then
+	if not creature or not KingZelosRunOwnsRewar(creature) then
 		return
 	end
 
@@ -556,9 +559,13 @@ function fetter_death.onDeath(creature)
 	end
 	KingZelosRunClearRewarFetter(creature:getId())
 
-	local boss = Creature("Rewar The Bloody Inv") or Creature("Rewar The Bloody")
+	-- CORRECTION (lifecycle closure pass section F): resolved through the exact owned Rewar id
+	-- (survives his own setType transform between the two names) instead of guessing which of
+	-- "Rewar The Bloody Inv"/"Rewar The Bloody" currently applies via a bare name lookup - a
+	-- same-named Rewar belonging to a different run can no longer be found or mutated here.
+	local boss = Creature(KingZelosRun.rewarId)
 
-	if boss and KingZelosRunOwnsMonster(boss) then
+	if boss and KingZelosRunOwnsRewar(boss) then
 		boss:setStorageValue(2, boss:getStorageValue(2) - 1)
 
 		if boss:getStorageValue(2) <= 0 then

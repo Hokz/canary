@@ -15,6 +15,13 @@ local config = {
 	["scarlett etzel"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.ScarlettKilled,
 		cobraFinalBoss = true,
+		-- CORRECTION (lifecycle closure pass section E1): lets the shared `ownsBoss` computation below
+		-- cover Scarlett too, so a stale/unrelated Scarlett Etzel death can never terminate or credit a
+		-- different currently active ScarlettRun.
+		ownsBossFn = "ScarlettRunOwnsBoss",
+		-- CORRECTION (lifecycle closure pass section E2): the established Scarlett specPos bounds - a
+		-- participant who tagged Scarlett and already left the fight room must not receive credit.
+		room = { from = Position(33385, 32638, 6), to = Position(33406, 32660, 6) },
 	},
 	-- CORRECTION (correction pass section B): each Lich boss entry now also carries the exact
 	-- run-ownership/participant/room-presence checks needed to require actual current-run membership
@@ -25,6 +32,17 @@ local config = {
 	-- resolve to at THIS file's own load time, which is not guaranteed to be after every actions_*.lua
 	-- file in this quest has already run and defined its globals. room mirrors that boss's own lever
 	-- specPos bounds.
+	-- CORRECTION (lifecycle closure pass section B): terminateFn/successReason move each of these four
+	-- single-boss encounters' custom-run SUCCESS termination into THIS handler, after their credit is
+	-- processed, instead of a separate standalone *_success CreatureEvent registered independently on
+	-- the same monster. Canary does not guarantee which of two independently-registered onDeath
+	-- handlers for the same monster runs first - if the standalone *_success handler happened to run
+	-- BEFORE grave_danger_death, it would set the run inactive first, and *RunOwnsBoss's own
+	-- `X.active` check would then make grave_danger_death's eligibility check fail and silently grant
+	-- NO credit at all for a legitimate kill. Doing both in one synchronous handler, in a fixed order,
+	-- removes the race entirely. Sir Baeloc is intentionally NOT given a terminateFn here - the
+	-- Nictros/Baeloc pair's completion is a two-boss "both dead" condition, handled entirely inside
+	-- actions_baeloc_nictros.lua (lifecycle closure pass section C), not a single-boss-death signal.
 	["earl osam"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.Bosses.EarlOsam.Killed,
 		lichLine = true,
@@ -36,6 +54,8 @@ local config = {
 		ownsBossFn = "EarlOsamRunOwnsBoss",
 		isParticipantFn = "EarlOsamRunIsParticipant",
 		room = { from = Position(33479, 31429, 13), to = Position(33497, 31446, 13) },
+		terminateFn = "EarlOsamRunTerminate",
+		successReason = "Earl Osam defeated",
 	},
 	["count vlarkorth"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.Bosses.CountVlarkorth.Killed,
@@ -48,19 +68,15 @@ local config = {
 		ownsBossFn = "VlarkorthRunOwnsBoss",
 		isParticipantFn = "VlarkorthRunIsParticipant",
 		room = { from = Position(33448, 31428, 13), to = Position(33464, 31446, 13) },
+		terminateFn = "VlarkorthRunTerminate",
+		successReason = "Count Vlarkorth defeated",
 	},
-	["sir baeloc"] = {
-		stor = Storage.Quest.U12_20.GraveDanger.Bosses.BaelocNictros.Killed,
-		lichLine = true,
-		extra = {
-			stor = Storage.Quest.U12_20.GraveDanger.Graves.Darashia,
-			value = 1,
-		},
-		tokenFn = "NictrosBaelocRunCurrentToken",
-		ownsBossFn = "NictrosBaelocRunOwnsBaeloc",
-		isParticipantFn = "NictrosBaelocRunIsParticipant",
-		room = { from = Position(33414, 31426, 13), to = Position(33433, 31449, 13) },
-	},
+	-- CORRECTION (lifecycle closure pass section C1): "sir baeloc" is deliberately absent from this
+	-- table now, matching the King Zelos precedent below - Sir Baeloc dying first (while Nictros is
+	-- still alive) must not grant Darashia. Credit (Bosses.BaelocNictros.Killed / Graves.Darashia /
+	-- Graves.Progress) and run termination both now live entirely in actions_baeloc_nictros.lua's own
+	-- both-dead completion handler (nictros_baeloc_success / completePairSuccess), which needs the
+	-- pair's own nictrosDead/baelocDead state this generic per-boss handler cannot see.
 	["duke krule"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.Bosses.DukeKrule.Killed,
 		lichLine = true,
@@ -72,6 +88,8 @@ local config = {
 		ownsBossFn = "DukeKruleRunOwnsBoss",
 		isParticipantFn = "DukeKruleRunIsParticipant",
 		room = { from = Position(33447, 31464, 13), to = Position(33464, 31481, 13) },
+		terminateFn = "DukeKruleRunTerminate",
+		successReason = "Duke Krule defeated",
 	},
 	["lord azaram"] = {
 		stor = Storage.Quest.U12_20.GraveDanger.Bosses.LordAzaram.Killed,
@@ -84,6 +102,8 @@ local config = {
 		ownsBossFn = "AzaramRunOwnsBoss",
 		isParticipantFn = "AzaramRunIsParticipant",
 		room = { from = Position(33416, 31463, 13), to = Position(33432, 31481, 13) },
+		terminateFn = "AzaramRunTerminate",
+		successReason = "Lord Azaram defeated",
 	},
 	-- King Zelos is deliberately absent from this table (executor contract, section 24): credit for
 	-- him must belong only to the current King Zelos run's participants who are still physically
@@ -109,6 +129,14 @@ function grave_danger_death.onDeath(creature, corpse, killer, mostDamageKiller)
 		return true
 	end
 
+	-- CORRECTION (correction pass section B): the boss itself must be the exact instance the current
+	-- run owns before ANYTHING below (credit or termination) considers this death legitimate. Computed
+	-- once here (not per-attacker) since it cannot change during this single synchronous handler.
+	local ownsBoss = true
+	if bossConfig.ownsBossFn then
+		ownsBoss = _G[bossConfig.ownsBossFn](creature)
+	end
+
 	local attackers = creature:getDamageMap()
 	for attackerId, _ in pairs(attackers) do
 		local player = Player(attackerId)
@@ -120,24 +148,25 @@ function grave_danger_death.onDeath(creature, corpse, killer, mostDamageKiller)
 		local eligible = player ~= nil
 		if eligible and bossConfig.lichLine then
 			eligible = player:getLevel() >= 250 and player:isPremium() and player:getStorageValue(Storage.Quest.U12_20.GraveDanger.Questline) >= 1
-			-- CORRECTION (correction pass section B): the boss itself must be the exact instance the
-			-- current run owns, the attacker must be a legitimate roster participant of that same run,
-			-- and they must still be physically present in the legitimate encounter room at the moment
-			-- of death - a damage-map entry from someone who tagged the boss and then left (or was
-			-- never on the roster at all) earns nothing.
+			-- CORRECTION (correction pass section B): the attacker must be a legitimate roster
+			-- participant of the run that owns this exact boss, and must still be physically present
+			-- in the legitimate encounter room at the moment of death - a damage-map entry from
+			-- someone who tagged the boss and then left (or was never on the roster at all) earns
+			-- nothing.
 			if eligible and bossConfig.ownsBossFn then
-				local tokenFn, ownsBossFn, isParticipantFn = _G[bossConfig.tokenFn], _G[bossConfig.ownsBossFn], _G[bossConfig.isParticipantFn]
+				local tokenFn, isParticipantFn = _G[bossConfig.tokenFn], _G[bossConfig.isParticipantFn]
 				local token = tokenFn()
-				eligible = ownsBossFn(creature) and isParticipantFn(token, attackerId) and isInsideRoom(player, bossConfig.room)
+				eligible = ownsBoss and isParticipantFn(token, attackerId) and isInsideRoom(player, bossConfig.room)
 			end
 		end
-		-- CORRECTION (executor contract, section 34; correction pass section M3): Scarlett's
-		-- completion/achievement/Cobra-line credit belongs only to the current attempt's own
-		-- participants, present at the death of the exact boss instance that attempt owns - a
-		-- bystander who tags her with damage from outside the legitimate encounter roster, or a stale/
-		-- unrelated Scarlett Etzel death, earns nothing.
+		-- CORRECTION (executor contract, section 34; correction pass section M3; lifecycle closure
+		-- pass section E2): Scarlett's completion/achievement/Cobra-line credit belongs only to the
+		-- current attempt's own participants, present at the death of the exact boss instance that
+		-- attempt owns, AND still physically inside the legitimate fight room at that moment - a
+		-- bystander who tags her with damage and leaves, or a stale/unrelated Scarlett Etzel death,
+		-- earns nothing.
 		if eligible and bossConfig.cobraFinalBoss then
-			eligible = ScarlettRunOwnsBoss(creature) and ScarlettRunIsParticipant(ScarlettRunCurrentToken(), attackerId)
+			eligible = ownsBoss and ScarlettRunIsParticipant(ScarlettRunCurrentToken(), attackerId) and isInsideRoom(player, bossConfig.room)
 		end
 		if eligible and bossConfig.mintsFireWall then
 			-- CORRECTION (correction pass section L): minted on EVERY legitimate kill, independent of
@@ -146,7 +175,11 @@ function grave_danger_death.onDeath(creature, corpse, killer, mostDamageKiller)
 			-- already having killed him once before must still receive a fresh pass.
 			player:setStorageValue(Storage.Quest.U12_20.GraveDanger.FireWall, 1)
 		end
-		if eligible and player:getStorageValue(bossConfig.stor) < 1 then
+		-- CORRECTION (lifecycle closure pass section C1): Sir Baeloc's own credit (Bosses.
+		-- BaelocNictros.Killed / Graves.Darashia / Graves.Progress) is granted entirely by
+		-- actions_baeloc_nictros.lua's own both-dead completion handler now, never here - Baeloc dying
+		-- first while Nictros still lives must not grant Darashia.
+		if eligible and not bossConfig.creditGrantedElsewhere and player:getStorageValue(bossConfig.stor) < 1 then
 			player:setStorageValue(bossConfig.stor, 1)
 
 			if creature:getName():lower() == "scarlett etzel" then
@@ -171,7 +204,22 @@ function grave_danger_death.onDeath(creature, corpse, killer, mostDamageKiller)
 		end
 	end
 
-	if bossConfig.cobraFinalBoss then
+	-- CORRECTION (lifecycle closure pass section B): custom-run SUCCESS termination for the four
+	-- single-boss encounters now happens HERE, after their credit is processed above, in the same
+	-- synchronous handler - removing the cross-CreatureEvent ordering race described on the config
+	-- table above. Guarded on `ownsBoss` (computed once above) so an unrelated/stale same-named death
+	-- can never terminate a different currently active run.
+	if bossConfig.terminateFn and ownsBoss then
+		local tokenFn, terminateFn = _G[bossConfig.tokenFn], _G[bossConfig.terminateFn]
+		local token = tokenFn()
+		if token then
+			terminateFn(token, "success", bossConfig.successReason)
+		end
+	end
+
+	-- CORRECTION (lifecycle closure pass section E1): guarded on ownsBoss - an unrelated/stale
+	-- Scarlett Etzel death must do absolutely nothing to a different currently active ScarlettRun.
+	if bossConfig.cobraFinalBoss and ownsBoss then
 		local token = ScarlettRunCurrentToken()
 		if token then
 			ScarlettRunTerminate(token, "success", "Scarlett Etzel defeated")

@@ -97,11 +97,21 @@ function VlarkorthRunTerminate(token, kind, reason)
 				if VlarkorthRun.timerWritten[playerId] then
 					player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Bosses.CountVlarkorth.Timer, 0)
 				end
-				player:teleportTo(EXIT_POSITION)
 			end
 		end
 	end
 
+	-- CORRECTION (lifecycle closure pass section A): on a legitimate SUCCESS, BossLeverOnDeath (now
+	-- registered on this boss's own monster.events) already owns the framework's normal victory
+	-- behavior - bossAlive=false, cancelling timeoutEvent/emptyRoomEvent, the timeAfterKill grace
+	-- period, and the eventual zone:cleanRoom()/removePlayers(). This terminator must not compete with
+	-- or race ahead of that: closing BossLever's internal state here on success (as an earlier version
+	-- of this file did, unconditionally) set bossAlive=false and wiped the room BEFORE BossLeverOnDeath
+	-- ever got a chance to run its own onDeath handler (both are registered on the same death), which
+	-- made BossLeverOnDeath's own `if not bossLever.bossAlive then return true end` guard treat it as
+	-- an already-handled duplicate - the victory message and grace period silently never fired. Every
+	-- other kind (technical_abort, normal_timeout) still owns this cleanup itself, since neither of
+	-- those reaches a natural boss death for BossLeverOnDeath to fire from.
 	if kind ~= "success" then
 		for monsterId in pairs(VlarkorthRun.monsters) do
 			local monster = Creature(monsterId)
@@ -109,26 +119,30 @@ function VlarkorthRunTerminate(token, kind, reason)
 				monster:remove()
 			end
 		end
-	end
 
-	-- CORRECTION (section N): closes out BossLever's own internal state directly (a local reference,
-	-- not a change to the shared framework file) so a technical_abort/timeout that never reaches a
-	-- natural boss death cannot leave bossAlive/timeoutEvent/emptyRoomEvent stuck as if the fight
-	-- were still in progress.
-	local bossLever = BossLever["count vlarkorth"]
-	if bossLever and bossLever.bossAlive then
-		bossLever.bossAlive = false
-		if bossLever.emptyRoomEvent then
-			stopEvent(bossLever.emptyRoomEvent)
-			bossLever.emptyRoomEvent = nil
+		-- CORRECTION (section N, refined by lifecycle closure pass section A): closes out BossLever's
+		-- own internal state directly (a local reference, not a change to the shared framework file).
+		-- Order matches BossLever's own generic timeout callback exactly (refresh, THEN remove players,
+		-- THEN clean) so a normal_timeout that races ahead of and cancels BossLever's own timeoutEvent
+		-- (both are scheduled for essentially the same encounter deadline) cannot leave players
+		-- stranded in an already-cleaned room - this terminator now performs the player-removal step
+		-- itself before cleaning, exactly as BossLever's own cancelled timeoutEvent would have.
+		local bossLever = BossLever["count vlarkorth"]
+		if bossLever and bossLever.bossAlive then
+			bossLever.bossAlive = false
+			if bossLever.emptyRoomEvent then
+				stopEvent(bossLever.emptyRoomEvent)
+				bossLever.emptyRoomEvent = nil
+			end
+			if bossLever.timeoutEvent then
+				stopEvent(bossLever.timeoutEvent)
+				bossLever.timeoutEvent = nil
+			end
+			local zone = bossLever:getZone()
+			zone:refresh()
+			zone:removePlayers()
+			zone:cleanRoom()
 		end
-		if bossLever.timeoutEvent then
-			stopEvent(bossLever.timeoutEvent)
-			bossLever.timeoutEvent = nil
-		end
-		local zone = bossLever:getZone()
-		zone:refresh()
-		zone:cleanRoom()
 	end
 
 	VlarkorthRun.bossId = nil

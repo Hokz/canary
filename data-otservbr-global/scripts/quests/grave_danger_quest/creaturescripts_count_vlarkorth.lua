@@ -138,26 +138,13 @@ end
 
 count_vlarkorth_transform:register()
 
--- Success credit/cleanup: Count Vlarkorth's own kill credit is handled by the pre-existing generic
--- creaturescripts_boss_kill.lua path (unchanged, out of this section's scope beyond the lichLine
--- eligibility gate added there) - this just releases the run's own bookkeeping once he actually dies.
-local count_vlarkorth_success = CreatureEvent("count_vlarkorth_success")
-
-function count_vlarkorth_success.onDeath(creature)
-	local targetMonster = creature:getMonster()
-	if not targetMonster or targetMonster:getMaster() then
-		return true
-	end
-	-- CORRECTION (section I precedent applied here too): must be the exact boss this run owns, not
-	-- merely any monster tracked in VlarkorthRun.monsters (which also includes the dark summons).
-	if not VlarkorthRunOwnsBoss(creature) then
-		return true
-	end
-	VlarkorthRunTerminate(VlarkorthRunCurrentToken(), "success", "Count Vlarkorth defeated")
-	return true
-end
-
-count_vlarkorth_success:register()
+-- CORRECTION (lifecycle closure pass section B): the standalone count_vlarkorth_success onDeath
+-- handler that used to live here was removed - it raced against grave_danger_death (both were
+-- separately-registered onDeath handlers for the same monster, with no guaranteed execution order),
+-- and if it happened to fire first it would set VlarkorthRun.active=false BEFORE grave_danger_death's
+-- own VlarkorthRunOwnsBoss(creature) check ran, silently losing all credit for a legitimate kill.
+-- Success termination now happens inside creaturescripts_boss_kill.lua's grave_danger_death itself,
+-- after credit is processed, via VlarkorthRun's own terminateFn entry in that file's config table.
 
 -- ================================================================
 -- REMAINS GENERATION TAGGING (correction pass section D)

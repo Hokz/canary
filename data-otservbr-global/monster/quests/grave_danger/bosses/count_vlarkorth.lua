@@ -15,9 +15,10 @@ monster.outfit = {
 
 monster.events = {
 	"count_vlarkorth_transform",
+	-- CORRECTION (lifecycle closure pass section B): grave_danger_death now also handles this boss's
+	-- custom-run success termination directly (see creaturescripts_boss_kill.lua) - the separate
+	-- "count_vlarkorth_success" handler that used to live here was removed.
 	"grave_danger_death",
-	-- Releases VlarkorthRun's own bookkeeping on a legitimate kill (executor contract, section 8).
-	"count_vlarkorth_success",
 	-- CORRECTION (correction pass section N): createFunction-created bosses never went through
 	-- boss_lever.lua's generic `monster:registerEvent("BossLeverOnDeath")` path (that only runs for
 	-- the unverified self.bossPosition branch), so this boss never got the framework's own

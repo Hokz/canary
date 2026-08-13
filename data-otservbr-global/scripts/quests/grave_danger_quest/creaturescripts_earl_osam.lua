@@ -36,7 +36,12 @@ local function moveSphere(token, generation)
 	local nextPos = nil
 
 	for _, spheres in pairs(spectators) do
-		if spheres:isMonster() and spheres:getName():lower() == "magical sphere" then
+		-- CORRECTION (lifecycle closure pass section D): a bare name match was not sufficient - a
+		-- Magical Sphere from a stale/unrelated run (or a superseded generation of THIS run) could
+		-- still be found and moved/resolved by a newer run's or generation's own moveSphere poll. Now
+		-- requires this run's own ownership AND the sphere's own tagged generation (storage 1, set at
+		-- creation by attemptSpheres) to match the CURRENT generation being processed.
+		if spheres:isMonster() and spheres:getName():lower() == "magical sphere" and EarlOsamRunOwnsMonster(spheres) and spheres:getStorageValue(1) == generation then
 			local pos = spheres:getPosition()
 
 			if pos.y == 31438 then
@@ -59,6 +64,7 @@ local function moveSphere(token, generation)
 					local nextCreature = nextTile:getTopCreature()
 					if nextCreature then
 						if nextPos == config.centerRoom and nextCreature:getName():lower() == "earl osam" and EarlOsamRunOwnsBoss(nextCreature) then
+							EarlOsamRunUntrackMonster(spheres:getId())
 							spheres:remove()
 							nextCreature:addHealth(80000)
 							-- CORRECTION: never allow this obligation counter to go negative (matches
@@ -68,6 +74,7 @@ local function moveSphere(token, generation)
 								nextCreature:setMoveLocked(false)
 							end
 						else
+							EarlOsamRunUntrackMonster(spheres:getId())
 							spheres:remove()
 						end
 					else
@@ -229,6 +236,15 @@ earl_osam_transform:register()
 local sphere_death = CreatureEvent("sphere_death")
 
 function sphere_death.onDeath(creature)
+	-- CORRECTION (lifecycle closure pass section D): ownership is now checked FIRST, before anything
+	-- else - a sphere from a stale/unrelated run must have zero ability to decrement a current run's
+	-- obligation count even if its own generation tag happened to numerically match (generation
+	-- numbers are reused across runs, since each run's own boss storage restarts its own counter).
+	if not EarlOsamRunOwnsMonster(creature) then
+		return true
+	end
+	EarlOsamRunUntrackMonster(creature:getId())
+
 	local token = EarlOsamRunCurrentToken()
 	if not token then
 		return true
@@ -252,24 +268,7 @@ end
 
 sphere_death:register()
 
--- ================================================================
--- EARL OSAM SUCCESS (correction pass section G)
--- ================================================================
--- Releases EarlOsamRun's own bookkeeping on a legitimate kill. Earl Osam's own grave/boss credit is
--- unaffected - handled separately by the pre-existing generic creaturescripts_boss_kill.lua path
--- (earl osam -> Graves.Cormaya).
-local earl_osam_success = CreatureEvent("earl_osam_success")
-
-function earl_osam_success.onDeath(creature)
-	local targetMonster = creature:getMonster()
-	if not targetMonster or targetMonster:getMaster() then
-		return true
-	end
-	if not EarlOsamRunOwnsBoss(creature) then
-		return true
-	end
-	EarlOsamRunTerminate(EarlOsamRunCurrentToken(), "success", "Earl Osam defeated")
-	return true
-end
-
-earl_osam_success:register()
+-- CORRECTION (lifecycle closure pass section B): the standalone earl_osam_success onDeath handler
+-- that used to live here was removed - see the matching comment in creaturescripts_count_vlarkorth.lua
+-- for the full cross-CreatureEvent ordering race it closed. Success termination now happens inside
+-- creaturescripts_boss_kill.lua's grave_danger_death itself, via EarlOsamRun's own terminateFn entry.

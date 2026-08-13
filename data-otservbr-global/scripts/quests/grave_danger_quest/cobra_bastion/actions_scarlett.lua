@@ -108,35 +108,40 @@ local function terminateRun(token, kind, reason)
 			local player = Player(playerId)
 			if player then
 				player:setBossCooldown("scarlett etzel", 0)
-				player:teleportTo(EXIT_POSITION)
 			end
 		end
 	end
 
+	-- CORRECTION (lifecycle closure pass section A): success cleanup belongs entirely to
+	-- BossLeverOnDeath (registered on Scarlett's own monster.events) - see the matching comment in
+	-- actions_count_vlarkorth_.lua for the full race-condition rationale.
 	if kind ~= "success" then
 		local boss = Creature(ScarlettRun.bossId)
 		if boss then
 			boss:remove()
 		end
-	end
 
-	-- CORRECTION (correction pass section N): closes out BossLever's own internal state via a local
-	-- reference so a technical_abort/timeout that never reaches a natural boss death cannot leave
-	-- bossAlive/timeoutEvent/emptyRoomEvent stuck mid-fight.
-	local bossLever = BossLever["scarlett etzel"]
-	if bossLever and bossLever.bossAlive then
-		bossLever.bossAlive = false
-		if bossLever.emptyRoomEvent then
-			stopEvent(bossLever.emptyRoomEvent)
-			bossLever.emptyRoomEvent = nil
+		-- CORRECTION (correction pass section N, refined by lifecycle closure pass section A): closes
+		-- out BossLever's own internal state via a local reference. Order matches BossLever's own
+		-- generic timeout callback exactly (refresh, then remove players, then clean) so a
+		-- normal_timeout racing ahead of and cancelling BossLever's own timeoutEvent cannot leave
+		-- players stranded in an already-cleaned room.
+		local bossLever = BossLever["scarlett etzel"]
+		if bossLever and bossLever.bossAlive then
+			bossLever.bossAlive = false
+			if bossLever.emptyRoomEvent then
+				stopEvent(bossLever.emptyRoomEvent)
+				bossLever.emptyRoomEvent = nil
+			end
+			if bossLever.timeoutEvent then
+				stopEvent(bossLever.timeoutEvent)
+				bossLever.timeoutEvent = nil
+			end
+			local zone = bossLever:getZone()
+			zone:refresh()
+			zone:removePlayers()
+			zone:cleanRoom()
 		end
-		if bossLever.timeoutEvent then
-			stopEvent(bossLever.timeoutEvent)
-			bossLever.timeoutEvent = nil
-		end
-		local zone = bossLever:getZone()
-		zone:refresh()
-		zone:cleanRoom()
 	end
 
 	ScarlettRun.bossId = nil
@@ -334,13 +339,27 @@ function graveScarlettAid.onUse(player, item, fromPosition, target, toPosition, 
 
 	local token = ScarlettRunCurrentToken()
 
+	-- CORRECTION (lifecycle closure pass section E3): mirror rotation and the chestplate transform
+	-- sequence must belong to the CURRENT Scarlett attempt's own roster - a player who merely owns the
+	-- three-miniboss/chess prerequisite storages but is not part of the currently active run must not
+	-- be able to rotate this run's mirrors, consume/use its chestplate, or arm its transform sequence.
+	-- The metal-wall interaction below is a separate exit/passage mechanic that legitimately needs to
+	-- keep working even with no active run, so it is intentionally NOT gated on this check.
+	local isParticipant = token ~= nil and ScarlettRunIsParticipant(token, player:getId())
+
 	if table.contains(transformTo, item.itemid) then
+		if not isParticipant then
+			return true
+		end
 		local pilar = transformTo[item.itemid]
 		if pilar then
 			item:transform(pilar)
 			item:getPosition():sendMagicEffect(CONST_ME_POFF)
 		end
 	elseif item.itemid == armorId then
+		if not isParticipant then
+			return true
+		end
 		item:getPosition():sendMagicEffect(CONST_ME_THUNDER)
 		item:remove(1)
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You hold the old chestplate of Galthein in front of you. It does not fit and far too old to withstand any attack.")
@@ -350,15 +369,13 @@ function graveScarlettAid.onUse(player, item, fromPosition, target, toPosition, 
 		-- against a newer one.
 		ScarlettRunTrackEvent(token, addEvent(createArmor, 30 * 1000, armorId, 1, armorPos))
 		ScarlettRunTrackEvent(token, addEvent(backMirror, 10 * 1000))
-		if token then
-			ScarlettRunSetTransformArmed(token, true)
-			ScarlettRunTrackEvent(
-				token,
-				addEvent(function()
-					ScarlettRunSetTransformArmed(token, false)
-				end, 2000)
-			)
-		end
+		ScarlettRunSetTransformArmed(token, true)
+		ScarlettRunTrackEvent(
+			token,
+			addEvent(function()
+				ScarlettRunSetTransformArmed(token, false)
+			end, 2000)
+		)
 	elseif item.itemid == metalWallId then
 		if player:getPosition().y == 32666 then
 			player:teleportTo(Position(33395, 32668, 6))

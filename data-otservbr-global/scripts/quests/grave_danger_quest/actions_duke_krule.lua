@@ -84,28 +84,35 @@ function DukeKruleRunTerminate(token, kind, reason)
 			local player = Player(playerId)
 			if player then
 				player:setBossCooldown("duke krule", 0)
-				player:teleportTo(EXIT_POSITION)
 			end
 		end
 	end
 
-	-- CORRECTION (correction pass section N): closes out BossLever's own internal state via a local
-	-- reference so a technical_abort/timeout that never reaches a natural boss death cannot leave
-	-- bossAlive/timeoutEvent/emptyRoomEvent stuck mid-fight.
-	local bossLever = BossLever["duke krule"]
-	if bossLever and bossLever.bossAlive then
-		bossLever.bossAlive = false
-		if bossLever.emptyRoomEvent then
-			stopEvent(bossLever.emptyRoomEvent)
-			bossLever.emptyRoomEvent = nil
+	-- CORRECTION (lifecycle closure pass section A): success cleanup belongs entirely to
+	-- BossLeverOnDeath (registered on this boss's own monster.events) - see the matching comment in
+	-- actions_count_vlarkorth_.lua for the full race-condition rationale.
+	if kind ~= "success" then
+		-- CORRECTION (correction pass section N, refined by lifecycle closure pass section A): closes
+		-- out BossLever's own internal state via a local reference. Order matches BossLever's own
+		-- generic timeout callback exactly (refresh, then remove players, then clean) so a
+		-- normal_timeout racing ahead of and cancelling BossLever's own timeoutEvent cannot leave
+		-- players stranded in an already-cleaned room.
+		local bossLever = BossLever["duke krule"]
+		if bossLever and bossLever.bossAlive then
+			bossLever.bossAlive = false
+			if bossLever.emptyRoomEvent then
+				stopEvent(bossLever.emptyRoomEvent)
+				bossLever.emptyRoomEvent = nil
+			end
+			if bossLever.timeoutEvent then
+				stopEvent(bossLever.timeoutEvent)
+				bossLever.timeoutEvent = nil
+			end
+			local zone = bossLever:getZone()
+			zone:refresh()
+			zone:removePlayers()
+			zone:cleanRoom()
 		end
-		if bossLever.timeoutEvent then
-			stopEvent(bossLever.timeoutEvent)
-			bossLever.timeoutEvent = nil
-		end
-		local zone = bossLever:getZone()
-		zone:refresh()
-		zone:cleanRoom()
 	end
 
 	DukeKruleRun.bossId = nil

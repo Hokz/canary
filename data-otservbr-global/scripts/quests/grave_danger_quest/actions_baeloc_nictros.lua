@@ -1,6 +1,8 @@
 local nictrosPosition = Position(33427, 31428, 13)
 local baelocPosition = Position(33422, 31428, 13)
 local EXIT_POSITION = Position(33290, 32474, 9)
+local ROOM_FROM = Position(33414, 31426, 13)
+local ROOM_TO = Position(33433, 31449, 13)
 
 local healthStates = {
 	nictros60 = false,
@@ -8,7 +10,8 @@ local healthStates = {
 }
 
 -- ================================================================
--- NICTROS/BAELOC RUN OWNERSHIP (executor contract, section 12; correction pass section A/H/N/O)
+-- NICTROS/BAELOC RUN OWNERSHIP (executor contract, section 12; correction pass section A/H/N/O;
+-- lifecycle closure pass section A/C)
 -- ================================================================
 local NictrosBaelocRun = {
 	token = 0,
@@ -18,6 +21,14 @@ local NictrosBaelocRun = {
 	participants = {}, -- set: playerId -> true
 	timerWritten = {}, -- set: playerId -> true (this attempt wrote Bosses.BaelocNictros.Timer for them)
 	events = {}, -- set: eventId -> true
+	-- CORRECTION (lifecycle closure pass section C): explicit per-brother death flags, replacing the
+	-- previous "is either Creature(id) still resolvable" check. A dying creature is not guaranteed to
+	-- have already disappeared from the global creature registry during the execution of its OWN
+	-- onDeath callback - relying on that as the completion signal is fragile. These are the
+	-- authoritative signal instead, set directly by nictros_baeloc_success below off exactly which
+	-- owned id died.
+	nictrosDead = false,
+	baelocDead = false,
 }
 
 local function trackEvent(token, eventId)
@@ -43,19 +54,13 @@ function NictrosBaelocRunCurrentToken()
 	return nil
 end
 
--- CORRECTION (section H): true either boss belongs to the current run.
+-- CORRECTION (section H): true if either boss belongs to the current run.
 function NictrosBaelocRunOwnsBoss(creature)
 	if not creature or not NictrosBaelocRun.active then
 		return false
 	end
 	local id = creature:getId()
 	return id == NictrosBaelocRun.nictrosId or id == NictrosBaelocRun.baelocId
-end
-
--- CORRECTION (section B): the exact boss identity check used by grave_danger_death to require actual
--- run ownership before crediting Sir Baeloc's grave/boss kill.
-function NictrosBaelocRunOwnsBaeloc(creature)
-	return creature ~= nil and NictrosBaelocRun.active and NictrosBaelocRun.baelocId == creature:getId()
 end
 
 function NictrosBaelocRunIsParticipant(token, playerId)
@@ -68,11 +73,19 @@ function NictrosBaelocRunMarkTimerWritten(token, playerId)
 	end
 end
 
--- CORRECTION (section H): both bosses have died - the only true completion signal. Closes the local
--- BossLever["sir nictros"] state too (the lever is keyed on Nictros's own name; a per-monster
--- "BossLeverOnDeath" registration cannot correctly represent "the WHOLE two-boss encounter is over",
--- since either boss could die first while the other still fights - so this two-boss encounter
--- replicates that cleanup manually instead of relying on the generic per-monster event).
+local function isInsideRoom(player)
+	local pos = player:getPosition()
+	return pos.x >= ROOM_FROM.x and pos.x <= ROOM_TO.x and pos.y >= ROOM_FROM.y and pos.y <= ROOM_TO.y and pos.z == ROOM_FROM.z
+end
+
+-- CORRECTION (lifecycle closure pass section A/C2): non-success termination (technical_abort/
+-- normal_timeout) still closes BossLever's own internal state directly, since this two-boss encounter
+-- has no single natural death to trigger a framework BossLeverOnDeath from in those cases either.
+-- Order matches BossLever's own generic timeout callback exactly (refresh, then remove players, then
+-- clean) so a normal_timeout racing ahead of and cancelling BossLever's own timeoutEvent cannot leave
+-- players stranded in an already-cleaned room. SUCCESS is handled entirely separately by
+-- completePairSuccess below, which preserves the framework's own post-victory grace period instead of
+-- cleaning immediately.
 local function terminateRun(kind, reason)
 	if not NictrosBaelocRun.active then
 		return
@@ -93,20 +106,17 @@ local function terminateRun(kind, reason)
 				if NictrosBaelocRun.timerWritten[playerId] then
 					player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Bosses.BaelocNictros.Timer, 0)
 				end
-				player:teleportTo(EXIT_POSITION)
 			end
 		end
 	end
 
-	if kind ~= "success" then
-		local nictros = Creature(NictrosBaelocRun.nictrosId)
-		if nictros then
-			nictros:remove()
-		end
-		local baeloc = Creature(NictrosBaelocRun.baelocId)
-		if baeloc then
-			baeloc:remove()
-		end
+	local nictros = Creature(NictrosBaelocRun.nictrosId)
+	if nictros then
+		nictros:remove()
+	end
+	local baeloc = Creature(NictrosBaelocRun.baelocId)
+	if baeloc then
+		baeloc:remove()
 	end
 
 	local bossLever = BossLever["sir nictros"]
@@ -122,6 +132,7 @@ local function terminateRun(kind, reason)
 		end
 		local zone = bossLever:getZone()
 		zone:refresh()
+		zone:removePlayers()
 		zone:cleanRoom()
 	end
 
@@ -132,6 +143,81 @@ local function terminateRun(kind, reason)
 	NictrosBaelocRun.participants = {}
 	NictrosBaelocRun.timerWritten = {}
 	NictrosBaelocRun.events = {}
+	NictrosBaelocRun.nictrosDead = false
+	NictrosBaelocRun.baelocDead = false
+end
+
+-- CORRECTION (lifecycle closure pass section C2): both owned brothers are confirmed dead - grant
+-- legitimate credit FIRST (while the run is still active, so room-presence/participant checks read
+-- correctly), then invalidate the run and stop its own owned events, THEN manually preserve the
+-- equivalent of BossLever's own post-victory grace (bossAlive/timeoutEvent/emptyRoomEvent handling,
+-- the timeAfterKill leave window) instead of cleaning the zone immediately - this two-boss encounter
+-- has no single boss death BossLeverOnDeath could correctly fire from to get that behavior for free.
+local function completePairSuccess(reason)
+	if not NictrosBaelocRun.active then
+		return
+	end
+	local token = NictrosBaelocRun.token
+	logger.info("GraveDanger/NictrosBaeloc: run {} terminated (success) - {}", token, reason or "")
+
+	-- CORRECTION (section C1): Darashia credit belongs to the PAIR's completion, not to Baeloc dying
+	-- first while Nictros still lives. Granted here, once, to every legitimate current-run participant
+	-- still physically present - never through creaturescripts_boss_kill.lua's generic damage-map path.
+	for playerId in pairs(NictrosBaelocRun.participants) do
+		local player = Player(playerId)
+		if player and player:getLevel() >= 250 and player:isPremium() and player:getStorageValue(Storage.Quest.U12_20.GraveDanger.Questline) >= 1 and isInsideRoom(player) then
+			if player:getStorageValue(Storage.Quest.U12_20.GraveDanger.Bosses.BaelocNictros.Killed) < 1 then
+				player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Bosses.BaelocNictros.Killed, 1)
+				player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Graves.Darashia, 1)
+				local graves = math.max(player:getStorageValue(Storage.Quest.U12_20.GraveDanger.Graves.Progress), 0)
+				player:setStorageValue(Storage.Quest.U12_20.GraveDanger.Graves.Progress, graves + 1)
+			end
+		end
+	end
+
+	NictrosBaelocRun.active = false
+	for eventId in pairs(NictrosBaelocRun.events) do
+		stopEvent(eventId)
+	end
+
+	local bossLever = BossLever["sir nictros"]
+	if bossLever and bossLever.bossAlive then
+		bossLever.bossAlive = false
+		if bossLever.emptyRoomEvent then
+			stopEvent(bossLever.emptyRoomEvent)
+			bossLever.emptyRoomEvent = nil
+		end
+		if bossLever.timeoutEvent then
+			stopEvent(bossLever.timeoutEvent)
+			bossLever.timeoutEvent = nil
+		end
+		local zone = bossLever:getZone()
+		-- CORRECTION (section C2): replicates boss_lever_death.lua's own BossLeverOnDeath grace-period
+		-- behavior manually - the framework event has no way to fire correctly for a two-boss
+		-- encounter, so this preserves the same player-facing leave window instead of wiping the room
+		-- the instant the second brother dies.
+		if bossLever.timeAfterKill > 0 then
+			zone:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Sir Nictros and Sir Baeloc have been defeated. You have " .. bossLever.timeAfterKill .. " seconds to leave the room.")
+			bossLever.timeoutEvent = addEvent(function(zn)
+				zn:refresh()
+				zn:cleanRoom()
+				zn:removePlayers()
+			end, bossLever.timeAfterKill * 1000, zone)
+		else
+			zone:refresh()
+			zone:cleanRoom()
+		end
+	end
+
+	healthStates.nictros60 = false
+	healthStates.baeloc60 = false
+	NictrosBaelocRun.nictrosId = nil
+	NictrosBaelocRun.baelocId = nil
+	NictrosBaelocRun.participants = {}
+	NictrosBaelocRun.timerWritten = {}
+	NictrosBaelocRun.events = {}
+	NictrosBaelocRun.nictrosDead = false
+	NictrosBaelocRun.baelocDead = false
 end
 
 -- CORRECTION (section H): previously no watchdog existed at all - a timed-out or emptied attempt left
@@ -215,6 +301,8 @@ local config = {
 			NictrosBaelocRun.participants = {}
 			NictrosBaelocRun.timerWritten = {}
 			NictrosBaelocRun.events = {}
+			NictrosBaelocRun.nictrosDead = false
+			NictrosBaelocRun.baelocDead = false
 
 			if config.lastInfoPositions then
 				for _, posInfo in pairs(config.lastInfoPositions) do
@@ -289,8 +377,8 @@ local config = {
 		{ pos = Position(33428, 31413, 13), teleport = Position(33423, 31448, 13) },
 	},
 	specPos = {
-		from = Position(33414, 31426, 13),
-		to = Position(33433, 31449, 13),
+		from = ROOM_FROM,
+		to = ROOM_TO,
 	},
 	-- CORRECTION (section H): the narrative dialogue chain that used to be scheduled here (during
 	-- Lever:checkConditions(), i.e. BEFORE the run is active) has moved into createFunction above,
@@ -396,13 +484,11 @@ end
 
 BossHealthCheck:register()
 
--- Deactivates the run (stopping Lesser Hex/sibling-heal from applying to any leftover/future
--- creature, cancelling any still-pending dialogue/watchdog events, and closing out BossLever's own
--- local state - see terminateRun above) once BOTH brothers are confirmed dead - not on the first
+-- CORRECTION (lifecycle closure pass section C): explicit per-brother death flags replace the
+-- previous "is either Creature(id) still resolvable" world-disappearance check. Marks exactly which
+-- owned brother just died, then completes the pair only once BOTH flags are true - not on the first
 -- death, since the survivor's sibling-heal/Lesser Hex must keep applying until the fight is actually
--- over. Their own grave/boss credit is unaffected - handled separately by the pre-existing generic
--- creaturescripts_boss_kill.lua path (sir baeloc -> Graves.Darashia), gated there on
--- NictrosBaelocRunOwnsBaeloc.
+-- over.
 local nictros_baeloc_success = CreatureEvent("nictros_baeloc_success")
 
 function nictros_baeloc_success.onDeath(creature)
@@ -414,10 +500,15 @@ function nictros_baeloc_success.onDeath(creature)
 		return true
 	end
 
-	local nictros = Creature(NictrosBaelocRun.nictrosId)
-	local baeloc = Creature(NictrosBaelocRun.baelocId)
-	if not nictros and not baeloc then
-		terminateRun("success", "Sir Nictros and Sir Baeloc defeated")
+	local id = creature:getId()
+	if id == NictrosBaelocRun.nictrosId then
+		NictrosBaelocRun.nictrosDead = true
+	elseif id == NictrosBaelocRun.baelocId then
+		NictrosBaelocRun.baelocDead = true
+	end
+
+	if NictrosBaelocRun.nictrosDead and NictrosBaelocRun.baelocDead then
+		completePairSuccess("Sir Nictros and Sir Baeloc defeated")
 	end
 
 	return true
