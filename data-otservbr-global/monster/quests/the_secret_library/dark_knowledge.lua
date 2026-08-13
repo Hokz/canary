@@ -20,6 +20,13 @@ monster.corpse = 0
 monster.speed = 25
 monster.manaCost = 0
 
+-- CORRECTION (Secret Library repair v2, section 14): this monster type had no monster.events at all,
+-- so its death could never produce the parchment of dark knowledge (creaturescripts_lokathmor.lua's
+-- "lokathmorDeath" handler) regardless of anything else - now wired up.
+monster.events = {
+	"lokathmorDeath",
+}
+
 monster.changeTarget = {
 	interval = 5000,
 	chance = 8,

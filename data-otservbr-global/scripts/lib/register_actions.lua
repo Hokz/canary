@@ -1025,8 +1025,17 @@ function onUseScythe(player, item, fromPosition, target, toPosition, isHotkey)
 		Game.createItem(30975, 1, toPosition)
 		return true
 	-- The Secret Library Quest
+	-- CORRECTION (Secret Library repair v2, section 11): this is the actual mechanical entrance (the
+	-- spoken phrase "Chamek Athra Thull Zathroth", npc/dedoras.lua, is confirmed pure narrative
+	-- dialogue text with zero other references anywhere in the repo - not a trigger). It previously
+	-- checked only LibraryPermission == 7, with no level or Premium check at all, despite the quest's
+	-- own stated 250/Premium requirement. Also changed to >= 7 to match this project's established
+	-- "at least this stage" convention elsewhere, rather than a brittle exact-equality check.
 	elseif toPosition == Position(32177, 31925, 7) then
-		if player:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.LibraryPermission) == 7 then
+		if player:getLevel() < 250 or not player:isPremium() then
+			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need to be level 250 or higher and have a premium account to enter the Secret Library.")
+			Position(32177, 31925, 7):sendMagicEffect(CONST_ME_POFF)
+		elseif player:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.LibraryPermission) >= 7 then
 			player:teleportTo({ x = 32515, y = 32535, z = 12 })
 			player:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
 		else

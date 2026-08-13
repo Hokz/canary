@@ -118,6 +118,8 @@ monster.immunities = {
 
 monster.events = {
 	"InvasionScourgePhaseCycle",
+	"InvasionScourgeDeath",
+	"BossLeverOnDeath",
 }
 
 mType:register(monster)

@@ -15,6 +15,13 @@ monster.outfit = {
 
 monster.events = {
 	"gorzindelHealth",
+	-- CORRECTION (Secret Library repair v2, section 15): createFunction-created bosses never go
+	-- through boss_lever.lua's generic monster:registerEvent("BossLeverOnDeath") path - registering it
+	-- here restores the framework's own post-victory grace-period/cleanup.
+	"BossLeverOnDeath",
+	-- Releases GorzindelRun's own bookkeeping and grants persistent completion credit on a legitimate
+	-- kill (see creaturescripts_gorzindel.lua).
+	"gorzindelSuccess",
 }
 
 monster.bosstiary = {

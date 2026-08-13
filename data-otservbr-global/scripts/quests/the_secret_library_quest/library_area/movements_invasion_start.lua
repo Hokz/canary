@@ -1,26 +1,28 @@
--- Secret Library final invasion ("Scourge of Oblivion") - wave/wing orchestration.
+-- Secret Library final invasion ("Scourge of Oblivion") - sequential wing orchestration.
 --
--- Previously this whole encounter was a single BossLever pull spawning "The Scourge of Oblivion"
--- directly with no wave sequence at all (actions_the_scourge_of_oblivion.lua, still the entry point -
--- see the small addition at the end of that file). This file implements the described 26:20, 4-wing
--- invasion: BossLever now spawns "The Scourge of Oblivion (Dormant)" (a 100%-immune placeholder,
--- the_scourge_of_oblivion_dormant.lua) at config.boss.position - the moment a player steps onto the
--- room's teleport-destination tile (the same real position players are always sent to,
--- 32726,32733,11), the wave sequence begins.
+-- CORRECTION (Secret Library repair v2, sections 21/24-28): the run/ownership object
+-- (SecretLibraryInvasionRun) and the lever itself now live in actions_the_scourge_of_oblivion.lua.
+-- This file previously started ALL FOUR wings simultaneously in one loop (startWaves()) with zero
+-- ownership - any monster sharing a wing boss's name anywhere on the map could set that wing's
+-- "Defeated" flag. Rebuilt as an event-driven sequential state machine: central intro -> NE
+-- Spellstealer -> SE Scion of Havoc -> SW Brothers Chill & Freeze -> NW Devourer of Secrets -> Scourge
+-- activation, each wing's mandatory boss(es) transactionally spawned and exact-id-owned, advancing
+-- only once the CURRENT wing's own owned boss(es) are confirmed dead - never while a required prior
+-- wing remains incomplete.
 --
--- MAP SETUP REQUIRED: none of the 4 wing rooms have real coordinates anywhere in the source (only
--- directional/narrative description - "go northeast", "go southwest" - no map grid references) or
--- in the pre-existing repo (these 5 boss monsters had zero spawn wiring before this pass). All wing
--- positions below are nil pending owner map data - see the Map Setup Contract in the PR body. Until
--- filled in, the breach messages and central timer still fire (matching the reference's own
--- description, which frames them as message events, not visual reveals) but no wing boss/add ever
--- spawns, so a wing's defeated flag can never be set and the real Scourge of Oblivion can never
--- appear - fully inert/safe, same convention as every other position-dependent script this session.
-local centralHall = Position(32726, 32733, 11) -- real - BossLever's own teleport destination
+-- MAP SETUP REQUIRED (unchanged from the pre-existing disclosure this repair inherited): none of the 4
+-- wing rooms have real coordinates anywhere in the source (only directional/narrative description) or
+-- in the repository (these 5 boss monsters had zero spawn wiring before the original pass). All wing
+-- positions below remain nil pending owner map data - see the Map Setup Contract / Manual RME Manifest
+-- in the PR body. InvasionMapReady() (used by the lever's onUseExtra) mechanically refuses to start the
+-- encounter at all while any of them are missing - MAP_REQUIRED, not a guessed rectangle, and not an
+-- inert 26-minute encounter that can never finish.
+local centralHall = Position(32726, 32733, 11) -- real - the lever's own teleport destination
 local Invasion = Storage.Quest.U11_80.TheSecretLibrary.SecretLibraryInvasion
 
-local TOTAL_ENCOUNTER_SECONDS = 26 * 60 + 20
-local WAVE_START_DELAY = 30 * 1000
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_TIMING: no exact inter-wing gap is given by the reference - a
+-- stable functional delay, not claimed Global-exact.
+local WING_TRANSITION_DELAY = 30 * 1000
 
 local WINGS = {
 	{
@@ -63,100 +65,164 @@ local WINGS = {
 	},
 }
 
--- Global (not local): called from creaturescripts_invasion_wings.lua's per-wing onDeath handlers,
--- which live in a different file loaded independently - matching this repo's own convention for
--- cross-file quest helpers (e.g. clearBossRoom/roomIsOccupied in data/libs/functions/functions.lua).
-function InvasionCheckWingsCleared()
+-- Global (not local): called from the lever's onUseExtra (actions_the_scourge_of_oblivion.lua) before
+-- any irreversible commit.
+function InvasionMapReady()
 	for _, wing in ipairs(WINGS) do
-		if Game.getStorageValue(wing.defeatedStorage) < 1 then
-			return
+		if not wing.roomCenter or not wing.spawnPositions or #wing.spawnPositions == 0 then
+			return false, wing.key
 		end
-	end
-
-	local spectators = Game.getSpectators(centralHall, false, false, 15, 15, 15, 15)
-	for _, spectator in ipairs(spectators) do
-		if spectator:isMonster() and spectator:getName():lower() == "the scourge of oblivion (dormant)" then
-			local oldHealth = spectator:getHealth()
-			spectator:setType("The Scourge of Oblivion")
-			spectator:addHealth(-(spectator:getHealth() - oldHealth))
-			for _, player in ipairs(Game.getSpectators(centralHall, false, true, 15, 15, 15, 15)) do
-				player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The Leader of the invasion finally joins the battle! Beware, the scourge of oblivion enters the fray!")
-			end
-			break
+		if wing.key == "spellstealer" and (not wing.greenTeleport or not wing.redTeleport) then
+			return false, wing.key
 		end
-	end
-end
-
-local function spawnWing(wing)
-	for _, position in ipairs(wing.spawnPositions or {}) do
-		for _, name in ipairs(wing.monsters) do
-			Game.createMonster(name, position, true, true)
-		end
-	end
-	for _, position in ipairs(wing.addSpawnPositions or {}) do
-		for _, name in ipairs(wing.addMonsters or {}) do
-			Game.createMonster(name, position, true, true)
-		end
-	end
-end
-
-local function startWaves()
-	for _, wing in ipairs(WINGS) do
-		for _, spectator in ipairs(Game.getSpectators(centralHall, false, true, 15, 15, 15, 15)) do
-			spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, wing.breachMessage)
-		end
-		spawnWing(wing)
-	end
-end
-
-local function checkEncounterTimeout()
-	local started = Game.getStorageValue(Invasion.Started)
-	if started < 1 then
-		return
-	end
-	if os.time() - started < TOTAL_ENCOUNTER_SECONDS then
-		addEvent(checkEncounterTimeout, 10 * 1000)
-		return
-	end
-	-- Time's up and the invasion wasn't cleared - matches BossLever's own timeToDefeat cleanup
-	-- philosophy (see actions_the_scourge_of_oblivion.lua), but scoped to this file's own wave
-	-- state so it resets correctly even if BossLever's own timeout fires first or second.
-	Game.setStorageValue(Invasion.Started, 0)
-end
-
-local invasionStart = MoveEvent()
-
-function invasionStart.onStepIn(creature, item, position, fromPosition)
-	local player = creature:getPlayer()
-	if not player then
-		return true
-	end
-	if Game.getStorageValue(Invasion.Started) < 1 then
-		Game.setStorageValue(Invasion.Started, os.time())
-		Game.setStorageValue(Invasion.SpellstealerDefeated, 0)
-		Game.setStorageValue(Invasion.ScionOfHavocDefeated, 0)
-		Game.setStorageValue(Invasion.BrothersDefeated, 0)
-		Game.setStorageValue(Invasion.BrothersDeathCount, 0)
-		Game.setStorageValue(Invasion.DevourerDefeated, 0)
-		Game.setStorageValue(Invasion.ScourgePhase, 0)
-		addEvent(startWaves, WAVE_START_DELAY)
-		addEvent(checkEncounterTimeout, 10 * 1000)
 	end
 	return true
 end
 
-invasionStart:position(centralHall)
-invasionStart:register()
+-- CORRECTION (section 39): validate -> create the wing's full mandatory-entity generation -> verify ->
+-- commit ownership. A wing boss is mandatory (progression cannot continue without it); adds are
+-- flavor/mechanic, spawned best-effort and ownership-tagged, never gating completion themselves.
+local function spawnWingTransactional(wing, token, retriesLeft)
+	retriesLeft = retriesLeft or 3
+	if not SecretLibraryInvasionRunIsCurrent(token) then
+		return
+	end
 
--- The Spellstealer's colored-phase teleports (see creaturescripts_invasion_wings.lua). Registered
--- unconditionally on nil positions currently has no effect - MoveEvent:position(nil) would error, so
--- these are guarded and simply skipped until the wing room (and therefore these two tiles) exist.
+	local spawned = {}
+	local allOk = true
+	for i, name in ipairs(wing.monsters) do
+		local pos = wing.spawnPositions[i] or wing.spawnPositions[1]
+		if not pos then
+			allOk = false
+			break
+		end
+		local monster = Game.createMonster(name, pos, false, true)
+		if monster then
+			table.insert(spawned, monster)
+		else
+			allOk = false
+		end
+	end
+
+	if not allOk then
+		for _, monster in ipairs(spawned) do
+			monster:remove()
+		end
+		logger.error("SecretLibrary/Invasion: wing '{}' mandatory boss(es) failed to fully spawn (retries left: {})", wing.key, retriesLeft)
+		if retriesLeft > 0 then
+			SecretLibraryInvasionRunTrackEvent(token, addEvent(spawnWingTransactional, 1000, wing, token, retriesLeft - 1))
+		else
+			SecretLibraryInvasionRunTerminate(token, "technical_abort", "wing '" .. wing.key .. "' mandatory boss(es) failed to spawn after bounded retries")
+		end
+		return
+	end
+
+	SecretLibraryInvasionRun.wingGeneration = SecretLibraryInvasionRun.wingGeneration + 1
+	if wing.key == "brothers" then
+		SecretLibraryInvasionRun.wingBossIds.brothers = { chill = spawned[1]:getId(), freeze = spawned[2]:getId() }
+		SecretLibraryInvasionRun.brothersAlive = { chill = true, freeze = true }
+	else
+		SecretLibraryInvasionRun.wingBossIds[wing.key] = spawned[1]:getId()
+	end
+	SecretLibraryInvasionRun.wingAddIds[wing.key] = {}
+	SecretLibraryInvasionRun.wingDefeated[wing.key] = false
+
+	for _, position in ipairs(wing.addSpawnPositions or {}) do
+		for _, name in ipairs(wing.addMonsters or {}) do
+			local add = Game.createMonster(name, position, true, true)
+			if add then
+				SecretLibraryInvasionRun.wingAddIds[wing.key][add:getId()] = true
+			end
+		end
+	end
+end
+
+-- Global: called once per wing start (index 1..4).
+function InvasionAdvanceWing(token, index)
+	if not SecretLibraryInvasionRunIsCurrent(token) then
+		return
+	end
+	local wing = WINGS[index]
+	if not wing then
+		return
+	end
+	SecretLibraryInvasionRun.phase = "wing"
+	SecretLibraryInvasionRun.wingIndex = index
+	for _, spectator in ipairs(Game.getSpectators(centralHall, false, true, 15, 15, 15, 15)) do
+		spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, wing.breachMessage)
+	end
+	spawnWingTransactional(wing, token)
+end
+
+-- Global: called once when the Dormant lever pull's initial delay elapses.
+function InvasionBeginCentralIntro(token)
+	if not SecretLibraryInvasionRunIsCurrent(token) then
+		return
+	end
+	for _, spectator in ipairs(Game.getSpectators(centralHall, false, true, 15, 15, 15, 15)) do
+		spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The central hall shudders as the invasion begins!")
+	end
+	InvasionAdvanceWing(token, 1)
+end
+
+local function activateScourge(token)
+	if not SecretLibraryInvasionRunIsCurrent(token) then
+		return
+	end
+	local dormant = Creature(SecretLibraryInvasionRun.scourgeCreatureId)
+	if not dormant or not SecretLibraryInvasionRunOwnsScourge(dormant) then
+		SecretLibraryInvasionRunTerminate(token, "technical_abort", "the dormant Scourge of Oblivion could not be found for activation")
+		return
+	end
+	local oldHealth = dormant:getHealth()
+	dormant:setType("The Scourge of Oblivion")
+	dormant:addHealth(-(dormant:getHealth() - oldHealth))
+	SecretLibraryInvasionRun.phase = "scourge"
+	for _, player in ipairs(Game.getSpectators(centralHall, false, true, 15, 15, 15, 15)) do
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The Leader of the invasion finally joins the battle! Beware, the Scourge of Oblivion enters the fray!")
+	end
+end
+
+-- Global: called from creaturescripts_invasion_wings.lua's per-wing onDeath handlers when the current
+-- run's exact owned wing boss(es) are confirmed dead - never on a stale/foreign monster of the same
+-- name, and never while a prior required wing remains incomplete (this is only ever invoked for the
+-- CURRENT wingIndex's own key).
+function InvasionWingBossDied(token, key)
+	if not SecretLibraryInvasionRunIsCurrent(token) then
+		return
+	end
+	local wing = WINGS[SecretLibraryInvasionRun.wingIndex]
+	if not wing or wing.key ~= key or SecretLibraryInvasionRun.wingDefeated[key] then
+		return
+	end
+	SecretLibraryInvasionRun.wingDefeated[key] = true
+	Game.setStorageValue(wing.defeatedStorage, 1)
+
+	for creatureId in pairs(SecretLibraryInvasionRun.wingAddIds[key] or {}) do
+		local monster = Creature(creatureId)
+		if monster then
+			monster:remove()
+		end
+	end
+
+	local nextIndex = SecretLibraryInvasionRun.wingIndex + 1
+	if nextIndex > #WINGS then
+		SecretLibraryInvasionRunTrackEvent(token, addEvent(activateScourge, WING_TRANSITION_DELAY, token))
+	else
+		SecretLibraryInvasionRunTrackEvent(token, addEvent(InvasionAdvanceWing, WING_TRANSITION_DELAY, token, nextIndex))
+	end
+end
+
+-- The Spellstealer's colored-phase teleports. Registered unconditionally on nil positions currently
+-- has no effect - MoveEvent:position(nil) would error, so these are guarded and simply skipped until
+-- the wing room (and therefore these two tiles) exist.
 local spellstealerWing = WINGS[1]
 if spellstealerWing.greenTeleport and spellstealerWing.redTeleport then
 	local colorTeleports = MoveEvent()
 	function colorTeleports.onStepIn(creature, item, position, fromPosition)
+		local token = SecretLibraryInvasionRunCurrentToken()
 		local monster = creature:getMonster()
-		if not monster then
+		if not monster or not token or not SecretLibraryInvasionRunOwnsWingBoss("spellstealer", monster) then
 			return true
 		end
 		local name = monster:getName():lower()

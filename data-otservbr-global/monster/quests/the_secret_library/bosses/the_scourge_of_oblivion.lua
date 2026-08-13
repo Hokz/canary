@@ -20,9 +20,15 @@ monster.outfit = {
 -- see the_scourge_of_oblivion_dormant.lua (pre-fight placeholder) and
 -- the_scourge_of_oblivion_reflective.lua (red phase) for the other two forms, cycled by
 -- InvasionScourgePhaseCycle.
+-- CORRECTION (Secret Library repair v2, section 20): createFunction-created bosses never go through
+-- boss_lever.lua's generic monster:registerEvent("BossLeverOnDeath") path - registered dynamically on
+-- the Dormant form at spawn (actions_the_scourge_of_oblivion.lua), and statically here too as
+-- defensive redundancy across the setType transform chain, matching this quest's own
+-- Supercharged Mazzinor precedent.
 monster.events = {
 	"InvasionScourgePhaseCycle",
 	"InvasionScourgeDeath",
+	"BossLeverOnDeath",
 }
 
 monster.bosstiary = {

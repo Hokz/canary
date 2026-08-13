@@ -2,9 +2,6 @@ local mType = Game.createMonsterType("Stolen Tome of Portals")
 local monster = {}
 
 monster.description = "a stolen tome of portals"
-monster.events = {
-	"InvasionBookDeath",
-}
 monster.experience = 0
 monster.outfit = {
 	lookTypeEx = 23985,
@@ -17,8 +14,15 @@ monster.corpse = 0
 monster.speed = 0
 monster.manaCost = 0
 
+-- CORRECTION (Secret Library repair v2, section 15/Gorzindel recon): this table used to be assigned
+-- TWICE in this file (a leftover "InvasionBookDeath" entry near the top, then unconditionally
+-- reassigned - not appended - to only "gorzindelDeath" here), which silently dropped the Devourer of
+-- Secrets wing's own book-strengthens-him hook every time this monster type died in that wing's
+-- context. Both events are legitimate: this monster type is shared between Gorzindel's own encounter
+-- (gorzindelDeath) and the final invasion's Devourer of Secrets wing (InvasionBookDeath).
 monster.events = {
 	"gorzindelDeath",
+	"InvasionBookDeath",
 }
 
 monster.changeTarget = {

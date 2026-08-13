@@ -22,6 +22,9 @@ monster.manaCost = 0
 
 monster.events = {
 	"ghuloshDeath",
+	-- CORRECTION (Secret Library repair v2, section 17): the reflected-damage-through-slime mechanic
+	-- for Ghulosh's persistent Deathgaze phase - see creaturescripts_ghulosh.lua.
+	"ghuloshSlimeReflect",
 }
 
 monster.changeTarget = {

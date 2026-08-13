@@ -3,6 +3,15 @@ local monster = {}
 
 monster.description = "Ghulosh' Deathgaze"
 monster.experience = 0
+-- CORRECTION (Secret Library repair v2, section 17): this is the same underlying creature instance as
+-- "Ghulosh" mid-transform (actions_ghulosh.lua uses setType, not a remove+recreate swap) - his real
+-- health can legitimately reach 0 while wearing this form (the persistent phase's reflected damage
+-- accumulates on him directly), so death-handling must be registered on this type too, not only the
+-- base "Ghulosh" one.
+monster.events = {
+	"ghuloshDeath",
+	"BossLeverOnDeath",
+}
 monster.outfit = {
 	lookType = 1063,
 	lookHead = 57,
