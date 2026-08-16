@@ -115,6 +115,10 @@ function InvasionStartCentralWaveRound(token, roundIndex)
 	if not SecretLibraryInvasionRunIsCurrent(token) then
 		return
 	end
+	-- CORRECTION (phase-state correction pass): central combat is authoritative again the instant a
+	-- round actually starts (central_intro/wing_transition -> central_wave) - central-zone emptiness
+	-- becomes a valid abandonment signal from this exact point, not only once the next wing begins.
+	SecretLibraryInvasionRun.phase = "central_wave"
 	for _, spectator in ipairs(Game.getSpectators(centralHall, false, true, 15, 15, 15, 15)) do
 		if roundIndex == 1 then
 			spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The central hall shudders as the invasion begins!")
@@ -303,6 +307,14 @@ function InvasionWingBossDied(token, key)
 	end
 	SecretLibraryInvasionRun.wingDefeated[key] = true
 	Game.setStorageValue(wing.defeatedStorage, 1)
+
+	-- CORRECTION (phase-state correction pass): wing -> wing_transition. Players are still walking
+	-- back from the wing room to the central hall for the WING_TRANSITION_DELAY grace period below -
+	-- central-zone emptiness must remain tolerated through that walk, but the ambiguous "still wing"
+	-- label (which previously also silently covered the following central-wave round) is now scoped
+	-- to only this grace window; InvasionStartCentralWaveRound moves it to "central_wave" the instant
+	-- central combat actually becomes authoritative again.
+	SecretLibraryInvasionRun.phase = "wing_transition"
 
 	for creatureId in pairs(SecretLibraryInvasionRun.wingAddIds[key] or {}) do
 		local monster = Creature(creatureId)
