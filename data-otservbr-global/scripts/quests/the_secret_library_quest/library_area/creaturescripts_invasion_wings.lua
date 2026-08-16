@@ -139,13 +139,18 @@ function brothersDeath.onDeath(creature, corpse, lasthitkiller, mostdamagekiller
 end
 brothersDeath:register()
 
--- The Devourer of Secrets: spawns book adds ("The Book of Secrets" / "Stolen Tome of Portals") owned
+-- The Devourer of Secrets: spawns exactly 4 "The Book of Secrets" adds (PROVEN_REFERENCE count) owned
 -- by the current wing generation. If a book dies, the CURRENT-RUN Devourer becomes stronger/less
 -- vulnerable (a stacking damage reduction) - best strategy is ignoring the adds and focusing the boss.
-
+--
+-- CORRECTION (completion mechanics pass, section 8/18): "Stolen Tome of Portals" removed from this
+-- table - no reference fetched across this whole engagement ever placed it in the Devourer wing (it is
+-- exclusively a Gorzindel-encounter entity, WINGS[4].addSpawns no longer lists it either). The
+-- SecretLibraryInvasionRunOwnsWingAdd("devourer", creature) check below already made a stray Gorzindel
+-- Stolen Tome harmless even before this cleanup (it could never be owned as a "devourer" wing add), but
+-- leaving it declared here was misleading/stale.
 local bookNames = {
 	["the book of secrets"] = true,
-	["stolen tome of portals"] = true,
 }
 
 local devourerBookDeath = CreatureEvent("InvasionBookDeath")
@@ -160,17 +165,20 @@ function devourerBookDeath.onDeath(creature, corpse, lasthitkiller, mostdamageki
 		if stacks < 0 then
 			stacks = 0
 		end
-		boss:setStorageValue(1, math.min(stacks + 1, 5))
+		-- CORRECTION (section 8): capped at 4, matching the PROVEN_REFERENCE exact book count (there are
+		-- only ever 4 Books of Secrets to destroy - a 5-stack cap was structurally inconsistent).
+		boss:setStorageValue(1, math.min(stacks + 1, 4))
 		boss:say("MY POWER GROWS!", TALKTYPE_MONSTER_SAY)
 	end
 	return true
 end
 devourerBookDeath:register()
 
--- Each surviving book adds 10% incoming-damage reduction, capped at 5 stacks (50%) -
--- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_VALUE: the exact percentage/cap isn't given by the reference (only
--- "becomes stronger and less vulnerable"), a disclosed, moderate judgment call, unchanged from the
--- pre-existing value.
+-- Each surviving book adds 10% incoming-damage reduction, capped at 4 stacks (40%) -
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_VALUE: the exact percentage isn't given by the reference (only
+-- "becomes stronger and less vulnerable"), a disclosed, moderate judgment call. The cap was corrected
+-- this pass from 5 to 4 (completion mechanics pass, section 8) - matching the PROVEN_REFERENCE exact
+-- book count; a 5-stack cap was structurally inconsistent with there only ever being 4 books.
 local devourerDamageGate = CreatureEvent("InvasionDevourerDamageGate")
 function devourerDamageGate.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType, origin)
 	local token = SecretLibraryInvasionRunCurrentToken()
@@ -179,7 +187,7 @@ function devourerDamageGate.onHealthChange(creature, attacker, primaryDamage, pr
 	end
 	local stacks = creature:getStorageValue(1)
 	if stacks and stacks > 0 then
-		local reduction = math.min(stacks, 5) * 0.10
+		local reduction = math.min(stacks, 4) * 0.10
 		primaryDamage = math.floor(primaryDamage * (1 - reduction))
 		secondaryDamage = math.floor(secondaryDamage * (1 - reduction))
 	end

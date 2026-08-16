@@ -13,8 +13,9 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 10000
-monster.maxHealth = 10000
+-- CORRECTION (completion mechanics pass, section 10): PROVEN_REFERENCE HP - was a placeholder 10000.
+monster.health = 16500
+monster.maxHealth = 16500
 monster.race = "undead"
 monster.corpse = 28605
 monster.speed = 175

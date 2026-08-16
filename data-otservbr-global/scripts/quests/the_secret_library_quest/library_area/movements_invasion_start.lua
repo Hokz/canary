@@ -220,7 +220,7 @@ local WINGS = {
 		roomCenter = nil, -- MAP SETUP REQUIRED (northwest wing)
 		spawnPositions = {},
 		addSpawns = {
-			{ name = "The Book of Secrets", positions = {}, exactCount = 4 }, -- MAP SETUP REQUIRED; PROVEN_REFERENCE exact count
+			{ name = "The Book of Secrets", positions = {}, exactCount = 4, mandatory = true }, -- MAP SETUP REQUIRED; PROVEN_REFERENCE exact count, mechanic-critical
 			{ name = "War Servant", positions = {} }, -- MAP SETUP REQUIRED; PROVEN_REFERENCE presence, count not given
 		},
 		defeatedStorage = Invasion.DevourerDefeated,
@@ -229,6 +229,15 @@ local WINGS = {
 
 -- Global (not local): called from the lever's onUseExtra (actions_the_scourge_of_oblivion.lua) before
 -- any irreversible commit.
+--
+-- CORRECTION (completion mechanics pass, section 1/9): previously validated only each wing's own
+-- boss roomCenter/spawnPositions and the Spellstealer's two vortex tiles - never any addSpawns entry,
+-- so once boss/vortex coordinates were eventually filled in, the encounter could start with 0 of any
+-- mandatory add (most critically 0-3 of the Devourer's exactly-4 Books of Secrets) and still commit.
+-- Every `mandatory` addSpawns entry across all four wings is now validated here too: it must have at
+-- least `exactCount` (or, if unset, at least 1) distinct positions before the encounter is allowed to
+-- start at all - the same fail-closed philosophy already applied to boss/vortex tiles, extended to
+-- every mechanic-critical entity, not only bosses.
 function InvasionMapReady()
 	for _, wing in ipairs(WINGS) do
 		if not wing.roomCenter or not wing.spawnPositions or #wing.spawnPositions == 0 then
@@ -237,13 +246,26 @@ function InvasionMapReady()
 		if wing.key == "spellstealer" and (not wing.greenTeleport or not wing.redTeleport) then
 			return false, wing.key
 		end
+		for _, spawn in ipairs(wing.addSpawns or {}) do
+			if spawn.mandatory then
+				local required = spawn.exactCount or 1
+				if not spawn.positions or #spawn.positions < required then
+					return false, wing.key
+				end
+			end
+		end
 	end
 	return true
 end
 
--- CORRECTION (section 39): validate -> create the wing's full mandatory-entity generation -> verify ->
--- commit ownership. A wing boss is mandatory (progression cannot continue without it); adds are
--- flavor/mechanic, spawned best-effort and ownership-tagged, never gating completion themselves.
+-- CORRECTION (section 39; completion mechanics pass, section 1/9): validate -> create the wing's full
+-- mandatory-entity generation -> verify -> commit ownership. A wing boss is mandatory (progression
+-- cannot continue without it); a `mandatory` addSpawns entry (currently only the Devourer's exactly-4
+-- Books of Secrets) is now verified in this SAME transactional block - if it cannot reach its required
+-- count, the entire attempt (boss included) is rolled back and bounded-retried/technical-aborted,
+-- exactly like a boss spawn failure, instead of silently committing a wing with fewer than the
+-- reference-proven count. Non-mandatory addSpawns entries remain best-effort ambient, spawned only
+-- after the transactional block commits - a partial/failed ambient spawn does not abort the wing.
 local function spawnWingTransactional(wing, token, retriesLeft)
 	retriesLeft = retriesLeft or 3
 	if not SecretLibraryInvasionRunIsCurrent(token) then
@@ -266,15 +288,47 @@ local function spawnWingTransactional(wing, token, retriesLeft)
 		end
 	end
 
+	-- Mandatory adds are validated in the same pass: spawned into `spawned` too (so a rollback removes
+	-- them alongside the boss), tracked separately in `mandatoryAdds` so a success commit can assign
+	-- them to wingAddIds afterward.
+	local mandatoryAdds = {}
+	if allOk then
+		for _, spawn in ipairs(wing.addSpawns or {}) do
+			if spawn.mandatory then
+				local required = spawn.exactCount or 1
+				local group = {}
+				for i = 1, required do
+					local pos = spawn.positions[i]
+					if not pos then
+						allOk = false
+						break
+					end
+					local add = Game.createMonster(spawn.name, pos, false, true)
+					if add then
+						table.insert(group, add)
+						table.insert(spawned, add)
+					else
+						allOk = false
+						break
+					end
+				end
+				if not allOk then
+					break
+				end
+				table.insert(mandatoryAdds, group)
+			end
+		end
+	end
+
 	if not allOk then
 		for _, monster in ipairs(spawned) do
 			monster:remove()
 		end
-		logger.error("SecretLibrary/Invasion: wing '{}' mandatory boss(es) failed to fully spawn (retries left: {})", wing.key, retriesLeft)
+		logger.error("SecretLibrary/Invasion: wing '{}' mandatory boss/entities failed to fully spawn (retries left: {})", wing.key, retriesLeft)
 		if retriesLeft > 0 then
 			SecretLibraryInvasionRunTrackEvent(token, addEvent(spawnWingTransactional, 1000, wing, token, retriesLeft - 1))
 		else
-			SecretLibraryInvasionRunTerminate(token, "technical_abort", "wing '" .. wing.key .. "' mandatory boss(es) failed to spawn after bounded retries")
+			SecretLibraryInvasionRunTerminate(token, "technical_abort", "wing '" .. wing.key .. "' mandatory boss/entities failed to spawn after bounded retries")
 		end
 		return
 	end
@@ -289,24 +343,29 @@ local function spawnWingTransactional(wing, token, retriesLeft)
 	SecretLibraryInvasionRun.wingAddIds[wing.key] = {}
 	SecretLibraryInvasionRun.wingDefeated[wing.key] = false
 
-	-- CORRECTION (section 10/11): each addSpawns entry is spawned only at its OWN positions list, no
-	-- longer cross-producted against every other entry's positions. `exactCount` (currently only the
-	-- Devourer's 4 Books of Secrets) caps how many of that entry are created even if more positions
-	-- were ever supplied, matching the reference's own exact-count requirement rather than "one per
-	-- tile". These remain best-effort ambient adds (not mandatory boss-level entities) - a partial
-	-- spawn does not abort the wing, matching this project's established mandatory-vs-ambient
-	-- distinction.
+	for _, group in ipairs(mandatoryAdds) do
+		for _, add in ipairs(group) do
+			SecretLibraryInvasionRun.wingAddIds[wing.key][add:getId()] = true
+		end
+	end
+
+	-- CORRECTION (section 10/11): each non-mandatory addSpawns entry is spawned only at its OWN
+	-- positions list, no longer cross-producted against every other entry's positions. These remain
+	-- best-effort ambient adds - a partial spawn does not abort the wing, matching this project's
+	-- established mandatory-vs-ambient distinction.
 	for _, spawn in ipairs(wing.addSpawns or {}) do
-		local limit = spawn.exactCount or math.huge
-		local spawnedCount = 0
-		for _, position in ipairs(spawn.positions or {}) do
-			if spawnedCount >= limit then
-				break
-			end
-			local add = Game.createMonster(spawn.name, position, true, true)
-			if add then
-				SecretLibraryInvasionRun.wingAddIds[wing.key][add:getId()] = true
-				spawnedCount = spawnedCount + 1
+		if not spawn.mandatory then
+			local limit = spawn.exactCount or math.huge
+			local spawnedCount = 0
+			for _, position in ipairs(spawn.positions or {}) do
+				if spawnedCount >= limit then
+					break
+				end
+				local add = Game.createMonster(spawn.name, position, true, true)
+				if add then
+					SecretLibraryInvasionRun.wingAddIds[wing.key][add:getId()] = true
+					spawnedCount = spawnedCount + 1
+				end
 			end
 		end
 	end

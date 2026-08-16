@@ -1,49 +1,77 @@
 -- ================================================================
--- MASTER DEBATER - DOCUMENT DISCOVERY (Secret Library corrective repair pass, section 3-4)
+-- MASTER DEBATER - DOCUMENT DISCOVERY + PHYSICAL BOOK REWARD (Secret Library completion mechanics pass)
 -- ================================================================
--- The previous pass's physical audit inspected the achievement-marker display coordinates as if each
--- one were the exact interactive Use-target tile, found only generic decoration there, and correctly
--- declined to implement anything rather than guess. A corrected audit (see this pass's own handoff,
--- docs/ai-dev/quests/packages/secret-library/03_SECRET_LIBRARY_CORRECTIVE_REPAIR_PASS.md) inspected
--- the actual documented container coordinates instead and, cross-checked against this project's own
--- item data (data/items/items.xml and data/items/appearances.dat), confirmed six of the nine required
--- "Grand Master of Verbal Debate" volumes have a real, distinct, position-matched physical object:
---   - two "Writing Desk" objects: item 27880, confirmed by the identical item id recurring at both
---     independently-labeled desk positions (and nowhere else nearby);
---   - three "Pile of Bones" objects: item 4285, confirmed via items.xml/appearances name resolution
---     ("pile of bones"), recurring at all three independently-labeled positions;
---   - one "Chest" object: item 2472, confirmed via items.xml/appearances name resolution ("chest").
--- The remaining three reference positions (Wooden Trunk, Ashes, Remains of a Mummy) were physically
--- inspected (including a wide surrounding-radius sweep) but no single object at or near them could be
--- confidently identified against this project's own item data - NOT wired here, left NOT_PROVEN, not
--- guessed. See MasterDebaterRequiredDocumentKeys below: the achievement gate still honestly requires
--- all nine, so it remains correctly unattainable until the remaining three are resolved in a future
--- map pass - this is a disclosed limitation, not a defect.
+-- Six of the nine required "Grand Master of Verbal Debate" volumes have a real, distinct,
+-- position-matched physical object, cross-checked against this project's own item data and an
+-- independently-fetched current reference (docs/ai-dev/quests/packages/secret-library/
+-- 07_SECRET_LIBRARY_COMPLETION_MECHANICS_PASS.md, section 27):
+--   - two "Writing Desk" objects: item 27880 (I and IV)
+--   - three "Pile of Bones" objects: item 4285 (V, VI, VII)
+--   - one "Chest" object: item 2472 (IX)
+-- The remaining three (II Wooden Trunk, III Ashes, VIII Remains of a Mummy) remain NOT_PROVEN - not
+-- wired, not guessed. See MasterDebaterRequiredDocumentKeys: the achievement gate honestly requires
+-- all nine, so it remains correctly unattainable until the remaining three are resolved.
 --
--- No exact "Grand Master of Verbal Debate" volume item id/reward could be proven from any source
--- available to this pass (the six confirmed positions' items have no item.xml override and no
--- resolvable appearances name beyond the generic prop class itself), so this implements DISCOVERY
--- tracking only (a persistent per-player flag) - no physical book reward is granted. Inventing a
--- reward item id here would be exactly the kind of fabrication this pass's instructions prohibit.
+-- CORRECTION (completion mechanics pass, section 14): the exact reference (individual TibiaWiki pages
+-- for "The Grand Master of Verbal Debate" I-IX, fetched and archived this pass) confirms the "Pode ser
+-- pego novamente a cada 20 horas" (repeatable every 20 hours) physical book mechanic and gives the
+-- exact readable text of every one of the nine volumes. Each of these nine texts was independently
+-- cross-matched against this quest's own pre-existing, already-audited Grand Master Oberon debate
+-- table (grand_master_oberon_functions.lua's GrandMasterOberonResponses) by its quoted riposte line -
+-- every one matches a distinct response index exactly, confirming both the book texts and the
+-- pre-existing debate table are the genuine Global mechanic. Reused item 2824 ("book", the generic
+-- readable-book item already defined in this project's own items.xml) as the reward item, following
+-- this project's own established convention for granting a readable item with custom per-instance text
+-- (item:setText(...), the same confirmed-real method already used elsewhere in this exact codebase,
+-- e.g. scripts/quests/parchment_room/parchment.lua and scripts/actions/other/others/quest_system2.lua)
+-- - no new/invented item id.
 --
 -- Position-scoped Action registration (Action:position(...)), the same mechanism this codebase's own
 -- register_actions.lua already uses for the Isle of Kings scythe entrance - narrow by construction
 -- (fires only for a Use targeting one of these six exact tiles), so it cannot affect any unrelated
 -- desk/bones/chest object anywhere else on the map even though the underlying item ids (27880, 4285,
--- 2472) are generic decoration classes reused elsewhere.
--- CORRECTION (Secret Library surgical correction pass, Defect A): Action:position(...) dispatches on
--- position alone (src/lua/creature/actions.cpp) - any other usable item that happens to share one of
--- these exact tiles would previously also have reached this handler and been silently swallowed
--- (matched no DOCUMENTS entry by position+ nothing else, but the loop only ever compared position).
--- Each entry now also records the exact confirmed item id (section 5/7 of the previous pass's
--- handoff) and onUse verifies BOTH before treating a Use as this document.
+-- 2472) are generic decoration classes reused elsewhere. Every Use additionally verifies the exact
+-- confirmed item id, not just position (src/lua/creature/actions.cpp dispatches on position alone) -
+-- a non-matching item returns false, falling through to that item's own default/built-in handling.
+local MASTER_DEBATER_BOOK_ITEM_ID = 2824 -- "book" (data/items/items.xml) - generic readable, reused
+
 local DOCUMENTS = {
-	{ key = "writing_desk_1", pos = Position(33369, 31348, 3), itemId = 27880 },
-	{ key = "writing_desk_2", pos = Position(33374, 31336, 3), itemId = 27880 },
-	{ key = "pile_of_bones_1", pos = Position(33368, 31325, 6), itemId = 4285 },
-	{ key = "pile_of_bones_2", pos = Position(33368, 31327, 6), itemId = 4285 },
-	{ key = "pile_of_bones_3", pos = Position(33387, 31285, 7), itemId = 4285 },
-	{ key = "chest", pos = Position(33369, 31343, 8), itemId = 2472 },
+	{
+		key = "writing_desk_1",
+		pos = Position(33369, 31348, 3),
+		itemId = 27880,
+		bookText = 'The Grand Master of Verbal Debate I\nFacing villainy of the utmost caliber, your riposte:\n"Are you ever going to fight or do you prefer talking?"',
+	},
+	{
+		key = "writing_desk_2",
+		pos = Position(33374, 31336, 3),
+		itemId = 27880,
+		bookText = 'The Grand Master of Verbal Debate IV\nA counter spell: SEHWO ASIMO, TOLIDO ESD',
+	},
+	{
+		key = "pile_of_bones_1",
+		pos = Position(33368, 31325, 6),
+		itemId = 4285,
+		bookText = 'The Grand Master of Verbal Debate V\nDealing with a forboding warning, your riposte:\n"Excuse me but I still do not get the message!"',
+	},
+	{
+		key = "pile_of_bones_2",
+		pos = Position(33368, 31327, 6),
+		itemId = 4285,
+		bookText = 'The Grand Master of Verbal Debate VI\nBoasting with strong words, your riposte:\n"Then why are we fighting alone right now?"',
+	},
+	{
+		key = "pile_of_bones_3",
+		pos = Position(33387, 31285, 7),
+		itemId = 4285,
+		bookText = 'The Grand Master of Verbal Debate VII\nBeing confronted with vile accusations, your riposte:\n"How appropriate, you look like something worms already got the better of!"',
+	},
+	{
+		key = "chest",
+		pos = Position(33369, 31343, 8),
+		itemId = 2472,
+		bookText = 'The Grand Master of Verbal Debate IX\nReceiving a doubtful word of wisdom, your riposte:\n"Dare strike up a Minnesang and you will receive your last accolade!"',
+	},
 }
 
 -- Global (not local): the full required set for the achievement gate, including the three currently
@@ -70,6 +98,13 @@ MasterDebaterRequiredDocumentKeys = {
 -- this pattern") rather than allocating nine more flat numeric storages for a still-partial mechanic.
 local function documentsKV(player)
 	return player:kv():scoped("secret-library-master-debater"):scoped("documents")
+end
+
+-- Separate KV branch for the 20h physical-reward cooldown, deliberately independent of the permanent
+-- discovery flag above (documentsKV) - discovery is set exactly once, ever; the reward cooldown resets
+-- every successful delivery, per the reference's own "every 20 hours" wording.
+local function rewardKV(player, docKey)
+	return player:kv():scoped("secret-library-master-debater"):scoped("book-reward"):scoped(docKey)
 end
 
 -- Global: called both when a document is discovered (below) and when Grand Master Oberon is
@@ -108,25 +143,53 @@ function actions_master_debater_documents.onUse(player, item, fromPosition, targ
 		end
 	end
 	if not doc then
-		-- CORRECTION (Defect A): position matched but the exact confirmed item id did not - a
-		-- different, unrelated usable item legitimately shares this tile. Return false (not true) so
-		-- the engine falls through to that item's own default handling instead of silently consuming
-		-- the Use with no effect and no default behavior.
+		-- position matched but the exact confirmed item id did not - a different, unrelated usable
+		-- item legitimately shares this tile. Return false (not true) so the engine falls through to
+		-- that item's own default handling instead of silently consuming the Use with no effect.
 		return false
 	end
 
 	local kv = documentsKV(player)
-	-- Idempotent: a repeat Use is a safe no-op past the first discovery - no duplicate progression,
-	-- no duplicate achievement side effect (MasterDebaterCheckAchievement's own hasAchievement guard
-	-- covers that regardless, but this also avoids redundant work/messages on every re-Use).
-	if kv:get(doc.key) then
-		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have already studied this debate volume.")
+	local alreadyDiscovered = kv:get(doc.key) == true
+
+	-- CORRECTION (completion mechanics pass, section 14): 20h per-document-per-player reward cooldown,
+	-- independent of the permanent discovery flag. Checked BEFORE any delivery attempt so a player who
+	-- is still on cooldown never reaches the inventory-mutating code below at all.
+	local reward = rewardKV(player, doc.key)
+	local now = os.time()
+	local nextRewardAt = reward:get("nextRewardAt") or 0
+	if now < nextRewardAt then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have already taken a copy of this debate volume recently. You can take another in " .. Game.getTimeInWords(nextRewardAt - now) .. ".")
 		return true
 	end
 
-	kv:set(doc.key, true)
-	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You study the debate volume and commit its arguments to memory.")
-	MasterDebaterCheckAchievement(player)
+	-- CORRECTION: transactional delivery - checkWeightAndBackpackRoom (data/libs/functions/functions.lua,
+	-- this project's own established pre-flight check, already used by quest_reward_common.lua for
+	-- exactly this kind of grant) runs BEFORE any cooldown/discovery state is committed, so a failed
+	-- delivery (no backpack room / too heavy) consumes neither the 20h cooldown nor the one-time
+	-- discovery flag - the player can simply try again once they have room.
+	local bookType = ItemType(MASTER_DEBATER_BOOK_ITEM_ID)
+	if not checkWeightAndBackpackRoom(player, bookType:getWeight() / 100, "You try to take a copy of the debate volume") then
+		return true
+	end
+	local book = player:addItem(MASTER_DEBATER_BOOK_ITEM_ID, 1)
+	if not book then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You try to take a copy of the debate volume, but you have no room to take it.")
+		return true
+	end
+	book:setText(doc.bookText)
+	reward:set("nextRewardAt", now + 20 * 60 * 60)
+
+	if not alreadyDiscovered then
+		-- Idempotent, permanent, set exactly once: a repeat Use after this point only ever grants a
+		-- fresh book copy (once off cooldown), never re-fires discovery or the achievement check again
+		-- beyond MasterDebaterCheckAchievement's own hasAchievement guard.
+		kv:set(doc.key, true)
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You study the debate volume and commit its arguments to memory.")
+		MasterDebaterCheckAchievement(player)
+	else
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You take another copy of the debate volume.")
+	end
 	return true
 end
 
