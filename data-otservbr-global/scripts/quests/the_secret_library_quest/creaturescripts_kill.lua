@@ -75,6 +75,12 @@ function creaturescripts_library_bosses.onDeath(creature, corpse, killer, mostDa
 						if p:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.FalconBastion.Questline) < 2 then
 							p:setStorageValue(Storage.Quest.U11_80.TheSecretLibrary.FalconBastion.Questline, 2)
 						end
+						-- CORRECTION (corrective repair pass, section 4.3): evaluate Master Debater here
+						-- too (not only from actions_master_debater_documents.lua's own document-discovery
+						-- path) so the achievement grants order-independently - a player who already
+						-- collected every discoverable document before this kill gets it the moment Oberon
+						-- legitimately dies, not only on their next document Use.
+						MasterDebaterCheckAchievement(p)
 					end
 				end
 			end

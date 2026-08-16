@@ -1,14 +1,15 @@
 -- Secret Library final invasion ("Scourge of Oblivion") - sequential wing orchestration.
 --
--- CORRECTION (Secret Library repair v2, sections 21/24-28): the run/ownership object
--- (SecretLibraryInvasionRun) and the lever itself now live in actions_the_scourge_of_oblivion.lua.
--- This file previously started ALL FOUR wings simultaneously in one loop (startWaves()) with zero
--- ownership - any monster sharing a wing boss's name anywhere on the map could set that wing's
--- "Defeated" flag. Rebuilt as an event-driven sequential state machine: central intro -> NE
--- Spellstealer -> SE Scion of Havoc -> SW Brothers Chill & Freeze -> NW Devourer of Secrets -> Scourge
--- activation, each wing's mandatory boss(es) transactionally spawned and exact-id-owned, advancing
--- only once the CURRENT wing's own owned boss(es) are confirmed dead - never while a required prior
--- wing remains incomplete.
+-- CORRECTION (Secret Library repair v2, sections 21/24-28; corrective repair pass, section 5): the
+-- run/ownership object (SecretLibraryInvasionRun) and the lever itself now live in
+-- actions_the_scourge_of_oblivion.lua. This file previously started ALL FOUR wings simultaneously in
+-- one loop (startWaves()) with zero ownership - any monster sharing a wing boss's name anywhere on
+-- the map could set that wing's "Defeated" flag. Rebuilt as an event-driven sequential state machine:
+-- central wave round 1 -> NE Spellstealer -> central wave round 2 -> SE Scion of Havoc -> central wave
+-- round 3 -> SW Brothers Chill & Freeze -> central wave round 4 -> NW Devourer of Secrets -> central
+-- wave round 5 -> Scourge activation, each wing's mandatory boss(es) transactionally spawned and
+-- exact-id-owned, advancing only once the CURRENT wing's own owned boss(es) are confirmed dead - never
+-- while a required prior wing remains incomplete.
 --
 -- MAP SETUP REQUIRED (unchanged from the pre-existing disclosure this repair inherited): none of the 4
 -- wing rooms have real coordinates anywhere in the source (only directional/narrative description) or
@@ -23,6 +24,120 @@ local Invasion = Storage.Quest.U11_80.TheSecretLibrary.SecretLibraryInvasion
 -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_TIMING: no exact inter-wing gap is given by the reference - a
 -- stable functional delay, not claimed Global-exact.
 local WING_TRANSITION_DELAY = 30 * 1000
+
+-- ================================================================
+-- CENTRAL HALL RAID WAVES (Secret Library corrective repair pass, section 5)
+-- ================================================================
+-- CORRECTION: the previous pass replaced the central-hall invasion phases described by the current
+-- reliable reference with a breach message plus a fixed transition delay - no central-hall creatures
+-- ever appeared. Current reference: players enter the central hall, invasion creatures begin
+-- appearing about 1 minute after entry, continue until a wing is breached, and after each wing dies
+-- players return to the central hall for a new attack wave before the next wing breach - the
+-- encounter alternates central-hall attack phases and the four wing bosses. After the Spellstealer
+-- wing, Invading Demons are added to the central attack. The central raid creature family (per the
+-- reference and the monster types already defined in this repository, none invented here): Imp
+-- Intruder, Invading Demon, Ravenous Beyondling, Rift Breacher, Rift Minion, Rift Spawn, Yalahari
+-- Despoiler.
+--
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_COUNT / _TIMING: no exact per-round roster beyond "Invading Demons
+-- are added after Spellstealer" is given, and no exact wave duration/despawn timing is given either
+-- (only "about 1 minute" for the very first appearance). This is a disclosed, escalating
+-- approximation - not claimed Global-exact - matching the one confirmed escalation point (Invading
+-- Demon appearing from round 2 onward) and otherwise adding one more established central-raid
+-- monster type per round so the final (5th, pre-Scourge) round uses the full roster.
+local CENTRAL_WAVE_DURATION = 60 * 1000
+
+local CENTRAL_WAVE_ROSTERS = {
+	{ "Imp Intruder", "Rift Minion", "Rift Spawn" },
+	{ "Imp Intruder", "Rift Minion", "Rift Spawn", "Invading Demon" },
+	{ "Imp Intruder", "Rift Minion", "Rift Spawn", "Invading Demon", "Rift Breacher" },
+	{ "Imp Intruder", "Rift Minion", "Rift Spawn", "Invading Demon", "Rift Breacher", "Ravenous Beyondling" },
+	{ "Imp Intruder", "Rift Minion", "Rift Spawn", "Invading Demon", "Rift Breacher", "Ravenous Beyondling", "Yalahari Despoiler" },
+}
+
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_POSITION: these 7 tiles are physically PROVEN_PRESENT (real,
+-- walkable central-hall floor - confirmed against the exact configured otservbr.otbm this pass, see
+-- docs/ai-dev/quests/packages/secret-library/03_SECRET_LIBRARY_CORRECTIVE_REPAIR_PASS.md), not
+-- guessed void/wall tiles - but the exact CipSoft spawn SQMs are not proven, so these are a disclosed,
+-- reasonable choice among many equally-valid real floor tiles inside the already-proven central hall.
+local CENTRAL_WAVE_POSITIONS = {
+	Position(32716, 32729, 11),
+	Position(32723, 32729, 11),
+	Position(32730, 32729, 11),
+	Position(32737, 32729, 11),
+	Position(32722, 32730, 11),
+	Position(32729, 32730, 11),
+	Position(32736, 32730, 11),
+}
+
+-- CORRECTION (section 39): best-effort ambient spawn (not mandatory - the central wave is flavor
+-- combat, not a progression gate the way a wing boss is), but still fully generation-owned so a
+-- stale clear callback from an earlier round can never touch a later one. Returns the generation this
+-- spawn committed, so the caller's own end-of-round clear can verify it is clearing the round it
+-- itself started (not a newer one that started in the meantime, which cannot happen on this single
+-- sequential timeline but is guarded anyway for consistency with this project's other owned-entity
+-- sets).
+local function spawnCentralWave(token, roundIndex)
+	if not SecretLibraryInvasionRunIsCurrent(token) then
+		return nil
+	end
+	local roster = CENTRAL_WAVE_ROSTERS[math.min(roundIndex, #CENTRAL_WAVE_ROSTERS)]
+	SecretLibraryInvasionRun.centralWaveGeneration = SecretLibraryInvasionRun.centralWaveGeneration + 1
+	local generation = SecretLibraryInvasionRun.centralWaveGeneration
+	SecretLibraryInvasionRun.centralWaveCreatureIds = {}
+	for i, name in ipairs(roster) do
+		local pos = CENTRAL_WAVE_POSITIONS[((i - 1) % #CENTRAL_WAVE_POSITIONS) + 1]
+		local monster = Game.createMonster(name, pos, true, true)
+		if monster then
+			SecretLibraryInvasionRun.centralWaveCreatureIds[monster:getId()] = true
+		end
+	end
+	return generation
+end
+
+local function clearCentralWave(generation)
+	if SecretLibraryInvasionRun.centralWaveGeneration ~= generation then
+		return
+	end
+	for creatureId in pairs(SecretLibraryInvasionRun.centralWaveCreatureIds) do
+		local monster = Creature(creatureId)
+		if monster then
+			monster:remove()
+		end
+	end
+	SecretLibraryInvasionRun.centralWaveCreatureIds = {}
+end
+
+-- Global: called once per central-wave round (1..4 precede a wing breach, round 5 precedes Scourge
+-- activation). Invoked from the lever's initial delay (round 1) and from InvasionWingBossDied (every
+-- subsequent round).
+function InvasionStartCentralWaveRound(token, roundIndex)
+	if not SecretLibraryInvasionRunIsCurrent(token) then
+		return
+	end
+	for _, spectator in ipairs(Game.getSpectators(centralHall, false, true, 15, 15, 15, 15)) do
+		if roundIndex == 1 then
+			spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The central hall shudders as the invasion begins!")
+		else
+			spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The invaders press their attack on the central hall once more!")
+		end
+	end
+	local generation = spawnCentralWave(token, roundIndex)
+	SecretLibraryInvasionRunTrackEvent(
+		token,
+		addEvent(function()
+			if not SecretLibraryInvasionRunIsCurrent(token) then
+				return
+			end
+			clearCentralWave(generation)
+			if roundIndex <= 4 then
+				InvasionAdvanceWing(token, roundIndex)
+			else
+				InvasionActivateScourge(token)
+			end
+		end, CENTRAL_WAVE_DURATION)
+	)
+end
 
 local WINGS = {
 	{
@@ -154,18 +269,9 @@ function InvasionAdvanceWing(token, index)
 	spawnWingTransactional(wing, token)
 end
 
--- Global: called once when the Dormant lever pull's initial delay elapses.
-function InvasionBeginCentralIntro(token)
-	if not SecretLibraryInvasionRunIsCurrent(token) then
-		return
-	end
-	for _, spectator in ipairs(Game.getSpectators(centralHall, false, true, 15, 15, 15, 15)) do
-		spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The central hall shudders as the invasion begins!")
-	end
-	InvasionAdvanceWing(token, 1)
-end
-
-local function activateScourge(token)
+-- Global: called from InvasionStartCentralWaveRound once the 5th (final, post-wing-4) central wave
+-- round ends.
+function InvasionActivateScourge(token)
 	if not SecretLibraryInvasionRunIsCurrent(token) then
 		return
 	end
@@ -205,12 +311,11 @@ function InvasionWingBossDied(token, key)
 		end
 	end
 
+	-- CORRECTION (section 5): the next phase is always another central-hall raid round (round
+	-- nextIndex) before the next wing breach (or, for nextIndex == 5, before Scourge activation) -
+	-- never a direct jump straight to the next wing/Scourge the way the previous pass did.
 	local nextIndex = SecretLibraryInvasionRun.wingIndex + 1
-	if nextIndex > #WINGS then
-		SecretLibraryInvasionRunTrackEvent(token, addEvent(activateScourge, WING_TRANSITION_DELAY, token))
-	else
-		SecretLibraryInvasionRunTrackEvent(token, addEvent(InvasionAdvanceWing, WING_TRANSITION_DELAY, token, nextIndex))
-	end
+	SecretLibraryInvasionRunTrackEvent(token, addEvent(InvasionStartCentralWaveRound, WING_TRANSITION_DELAY, token, nextIndex))
 end
 
 -- The Spellstealer's colored-phase teleports. Registered unconditionally on nil positions currently

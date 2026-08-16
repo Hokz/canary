@@ -1,5 +1,18 @@
 # Secret Library — Verification & Closure Pass
 
+> **SUPERSEDED IN PART.** Independent review rejected this document's `CODE_COMPLETE_MAP_BLOCKED`
+> classification and identified two unresolved defects this document did not correctly account for:
+> (1) the Master Debater physical audit in section G used achievement-marker coordinates rather than
+> the actual documented Use-target coordinates, and (2) map-matrix item #18 ("central raid spawn
+> areas") was misclassified `NOT_APPLICABLE` when the reference in fact describes a real, missing
+> central-hall raid-wave gameplay phase. See
+> `docs/ai-dev/quests/packages/secret-library/03_SECRET_LIBRARY_CORRECTIVE_REPAIR_PASS.md` for the
+> corrected findings and the repair implemented for both. This document is left otherwise unmodified
+> below as a historical record of what was actually done and found in that pass — every other
+> section (OTBM provenance, the 32-item matrix outside #18, the final-invasion wing-room topology
+> render, the Gorzindel verification, the Oberon audit) was independently re-confirmed still accurate
+> by the corrective pass and was not repeated wholesale in document 03.
+
 Role note: this document is written by the technical executor. It reports implementation and
 physical-map evidence gathered this pass. It is **not** an independent validation and grants no
 approval. No merge is authorized by this document.

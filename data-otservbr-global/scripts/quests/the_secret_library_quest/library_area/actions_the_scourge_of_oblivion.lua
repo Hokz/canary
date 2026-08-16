@@ -30,6 +30,12 @@ SecretLibraryInvasionRun = {
 	scourgeCreatureId = nil, -- constant across every setType phase-swap (dormant -> real -> reflective/immune -> real)
 	scourgePhase = 0, -- 0 not yet active, 1 yellow (vulnerable), 2 red (reflective), 3 blue (beam)
 	scourgePhaseGeneration = 0, -- bumped on every phase change; a delayed beam must match this exactly
+	-- CORRECTION (Secret Library corrective repair pass, section 5): central-hall raid wave state -
+	-- see movements_invasion_start.lua's spawnCentralWave/clearCentralWave. Generation-tagged exactly
+	-- like every other owned-entity set in this run, so a stale wave-clear callback from an earlier
+	-- round can never touch a later round's creatures.
+	centralWaveGeneration = 0,
+	centralWaveCreatureIds = {}, -- set: creatureId -> true, current central-wave-generation only
 	events = {}, -- set: eventId -> true
 }
 
@@ -125,6 +131,12 @@ function SecretLibraryInvasionRunTerminate(token, kind, reason)
 				end
 			end
 		end
+		for creatureId in pairs(SecretLibraryInvasionRun.centralWaveCreatureIds) do
+			local monster = Creature(creatureId)
+			if monster then
+				monster:remove()
+			end
+		end
 		if SecretLibraryInvasionRun.scourgeCreatureId then
 			local scourge = Creature(SecretLibraryInvasionRun.scourgeCreatureId)
 			if scourge then
@@ -164,6 +176,8 @@ function SecretLibraryInvasionRunTerminate(token, kind, reason)
 	SecretLibraryInvasionRun.scourgeCreatureId = nil
 	SecretLibraryInvasionRun.scourgePhase = 0
 	SecretLibraryInvasionRun.scourgePhaseGeneration = 0
+	SecretLibraryInvasionRun.centralWaveGeneration = 0
+	SecretLibraryInvasionRun.centralWaveCreatureIds = {}
 	SecretLibraryInvasionRun.events = {}
 end
 
@@ -251,6 +265,8 @@ local function createInvasionEncounter()
 	SecretLibraryInvasionRun.scourgeCreatureId = dormant:getId()
 	SecretLibraryInvasionRun.scourgePhase = 0
 	SecretLibraryInvasionRun.scourgePhaseGeneration = 0
+	SecretLibraryInvasionRun.centralWaveGeneration = 0
+	SecretLibraryInvasionRun.centralWaveCreatureIds = {}
 	SecretLibraryInvasionRun.events = {}
 
 	if lastInfoPositions then
@@ -282,9 +298,12 @@ local function createInvasionEncounter()
 	)
 	SecretLibraryInvasionRunTrackEvent(token, addEvent(watchEmptyRoom, 20 * 1000, token))
 
-	-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_TIMING: "~30s central-invasion start" per the owner contract -
-	-- an approximate value, not claimed Global-exact.
-	SecretLibraryInvasionRunTrackEvent(token, addEvent(InvasionBeginCentralIntro, 30 * 1000, token))
+	-- CORRECTION (corrective repair pass, section 5): current reliable reference describes invasion
+	-- creatures beginning to appear in the central hall "about 1 minute after entry" - replaces the
+	-- previous pass's ~30s value (which additionally skipped the central-wave phase entirely and went
+	-- straight to the first wing breach). CUSTOM_GLOBAL_LIKE_PENDING_EXACT_TIMING: "about 1 minute" is
+	-- the reference's own approximate phrasing, not an exact figure.
+	SecretLibraryInvasionRunTrackEvent(token, addEvent(InvasionStartCentralWaveRound, 60 * 1000, token, 1))
 
 	return true
 end
