@@ -36,8 +36,10 @@ monster.bosstiary = {
 	bossRace = RARITY_ARCHFOE,
 }
 
-monster.health = 800000
-monster.maxHealth = 800000
+-- CORRECTION (final fidelity pass, section 6): PROVEN_REFERENCE HP (TibiaWiki monster infobox,
+-- fetched and archived this pass) - was 800000. XP (75000) was already correct, unchanged.
+monster.health = 650000
+monster.maxHealth = 650000
 monster.race = "venom"
 monster.corpse = 23561
 monster.speed = 225

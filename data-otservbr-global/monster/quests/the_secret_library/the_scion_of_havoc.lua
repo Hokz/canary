@@ -5,7 +5,12 @@ monster.description = "The Scion of Havoc"
 monster.events = {
 	"InvasionScionOfHavocDeath",
 }
-monster.experience = 0
+-- CORRECTION (final fidelity pass, section 6): PROVEN_REFERENCE HP/XP - was a placeholder 10000/0.
+-- Reference also lists the Scion as healed by fire damage (not merely resistant) - NOT implemented
+-- this pass (a true "heals on hit" mechanic needs an onHealthChange redirect, the same safe pattern
+-- already used for the Brothers' ice-heals-them mechanic, not a plain elements-table percent value;
+-- disclosed as a remaining gap in the handoff rather than guessed here).
+monster.experience = 7000
 monster.outfit = {
 	lookType = 875,
 	lookHead = 94,
@@ -16,8 +21,8 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 10000
-monster.maxHealth = 10000
+monster.health = 290000
+monster.maxHealth = 290000
 monster.race = "venom"
 monster.corpse = 23564
 monster.speed = 175

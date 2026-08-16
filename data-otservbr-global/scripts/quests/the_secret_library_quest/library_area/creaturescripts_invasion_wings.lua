@@ -27,7 +27,13 @@ function spellstealerColorSwap.onThink(creature, interval)
 	local oldHealth = creature:getHealth()
 	creature:setType(("The Spellstealer (%s)"):format(color))
 	creature:addHealth(-(creature:getHealth() - oldHealth))
-	creature:say(("The Spellstealer channels %s energy!"):format(color), TALKTYPE_MONSTER_SAY)
+	-- CORRECTION (final fidelity pass, section 7): exact PROVEN_REFERENCE message, replacing this
+	-- pass's previous invented flavor text ("The Spellstealer channels %s energy!"). "creation" = green,
+	-- "destruction" = red, per the reference's own vortex naming.
+	local absorbMessage = color == "green" and "The spellstealer absorbs the power of creation!" or "The spellstealer absorbs the power of destruction!"
+	for _, spectator in ipairs(Game.getSpectators(creature:getPosition(), false, true, 10, 10, 10, 10)) do
+		spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, absorbMessage)
+	end
 	return true
 end
 spellstealerColorSwap:register()

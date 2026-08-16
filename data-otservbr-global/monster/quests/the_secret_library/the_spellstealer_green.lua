@@ -16,8 +16,11 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 10000
-monster.maxHealth = 10000
+-- CORRECTION (final fidelity pass, section 6): maxHealth kept consistent with the base "The
+-- Spellstealer" form (280000) - setType-based transforms preserve raw current HP across a swap, so a
+-- mismatched maxHealth here would clamp/distort HP on transform.
+monster.health = 280000
+monster.maxHealth = 280000
 monster.race = "undead"
 monster.corpse = 0
 monster.speed = 175

@@ -39,21 +39,28 @@ local WING_TRANSITION_DELAY = 30 * 1000
 -- Intruder, Invading Demon, Ravenous Beyondling, Rift Breacher, Rift Minion, Rift Spawn, Yalahari
 -- Despoiler.
 --
--- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_COUNT / _TIMING: no exact per-round roster beyond "Invading Demons
--- are added after Spellstealer" is given, and no exact wave duration/despawn timing is given either
--- (only "about 1 minute" for the very first appearance). This is a disclosed, escalating
--- approximation - not claimed Global-exact - matching the one confirmed escalation point (Invading
--- Demon appearing from round 2 onward) and otherwise adding one more established central-raid
--- monster type per round so the final (5th, pre-Scourge) round uses the full roster.
+-- CORRECTION (Secret Library final fidelity pass, section 8): a current reliable reference (fetched
+-- and archived this pass - see the handoff doc) explicitly frames the central-hall invasion roster as
+-- one recurring composition of all seven established types, with exactly ONE proven staged
+-- introduction: Invading Demons are added specifically "after the Spellstealer's death" ("volte para a
+-- sala principal onde um novo ataque começará (Após a morte do Spellstealer) com a adição de Invading
+-- Demons"). No reference evidence supports the previous pass's own invented per-round escalation
+-- (Rift Breacher first at round 3, Ravenous Beyondling first at round 4, Yalahari Despoiler first at
+-- round 5) - that ordering is removed. Replaced with the two compositions the reference actually
+-- supports: PRE-Spellstealer (round 1, all seven types except Invading Demon) and POST-Spellstealer
+-- (rounds 2-5, all seven types). CUSTOM_GLOBAL_LIKE_PENDING_EXACT_COUNT: exact per-type spawn counts
+-- are not given by the reference; one of each type per central-wave position remains the disclosed
+-- approximation.
+--
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_TIMING: the reference gives the round-1 delay as exactly "1
+-- minuto" (matches the already-implemented 60s value - not weakened to "about" here, this specific
+-- reference states it plainly), but gives no exact per-round wave duration/despawn timing beyond that
+-- single data point - the existing 60s CENTRAL_WAVE_DURATION, reused for every round, remains a
+-- disclosed approximation, not claimed exact for rounds 2-5.
 local CENTRAL_WAVE_DURATION = 60 * 1000
 
-local CENTRAL_WAVE_ROSTERS = {
-	{ "Imp Intruder", "Rift Minion", "Rift Spawn" },
-	{ "Imp Intruder", "Rift Minion", "Rift Spawn", "Invading Demon" },
-	{ "Imp Intruder", "Rift Minion", "Rift Spawn", "Invading Demon", "Rift Breacher" },
-	{ "Imp Intruder", "Rift Minion", "Rift Spawn", "Invading Demon", "Rift Breacher", "Ravenous Beyondling" },
-	{ "Imp Intruder", "Rift Minion", "Rift Spawn", "Invading Demon", "Rift Breacher", "Ravenous Beyondling", "Yalahari Despoiler" },
-}
+local CENTRAL_WAVE_ROSTER_PRE_SPELLSTEALER = { "Imp Intruder", "Ravenous Beyondling", "Rift Breacher", "Rift Minion", "Rift Spawn", "Yalahari Despoiler" }
+local CENTRAL_WAVE_ROSTER_POST_SPELLSTEALER = { "Imp Intruder", "Invading Demon", "Ravenous Beyondling", "Rift Breacher", "Rift Minion", "Rift Spawn", "Yalahari Despoiler" }
 
 -- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_POSITION: these 7 tiles are physically PROVEN_PRESENT (real,
 -- walkable central-hall floor - confirmed against the exact configured otservbr.otbm this pass, see
@@ -81,7 +88,7 @@ local function spawnCentralWave(token, roundIndex)
 	if not SecretLibraryInvasionRunIsCurrent(token) then
 		return nil
 	end
-	local roster = CENTRAL_WAVE_ROSTERS[math.min(roundIndex, #CENTRAL_WAVE_ROSTERS)]
+	local roster = roundIndex == 1 and CENTRAL_WAVE_ROSTER_PRE_SPELLSTEALER or CENTRAL_WAVE_ROSTER_POST_SPELLSTEALER
 	SecretLibraryInvasionRun.centralWaveGeneration = SecretLibraryInvasionRun.centralWaveGeneration + 1
 	local generation = SecretLibraryInvasionRun.centralWaveGeneration
 	SecretLibraryInvasionRun.centralWaveCreatureIds = {}
@@ -143,6 +150,33 @@ function InvasionStartCentralWaveRound(token, roundIndex)
 	)
 end
 
+-- CORRECTION (Secret Library final fidelity pass, sections 5/10/11): roster corrected against a
+-- current reliable reference (TibiaWiki, live-fetched and archived in this pass's own handoff -
+-- docs/ai-dev/quests/packages/secret-library/06_SECRET_LIBRARY_FINAL_FIDELITY_EVIDENCE_PASS.md).
+-- Each wing's `addSpawns` is now a list of independently-positioned, typed spawn groups (name +
+-- its own `positions` list + optional `exactCount`), replacing the previous single
+-- addMonsters/addSpawnPositions cross-product (which would have spawned EVERY addMonsters name at
+-- EVERY addSpawnPositions tile once positions existed - e.g. Devourer's 2 add types would each have
+-- spawned once per shared position instead of the reference's exact "4 Books + some War Servants").
+-- Currently inert either way (every `positions` list is still empty pending map data, so this is a
+-- declared-model correction only, not a runtime behavior change while unresolved) - but the model is
+-- now correct in advance of that data arriving, per this pass's own instruction not to leave a hidden
+-- cross-product landmine for whoever fills in positions next.
+--
+-- Spellstealer: PROVEN_REFERENCE roster is "The Spellstealer e Demon Slaves" (plural, no exact count
+-- given - CUSTOM_GLOBAL_LIKE_PENDING_EXACT_COUNT once positions exist).
+-- Scion of Havoc: PROVEN_REFERENCE "vários Spawns of Havoc" (unchanged from the previous pass, count
+-- still not given - CUSTOM_GLOBAL_LIKE_PENDING_EXACT_COUNT).
+-- Brothers: PROVEN_REFERENCE "vários Biting Colds" - the reference states the bosses AND the Biting
+-- Colds heal, but current code only implements boss-to-boss/ice-heals-boss (creaturescripts_invasion_wings.lua) -
+-- Biting Cold's own participation in that healing is NOT implemented this pass (undersized scope for
+-- this fidelity pass; disclosed, not silently dropped - see the handoff's remaining-blockers section).
+-- Devourer: PROVEN_REFERENCE "War Servants e 4 The Book of Secrets" - "Stolen Tome of Portals" REMOVED
+-- (confirmed absent from every reliable source describing this specific wing; it is exclusively a
+-- Gorzindel-encounter entity per this quest's own established convention, and was very likely a
+-- copy/paste leftover from an earlier, unaudited pass). Book of Secrets now has exactCount = 4,
+-- PROVEN_REFERENCE ("e 4 The Book of Secrets" - not destroying them is the intended strategy). War
+-- Servant count is CUSTOM_GLOBAL_LIKE_PENDING_EXACT_COUNT.
 local WINGS = {
 	{
 		key = "spellstealer",
@@ -150,18 +184,22 @@ local WINGS = {
 		monsters = { "The Spellstealer" },
 		roomCenter = nil, -- Position, MAP SETUP REQUIRED (northeast wing)
 		spawnPositions = {}, -- list of Position, MAP SETUP REQUIRED
-		greenTeleport = nil, -- Position, MAP SETUP REQUIRED (northwest part of the wing room)
-		redTeleport = nil, -- Position, MAP SETUP REQUIRED (southeast part of the wing room)
+		greenTeleport = nil, -- Position, MAP SETUP REQUIRED (northwest part of the wing room - PROVEN_REFERENCE direction)
+		redTeleport = nil, -- Position, MAP SETUP REQUIRED (southeast part of the wing room - PROVEN_REFERENCE direction)
+		addSpawns = {
+			{ name = "Demon Slave", positions = {} }, -- MAP SETUP REQUIRED; PROVEN_REFERENCE presence, count not given
+		},
 		defeatedStorage = Invasion.SpellstealerDefeated,
 	},
 	{
 		key = "scionOfHavoc",
 		breachMessage = "THE SOUTH EASTERN WING HAS BEEN BREACHED! RUSH TO CRUSH THE INTRUDERS!",
 		monsters = { "The Scion of Havoc" },
-		addMonsters = { "Spawn of Havoc" },
 		roomCenter = nil, -- MAP SETUP REQUIRED (southeast wing)
 		spawnPositions = {},
-		addSpawnPositions = {},
+		addSpawns = {
+			{ name = "Spawn of Havoc", positions = {} }, -- MAP SETUP REQUIRED; PROVEN_REFERENCE presence, count not given
+		},
 		defeatedStorage = Invasion.ScionOfHavocDefeated,
 	},
 	{
@@ -170,16 +208,21 @@ local WINGS = {
 		monsters = { "Brother Chill", "Brother Freeze" },
 		roomCenter = nil, -- MAP SETUP REQUIRED (southwest wing)
 		spawnPositions = {},
+		addSpawns = {
+			{ name = "Biting Cold", positions = {} }, -- MAP SETUP REQUIRED; PROVEN_REFERENCE presence, count not given
+		},
 		defeatedStorage = Invasion.BrothersDefeated,
 	},
 	{
 		key = "devourer",
 		breachMessage = "THE NORTH WESTERN WING HAS BEEN BREACHED! RUSH TO CRUSH THE INTRUDERS!",
 		monsters = { "The Devourer of Secrets" },
-		addMonsters = { "The Book of Secrets", "Stolen Tome of Portals" },
 		roomCenter = nil, -- MAP SETUP REQUIRED (northwest wing)
 		spawnPositions = {},
-		addSpawnPositions = {},
+		addSpawns = {
+			{ name = "The Book of Secrets", positions = {}, exactCount = 4 }, -- MAP SETUP REQUIRED; PROVEN_REFERENCE exact count
+			{ name = "War Servant", positions = {} }, -- MAP SETUP REQUIRED; PROVEN_REFERENCE presence, count not given
+		},
 		defeatedStorage = Invasion.DevourerDefeated,
 	},
 }
@@ -246,11 +289,24 @@ local function spawnWingTransactional(wing, token, retriesLeft)
 	SecretLibraryInvasionRun.wingAddIds[wing.key] = {}
 	SecretLibraryInvasionRun.wingDefeated[wing.key] = false
 
-	for _, position in ipairs(wing.addSpawnPositions or {}) do
-		for _, name in ipairs(wing.addMonsters or {}) do
-			local add = Game.createMonster(name, position, true, true)
+	-- CORRECTION (section 10/11): each addSpawns entry is spawned only at its OWN positions list, no
+	-- longer cross-producted against every other entry's positions. `exactCount` (currently only the
+	-- Devourer's 4 Books of Secrets) caps how many of that entry are created even if more positions
+	-- were ever supplied, matching the reference's own exact-count requirement rather than "one per
+	-- tile". These remain best-effort ambient adds (not mandatory boss-level entities) - a partial
+	-- spawn does not abort the wing, matching this project's established mandatory-vs-ambient
+	-- distinction.
+	for _, spawn in ipairs(wing.addSpawns or {}) do
+		local limit = spawn.exactCount or math.huge
+		local spawnedCount = 0
+		for _, position in ipairs(spawn.positions or {}) do
+			if spawnedCount >= limit then
+				break
+			end
+			local add = Game.createMonster(spawn.name, position, true, true)
 			if add then
 				SecretLibraryInvasionRun.wingAddIds[wing.key][add:getId()] = true
+				spawnedCount = spawnedCount + 1
 			end
 		end
 	end
@@ -351,8 +407,11 @@ if spellstealerWing.greenTeleport and spellstealerWing.redTeleport then
 		monster:setType("The Spellstealer")
 		monster:addHealth(-(monster:getHealth() - oldHealth))
 		position:sendMagicEffect(CONST_ME_MAGIC_BLUE)
+		-- CORRECTION (final fidelity pass, section 7): exact PROVEN_REFERENCE messages, replacing this
+		-- pass's previous paraphrase ("is drained of its stolen energy and becomes vulnerable again!").
+		local consumeMessage = position == spellstealerWing.greenTeleport and "The creation vortex consumes the stolen energy!" or "The destruction vortex consumes the stolen energy!"
 		for _, spectator in ipairs(Game.getSpectators(position, false, true, 10, 10, 10, 10)) do
-			spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, "The Spellstealer is drained of its stolen energy and becomes vulnerable again!")
+			spectator:sendTextMessage(MESSAGE_EVENT_ADVANCE, consumeMessage)
 		end
 		return true
 	end
