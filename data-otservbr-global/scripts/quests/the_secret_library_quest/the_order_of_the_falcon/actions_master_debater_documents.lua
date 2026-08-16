@@ -31,13 +31,19 @@
 -- (fires only for a Use targeting one of these six exact tiles), so it cannot affect any unrelated
 -- desk/bones/chest object anywhere else on the map even though the underlying item ids (27880, 4285,
 -- 2472) are generic decoration classes reused elsewhere.
+-- CORRECTION (Secret Library surgical correction pass, Defect A): Action:position(...) dispatches on
+-- position alone (src/lua/creature/actions.cpp) - any other usable item that happens to share one of
+-- these exact tiles would previously also have reached this handler and been silently swallowed
+-- (matched no DOCUMENTS entry by position+ nothing else, but the loop only ever compared position).
+-- Each entry now also records the exact confirmed item id (section 5/7 of the previous pass's
+-- handoff) and onUse verifies BOTH before treating a Use as this document.
 local DOCUMENTS = {
-	{ key = "writing_desk_1", pos = Position(33369, 31348, 3) },
-	{ key = "writing_desk_2", pos = Position(33374, 31336, 3) },
-	{ key = "pile_of_bones_1", pos = Position(33368, 31325, 6) },
-	{ key = "pile_of_bones_2", pos = Position(33368, 31327, 6) },
-	{ key = "pile_of_bones_3", pos = Position(33387, 31285, 7) },
-	{ key = "chest", pos = Position(33369, 31343, 8) },
+	{ key = "writing_desk_1", pos = Position(33369, 31348, 3), itemId = 27880 },
+	{ key = "writing_desk_2", pos = Position(33374, 31336, 3), itemId = 27880 },
+	{ key = "pile_of_bones_1", pos = Position(33368, 31325, 6), itemId = 4285 },
+	{ key = "pile_of_bones_2", pos = Position(33368, 31327, 6), itemId = 4285 },
+	{ key = "pile_of_bones_3", pos = Position(33387, 31285, 7), itemId = 4285 },
+	{ key = "chest", pos = Position(33369, 31343, 8), itemId = 2472 },
 }
 
 -- Global (not local): the full required set for the achievement gate, including the three currently
@@ -93,15 +99,20 @@ local actions_master_debater_documents = Action()
 
 function actions_master_debater_documents.onUse(player, item, fromPosition, target, toPosition, isHotkey)
 	local pos = item:getPosition()
+	local itemId = item:getId()
 	local doc = nil
 	for _, d in ipairs(DOCUMENTS) do
-		if d.pos == pos then
+		if d.pos == pos and d.itemId == itemId then
 			doc = d
 			break
 		end
 	end
 	if not doc then
-		return true
+		-- CORRECTION (Defect A): position matched but the exact confirmed item id did not - a
+		-- different, unrelated usable item legitimately shares this tile. Return false (not true) so
+		-- the engine falls through to that item's own default handling instead of silently consuming
+		-- the Use with no effect and no default behavior.
+		return false
 	end
 
 	local kv = documentsKV(player)

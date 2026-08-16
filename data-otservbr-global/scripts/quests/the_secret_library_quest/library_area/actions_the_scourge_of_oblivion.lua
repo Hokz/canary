@@ -181,14 +181,30 @@ function SecretLibraryInvasionRunTerminate(token, kind, reason)
 	SecretLibraryInvasionRun.events = {}
 end
 
+-- CORRECTION (Secret Library surgical correction pass, Defect B): this encounter's own BossLever
+-- specPos (config.specPos below) covers only the central hall - (32712,32723,11)-(32738,32748,11).
+-- The previous pass's own OTBM evidence proved the wing halls extend physically outside that
+-- rectangle, and legitimate wing combat has no player-teleport step (players walk there over the
+-- proven corridor connections) - so during a genuine, in-progress wing fight, this central-only zone's
+-- player count legitimately drops to 0. Both this watcher AND BossLever's own generic emptyRoomEvent
+-- watcher (see the lever instance override near the bottom of this file) previously treated that as
+-- room abandonment and could terminate/reset a fully legitimate attempt. Guarded on
+-- SecretLibraryInvasionRun.phase == "wing" - the phase is set by InvasionAdvanceWing the moment a wing
+-- starts and is only cleared by the next InvasionAdvanceWing/InvasionActivateScourge call, so it
+-- already covers the whole unsafe window: the wing fight itself, the post-wing grace delay, and every
+-- central-wave round that follows before the next wing (during which players are legitimately back in
+-- the central hall anyway, so the guard is a safe no-op there, not a loosened check). central_intro
+-- and scourge phases are unaffected - genuine abandonment during those still times out normally.
 local function watchEmptyRoom(token)
 	if not SecretLibraryInvasionRunIsCurrent(token) then
 		return
 	end
-	local zone = Zone("boss." .. toKey("the scourge of oblivion (dormant)"))
-	if zone and zone:countPlayers() == 0 then
-		SecretLibraryInvasionRunTerminate(token, "normal_timeout", "room emptied before the encounter concluded")
-		return
+	if SecretLibraryInvasionRun.phase ~= "wing" then
+		local zone = Zone("boss." .. toKey("the scourge of oblivion (dormant)"))
+		if zone and zone:countPlayers() == 0 then
+			SecretLibraryInvasionRunTerminate(token, "normal_timeout", "room emptied before the encounter concluded")
+			return
+		end
 	end
 	SecretLibraryInvasionRunTrackEvent(token, addEvent(watchEmptyRoom, 20 * 1000, token))
 end
@@ -339,5 +355,35 @@ local config = {
 }
 
 local lever = BossLever(config)
+
+-- CORRECTION (Defect B): instance-only override of BossLever's own generic empty-room watcher
+-- (data/libs/functions/boss_lever.lua's BossLever:watchEmptyRoom/handleEmptyRoom), scoped to this one
+-- lever instance only - assigning directly on the `lever` table shadows the shared BossLever method
+-- via Lua's normal instance-before-metatable lookup order, so every other BossLever-based boss in this
+-- codebase keeps its unmodified default behavior; data/libs/functions/boss_lever.lua itself is not
+-- touched. Logic is identical to the framework's own BossLever:watchEmptyRoom, with one addition: while
+-- SecretLibraryInvasionRun.phase == "wing" (see the local watchEmptyRoom function above for the exact
+-- rationale - the central-only specPos zone legitimately empties during a real wing fight), this skips
+-- the abandonment check for this poll and simply reschedules, instead of calling
+-- self:handleEmptyRoom(zone) (which would set bossAlive=false, stop events, and clean/reset the room).
+function lever:watchEmptyRoom(zone)
+	if not self.bossAlive then
+		return
+	end
+	if SecretLibraryInvasionRun.active and SecretLibraryInvasionRun.phase == "wing" then
+		self.emptyRoomEvent = addEvent(function(bossLever, zn)
+			bossLever:watchEmptyRoom(zn)
+		end, BossLever.emptyRoomCheckInterval, self, zone)
+		return
+	end
+	if zone:countPlayers() == 0 then
+		self:handleEmptyRoom(zone)
+		return
+	end
+	self.emptyRoomEvent = addEvent(function(bossLever, zn)
+		bossLever:watchEmptyRoom(zn)
+	end, BossLever.emptyRoomCheckInterval, self, zone)
+end
+
 lever:position(Position(32675, 32743, 11))
 lever:register()
