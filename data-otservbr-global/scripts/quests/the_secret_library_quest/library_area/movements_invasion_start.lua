@@ -340,6 +340,24 @@ local function spawnWingTransactional(wing, token, retriesLeft)
 	else
 		SecretLibraryInvasionRun.wingBossIds[wing.key] = spawned[1]:getId()
 	end
+
+	-- CORRECTION (final functional closure pass, P1 section 2): PROVEN_REFERENCE - "O Spellstealer e
+	-- inicialmente invulneravel a todos os ataques" (the Spellstealer starts invulnerable to all
+	-- attacks). The boss was being spawned as the plain vulnerable "The Spellstealer" type (needed for
+	-- wingBossIds/CreatureEvent bookkeeping above) and left that way - the encounter now transforms it
+	-- into a random initial colored/immune form immediately after spawn, exactly the same
+	-- setType+current-HP-reapply technique already proven safe for every other color transform in this
+	-- encounter (InvasionSpellstealerColorSwap, the vortex colorTeleports handler below). The creature id
+	-- is unchanged by setType, so SecretLibraryInvasionRun.wingBossIds ownership set above already covers
+	-- the transformed creature - no additional ownership wiring needed.
+	if wing.key == "spellstealer" then
+		local boss = spawned[1]
+		local oldHealth = boss:getHealth()
+		local color = math.random(2) == 1 and "green" or "red"
+		boss:setType(("The Spellstealer (%s)"):format(color))
+		boss:addHealth(-(boss:getHealth() - oldHealth))
+	end
+
 	SecretLibraryInvasionRun.wingAddIds[wing.key] = {}
 	SecretLibraryInvasionRun.wingDefeated[wing.key] = false
 

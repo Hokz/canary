@@ -2,6 +2,13 @@ local mType = Game.createMonsterType("Biting Cold")
 local monster = {}
 
 monster.description = "Biting Cold"
+-- CORRECTION (final functional closure pass, P1 section 4): PROVEN_REFERENCE - "the bosses and the
+-- Biting Colds heal [each other]" (Brother Chill & Brother Freeze wing strategy). Wires this add into
+-- the same current-run/current-wing-generation-owned mutual-heal pool as the two bosses -
+-- creaturescripts_invasion_wings.lua's InvasionBrothersHealEachOther.
+monster.events = {
+	"InvasionBrothersHealEachOther",
+}
 monster.experience = 0
 monster.outfit = {
 	lookType = 53,

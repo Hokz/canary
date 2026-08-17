@@ -2717,6 +2717,15 @@ Storage = {
 				},
 				LibraryPermission = 46091,
 				Library = {
+					-- CORRECTION (final functional closure pass, P0 section 1): this id was reserved but
+					-- had zero readers/writers anywhere in the repository before this pass - the final
+					-- chapter (entering the veiled library through Cerebrir's post-Scourge epilogue) has
+					-- no entry in the visible Missions questlog catalog (lib/core/quests/catalog/
+					-- 049_the_secret_library.lua only has the 6 missions TibiaWiki's own quest page
+					-- confirms exist - PROVEN_REFERENCE, not an oversight), so this progresses as a plain
+					-- per-player storage instead: 0 = not reached, 1 = Scourge of Oblivion defeated /
+					-- epilogue pending, 2 = Cerebrir's epilogue completed / quest truly concluded. Set by
+					-- creaturescripts_scourge_of_oblivion_phases.lua (1) and npc/cerebrir.lua (2).
 					Questline = 46092,
 					MazzinorTimer = 46093,
 					LokathmorTimer = 46094,

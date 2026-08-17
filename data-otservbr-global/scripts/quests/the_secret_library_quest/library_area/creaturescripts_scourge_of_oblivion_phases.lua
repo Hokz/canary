@@ -132,6 +132,24 @@ local function isInsideRoom(player)
 	return pos.x >= ROOM_FROM.x and pos.x <= ROOM_TO.x and pos.y >= ROOM_FROM.y and pos.y <= ROOM_TO.y and pos.z == ROOM_FROM.z
 end
 
+-- CORRECTION (final functional closure pass, P0 section 1): PROVEN_REFERENCE post-kill message, exact
+-- quote (TibiaWiki main quest page, fetched this pass). Emitted as a system message to legitimate
+-- current-run participants still physically present in the room at the moment of the kill - same
+-- eligibility scope already used for Library Liberator credit, not a room-wide broadcast to bystanders.
+local BETRAYAL_MESSAGE = {
+	"NOOOO! WE HAVE BEEN FOOLED! THE ATTACK WAS A RUSE!",
+	"AMIDST THE DISTRACTION THE KNOWLEDGE ABOUT THE GODBREAKER HAS BEEN STOLEN!",
+	"COME TO ME! WE HAVE TO TALK!",
+}
+
+-- CORRECTION (final functional closure pass, P0 section 1): per-player, DB-backed (survives
+-- logout/relog) epilogue-pending state, same player:kv():scoped(...) convention already established in
+-- this quest (actions_master_debater_documents.lua's documentsKV/rewardKV). Cerebrir (npc/cerebrir.lua)
+-- reads/advances this exact KV path.
+local function cerebrirKV(player)
+	return player:kv():scoped("secret-library-cerebrir")
+end
+
 local scourgeDeath = CreatureEvent("InvasionScourgeDeath")
 function scourgeDeath.onDeath(creature, corpse, lasthitkiller, mostdamagekiller)
 	local token = SecretLibraryInvasionRunCurrentToken()
@@ -140,8 +158,21 @@ function scourgeDeath.onDeath(creature, corpse, lasthitkiller, mostdamagekiller)
 	end
 	for playerId in pairs(SecretLibraryInvasionRun.participants) do
 		local player = Player(playerId)
-		if player and isInsideRoom(player) and not player:hasAchievement("Library Liberator") then
-			player:addAchievement("Library Liberator")
+		if player and isInsideRoom(player) then
+			if not player:hasAchievement("Library Liberator") then
+				player:addAchievement("Library Liberator")
+			end
+			-- Library Liberator (achievement) stays independent of the epilogue/true-completion state
+			-- below, per the task's own explicit requirement - granting one never implies the other.
+			if not cerebrirKV(player):get("epilogueComplete") then
+				for _, line in ipairs(BETRAYAL_MESSAGE) do
+					player:sendTextMessage(MESSAGE_EVENT_ADVANCE, line)
+				end
+				cerebrirKV(player):set("epiloguePending", true)
+				if player:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.Library.Questline) < 1 then
+					player:setStorageValue(Storage.Quest.U11_80.TheSecretLibrary.Library.Questline, 1)
+				end
+			end
 		end
 	end
 	SecretLibraryInvasionRunTerminate(token, "success", "The Scourge of Oblivion defeated")

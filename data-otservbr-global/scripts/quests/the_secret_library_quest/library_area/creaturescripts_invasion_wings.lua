@@ -81,6 +81,27 @@ function scionOfHavocDeath.onDeath(creature, corpse, lasthitkiller, mostdamageki
 end
 scionOfHavocDeath:register()
 
+-- CORRECTION (final functional closure pass, P1 section 3): PROVEN_REFERENCE - the Scion of Havoc's own
+-- dedicated monster page states "-100% Cura-se quando atacado com Fogo" (heals when attacked with
+-- Fire), confirming this is a genuine "fire heals it" mechanic (distinct from, and additional to, the
+-- already-implemented Spawn-of-Havoc-explosion heal above). This engine clamps an elements-table percent
+-- at 100% = 0 damage rather than converting it into a heal (same limitation already documented for the
+-- Brothers' ice-heal mechanic), so this reuses that exact onHealthChange redirect technique instead of a
+-- monster.lua elements value.
+local scionHealFire = CreatureEvent("InvasionScionHealFire")
+function scionHealFire.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType, origin)
+	local token = SecretLibraryInvasionRunCurrentToken()
+	if not token or not SecretLibraryInvasionRunOwnsWingBoss("scionOfHavoc", creature) then
+		return primaryDamage, primaryType, secondaryDamage, secondaryType
+	end
+	if primaryType == COMBAT_FIREDAMAGE or secondaryType == COMBAT_FIREDAMAGE then
+		creature:addHealth(-(primaryDamage or 0) - (secondaryDamage or 0))
+		return 0, primaryType, 0, secondaryType
+	end
+	return primaryDamage, primaryType, secondaryDamage, secondaryType
+end
+scionHealFire:register()
+
 -- Brother Chill & Brother Freeze: heal each other periodically, and are healed rather than damaged by
 -- ice attacks (this engine clamps elemental resistance at 100% = 0 damage, so the "ice heals them"
 -- part reuses the onHealthChange redirect technique this quest's own Mazzinor already used).
@@ -99,15 +120,57 @@ function brothersHealIce.onHealthChange(creature, attacker, primaryDamage, prima
 end
 brothersHealIce:register()
 
+-- CORRECTION (final functional closure pass, P1 section 4): PROVEN_REFERENCE - "Os bosses e os Biting
+-- Colds se curam" (the bosses AND the Biting Colds heal [each other]) - the mutual-heal mechanic
+-- previously only covered the two bosses healing each other; Biting Cold adds now participate in the
+-- same pool (registered on all three monster types: brother_chill.lua, brother_freeze.lua,
+-- biting_cold.lua). Ownership-gated for boss OR add via the existing
+-- SecretLibraryInvasionRunOwnsWingBoss/OwnsWingAdd helpers, current-run-only, bounded to the current
+-- wing generation's own pool - a stale/foreign same-name creature from a different run or a Biting Cold
+-- from an earlier wing generation can neither heal nor be healed. Stops naturally when the wing ends
+-- (InvasionWingBossDied removes every wingAddIds[key] entry and the run's ownership checks then fail for
+-- any survivor). Exact proximity-gating ("mantê-los afastados um do outro") is not reproduced here -
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_TIMING/VALUE, a disclosed non-blocking simplification, not a P0/P1
+-- functional gap (the mutual-heal mechanic itself - the required behavior - is fully present).
+local function brothersHealPoolIds()
+	local pool = {}
+	local ids = SecretLibraryInvasionRun.wingBossIds.brothers
+	if ids then
+		if SecretLibraryInvasionRun.brothersAlive.chill then
+			pool[#pool + 1] = ids.chill
+		end
+		if SecretLibraryInvasionRun.brothersAlive.freeze then
+			pool[#pool + 1] = ids.freeze
+		end
+	end
+	for addId in pairs(SecretLibraryInvasionRun.wingAddIds.brothers or {}) do
+		pool[#pool + 1] = addId
+	end
+	return pool
+end
+
 local brothersHealEachOther = CreatureEvent("InvasionBrothersHealEachOther")
 function brothersHealEachOther.onThink(creature, interval)
 	local token = SecretLibraryInvasionRunCurrentToken()
-	if not token or not SecretLibraryInvasionRunOwnsWingBoss("brothers", creature) then
+	if not token then
 		return true
 	end
-	local ids = SecretLibraryInvasionRun.wingBossIds.brothers
-	local otherId = creature:getId() == ids.chill and ids.freeze or ids.chill
-	local other = Creature(otherId)
+	local isBoss = SecretLibraryInvasionRunOwnsWingBoss("brothers", creature)
+	local isAdd = not isBoss and SecretLibraryInvasionRunOwnsWingAdd("brothers", creature)
+	if not isBoss and not isAdd then
+		return true
+	end
+	local selfId = creature:getId()
+	local candidates = {}
+	for _, id in ipairs(brothersHealPoolIds()) do
+		if id ~= selfId then
+			candidates[#candidates + 1] = id
+		end
+	end
+	if #candidates == 0 then
+		return true
+	end
+	local other = Creature(candidates[math.random(#candidates)])
 	if other and other:getHealth() > 0 and other:getHealth() < other:getMaxHealth() then
 		other:addHealth(math.random(400, 800))
 		other:getPosition():sendMagicEffect(CONST_ME_MAGIC_BLUE)
