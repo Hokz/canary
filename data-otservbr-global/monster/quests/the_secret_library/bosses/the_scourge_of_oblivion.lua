@@ -20,9 +20,15 @@ monster.outfit = {
 -- see the_scourge_of_oblivion_dormant.lua (pre-fight placeholder) and
 -- the_scourge_of_oblivion_reflective.lua (red phase) for the other two forms, cycled by
 -- InvasionScourgePhaseCycle.
+-- CORRECTION (Secret Library repair v2, section 20): createFunction-created bosses never go through
+-- boss_lever.lua's generic monster:registerEvent("BossLeverOnDeath") path - registered dynamically on
+-- the Dormant form at spawn (actions_the_scourge_of_oblivion.lua), and statically here too as
+-- defensive redundancy across the setType transform chain, matching this quest's own
+-- Supercharged Mazzinor precedent.
 monster.events = {
 	"InvasionScourgePhaseCycle",
 	"InvasionScourgeDeath",
+	"BossLeverOnDeath",
 }
 
 monster.bosstiary = {
@@ -30,8 +36,10 @@ monster.bosstiary = {
 	bossRace = RARITY_ARCHFOE,
 }
 
-monster.health = 800000
-monster.maxHealth = 800000
+-- CORRECTION (final fidelity pass, section 6): PROVEN_REFERENCE HP (TibiaWiki monster infobox,
+-- fetched and archived this pass) - was 800000. XP (75000) was already correct, unchanged.
+monster.health = 650000
+monster.maxHealth = 650000
 monster.race = "venom"
 monster.corpse = 23561
 monster.speed = 225

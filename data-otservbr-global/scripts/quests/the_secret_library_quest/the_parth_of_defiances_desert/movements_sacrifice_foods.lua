@@ -218,7 +218,11 @@ function foodSacrifice.onAddItem(moveitem, tileitem, position)
 						player:setStorageValue(storageValue, currentProgress + 1)
 					end
 					if player:getStorageValue(storageValue) == 4 then
-						if player:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.Questlog) < 6 then
+						-- CORRECTION (Secret Library repair v2, section 6): the idempotency guard read
+						-- the unrelated top-level Questlog storage (46001) instead of the same
+						-- Darashia.Questline it writes below - guarding a write with a different key
+						-- than the one being written is not a meaningful guard at all.
+						if player:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.Darashia.Questline) < 6 then
 							player:setStorageValue(Storage.Quest.U11_80.TheSecretLibrary.Darashia.Questline, 6)
 						end
 						player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have completed the food offering ritual!")

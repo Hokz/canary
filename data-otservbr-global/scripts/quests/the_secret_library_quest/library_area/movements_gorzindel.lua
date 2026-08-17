@@ -21,12 +21,16 @@ function movements_library_gorzindel.onStepIn(creature, item, position, fromPosi
 		if k.open then
 			player:teleportTo(k.position)
 			k.open = false
+			-- CORRECTION (Secret Library repair v2, section 15): k.open is now always restored,
+			-- whether or not the player is still online/alive to be teleported back - previously the
+			-- reset lived inside `if p then`, so a player who logged out or died during the 10-second
+			-- window left this side-room slot permanently unusable for the rest of the attempt.
 			addEvent(function(cid)
 				local p = Player(cid)
 				if p then
 					p:teleportTo(middlePosition)
-					k.open = true
 				end
+				k.open = true
 			end, 10 * 1000, player:getId())
 			break
 		end

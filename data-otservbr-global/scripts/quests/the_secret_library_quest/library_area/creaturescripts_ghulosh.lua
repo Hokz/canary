@@ -1,67 +1,102 @@
-local info = {
-	stages = {
-		{ p = 75, v = 1 },
-		{ p = 50, v = 2 },
-		{ p = 25, v = 3 },
-	},
-	stg = Storage.Quest.U11_80.TheSecretLibrary.Library.Ghulosh,
-}
+local ROOM_FROM = Position(32748, 32713, 10)
+local ROOM_TO = Position(32763, 32729, 10)
 
-local function nextStage(storage)
-	if Game.getStorageValue(storage) < 1 then
-		Game.setStorageValue(storage, 1)
-	end
-	Game.setStorageValue(storage, Game.getStorageValue(storage) + 1)
+local function isInsideRoom(player)
+	local pos = player:getPosition()
+	return pos.x >= ROOM_FROM.x and pos.x <= ROOM_TO.x and pos.y >= ROOM_FROM.y and pos.y <= ROOM_TO.y and pos.z == ROOM_FROM.z
 end
 
+-- CORRECTION (Secret Library repair v2, section 17): drives GhuloshRunCheckHealthThreshold
+-- (actions_ghulosh.lua) instead of the previous dead-code stage lookup (Game.getStorageValue
+-- defaulting to -1 could never match the stage table's 1/2/3 values).
 local creaturescripts_library_ghulosh = CreatureEvent("ghuloshThink")
 
 function creaturescripts_library_ghulosh.onThink(creature, interval)
-	local stage = 0
-
-	for _, k in pairs(info.stages) do
-		if Game.getStorageValue(info.stg) == k.v then
-			stage = k.p
-		end
+	if not creature:isMonster() then
+		return true
 	end
-
-	local position = creature:getPosition()
-	local cHealth = creature:getHealth()
-	local percentageHealth = (cHealth / creature:getMaxHealth()) * 100
-
-	if percentageHealth <= stage then
-		local monster = Game.createMonster("ghulosh' deathgaze", position, true)
-		nextStage(info.stg)
-		creature:remove()
-		if monster then
-			monster:addHealth(-(monster:getHealth() - cHealth))
-			monster:say("FEEL MY WRATH!!", TALKTYPE_MONSTER_SAY)
-		end
+	local token = GhuloshRunCurrentToken()
+	if not token or not GhuloshRunOwnsBoss(creature) then
+		return true
 	end
+	GhuloshRunCheckHealthThreshold(token, creature)
+	return true
 end
 
 creaturescripts_library_ghulosh:register()
 
-local function doSpawn(monster, k, position)
-	if k <= 4 then
-		position:sendMagicEffect(CONST_ME_TELEPORT)
-		k = k + 1
-		addEvent(doSpawn, 2 * 1000, monster, k, position)
-	else
-		local monster = Game.createMonster(monster, position)
-	end
-end
+local creaturescripts_library_ghulosh_death = CreatureEvent("ghuloshDeath")
 
-local creaturescripts_library_ghulosh = CreatureEvent("ghuloshDeath")
-
-function creaturescripts_library_ghulosh.onDeath(creature, corpse, killer, mostDamageKiller, unjustified, mostDamageUnjustified)
+function creaturescripts_library_ghulosh_death.onDeath(creature, corpse, killer, mostDamageKiller, unjustified, mostDamageUnjustified)
 	local cPos = creature:getPosition()
+	local name = creature:getName():lower()
+	local token = GhuloshRunCurrentToken()
 
-	if creature:getName():lower() == "the book of death" then
-		Game.createMonster("Concentrated Death", cPos)
-	elseif creature:getName():lower() == "concentrated death" then
-		addEvent(doSpawn, 4 * 1000, "The Book of Death", 1, Position(32755, 32716, 10))
+	-- CORRECTION (section 17): boss ownership is checked FIRST, by id, not by name - this same
+	-- creature instance may currently be typed/named "Ghulosh' Deathgaze" (setType, not a
+	-- remove+recreate swap) when it dies, e.g. from the persistent phase's reflected damage, so a
+	-- name == "ghulosh" check alone would miss that death entirely.
+	if token and GhuloshRunOwnsBoss(creature) then
+		-- CORRECTION (section 13/18): persistent per-player completion credit, restricted to this
+		-- run's own roster, still physically present at the moment of death.
+		for playerId in pairs(GhuloshRun.participants) do
+			local player = Player(playerId)
+			if player and isInsideRoom(player) then
+				if player:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.Library.GhuloshDefeated) < 1 then
+					player:setStorageValue(Storage.Quest.U11_80.TheSecretLibrary.Library.GhuloshDefeated, 1)
+				end
+			end
+		end
+		GhuloshRunTerminate(token, "success", "Ghulosh defeated")
+		return true
 	end
+
+	-- CORRECTION (section 17): ownership-scoped - a stale Book of Death/Concentrated Death from a
+	-- different/finished run can no longer mutate this run's Ghulosh.
+	if name == "the book of death" then
+		if token and GhuloshRunOwnsBook(creature) then
+			GhuloshRunBookDied(token, cPos)
+		end
+	elseif name == "concentrated death" then
+		if token and GhuloshRunOwnsSlime(creature) then
+			GhuloshRunSlimeDied(token)
+		end
+	end
+
+	return true
 end
 
-creaturescripts_library_ghulosh:register()
+creaturescripts_library_ghulosh_death:register()
+
+-- ================================================================
+-- REFLECTED DAMAGE THROUGH THE SLIME (Secret Library repair v2, section 17)
+-- ================================================================
+-- While GhuloshRun is in its persistent Deathgaze phase, Concentrated Death is the required damage
+-- path (Deathgaze himself carries ~100% resistance to most combat types on his own monster type,
+-- confirmed pre-existing on "Ghulosh' Deathgaze"). Damage dealt to the current-run-owned slime is
+-- redirected to Deathgaze as COMBAT_LIFEDRAIN (0% resisted by Deathgaze, unlike the physical/elemental
+-- types he blocks almost entirely) instead of being applied to the slime itself.
+local concentratedDeathReflect = CreatureEvent("ghuloshSlimeReflect")
+
+function concentratedDeathReflect.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType, origin)
+	local token = GhuloshRunCurrentToken()
+	if not token or not GhuloshRunOwnsSlime(creature) or GhuloshRun.phase ~= "deathgaze_persistent" then
+		return primaryDamage, primaryType, secondaryDamage, secondaryType
+	end
+	if primaryType == COMBAT_HEALING then
+		return primaryDamage, primaryType, secondaryDamage, secondaryType
+	end
+
+	local boss = Creature(GhuloshRun.bossId)
+	if boss and GhuloshRunOwnsBoss(boss) then
+		local total = math.abs(primaryDamage or 0) + math.abs(secondaryDamage or 0)
+		if total > 0 then
+			doTargetCombatHealth(0, boss, COMBAT_LIFEDRAIN, -total, -total, CONST_ME_MAGIC_RED)
+		end
+	end
+
+	-- The slime itself takes no damage from this - it is a conduit, not the actual target.
+	return 0, primaryType, 0, secondaryType
+end
+
+concentratedDeathReflect:register()

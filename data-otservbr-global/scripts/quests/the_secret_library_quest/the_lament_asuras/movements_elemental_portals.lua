@@ -79,7 +79,14 @@ local function startBattle(pid, position, b_name, middle)
 		player:teleportTo(position, true)
 		player:getPosition():sendMagicEffect(CONST_ME_TELEPORT)
 		player:say(defaultMessage, TALKTYPE_MONSTER_SAY)
-		local monster = Game.createMonster(b_name, middle)
+		-- CORRECTION (Secret Library repair v2, section 39): return value was previously ignored - a
+		-- failed spawn (blocked tile, etc.) silently left the player alone in the room with no boss
+		-- and no error/retry.
+		local monster = Game.createMonster(b_name, middle, true, true)
+		if not monster then
+			logger.error("SecretLibrary/Lament: technical abort - {} failed to spawn", b_name)
+			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "Something went wrong - please try again.")
+		end
 	end
 end
 
@@ -136,7 +143,12 @@ function movements_asura_elemental_portals.onStepIn(creature, item, position, fr
 			end
 		end
 	elseif item.actionid == 4914 then
-		if position == hiddenMap1 or hiddenMap2 then
+		-- CORRECTION (Secret Library repair v2, section 5): was `position == hiddenMap1 or hiddenMap2`
+		-- - operator precedence made this (position == hiddenMap1) or (hiddenMap2), and hiddenMap2 is a
+		-- Position object, always truthy, so the whole condition was always true regardless of the
+		-- player's actual position - any tile carrying actionid 4914 granted the map item, bypassing
+		-- the intended "must be standing at the hidden writing desk" gate entirely.
+		if position == hiddenMap1 or position == hiddenMap2 then
 			if player:getStorageValue(quest) == 5 then
 				player:addItem(28908, 1)
 				player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have discovered an old writing desk that contains an ancient map.")

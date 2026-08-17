@@ -13,8 +13,10 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 10000
-monster.maxHealth = 10000
+-- CORRECTION (completion mechanics pass, section 3): PROVEN_REFERENCE HP (TibiaWiki monster infobox,
+-- fetched and archived this pass) - was a placeholder 10000. XP (0) was already correct.
+monster.health = 8000
+monster.maxHealth = 8000
 monster.race = "fire"
 monster.corpse = 5995
 monster.speed = 175

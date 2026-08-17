@@ -18,8 +18,10 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 800000
-monster.maxHealth = 800000
+-- CORRECTION (final fidelity pass, section 6): maxHealth kept consistent with the base "The Scourge
+-- of Oblivion" form (650000, PROVEN_REFERENCE) - setType transforms preserve raw current HP.
+monster.health = 650000
+monster.maxHealth = 650000
 monster.race = "venom"
 monster.corpse = 23561
 monster.speed = 0

@@ -5,6 +5,12 @@ local mType = Game.createMonsterType("The Spellstealer (red)")
 local monster = {}
 
 monster.description = "The Spellstealer"
+-- CORRECTION (final P1 surgical correction, section 1): PROVEN_REFERENCE - "Summon Creature (4-5 Demon
+-- Slave)" is a general ability of the boss (own monster page's ability list), not restricted to any one
+-- color state - wired here too so the summon mechanic keeps working while colored/invulnerable.
+monster.events = {
+	"InvasionSpellstealerSummon",
+}
 monster.experience = 0
 monster.outfit = {
 	lookType = 12,
@@ -16,8 +22,11 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 10000
-monster.maxHealth = 10000
+-- CORRECTION (final fidelity pass, section 6): maxHealth kept consistent with the base "The
+-- Spellstealer" form (280000) - setType-based transforms preserve raw current HP across a swap, so a
+-- mismatched maxHealth here would clamp/distort HP on transform.
+monster.health = 280000
+monster.maxHealth = 280000
 monster.race = "undead"
 monster.corpse = 0
 monster.speed = 175

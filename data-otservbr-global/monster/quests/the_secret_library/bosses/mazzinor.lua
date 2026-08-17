@@ -15,7 +15,11 @@ monster.outfit = {
 
 monster.events = {
 	"mazzinorDeath",
-	"mazzinorHealth",
+	-- CORRECTION (Secret Library repair v2, section 16): "mazzinorHealth" (a blanket unconditional
+	-- damage-zero) removed entirely - the run's own supercharge cycle now uses the engine's native
+	-- immune() toggle instead. createFunction-created bosses never go through boss_lever.lua's generic
+	-- monster:registerEvent("BossLeverOnDeath") path - registering it here restores that.
+	"BossLeverOnDeath",
 }
 
 monster.bosstiary = {

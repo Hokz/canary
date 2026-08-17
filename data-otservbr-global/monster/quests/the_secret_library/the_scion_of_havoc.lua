@@ -4,8 +4,14 @@ local monster = {}
 monster.description = "The Scion of Havoc"
 monster.events = {
 	"InvasionScionOfHavocDeath",
+	"InvasionScionHealFire",
 }
-monster.experience = 0
+-- CORRECTION (final fidelity pass, section 6): PROVEN_REFERENCE HP/XP - was a placeholder 10000/0.
+-- CORRECTION (final functional closure pass, P1 section 3): the Scion's own dedicated TibiaWiki
+-- monster page confirms "-100% Cura-se quando atacado com Fogo" (heals when attacked with Fire) -
+-- implemented via InvasionScionHealFire (creaturescripts_invasion_wings.lua), the same onHealthChange
+-- redirect technique already used for the Brothers' ice-heals-them mechanic.
+monster.experience = 7000
 monster.outfit = {
 	lookType = 875,
 	lookHead = 94,
@@ -16,8 +22,8 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 10000
-monster.maxHealth = 10000
+monster.health = 290000
+monster.maxHealth = 290000
 monster.race = "venom"
 monster.corpse = 23564
 monster.speed = 175

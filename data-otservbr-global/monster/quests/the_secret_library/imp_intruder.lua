@@ -2,7 +2,9 @@ local mType = Game.createMonsterType("Imp Intruder")
 local monster = {}
 
 monster.description = "an imp intruder"
-monster.experience = 100
+-- CORRECTION (completion mechanics pass, section 10): PROVEN_REFERENCE HP/XP (TibiaWiki monster
+-- infobox, fetched and archived in the previous pass, applied here).
+monster.experience = 0
 monster.outfit = {
 	lookType = 237,
 	lookHead = 0,
@@ -13,8 +15,8 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 1000
-monster.maxHealth = 1000
+monster.health = 3000
+monster.maxHealth = 3000
 monster.race = "fire"
 monster.corpse = 6363
 monster.speed = 175

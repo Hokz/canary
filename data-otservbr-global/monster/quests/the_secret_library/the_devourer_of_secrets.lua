@@ -6,7 +6,8 @@ monster.events = {
 	"InvasionDevourerDamageGate",
 	"InvasionDevourerDeath",
 }
-monster.experience = 0
+-- CORRECTION (final fidelity pass, section 6): PROVEN_REFERENCE HP/XP - was a placeholder 10000/0.
+monster.experience = 7000
 monster.outfit = {
 	lookType = 309,
 	lookHead = 0,
@@ -17,8 +18,8 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 10000
-monster.maxHealth = 10000
+monster.health = 290000
+monster.maxHealth = 290000
 monster.race = "blood"
 monster.corpse = 18269
 monster.speed = 175

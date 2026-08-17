@@ -15,6 +15,11 @@ monster.outfit = {
 
 monster.events = {
 	"ghuloshThink",
+	"ghuloshDeath",
+	-- CORRECTION (Secret Library repair v2, section 17): createFunction-created bosses never go
+	-- through boss_lever.lua's generic monster:registerEvent("BossLeverOnDeath") path - registering it
+	-- here restores the framework's own post-victory grace-period/cleanup.
+	"BossLeverOnDeath",
 }
 
 monster.bosstiary = {

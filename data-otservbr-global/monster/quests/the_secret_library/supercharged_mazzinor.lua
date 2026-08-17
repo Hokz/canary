@@ -3,6 +3,15 @@ local monster = {}
 
 monster.description = "Supercharged Mazzinor"
 monster.experience = 0
+-- CORRECTION (Secret Library repair v2, section 16): this is the same underlying creature instance
+-- as "Mazzinor" mid-transform (actions_mazzinor.lua's attemptSuperchargePhase uses setType, not a
+-- remove+recreate swap), and is immune(true) for the whole duration it holds this type, so it should
+-- never actually die in this form - these are registered defensively for consistency with the base
+-- "Mazzinor" type regardless.
+monster.events = {
+	"mazzinorDeath",
+	"BossLeverOnDeath",
+}
 monster.outfit = {
 	lookType = 979,
 	lookHead = 0,

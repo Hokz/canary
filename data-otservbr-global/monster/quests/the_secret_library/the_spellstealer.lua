@@ -5,8 +5,13 @@ monster.description = "The Spellstealer"
 monster.events = {
 	"InvasionSpellstealerColorSwap",
 	"InvasionSpellstealerDeath",
+	-- CORRECTION (final P1 surgical correction, section 1): PROVEN_REFERENCE own monster page ability
+	-- list - "Summon Creature (4-5 Demon Slave)".
+	"InvasionSpellstealerSummon",
 }
-monster.experience = 0
+-- CORRECTION (final fidelity pass, section 6): PROVEN_REFERENCE HP/XP (TibiaWiki monster infobox,
+-- fetched and archived this pass) - was a placeholder 10000/0.
+monster.experience = 7000
 monster.outfit = {
 	lookType = 12,
 	lookHead = 81,
@@ -17,8 +22,8 @@ monster.outfit = {
 	lookMount = 0,
 }
 
-monster.health = 10000
-monster.maxHealth = 10000
+monster.health = 280000
+monster.maxHealth = 280000
 monster.race = "undead"
 monster.corpse = 6068
 monster.speed = 175

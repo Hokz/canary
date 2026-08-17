@@ -18,6 +18,16 @@ function actions_museum_bony_rod.onUse(player, item, fromPosition, target, toPos
 			if target:getPosition() == finalBasin and player:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.MoTA.FinalBasin) ~= 1 then
 				target:getPosition():sendMagicEffect(CONST_ME_DRAWBLOOD)
 				player:setStorageValue(Storage.Quest.U11_80.TheSecretLibrary.MoTA.FinalBasin, 1)
+				-- CONFIRMED BLOCKER (Secret Library repair v2, section 10): MoTA.Questline never
+				-- advanced past 6 anywhere in this branch, so Dedoras's museum-report gate (== 7,
+				-- npc/dedoras.lua) could never be satisfied - the whole Secret Library quest was
+				-- uncompletable, since Dedoras requires all six branches to report before granting
+				-- library access. FinalBasin and SkullSample (actions_sample_blood.lua) are this
+				-- trial room's own two completion markers; neither previously fed back into
+				-- Questline. Whichever of the two is completed second now advances the branch.
+				if player:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.MoTA.SkullSample) >= 1 and player:getStorageValue(Storage.Quest.U11_80.TheSecretLibrary.MoTA.Questline) < 7 then
+					player:setStorageValue(Storage.Quest.U11_80.TheSecretLibrary.MoTA.Questline, 7)
+				end
 			end
 		end
 	end
