@@ -5,6 +5,9 @@ monster.description = "The Spellstealer"
 monster.events = {
 	"InvasionSpellstealerColorSwap",
 	"InvasionSpellstealerDeath",
+	-- CORRECTION (final P1 surgical correction, section 1): PROVEN_REFERENCE own monster page ability
+	-- list - "Summon Creature (4-5 Demon Slave)".
+	"InvasionSpellstealerSummon",
 }
 -- CORRECTION (final fidelity pass, section 6): PROVEN_REFERENCE HP/XP (TibiaWiki monster infobox,
 -- fetched and archived this pass) - was a placeholder 10000/0.

@@ -5,6 +5,12 @@ local mType = Game.createMonsterType("The Spellstealer (green)")
 local monster = {}
 
 monster.description = "The Spellstealer"
+-- CORRECTION (final P1 surgical correction, section 1): PROVEN_REFERENCE - "Summon Creature (4-5 Demon
+-- Slave)" is a general ability of the boss (own monster page's ability list), not restricted to any one
+-- color state - wired here too so the summon mechanic keeps working while colored/invulnerable.
+monster.events = {
+	"InvasionSpellstealerSummon",
+}
 monster.experience = 0
 monster.outfit = {
 	lookType = 12,

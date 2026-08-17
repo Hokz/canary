@@ -48,6 +48,61 @@ function spellstealerDeath.onDeath(creature, corpse, lasthitkiller, mostdamageki
 end
 spellstealerDeath:register()
 
+-- CORRECTION (final P1 surgical correction, section 1): PROVEN_REFERENCE - the Spellstealer's own
+-- dedicated monster page lists "Summon Creature (4-5 Demon Slave)" among its abilities. The previous
+-- pass only ever spawned Demon Slaves once, as a static ambient add at wing start
+-- (movements_invasion_start.lua's WINGS[1].addSpawns) - this adds the boss's own active summon ability
+-- during the fight, on top of (not replacing) that initial ambient add. Re-verifies exact current-run +
+-- current-wing-generation ownership on every tick via SecretLibraryInvasionRunOwnsWingBoss - a stale
+-- boss from a finished/reset run or an earlier wing generation cannot summon anything. Every summoned
+-- slave is inserted into the SAME SecretLibraryInvasionRun.wingAddIds.spellstealer set the ambient add
+-- already uses, so it is covered by the existing cleanup paths with no new code needed: InvasionWingBossDied
+-- (movements_invasion_start.lua) removes every wingAddIds[key] entry on legitimate wing completion, and
+-- SecretLibraryInvasionRunTerminate's non-success branch removes every wingAddIds entry on timeout/
+-- technical_abort. Spawn positions are relative to the boss's OWN current position (not a fixed map
+-- coordinate), so this works before wing room coordinates ever arrive and is not map work.
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_CHANCE/_TIMING: no exact summon cooldown/chance is given by the
+-- reference - reuses this file's own established periodic-chance idiom (spellstealerColorSwap.onThink).
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_CAP: the simultaneous-population cap (10) is a disclosed, conservative
+-- judgment call (2x one summon event's max size), not a reference-given number - bounds unbounded
+-- stacking across repeated summon events without blocking the mechanic itself. Registered on all three
+-- Spellstealer monster types (grey/green/red) since no evidence restricts the ability to one color
+-- state - this does not alter setType/colorSwap/vortex logic in any way.
+local spellstealerSummon = CreatureEvent("InvasionSpellstealerSummon")
+function spellstealerSummon.onThink(creature, interval)
+	local token = SecretLibraryInvasionRunCurrentToken()
+	if not token or not SecretLibraryInvasionRunOwnsWingBoss("spellstealer", creature) then
+		return true
+	end
+	if math.random(1, 100) > 3 then -- roughly every ~33 ticks on average, not every single tick
+		return true
+	end
+	local addSet = SecretLibraryInvasionRun.wingAddIds.spellstealer
+	if not addSet then
+		return true
+	end
+	local alive = 0
+	for creatureId in pairs(addSet) do
+		local add = Creature(creatureId)
+		if add and add:getName():lower() == "demon slave" then
+			alive = alive + 1
+		end
+	end
+	if alive >= 10 then
+		return true
+	end
+	local position = creature:getPosition()
+	for i = 1, math.random(4, 5) do
+		local spawnPos = Position(position.x + math.random(-2, 2), position.y + math.random(-2, 2), position.z)
+		local add = Game.createMonster("Demon Slave", spawnPos, true, true)
+		if add then
+			SecretLibraryInvasionRun.wingAddIds.spellstealer[add:getId()] = true
+		end
+	end
+	return true
+end
+spellstealerSummon:register()
+
 -- The Scion of Havoc: spawns "Spawn of Havoc" adds owned by the current wing generation. Killing one
 -- explodes it (3000-4000 AoE damage) and heals the CURRENT-RUN Scion only - players are meant to
 -- avoid/ignore them, not required to kill anything but the boss itself.
@@ -88,17 +143,41 @@ scionOfHavocDeath:register()
 -- at 100% = 0 damage rather than converting it into a heal (same limitation already documented for the
 -- Brothers' ice-heal mechanic), so this reuses that exact onHealthChange redirect technique instead of a
 -- monster.lua elements value.
+--
+-- CORRECTION (final P1 surgical correction, section 2): component-wise fix. CreatureEvent::
+-- executeHealthChange (src/lua/creature/creatureevent.cpp:465-474) takes abs() of BOTH returned values
+-- independently, but decides whether to (re-)negate BOTH of them together based ONLY on the returned
+-- primary.type - "if damage.primary.type != COMBAT_HEALING: negate both primary and secondary". The
+-- previous version treated "primary OR secondary is fire" as one combined branch (heal from
+-- primary+secondary, zero both) - on a mixed physical+fire hit this erased the physical component too,
+-- converting real incoming damage into healing. Each component is now converted/zeroed independently:
+-- only a FIRE component is folded into the manual addHealth() and its own return value zeroed; a non-fire
+-- component's original value/type is returned untouched, so the single primary.type-driven negation
+-- above reproduces its original sign exactly (abs() then re-negate is a no-op on an already-correctly-
+-- signed value). A: physical-only -> untouched. B: fire-only -> heals. C/D: physical+fire in either slot
+-- -> physical still damages, fire still heals. E: fire+fire -> both heal (single combined addHealth
+-- call, no double-heal - each component contributes its own term to one sum, applied once). F:
+-- foreign/stale Scion -> unaffected by the ownership guard, unchanged.
 local scionHealFire = CreatureEvent("InvasionScionHealFire")
 function scionHealFire.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType, origin)
 	local token = SecretLibraryInvasionRunCurrentToken()
 	if not token or not SecretLibraryInvasionRunOwnsWingBoss("scionOfHavoc", creature) then
 		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
-	if primaryType == COMBAT_FIREDAMAGE or secondaryType == COMBAT_FIREDAMAGE then
-		creature:addHealth(-(primaryDamage or 0) - (secondaryDamage or 0))
-		return 0, primaryType, 0, secondaryType
+	local outPrimary, outSecondary = primaryDamage, secondaryDamage
+	local heal = 0
+	if primaryType == COMBAT_FIREDAMAGE then
+		heal = heal - (primaryDamage or 0)
+		outPrimary = 0
 	end
-	return primaryDamage, primaryType, secondaryDamage, secondaryType
+	if secondaryType == COMBAT_FIREDAMAGE then
+		heal = heal - (secondaryDamage or 0)
+		outSecondary = 0
+	end
+	if heal ~= 0 then
+		creature:addHealth(heal)
+	end
+	return outPrimary, primaryType, outSecondary, secondaryType
 end
 scionHealFire:register()
 
@@ -106,17 +185,30 @@ scionHealFire:register()
 -- ice attacks (this engine clamps elemental resistance at 100% = 0 damage, so the "ice heals them"
 -- part reuses the onHealthChange redirect technique this quest's own Mazzinor already used).
 
+-- CORRECTION (final P1 surgical correction, section 2): identical component-wise fix as
+-- InvasionScionHealFire above, for the identical mixed-component bug (see that handler's comment for the
+-- full CreatureEvent::executeHealthChange sign-semantics evidence). A mixed physical+ice hit no longer
+-- erases the physical component.
 local brothersHealIce = CreatureEvent("InvasionBrothersHealIce")
 function brothersHealIce.onHealthChange(creature, attacker, primaryDamage, primaryType, secondaryDamage, secondaryType, origin)
 	local token = SecretLibraryInvasionRunCurrentToken()
 	if not token or not SecretLibraryInvasionRunOwnsWingBoss("brothers", creature) then
 		return primaryDamage, primaryType, secondaryDamage, secondaryType
 	end
-	if primaryType == COMBAT_ICEDAMAGE or secondaryType == COMBAT_ICEDAMAGE then
-		creature:addHealth(-(primaryDamage or 0) - (secondaryDamage or 0))
-		return 0, primaryType, 0, secondaryType
+	local outPrimary, outSecondary = primaryDamage, secondaryDamage
+	local heal = 0
+	if primaryType == COMBAT_ICEDAMAGE then
+		heal = heal - (primaryDamage or 0)
+		outPrimary = 0
 	end
-	return primaryDamage, primaryType, secondaryDamage, secondaryType
+	if secondaryType == COMBAT_ICEDAMAGE then
+		heal = heal - (secondaryDamage or 0)
+		outSecondary = 0
+	end
+	if heal ~= 0 then
+		creature:addHealth(heal)
+	end
+	return outPrimary, primaryType, outSecondary, secondaryType
 end
 brothersHealIce:register()
 
@@ -129,9 +221,22 @@ brothersHealIce:register()
 -- wing generation's own pool - a stale/foreign same-name creature from a different run or a Biting Cold
 -- from an earlier wing generation can neither heal nor be healed. Stops naturally when the wing ends
 -- (InvasionWingBossDied removes every wingAddIds[key] entry and the run's ownership checks then fail for
--- any survivor). Exact proximity-gating ("mantê-los afastados um do outro") is not reproduced here -
--- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_TIMING/VALUE, a disclosed non-blocking simplification, not a P0/P1
--- functional gap (the mutual-heal mechanic itself - the required behavior - is fully present).
+-- any survivor).
+--
+-- CORRECTION (final P1 surgical correction, section 3): PROVEN_REFERENCE - "para derrotá-los, você deve
+-- mantê-los afastados um do outro" (to defeat them, you must keep them apart) explicitly frames distance
+-- as part of the essential mechanic, not flavor text - a heal that fired regardless of distance made
+-- "keeping them apart" mechanically meaningless. Each heal attempt now requires the healer and target to
+-- be within HEAL_RADIUS (Position:getDistance - this engine's standard Chebyshev/square range metric,
+-- confirmed via src/lua/functions/map/position_functions.cpp's luaPositionGetDistance, already used
+-- elsewhere in this codebase - data-otservbr-global/lib/quests/soul_war.lua:1250).
+-- CUSTOM_GLOBAL_LIKE_PENDING_EXACT_RADIUS: no exact radius is given anywhere in the reference (checked
+-- this pass: main quest page and all three dedicated monster pages, Brother Chill/Freeze/Biting Cold) -
+-- 5 sqm is a disclosed, conservative choice that makes separation mechanically meaningful (larger than
+-- melee range, smaller than this file's own 10-sqm spectator-message radius) without being provably
+-- Global-exact. Per the task's own instruction, this pending radius value does not block closure.
+local HEAL_RADIUS = 5
+
 local function brothersHealPoolIds()
 	local pool = {}
 	local ids = SecretLibraryInvasionRun.wingBossIds.brothers
@@ -161,10 +266,14 @@ function brothersHealEachOther.onThink(creature, interval)
 		return true
 	end
 	local selfId = creature:getId()
+	local selfPosition = creature:getPosition()
 	local candidates = {}
 	for _, id in ipairs(brothersHealPoolIds()) do
 		if id ~= selfId then
-			candidates[#candidates + 1] = id
+			local other = Creature(id)
+			if other and other:getHealth() > 0 and selfPosition:getDistance(other:getPosition()) <= HEAL_RADIUS then
+				candidates[#candidates + 1] = id
+			end
 		end
 	end
 	if #candidates == 0 then
