@@ -1,0 +1,23 @@
+=== SCENARIO 1: level 200 knight, sword skill 100, weapon atk 45, ATTACK mode, vs monster armor sweep ===
+  monster_armor=   0  raw_mean=231.0  final_mean=231.0  effective_reduction=0.0%  final_p10/p90=117/348
+  monster_armor=  20  raw_mean=230.3  final_mean=215.7  effective_reduction=6.3%  final_p10/p90=102/328
+  monster_armor=  50  raw_mean=232.1  final_mean=194.9  effective_reduction=16.0%  final_p10/p90=83/311
+  monster_armor= 100  raw_mean=231.0  final_mean=157.0  effective_reduction=32.0%  final_p10/p90=40/268
+  monster_armor= 200  raw_mean=228.0  final_mean=87.2  effective_reduction=61.7%  final_p10/p90=0/194
+
+=== SCENARIO 2: marginal benefit of +armor at fixed high raw damage (level 400, skill 130, atk 80) ===
+  monster_armor=   0  final_mean=514.2
+  monster_armor=  50  final_mean=478.3  marginal(+50 armor)=35.91 dmg/hit
+  monster_armor= 100  final_mean=447.2  marginal(+50 armor)=31.10 dmg/hit
+  monster_armor= 150  final_mean=414.2  marginal(+50 armor)=32.90 dmg/hit
+  monster_armor= 200  final_mean=369.9  marginal(+50 armor)=44.36 dmg/hit
+  monster_armor= 250  final_mean=324.3  marginal(+50 armor)=45.56 dmg/hit
+  monster_armor= 300  final_mean=307.0  marginal(+50 armor)=17.35 dmg/hit
+
+=== SCENARIO 3: monster attacking player -- mitigation-only vs mitigation+absorb, multi-attacker blockCount saturation ===
+  simultaneous_attackers=1  effective_reduction~=34.6%  (blockCount cap=2/s shared across all attackers on this defender)
+  simultaneous_attackers=3  effective_reduction~=33.9%  (blockCount cap=2/s shared across all attackers on this defender)
+  simultaneous_attackers=6  effective_reduction~=33.8%  (blockCount cap=2/s shared across all attackers on this defender)
+
+=== SCENARIO 4: elemental hit bypasses armor/defense entirely (monsters.cpp:111-121 gating) ===
+  physical path final_mean=424.8  elemental path final_mean=456.3  (elemental skips armor+defense entirely -- only mitigation+absorb apply)
