@@ -1,0 +1,61 @@
+=== J7 MICROTEST 1: C++ half-away rounding vs Python banker's rounding ===
+[PASS] cpp_round_half_away(2.5) == 3
+[PASS] cpp_round_half_away(-2.5) == -3
+[PASS] cpp_round_half_away(0.5) == 1
+[PASS] cpp_round_half_away(-0.5) == -1
+[PASS] python round(2.5) == 2 (demonstrates the divergence this fix corrects)
+[PASS] cpp_round_half_away(2.5) != python round(2.5) -- proves the bug pass-02 asked to fix
+
+=== J7 MICROTEST 2: mitigation fractional-truncation-order case ===
+[PASS] mitigate_cpp_exact(100, 33.7%) == 66 -- got 66
+[PASS] mitigate_PASS01_BUGGY_reference(100, 33.7%) == 67 (the bug being demonstrated) -- got 67
+[PASS] corrected and buggy mitigation functions disagree on this fractional case -- correct=66 buggy=67
+
+=== J7 MICROTEST 3: blockCount starts at 0 ===
+[PASS] BlockCountPool starts with block_count == 0
+[PASS] BlockCountPool starts with block_ticks == 0
+
+=== J7 MICROTEST 4: charge appears at exactly 1000ms ===
+[PASS] no charge yet at 999ms -- got 0
+[PASS] charge appears at 1000ms cumulative -- got 1
+[PASS] block_ticks resets to exactly 0 (not -=1000) on threshold cross
+
+=== J7 MICROTEST 5: blockCount caps at 2 ===
+[PASS] block_count caps at 2 after many 1000ms advances -- got 2
+
+=== J7 MICROTEST 6 (A002): an armor-only hit (checkDefense=False, checkArmor=True) consumes a charge ===
+[PASS] 1 charge available before the armor-only hit
+[PASS] armor-only hit IS counted as consuming an attempt
+[PASS] armor-only hit receives NO defense roll for itself
+[PASS] the shared charge was actually spent (pool now at 0) -- got 0
+[PASS] a later melee hit in the same window is starved of its defense roll by the earlier armor-only hit -- this is the exact A002 mechanism -- see 02_COMBAT_TARGETED_EVIDENCE_CLAUDE.md section 5
+
+=== J7 MICROTEST 7: defense+armor path applies both, defense first ===
+[PASS] defense then armor reduces sequentially (not summed independently) -- dmg=1000 defense_reduction=90 armor_reduction=47 expected_after_both=863
+
+=== J7 MICROTEST 8: elemental hit bypasses defense+armor entirely (monsters.cpp:111-121) ===
+[PASS] elemental path (is_physical=False) never consumes/uses defense+armor, so it takes MORE damage than the physical path at identical raw/mitigation -- physical=357 elemental=410
+[PASS] elemental hit did not touch the blockCount pool at all -- pool_elem.block_count=1 (should be unchanged from the advance(1000) above, since is_physical=False -> check_defense=check_armor=False -> try_consume no-ops)
+
+=== J7 MICROTEST 9: J5 non-collapsed item/imbuement absorb order ===
+[PASS] player_item_absorb_pipeline matches the hand-traced per-item nested order (imbuements sequentially, THEN item ability once) -- hand-traced=787 harness=787
+
+=== J7 MICROTEST 10: discrete-event timeline mechanism (deterministic, no damage RNG) ===
+  t=    0ms attacker=melee_A chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t=   50ms attacker=ranged_C chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t=  133ms attacker=melee_B chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t=  400ms attacker=melee_A chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t=  533ms attacker=melee_B chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t=  800ms attacker=melee_A chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t=  933ms attacker=melee_B chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t=  950ms attacker=ranged_C chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t= 1200ms attacker=melee_A chargeAvailable=True gotDefenseRoll=True poolAfter=0
+  t= 1333ms attacker=melee_B chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t= 1600ms attacker=melee_A chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t= 1733ms attacker=melee_B chargeAvailable=False gotDefenseRoll=False poolAfter=0
+  t= 1850ms attacker=ranged_C chargeAvailable=False gotDefenseRoll=False poolAfter=0
+[PASS] discrete-event timeline produced a deterministic, non-empty, time-ordered event list
+[PASS] defense-roll opportunities are bounded by the shared 2-cap regenerating pool, not by attacker count
+  total_events=13 got_defense_roll_count=1 final_pool_block_count=0
+
+ALL MICROTESTS PASSED
