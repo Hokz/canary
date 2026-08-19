@@ -16,13 +16,21 @@ combat:setCallback(CALLBACK_PARAM_LEVELMAGICVALUE, "onGetFormulaValues")
 local rune = Spell("rune")
 
 function rune.onCastSpell(creature, var, isHotkey)
-	if Monster(var:getNumber(1073762188)) then
+	local targetId = var:getNumber(1073762188)
+	if Monster(targetId) then
 		creature:sendCancelMessage("Sorry, not possible.")
 		creature:getPosition():sendMagicEffect(CONST_ME_POFF)
 		return false
-	else
-		return combat:execute(creature, var)
 	end
+
+	-- GLOBAL 2026: Intense Healing Rune can no longer be used on other characters.
+	if targetId ~= 0 and targetId ~= creature:getId() then
+		creature:sendCancelMessage("You can only use this rune on yourself.")
+		creature:getPosition():sendMagicEffect(CONST_ME_POFF)
+		return false
+	end
+
+	return combat:execute(creature, var)
 end
 
 rune:id(4)
