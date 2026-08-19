@@ -24,7 +24,7 @@ spell:name("Fair Wound Cleansing")
 spell:words("exura med ico")
 spell:castSound(SOUND_EFFECT_TYPE_SPELL_FAIR_WOUND_CLEANSING)
 spell:level(300)
-spell:mana(90)
+spell:mana(135) -- GLOBAL 2026
 spell:isPremium(true)
 spell:isSelfTarget(true)
 spell:cooldown(1000)

@@ -28,8 +28,16 @@ function rune.onCastSpell(creature, var, isHotkey)
 		return false
 	end
 
-	if Monster(var:getNumber(1073762188)) then
+	local targetId = var:getNumber(1073762188)
+	if Monster(targetId) then
 		player:sendCancelMessage("Sorry, not possible.")
+		player:getPosition():sendMagicEffect(CONST_ME_POFF)
+		return false
+	end
+
+	-- GLOBAL 2026: Ultimate Healing Rune can no longer be used on other characters.
+	if targetId ~= 0 and targetId ~= player:getId() then
+		player:sendCancelMessage("You can only use this rune on yourself.")
 		player:getPosition():sendMagicEffect(CONST_ME_POFF)
 		return false
 	end
