@@ -46,7 +46,7 @@ local DOCUMENTS = {
 		key = "writing_desk_2",
 		pos = Position(33374, 31336, 3),
 		itemId = 27880,
-		bookText = 'The Grand Master of Verbal Debate IV\nA counter spell: SEHWO ASIMO, TOLIDO ESD',
+		bookText = "The Grand Master of Verbal Debate IV\nA counter spell: SEHWO ASIMO, TOLIDO ESD",
 	},
 	{
 		key = "pile_of_bones_1",
