@@ -13,7 +13,7 @@ that list.
 - Branch: `ai-dev/global-combat-2026-foundation-01`, created directly from `main` (not from the analysis branch — `docs/ai-dev/combat` passes 01-04 were not pulled into this branch's history; this handoff document is the only file added under that path, in its own commit).
 - Commits (in order): **A** "GLOBAL 2026: current-client tactics protocol compatibility", **B** "GLOBAL 2026: proven foundation numeric/system deltas", **C** "GLOBAL 2026: targeted tests and handoff corrections" (this document).
 
-## Changed files (15 total)
+## Changed files (16 total)
 
 Commit A (4 files): `src/server/network/protocol/protocol_profile.hpp`, `protocol_profile.cpp`, `protocolgame.cpp`, `tests/unit/server/network/protocol/multiprotocol_test.cpp`.
 
@@ -41,7 +41,18 @@ Commit C (1 file): this document.
 
 **C — Explosion rune area** (`data/scripts/runes/explosion.lua:6`): `AREA_CIRCLE1X1` (a 5-tile plus/cross shape — center + 4 orthogonal neighbors) → `AREA_SQUARE1X1` (`register_spells.lua:488-492`), an **already-existing** true 3×3 block matrix (8 surrounding tiles + center = 9 tiles) — no new area constant was defined, per the task's own preference for reuse. Damage formula, mana, level, and every other rune property untouched.
 
-**D — Group XP diversity bonus** (`data/events/scripts/party.lua`): confirmed this is the sole runtime source of truth — `Party::shareExperience` (C++) only dispatches to this Lua callback and applies stamina boosts; no duplicate formula exists in C++. `Party::getUniqueVocationsCount()` (`party.cpp:77-94`) was independently confirmed to already correctly deduplicate same-vocation party members (an `unordered_set` keyed on `vocation->getBaseId()`, capped at 4) — no change needed there. The prior quadratic formula (`0.1n²-0.2n+1.3`, with an ad hoc `-0.1` correction at partySize≥4) was replaced with a direct lookup table `{1:1.2, 2:1.35, 3:1.70, 4:2.0}` — the 1- and 4-vocation results are unchanged from the old formula's own output; only 2 and 3 were adjusted to the required 35%/70%. The lookup approach was chosen because the four target points (1.2/1.35/1.70/2.0) are not smoothly quadratic, so no coefficient-only edit to the old formula could hit all four exactly; the table is provably exhaustive since `getUniqueVocationsCount()` is hard-capped at 4.
+**D — Group XP diversity bonus** (`data/events/scripts/party.lua`): confirmed this is the sole runtime source of truth — `Party::shareExperience` (C++) only dispatches to this Lua callback and applies stamina boosts; no duplicate formula exists in C++. `Party::getUniqueVocationsCount()` (`party.cpp:77-94`) was independently confirmed to already correctly deduplicate same-vocation party members (an `unordered_set` keyed on `vocation->getBaseId()`, capped at 4) — no change needed there. The prior quadratic formula (`0.1n²-0.2n+1.3`, with an ad hoc `-0.1` correction at partySize≥4) was replaced with a direct lookup table `{1:1.2, 2:1.35, 3:1.70, 4:2.0}`, keyed purely on unique-vocation count. **The new table is the intended implementation, unchanged in this correction** — see `AUDITOR_DISCLOSED_GROUP_XP_BEHAVIOR_CORRECTION` immediately below for a more precise statement of exactly which old-vs-new cases are and are not behavior-preserving.
+
+**`AUDITOR_DISCLOSED_GROUP_XP_BEHAVIOR_CORRECTION`.** The original handoff text overstated behavior-preservation for the 1- and 4-vocation cases. Re-derivation of the old formula, `sharedExperienceMultiplier = partySize < 4 and base or base - 0.1` where `base = 0.1n²-0.2n+1.3`, shows the `-0.1` correction was keyed on **`partySize`**, not on unique-vocation count `n` — so it fired for *any* party of 4+ members, including ones where several members shared the same vocation (fewer than 4 unique vocations present). Concrete old-vs-new deltas, independently re-verified this pass:
+- `n=1`, `partySize<4` (e.g. a solo character or a 2-3 person same-vocation party): old `1.2`, new `1.2` — **identical**.
+- `n=1`, `partySize≥4` (e.g. 4 Knights in one party): old `1.2 − 0.1 = 1.1`, new `1.2` — **different**. The old code silently penalized an all-same-vocation party of 4+ that the new table does not.
+- `n=2`, `partySize<4`: old `1.3`, new `1.35` — different, but this is the *intended* 30%→35% change.
+- `n=2`, `partySize≥4` (e.g. a 4-person party with only 2 unique vocations present): old `1.3 − 0.1 = 1.2`, new `1.35` — different by more than the intended 30%→35% shift alone, because the old hidden party-size penalty is also removed.
+- `n=3`, `partySize<4`: old `1.6`, new `1.70` — the intended 60%→70% change.
+- `n=3`, `partySize≥4`: old `1.6 − 0.1 = 1.5`, new `1.70` — same compounding effect as the `n=2` case above.
+- `n=4` (always implies `partySize≥4`, since 4 unique vocations require at least 4 members): old `2.1 − 0.1 = 2.0`, new `2.0` — **identical**, the one case where the old party-size correction and the new table agree unconditionally.
+
+So: this is an additional behavior correction exposed by the auditor, not merely a restatement. The implementation now follows the supplied/current Global contract strictly by unique-vocation count. It is **not** literally behavior-preserving for every old party-size combination — specifically, **4+ member parties with fewer than 4 unique vocations can receive a different multiplier than the pre-existing runtime produced**, beyond the two vocation tiers (2 and 3) that were always intended to change. No production change is being made in this correction pass — `party.lua`'s lookup table itself is unmodified and remains the intended implementation, pending owner/auditor acceptance of this now-fully-disclosed behavioral scope.
 
 **E — Ultimate/Intense Healing Rune self-only** (`data/scripts/runes/{ultimate,intense}_healing_rune.lua`): both scripts already read the target creature id via `var:getNumber(1073762188)` for their existing Monster-rejection check (this call ignores its argument — `Variant:getNumber()` takes none — the constant is a pre-existing, functionally-inert artifact in the original code, left untouched). Added one additional check immediately after the existing Monster check: if a target id was resolved (`targetId ~= 0`) and it differs from the caster's own id, reject with `"You can only use this rune on yourself."` and the existing `CONST_ME_POFF` feedback pattern. Self-cast (`targetId == player:getId()`) and the no-explicit-target case (`targetId == 0`, relevant given `COMBAT_PARAM_TARGETCASTERORTOPMOST` is already set) both remain allowed. All other restrictions/cooldowns/mana/charges/formulas untouched.
 
@@ -68,7 +79,7 @@ Commit C (1 file): this document.
 
 ```
 git diff --check -> clean
-Changed files: 15 (4 protocol/test, 11 content/wheel)
+Changed files: 16 (4 protocol/test, 11 content/wheel, 1 handoff doc)
 luaparser.ast.parse on all 9 changed Lua files -> OK, 0 failures
 python -m tools.canary_audit validate-schemas -> All Canary audit schemas are valid
 python -m unittest discover -s tools/canary_audit/tests -t . -p "test_*.py" -> Ran 72 tests, OK (skipped=3, environment-only)
