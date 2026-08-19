@@ -27,7 +27,7 @@ spell:id(158)
 spell:cooldown(600000) -- 600 sec
 spell:groupCooldown(1000)
 spell:level(80)
-spell:mana(200)
+spell:mana(300) -- GLOBAL 2026
 spell:isSelfTarget(true)
 spell:isAggressive(false)
 spell:isPremium(true)
