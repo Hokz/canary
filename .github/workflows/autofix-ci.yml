@@ -35,26 +35,69 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run clang format lint
-        uses: DoozyX/clang-format-lint-action@v0.17
-        with:
-          source: "src tests"
-          exclude: "src/protobuf"
-          extensions: "cpp,hpp,h"
-          clangFormatVersion: 17
-          inplace: true
-
-      - name: Run StyLua
-        uses: JohnnyMorganz/stylua-action@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: latest
-          args: .
-
-      - name: Run cmake-format
+      - name: Determine changed files
+        id: changed-files
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
+          set -euo pipefail
+          git diff --diff-filter=ACMR -z --name-only "${BASE_SHA}" "${HEAD_SHA}" > all_changed.txt
+
+          : > cpp_files.txt
+          : > lua_files.txt
+          : > cmake_files.txt
+          while IFS= read -r -d '' f; do
+            [ -f "$f" ] || continue
+            case "$f" in
+              src/protobuf/*) continue ;;
+            esac
+            case "$f" in
+              *.cpp|*.cc|*.cxx|*.hpp|*.h|*.hxx) printf '%s\0' "$f" >> cpp_files.txt ;;
+              *.lua) printf '%s\0' "$f" >> lua_files.txt ;;
+              CMakeLists.txt|*.cmake) printf '%s\0' "$f" >> cmake_files.txt ;;
+            esac
+          done < all_changed.txt
+
+          has_cpp=false; [ -s cpp_files.txt ] && has_cpp=true
+          has_lua=false; [ -s lua_files.txt ] && has_lua=true
+          has_cmake=false; [ -s cmake_files.txt ] && has_cmake=true
+          echo "has_cpp=${has_cpp}" >> "$GITHUB_OUTPUT"
+          echo "has_lua=${has_lua}" >> "$GITHUB_OUTPUT"
+          echo "has_cmake=${has_cmake}" >> "$GITHUB_OUTPUT"
+
+      - name: Run clang-format on changed files
+        if: steps.changed-files.outputs.has_cpp == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=15 update
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=15 install -y clang-format-17
+          xargs -0 -a cpp_files.txt clang-format-17 -i --
+
+      - name: Install StyLua
+        if: steps.changed-files.outputs.has_lua == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL -o stylua.zip https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip
+          unzip -o stylua.zip -d /usr/local/bin
+          chmod +x /usr/local/bin/stylua
+          stylua --version
+
+      - name: Run StyLua on changed files
+        if: steps.changed-files.outputs.has_lua == 'true'
+        shell: bash
+        run: xargs -0 -a lua_files.txt stylua --
+
+      - name: Run cmake-format on changed files
+        if: steps.changed-files.outputs.has_cmake == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
           pip install cmakelang PyYAML
-          find . -name "CMakeLists.txt" -o -name "*.cmake" | grep -v build/ | grep -v vcpkg_installed/ | xargs cmake-format -i
+          xargs -0 -a cmake_files.txt cmake-format -i --
 
       - name: Apply formatting with autofix.ci
         uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a
