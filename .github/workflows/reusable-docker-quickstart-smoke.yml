@@ -28,10 +28,16 @@ jobs:
           name: canary-docker-image
           path: artifacts/docker-image
 
+      - name: Compute lowercase image repository
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+        id: image-repo
+        shell: bash
+        run: echo "repository=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
       - name: Run Docker quickstart smoke (PR image)
         if: github.event_name != 'push' || github.ref != 'refs/heads/main'
         env:
-          CANARY_IMAGE: ghcr.io/${{ github.repository }}:pr
+          CANARY_IMAGE: ghcr.io/${{ steps.image-repo.outputs.repository }}:pr
           CANARY_IMAGE_TAR: artifacts/docker-image/canary-pr.tar
         run: bash .github/scripts/docker-quickstart-smoke.sh
 
