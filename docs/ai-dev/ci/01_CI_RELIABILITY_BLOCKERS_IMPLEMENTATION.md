@@ -275,3 +275,78 @@ harden tool setup`.
 and this handoff doc only. No other file (Docker lowercase fix, Linux
 dependency fix, Secret Library quote fix, PR #38, Repository Audit
 findings) was touched.
+
+## Ready CI Correction 02
+
+**Correction to the "Temporary file safety" claim above.** Once PR #39
+was marked ready and its `synchronize`/`ready_for_review` autofix run
+actually executed, the assumption in Independent Audit Correction 01 -
+that a plain `git diff`-based commit could never pick up the untracked
+`all_changed.txt`/`cpp_files.txt`/`lua_files.txt`/`cmake_files.txt`
+scratch files - was proven wrong in practice: `autofix-ci/action`
+committed all four of them directly into PR #39 (two bot commits,
+`style: auto-formatting (clang/stylua/cmake)` and its `attempt 2/3`
+retry), because the action's actual commit mechanism captures new
+untracked files in the workspace, not only diffs against already-
+tracked content. That earlier validation reasoned about `git diff`
+behavior correctly but about the wrong commit mechanism - a validation
+gap, not a redesign; corrected here by removing the possibility
+entirely rather than re-attempting to prove the old approach safe.
+
+**Fix**: the four scratch files are no longer created anywhere inside
+`$GITHUB_WORKSPACE`. The "Determine changed files" step now creates a
+runner-owned directory via
+`AUTOFIX_TMP="$(mktemp -d "${RUNNER_TEMP}/canary-autofix.XXXXXX")"`,
+exposes it to every later step by appending `AUTOFIX_TMP=...` to
+`$GITHUB_ENV`, and writes `all_changed.txt`, `cpp_files.txt`,
+`lua_files.txt`, and `cmake_files.txt` only under that directory. Every
+downstream read (`git diff ... >`, the partitioning loop's `done <
+...`, and every `xargs -0 -a ...` invocation in the clang-format,
+StyLua, and cmake-format steps) was updated to the
+`"${AUTOFIX_TMP}/<file>"` path. Since `$RUNNER_TEMP` is outside
+`$GITHUB_WORKSPACE` by GitHub Actions' own contract, these files can
+never appear in the checkout's working tree at all - not filtered out
+after the fact, not gitignored, simply never created there. All
+previously-approved partitioning behavior (diff-filter=ACMR, NUL-
+delimited handling, src/tests-only C/C++ scope with .cpp/.hpp/.h only,
+src/protobuf exclusion, nested CMakeLists.txt coverage, build/ and
+vcpkg_installed/ exclusion, Lua changed-files-only scope, empty-
+partition no-op, special-character/space-safe filenames, bounded
+clang-format apt install, StyLua under `$RUNNER_TEMP` with a hardened
+download) is unchanged - only the four files' storage location moved.
+
+**Accidental tracked files removed**: `all_changed.txt`,
+`cpp_files.txt`, `lua_files.txt`, `cmake_files.txt` were `git rm`'d
+from the branch in this same correction, restoring PR #39's changed-
+file list to the intended five files (the four production/workflow
+files from Foundation Fix 01 plus this handoff doc).
+
+**Validation performed**: `git diff --check` clean; YAML re-parses;
+`bash -n` clean on the rewritten partitioning step and every
+downstream `xargs` invocation; a local dry run set `GITHUB_WORKSPACE`
+and `RUNNER_TEMP` to simulate the runner environment, confirmed
+`AUTOFIX_TMP` resolves under `$RUNNER_TEMP` and outside
+`$GITHUB_WORKSPACE` (prefix-checked both ways), re-ran the exact
+partitioning logic against a synthetic changed-file list writing into
+that simulated `AUTOFIX_TMP`, and confirmed `git status --porcelain`
+in the simulated workspace showed nothing beyond the intentional
+`git rm` deletions already staged for this same commit - no new
+scratch-file contamination.
+
+**SEPARATE_BLOCKER_PENDING_DIRECTOR_SPEC**: the Ready-for-Review CI run
+also surfaced that the Linux release `linux-release` build's "Smoke
+test Global datapack runtime" step fails under `--fail-on-warnings`
+because the `data-otservbr-global` datapack emits pre-existing
+registration warnings at startup. This is unrelated to the autofix
+scratch-file contamination fixed above and was explicitly left
+untouched in this correction - no datapack registration/content
+change, no removal of `--fail-on-warnings`, no smoke-criteria
+weakening, no warning allowlist, no change to the Repository Audit
+baseline. Awaiting a separate Director spec for this blocker.
+
+**Correction commit**: `ci(autofix): keep formatter scratch files
+outside workspace`.
+
+**Files changed by this correction**: `.github/workflows/autofix-ci.yml`,
+this handoff doc, and the deletion of the four accidentally-tracked
+scratch files. No other file was touched; PR #38 was not touched.

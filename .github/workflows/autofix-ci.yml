@@ -43,11 +43,14 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          git diff --diff-filter=ACMR -z --name-only "${BASE_SHA}" "${HEAD_SHA}" > all_changed.txt
+          AUTOFIX_TMP="$(mktemp -d "${RUNNER_TEMP}/canary-autofix.XXXXXX")"
+          echo "AUTOFIX_TMP=${AUTOFIX_TMP}" >> "$GITHUB_ENV"
 
-          : > cpp_files.txt
-          : > lua_files.txt
-          : > cmake_files.txt
+          git diff --diff-filter=ACMR -z --name-only "${BASE_SHA}" "${HEAD_SHA}" > "${AUTOFIX_TMP}/all_changed.txt"
+
+          : > "${AUTOFIX_TMP}/cpp_files.txt"
+          : > "${AUTOFIX_TMP}/lua_files.txt"
+          : > "${AUTOFIX_TMP}/cmake_files.txt"
           while IFS= read -r -d '' f; do
             [ -f "$f" ] || continue
 
@@ -57,14 +60,14 @@ jobs:
 
             case "$f" in
               src/*.cpp|src/*.hpp|src/*.h|tests/*.cpp|tests/*.hpp|tests/*.h)
-                printf '%s\0' "$f" >> cpp_files.txt
+                printf '%s\0' "$f" >> "${AUTOFIX_TMP}/cpp_files.txt"
                 continue
                 ;;
             esac
 
             case "$f" in
               *.lua)
-                printf '%s\0' "$f" >> lua_files.txt
+                printf '%s\0' "$f" >> "${AUTOFIX_TMP}/lua_files.txt"
                 continue
                 ;;
             esac
@@ -75,14 +78,14 @@ jobs:
 
             case "$f" in
               CMakeLists.txt|*/CMakeLists.txt|*.cmake)
-                printf '%s\0' "$f" >> cmake_files.txt
+                printf '%s\0' "$f" >> "${AUTOFIX_TMP}/cmake_files.txt"
                 ;;
             esac
-          done < all_changed.txt
+          done < "${AUTOFIX_TMP}/all_changed.txt"
 
-          has_cpp=false; [ -s cpp_files.txt ] && has_cpp=true
-          has_lua=false; [ -s lua_files.txt ] && has_lua=true
-          has_cmake=false; [ -s cmake_files.txt ] && has_cmake=true
+          has_cpp=false; [ -s "${AUTOFIX_TMP}/cpp_files.txt" ] && has_cpp=true
+          has_lua=false; [ -s "${AUTOFIX_TMP}/lua_files.txt" ] && has_lua=true
+          has_cmake=false; [ -s "${AUTOFIX_TMP}/cmake_files.txt" ] && has_cmake=true
           echo "has_cpp=${has_cpp}" >> "$GITHUB_OUTPUT"
           echo "has_lua=${has_lua}" >> "$GITHUB_OUTPUT"
           echo "has_cmake=${has_cmake}" >> "$GITHUB_OUTPUT"
@@ -98,7 +101,7 @@ jobs:
           APT_OPTS=(-o Acquire::Retries=3 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 -o DPkg::Lock::Timeout=60)
           sudo apt-get "${APT_OPTS[@]}" update
           sudo apt-get "${APT_OPTS[@]}" install -y --no-install-recommends clang-format-17
-          xargs -0 -a cpp_files.txt clang-format-17 -i --
+          xargs -0 -a "${AUTOFIX_TMP}/cpp_files.txt" clang-format-17 -i --
 
       - name: Install StyLua
         if: steps.changed-files.outputs.has_lua == 'true'
@@ -119,7 +122,7 @@ jobs:
       - name: Run StyLua on changed files
         if: steps.changed-files.outputs.has_lua == 'true'
         shell: bash
-        run: xargs -0 -a lua_files.txt stylua --
+        run: xargs -0 -a "${AUTOFIX_TMP}/lua_files.txt" stylua --
 
       - name: Run cmake-format on changed files
         if: steps.changed-files.outputs.has_cmake == 'true'
@@ -127,7 +130,7 @@ jobs:
         run: |
           set -euo pipefail
           pip install cmakelang PyYAML
-          xargs -0 -a cmake_files.txt cmake-format -i --
+          xargs -0 -a "${AUTOFIX_TMP}/cmake_files.txt" cmake-format -i --
 
       - name: Apply formatting with autofix.ci
         uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a
