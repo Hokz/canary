@@ -50,13 +50,33 @@ jobs:
           : > cmake_files.txt
           while IFS= read -r -d '' f; do
             [ -f "$f" ] || continue
+
             case "$f" in
               src/protobuf/*) continue ;;
             esac
+
             case "$f" in
-              *.cpp|*.cc|*.cxx|*.hpp|*.h|*.hxx) printf '%s\0' "$f" >> cpp_files.txt ;;
-              *.lua) printf '%s\0' "$f" >> lua_files.txt ;;
-              CMakeLists.txt|*.cmake) printf '%s\0' "$f" >> cmake_files.txt ;;
+              src/*.cpp|src/*.hpp|src/*.h|tests/*.cpp|tests/*.hpp|tests/*.h)
+                printf '%s\0' "$f" >> cpp_files.txt
+                continue
+                ;;
+            esac
+
+            case "$f" in
+              *.lua)
+                printf '%s\0' "$f" >> lua_files.txt
+                continue
+                ;;
+            esac
+
+            case "$f" in
+              build/*|*/build/*|vcpkg_installed/*|*/vcpkg_installed/*) continue ;;
+            esac
+
+            case "$f" in
+              CMakeLists.txt|*/CMakeLists.txt|*.cmake)
+                printf '%s\0' "$f" >> cmake_files.txt
+                ;;
             esac
           done < all_changed.txt
 
@@ -70,21 +90,31 @@ jobs:
       - name: Run clang-format on changed files
         if: steps.changed-files.outputs.has_cpp == 'true'
         shell: bash
+        timeout-minutes: 10
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
           set -euo pipefail
-          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=15 update
-          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=15 install -y clang-format-17
+          APT_OPTS=(-o Acquire::Retries=3 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 -o DPkg::Lock::Timeout=60)
+          sudo apt-get "${APT_OPTS[@]}" update
+          sudo apt-get "${APT_OPTS[@]}" install -y --no-install-recommends clang-format-17
           xargs -0 -a cpp_files.txt clang-format-17 -i --
 
       - name: Install StyLua
         if: steps.changed-files.outputs.has_lua == 'true'
         shell: bash
+        timeout-minutes: 5
         run: |
           set -euo pipefail
-          curl -fsSL -o stylua.zip https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip
-          unzip -o stylua.zip -d /usr/local/bin
-          chmod +x /usr/local/bin/stylua
-          stylua --version
+          STYLUA_DIR="${RUNNER_TEMP}/stylua"
+          mkdir -p "${STYLUA_DIR}"
+          curl -fsSL --retry 3 --retry-connrefused --connect-timeout 10 --max-time 120 \
+            -o "${STYLUA_DIR}/stylua.zip" \
+            https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip
+          unzip -o "${STYLUA_DIR}/stylua.zip" -d "${STYLUA_DIR}"
+          chmod +x "${STYLUA_DIR}/stylua"
+          echo "${STYLUA_DIR}" >> "$GITHUB_PATH"
+          "${STYLUA_DIR}/stylua" --version
 
       - name: Run StyLua on changed files
         if: steps.changed-files.outputs.has_lua == 'true'

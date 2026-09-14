@@ -200,3 +200,78 @@ ChatGPT's independent validation once a PR is opened.
 
 Draft PR only, against `main`. Not marked ready. Not merged. No CI
 gate polling performed as part of this task.
+
+## Independent Audit Correction 01
+
+ChatGPT's independent audit of PR #39 found four issues in the Change C
+(`autofix-ci.yml`) scoping logic and one item requiring validation-only
+confirmation. All four were corrected in place on the same file; no
+other authorized file besides this handoff doc was touched.
+
+**Finding 1 - nested CMakeLists.txt paths missed.** The partition
+pattern `CMakeLists.txt|*.cmake` never matched a nested
+`src/foo/CMakeLists.txt`, since bare `CMakeLists.txt` only matches the
+literal root-relative string. Changed to
+`CMakeLists.txt|*/CMakeLists.txt|*.cmake` (bash `case` patterns match
+`/` like any other character, so `*/CMakeLists.txt` correctly matches
+any depth). Also added back the original `find`-based exclusions for
+`build/` and `vcpkg_installed/` (at any depth: `build/*|*/build/*` and
+`vcpkg_installed/*|*/vcpkg_installed/*`), which the file-list
+partitioning had dropped when it replaced the old `find | grep -v`
+pipeline. Verified: root `CMakeLists.txt` selected, nested
+`src/foo/CMakeLists.txt` selected, `path/to/file.cmake` selected,
+`build/CMakeLists.txt` excluded, `vcpkg_installed/x64-linux/CMakeLists.txt`
+excluded.
+
+**Finding 2 - C/C++ coverage silently expanded.** The original
+DoozyX/clang-format-lint-action surface was `source: "src tests"`,
+`exclude: "src/protobuf"`, `extensions: "cpp,hpp,h"` - i.e. only files
+under `src/` or `tests/`, only `.cpp/.hpp/.h`. The replacement
+partition logic matched `*.cpp|*.cc|*.cxx|*.hpp|*.h|*.hxx` anywhere in
+the repo, which both added two extensions (`.cc`, `.cxx`... and
+`.hxx`) and dropped the directory restriction. Narrowed the case
+pattern to `src/*.cpp|src/*.hpp|src/*.h|tests/*.cpp|tests/*.hpp|tests/*.h`
+(again relying on `*` matching `/` for nested paths under those two
+roots). Verified: `src/foo.cpp` selected, `tests/foo.hpp` selected,
+`src/foo.h` selected, `src/protobuf/foo.cpp` excluded (unchanged
+protobuf exclusion), `other/foo.cpp` excluded, `src/foo.cc` excluded,
+`src/foo.cxx` excluded, `src/foo.hxx` excluded.
+
+**Finding 3 - StyLua install assumed `/usr/local/bin` writability.**
+Replaced the `/usr/local/bin` extraction (which needs root and doesn't
+reflect a runner-owned location) with extraction into
+`${RUNNER_TEMP}/stylua` (no `sudo`), then appended that directory to
+`GITHUB_PATH` so `stylua` resolves by bare name in the following step
+without hardcoding an absolute path there. Version pinning left as
+`latest` (unchanged). Hardened the download itself:
+`curl --retry 3 --retry-connrefused --connect-timeout 10 --max-time 120`,
+plus a `timeout-minutes: 5` step-level backstop.
+
+**Finding 4 - autofix clang-format apt install unbounded.** The
+`clang-format-17` apt install had no step timeout and no
+noninteractive/retry configuration - the same class of problem as the
+Linux dependency install fixed in Change B. Added `timeout-minutes: 10`,
+`DEBIAN_FRONTEND: noninteractive`, and the same bounded apt options
+used in Change B (`Acquire::Retries=3`, `Acquire::http::Timeout=15`,
+`Acquire::https::Timeout=15`, `DPkg::Lock::Timeout=60`), plus
+`--no-install-recommends` (clang-format-17 has no recommended packages
+that affect formatting correctness, so this is a safe narrowing).
+
+**Temporary file safety - validated, not redesigned.** Confirmed
+`all_changed.txt`, `cpp_files.txt`, `lua_files.txt`, and
+`cmake_files.txt` are created in the runner's working directory but
+never `git add`ed, so they remain untracked for the lifetime of the
+job. `autofix-ci/action` applies its commit from a plain `git diff`
+against the tracked tree, and plain `git diff` (no `--no-index`, no
+explicit pathspec pulling in untracked content) never includes
+untracked files - so these temp files cannot leak into the bot's
+commit or be mistaken for intentional formatting output. No redesign
+was needed; this is a validation finding, not a code change.
+
+**Correction commit**: `ci(autofix): preserve formatter scope and
+harden tool setup`.
+
+**Files changed by this correction**: `.github/workflows/autofix-ci.yml`
+and this handoff doc only. No other file (Docker lowercase fix, Linux
+dependency fix, Secret Library quote fix, PR #38, Repository Audit
+findings) was touched.
