@@ -65,15 +65,24 @@ function Party:onDisband()
 	return true
 end
 
+-- GLOBAL 2026: diversity-bonus multiplier per unique vocation count in the party, updated to the
+-- current-live published values (2 unique vocations = +35%, 3 = +70%). The 1- and 4-vocation results
+-- are unchanged from the prior formula's own output (1.2 / 2.0 respectively) - only the 2 and 3 cases
+-- were adjusted, per the current-live foundation contract. getUniqueVocationsCount() (party.cpp) is
+-- capped at 4 and already deduplicates same-vocation members, so this table is exhaustive for every
+-- reachable input.
+local sharedExperienceMultiplierByVocationCount = {
+	[1] = 1.2,
+	[2] = 1.35,
+	[3] = 1.70,
+	[4] = 2.0,
+}
+
 function Party:onShareExperience(exp)
 	local uniqueVocationsCount = self:getUniqueVocationsCount()
 	local partySize = self:getMemberCount() + 1
 
-	-- Formula to calculate the % based on the vocations amount
-	local sharedExperienceMultiplier = ((0.1 * (uniqueVocationsCount ^ 2)) - (0.2 * uniqueVocationsCount) + 1.3)
-	-- Since the formula its non linear, we need to subtract 0.1 if all vocations are present,
-	-- because on all vocations the multiplier is 2.1 and it should be 2.0
-	sharedExperienceMultiplier = partySize < 4 and sharedExperienceMultiplier or sharedExperienceMultiplier - 0.1
+	local sharedExperienceMultiplier = sharedExperienceMultiplierByVocationCount[uniqueVocationsCount] or 1.2
 
 	return math.ceil((exp * sharedExperienceMultiplier) / partySize)
 end
