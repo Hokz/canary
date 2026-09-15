@@ -11,14 +11,24 @@ local stoneGuards = {
 	[45714] = ThreatenedDreams.Mission04.Stone5,
 }
 
+-- Registered on the five stones' own action ids, NOT on the rake (3452). The rake already carries
+-- a generic Action in scripts/actions/tools/rake.lua, and Actions::registerLuaItemEvent keeps the
+-- first registration for an item id and rejects the second, so a plain :id(3452) here was never
+-- reachable: raking a sentient stone fell through to rake.lua, which matches neither of its two
+-- target ids and silently returns true, so StonesRaked never advanced and Grumpy Stone could never
+-- hand over the map part. The stones are used directly now, with the rake required in inventory;
+-- rake.lua is left untouched and its Wrath of the Emperor / Shattered Isles behavior is unchanged.
+local RAKE_ID = 3452
+
 local rakeAction = Action()
 function rakeAction.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if not target then
-		return false
-	end
-	local guardStorage = stoneGuards[target:getActionId()]
+	local guardStorage = stoneGuards[item:getActionId()]
 	if not guardStorage then
 		return false
+	end
+	if player:getItemCount(RAKE_ID) < 1 then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need a rake to clear the weeds and moss away.")
+		return true
 	end
 	if player:getStorageValue(ThreatenedDreams.Mission04.MapGrumpyStone) >= 1 then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "This stone is already well kept.")
@@ -36,7 +46,7 @@ function rakeAction.onUse(player, item, fromPosition, target, toPosition, isHotk
 	return true
 end
 
-rakeAction:id(3452)
+rakeAction:aid(45710, 45711, 45712, 45713, 45714)
 rakeAction:register()
 
 -- The Last Part - Big Fly Agaric, Fields of Glory (item 25385/25386, no new aid needed).

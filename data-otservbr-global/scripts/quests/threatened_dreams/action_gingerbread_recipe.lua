@@ -34,29 +34,40 @@ end
 basinAction:aid(45732)
 basinAction:register()
 
-local doughAction = Action()
-function doughAction.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if not target or target:getId() ~= 6574 then
-		return false
-	end
+-- Chocolate dough. Item 6276 is already registered by the generic bakery Action in
+-- scripts/actions/other/baking.lua, whose own "lump of cake dough + bar of chocolate" branch
+-- produces the very same item 8018; Actions::registerLuaItemEvent keeps that first registration
+-- and rejects any later one, so the :id(6276) that used to sit here never ran and the quest's
+-- ChocolateDough bookkeeping was silently lost. baking.lua now calls this after performing its own
+-- (unchanged) transformation, so the item production stays exactly as it already behaves in
+-- production and only the quest's storage flag and messages are restored on top of it.
+--
+-- Deliberately NOT gated on a Threatened Dreams stage: the handler this replaces had no such gate
+-- either, and adding one is a separate pre-existing question reported in the handoff rather than
+-- changed here.
+function ThreatenedDreamsRecordChocolateDough(player)
 	if player:getStorageValue(ThreatenedDreams.Mission06.ChocolateDough) >= 1 then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already have enough chocolate dough.")
-		return true
+		return
 	end
-	target:remove(1)
-	item:remove(1)
-	player:addItem(8018, 1)
 	player:setStorageValue(ThreatenedDreams.Mission06.ChocolateDough, 1)
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You knead the bar of chocolate into the cake dough, forming a lump of chocolate dough.")
-	return true
 end
-
-doughAction:id(6276)
-doughAction:register()
 
 -- Raspberry and lemon syrups: real physical fruit items exist (8012/8013), mixed with sugar and
 -- fully consumed into a storage-backed "prepared" flag (no physical "flask of syrup" item exists
 -- either) - GLOBAL_ITEM_PENDING_XML_VALIDATION / ACCEPTABLE_STORAGE_BACKED_FALLBACK.
+--
+-- Registered on the sugar (12275), NOT on the fruits. Item ids 8012/8013 are core foods already
+-- registered by data/scripts/actions/items/foods.lua, which the engine loads from coreDirectory
+-- before this datapack (canary_server.cpp: data/scripts, then data-otservbr-global/scripts).
+-- Actions::registerLuaItemEvent keeps the first registration for an item id and rejects the
+-- second with a "Duplicate registered item with id" warning, so a plain :id(8012, 8013) here was
+-- never reachable - the fruits were simply eaten and SyrupRaspberry/SyrupLemon could never be
+-- set, which left ovenAction's three-syrup gate permanently unsatisfiable. Sugar carries no other
+-- Action registration and no transformOnUse tag, so it is safe to own this interaction. Which
+-- syrup is prepared is still decided by the fruit, now read from the target instead of the used
+-- item; the pairing, the consumption of one fruit plus one sugar, and the messages are unchanged.
 local syrups = {
 	[8012] = { storage = ThreatenedDreams.Mission06.SyrupRaspberry, name = "raspberry" },
 	[8013] = { storage = ThreatenedDreams.Mission06.SyrupLemon, name = "lemon" },
@@ -64,10 +75,10 @@ local syrups = {
 
 local syrupAction = Action()
 function syrupAction.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if not target or target:getId() ~= 12275 then
+	if not target or type(target.isItem) ~= "function" or not target:isItem() then
 		return false
 	end
-	local syrup = syrups[item:getId()]
+	local syrup = syrups[target:getId()]
 	if not syrup then
 		return false
 	end
@@ -75,14 +86,14 @@ function syrupAction.onUse(player, item, fromPosition, target, toPosition, isHot
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You already prepared this syrup.")
 		return true
 	end
-	item:remove(1)
 	target:remove(1)
+	item:remove(1)
 	player:setStorageValue(syrup.storage, 1)
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You mix the " .. syrup.name .. " with sugar into a sweet syrup.")
 	return true
 end
 
-syrupAction:id(8012, 8013)
+syrupAction:id(12275)
 syrupAction:register()
 
 -- Moon melon: no "moon melon" item exists anywhere in items.xml, and the nearest hit (item 3593,

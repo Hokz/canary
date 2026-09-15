@@ -116,10 +116,13 @@ local catapults = {
 }
 
 -- Heavy stone (load stone on catapult)
-
-local heavyStone = Action()
-
-function heavyStone.onUse(player, item, frompos, item2, topos)
+--
+-- Item 12724 is shared with A Pirate's Tail's ship-raid catapults, so the single Action
+-- registration for it lives in scripts/actions/other/heavy_stone.lua, which dispatches here once
+-- it has confirmed the target is one of this mission's catapults. The logic below is unchanged,
+-- including returning true for a catapult used at the wrong mission state; what no longer happens
+-- is this handler swallowing uses aimed at the other quest's catapult.
+function RookieGuardLoadHeavyStone(player, item, item2)
 	local missionState = player:getStorageValue(Storage.Quest.U9_1.TheRookieGuard.Mission02)
 	if missionState >= 2 and missionState <= 3 and catapults[item2.actionid] then
 		local catapultsState = player:getStorageValue(Storage.Quest.U9_1.TheRookieGuard.Catapults)
@@ -140,6 +143,3 @@ function heavyStone.onUse(player, item, frompos, item2, topos)
 	end
 	return true
 end
-
-heavyStone:id(12724)
-heavyStone:register()

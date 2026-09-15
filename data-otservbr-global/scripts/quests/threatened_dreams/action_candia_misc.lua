@@ -25,10 +25,18 @@ lipstickAction:aid(45740)
 lipstickAction:register()
 
 local candyCaneAids = { [45742] = true, [45743] = true, [45744] = true }
+local CANDY_CANE_ID = 3599
 
+-- Registered on the three broken-wall action ids, NOT on the candy cane. Item 3599 is a core food
+-- registered by data/scripts/actions/items/foods.lua, which the engine loads from coreDirectory
+-- before this datapack, and Actions::registerLuaItemEvent keeps that first registration and
+-- rejects any later one - so a plain :id(3599) here never ran and using a candy cane on a broken
+-- wall simply ate it. The walls are used directly now and the candy cane is consumed from
+-- inventory; candy canes stay ordinary edible food everywhere else, including the three this
+-- quest's own caneChestAction hands out.
 local candyCaneAction = Action()
 function candyCaneAction.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if not target or not candyCaneAids[target:getActionId()] then
+	if not candyCaneAids[item:getActionId()] then
 		return false
 	end
 	if player:getStorageValue(ThreatenedDreams.Mission06[1]) ~= 13 then
@@ -38,7 +46,10 @@ function candyCaneAction.onUse(player, item, fromPosition, target, toPosition, i
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "This wall is already sealed.")
 		return true
 	end
-	item:remove(1)
+	if not player:removeItem(CANDY_CANE_ID, 1) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You need a candy cane to seal this wall.")
+		return true
+	end
 	toPosition:sendMagicEffect(CONST_ME_POFF)
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You seal the broken wall with the candy cane.")
 	local count = math.max(player:getStorageValue(ThreatenedDreams.Mission06.CandyCaneCount), 0) + 1
@@ -49,7 +60,7 @@ function candyCaneAction.onUse(player, item, fromPosition, target, toPosition, i
 	return true
 end
 
-candyCaneAction:id(3599)
+candyCaneAction:aid(45742, 45743, 45744)
 candyCaneAction:register()
 
 local caneChestAction = Action()
@@ -68,9 +79,20 @@ caneChestAction:register()
 
 -- Honey Elemental catching - use an empty jar (vial 2874, reused since no dedicated "jar" item
 -- exists) on a live Honey Elemental to catch it.
-local jarAction = Action()
-function jarAction.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if not target or not target:isMonster() or target:getName():lower() ~= "honey elemental" then
+--
+-- Item 2874 is the generic fluid container and is already registered by
+-- scripts/actions/other/fluids.lua; Actions::registerLuaItemEvent keeps that first registration
+-- and rejects any later one, so a plain :id(2874) here was never reachable and this capture step
+-- could not run at all. There is no fixed map object to move the interaction onto - the target is
+-- a live monster - so the interaction is kept exactly as designed and fluids.lua delegates to this
+-- entry point from a narrow early branch, falling through to its generic fluid behavior whenever
+-- this returns false. The isMonster guard matters: that method is defined only on the Monster
+-- metatable, so it must not be called blindly on an ordinary item target.
+function ThreatenedDreamsHoneyElementalJarUse(player, item, target)
+	if not target or type(target.isMonster) ~= "function" or not target:isMonster() then
+		return false
+	end
+	if target:getName():lower() ~= "honey elemental" then
 		return false
 	end
 	if player:getStorageValue(ThreatenedDreams.Mission06[1]) ~= 13 then
@@ -90,6 +112,3 @@ function jarAction.onUse(player, item, fromPosition, target, toPosition, isHotke
 	end
 	return true
 end
-
-jarAction:id(2874)
-jarAction:register()

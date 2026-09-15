@@ -89,6 +89,17 @@ end
 local fluid = Action()
 
 function fluid.onUse(player, item, fromPosition, target, toPosition, isHotkey)
+	-- Threatened Dreams Mission06 catches Honey Elementals by using an empty vial (2874) on the live
+	-- monster. That quest cannot own a registration for 2874 - this generic Action already holds the
+	-- id and the engine rejects a second one - so the capture is delegated here as a narrow early
+	-- branch. It only matches a vial used on the right monster at the right quest stage; every other
+	-- use, including every ordinary fluid interaction, falls through untouched to the logic below.
+	if item.itemid == 2874 and type(ThreatenedDreamsHoneyElementalJarUse) == "function" then
+		if ThreatenedDreamsHoneyElementalJarUse(player, item, target) then
+			return true
+		end
+	end
+
 	local targetType = ItemType(target.itemid)
 	if targetType:isFluidContainer() then
 		if target.type == 0 and item.type ~= 0 then
