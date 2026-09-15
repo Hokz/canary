@@ -176,16 +176,25 @@ end
 staffChest:aid(ROOM.chestAid)
 staffChest:register()
 
+-- Registered on the larder itself, NOT on the cheese. Item 3607 is a core food registered by
+-- data/scripts/actions/items/foods.lua, which the engine loads from coreDirectory before this
+-- datapack, and Actions::registerLuaItemEvent keeps that first registration and rejects any later
+-- one - so a plain :id(3607) here never ran and delivering cheese to the larder just ate it. The
+-- larder is used directly now and the cheese is consumed from inventory; cheese stays ordinary
+-- edible food everywhere else.
 local deliverCheese = Action()
 function deliverCheese.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if not target or target:getActionId() ~= ROOM.larderAid then
+	if item:getActionId() ~= ROOM.larderAid then
 		return false
 	end
-	item:remove(1)
-	local score = setScore(player, player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) + 2)
+	if not player:removeItem(CHEESE_ID, 1) then
+		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have no cheese to put into the larder.")
+		return true
+	end
+	setScore(player, player:getStorageValue(APiratesTail.Mission03.SupplyMissionScore) + 2)
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You push the cheese into the larder.")
 	toPosition:sendMagicEffect(CONST_ME_POFF)
 	return true
 end
-deliverCheese:id(CHEESE_ID)
+deliverCheese:aid(ROOM.larderAid)
 deliverCheese:register()
