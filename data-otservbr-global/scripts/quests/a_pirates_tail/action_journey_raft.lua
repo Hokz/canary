@@ -201,10 +201,12 @@ function windCatcher.onStepIn(creature, item, position, fromPosition)
 	end
 	return true
 end
+-- Registered only once the map contract supplies the tile. Calling register() with no position
+-- attached leaves the event without a valid key, which the engine rejects with a startup warning.
 if JOURNEY_ROOM.windCatcherTile then
 	windCatcher:position(JOURNEY_ROOM.windCatcherTile)
+	windCatcher:register()
 end
-windCatcher:register()
 
 local cannon = Action()
 function cannon.onUse(player, item, fromPosition, target, toPosition, isHotkey)
@@ -251,7 +253,8 @@ function pinkPortal.onStepIn(creature, item, position, fromPosition)
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You claim the hidden treasure!")
 	return true
 end
+-- Same reasoning as windCatcher above: no position, no registration.
 if JOURNEY_ROOM.pinkPortal then
 	pinkPortal:position(JOURNEY_ROOM.pinkPortal)
+	pinkPortal:register()
 end
-pinkPortal:register()
