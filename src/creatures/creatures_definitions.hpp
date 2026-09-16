@@ -105,6 +105,15 @@ enum ConditionAttr_t {
 	CONDITIONATTR_CHARM_CHANCE_MODIFIER,
 	CONDITIONATTR_PERSISTENT,
 
+	// The percent arrays behind skills, stats and buffs. Without these only the
+	// computed flat bonus survives a save, and the percentage that produced it is
+	// lost - so the bonus can never be recomputed against the player's current
+	// values. Appended here so every value above keeps its number: these are read
+	// back out of saved condition blobs.
+	CONDITIONATTR_SKILLSPERCENT,
+	CONDITIONATTR_STATSPERCENT,
+	CONDITIONATTR_BUFFSPERCENT,
+
 	// reserved for serialization
 	CONDITIONATTR_END = 254,
 };

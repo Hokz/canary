@@ -184,6 +184,9 @@ private:
 	int32_t currentSkill = 0;
 	int32_t currentStat = 0;
 	int32_t currentBuff = 0;
+	int32_t currentSkillPercent = 0;
+	int32_t currentStatPercent = 0;
+	int32_t currentBuffPercent = 0;
 
 	int8_t charmChanceModifier = 0;
 

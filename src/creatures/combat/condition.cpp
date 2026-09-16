@@ -735,13 +735,29 @@ void ConditionAttributes::addCondition(std::shared_ptr<Creature> creature, const
 	}
 }
 
+namespace {
+	// These arrays are filled one entry per attribute, with the index carried only by
+	// a running counter. A blob holding more entries than the array has - corrupt,
+	// truncated, or written by a build with a longer enum - would otherwise write past
+	// the end. Refusing the attribute makes the condition fail to load instead, which
+	// unserialize already treats as "stop reading this condition".
+	template <size_t N>
+	bool readIndexed(PropStream &propStream, int32_t (&values)[N], int32_t &index) {
+		if (index < 0 || static_cast<size_t>(index) >= N) {
+			return false;
+		}
+
+		return propStream.read<int32_t>(values[index++]);
+	}
+}
+
 bool ConditionAttributes::unserializeProp(ConditionAttr_t attr, PropStream &propStream) {
 	if (attr == CONDITIONATTR_SKILLS) {
-		return propStream.read<int32_t>(skills[currentSkill++]);
+		return readIndexed(propStream, skills, currentSkill);
 	} else if (attr == CONDITIONATTR_STATS) {
-		return propStream.read<int32_t>(stats[currentStat++]);
+		return readIndexed(propStream, stats, currentStat);
 	} else if (attr == CONDITIONATTR_BUFFS) {
-		return propStream.read<int32_t>(buffs[currentBuff++]);
+		return readIndexed(propStream, buffs, currentBuff);
 	} else if (attr == CONDITIONATTR_ABSORBS) {
 		for (int32_t i = 0; i < CombatType_t::COMBAT_COUNT; ++i) {
 			uint8_t index;
@@ -768,6 +784,12 @@ bool ConditionAttributes::unserializeProp(ConditionAttr_t attr, PropStream &prop
 		return true;
 	} else if (attr == CONDITIONATTR_CHARM_CHANCE_MODIFIER) {
 		return propStream.read<int8_t>(charmChanceModifier);
+	} else if (attr == CONDITIONATTR_SKILLSPERCENT) {
+		return readIndexed(propStream, skillsPercent, currentSkillPercent);
+	} else if (attr == CONDITIONATTR_STATSPERCENT) {
+		return readIndexed(propStream, statsPercent, currentStatPercent);
+	} else if (attr == CONDITIONATTR_BUFFSPERCENT) {
+		return readIndexed(propStream, buffsPercent, currentBuffPercent);
 	}
 	return Condition::unserializeProp(attr, propStream);
 }
@@ -788,6 +810,30 @@ void ConditionAttributes::serialize(PropWriteStream &propWriteStream) {
 	for (int32_t i = BUFF_FIRST; i <= BUFF_LAST; ++i) {
 		propWriteStream.write<uint8_t>(CONDITIONATTR_BUFFS);
 		propWriteStream.write<int32_t>(buffs[i]);
+	}
+
+	// The percentages, saved alongside the flat values they produced. updatePercent*
+	// turns a percentage into a flat bonus once, at startCondition, so without these
+	// a reloaded condition would carry a bonus computed against whatever the player's
+	// skills were when it was first applied, with no way left to recompute it. That
+	// was invisible while every percent condition was a short buff; a stance is
+	// permanent, so the frozen value would follow the player forever.
+	//
+	// Restoring them is enough to fix it: the login path calls addCondition, which
+	// calls startCondition, which recomputes from the player's current values.
+	for (int32_t i = SKILL_FIRST; i <= SKILL_LAST; ++i) {
+		propWriteStream.write<uint8_t>(CONDITIONATTR_SKILLSPERCENT);
+		propWriteStream.write<int32_t>(skillsPercent[i]);
+	}
+
+	for (int32_t i = STAT_FIRST; i <= STAT_LAST; ++i) {
+		propWriteStream.write<uint8_t>(CONDITIONATTR_STATSPERCENT);
+		propWriteStream.write<int32_t>(statsPercent[i]);
+	}
+
+	for (int32_t i = BUFF_FIRST; i <= BUFF_LAST; ++i) {
+		propWriteStream.write<uint8_t>(CONDITIONATTR_BUFFSPERCENT);
+		propWriteStream.write<int32_t>(buffsPercent[i]);
 	}
 
 	// Save attribute absorbs
