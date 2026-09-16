@@ -468,7 +468,7 @@ function Creature:hasBeenSummoned() end
 ---@return boolean|nil
 function Creature:hasCondition(conditionType, subId) end
 
----@return boolean|nil
+---@return boolean
 function Creature:hasNextAutoAttackDebuff() end
 
 ---@return boolean

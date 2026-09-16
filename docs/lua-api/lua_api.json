@@ -843,7 +843,7 @@
       {
         "name": "hasNextAutoAttackDebuff",
         "params": [],
-        "return": "boolean|nil",
+        "return": "boolean",
         "source": "src/lua/functions/creatures/creature_functions.cpp"
       },
       {

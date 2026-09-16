@@ -364,11 +364,7 @@ int CreatureFunctions::luaCreatureSetNextAutoAttackDebuff(lua_State* L) {
 int CreatureFunctions::luaCreatureHasNextAutoAttackDebuff(lua_State* L) {
 	// creature:hasNextAutoAttackDebuff()
 	const auto &creature = Lua::getUserdataShared<Creature>(L, 1, "Creature");
-	if (!creature) {
-		lua_pushnil(L);
-		return 1;
-	}
-	Lua::pushBoolean(L, creature->hasNextAutoAttackDebuff());
+	Lua::pushBoolean(L, creature && creature->hasNextAutoAttackDebuff());
 	return 1;
 }
 
