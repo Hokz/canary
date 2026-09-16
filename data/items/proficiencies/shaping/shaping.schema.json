@@ -85,9 +85,15 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["Type", "ValuePerRank"],
+        "required": ["Id", "Type", "ValuePerRank"],
         "additionalProperties": false,
         "properties": {
+          "Id": {
+            "description": "Stable identity. A player's shaped perk stores this, never the array position, so the file can be reordered freely. Must be unique and non-zero, and must NEVER be reused for a different option: that would silently convert every perk players rolled from the old one.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
           "Type": {
             "description": "A WeaponProficiencyBonus_t (src/enums/weapon_proficiency.hpp).",
             "type": "integer",

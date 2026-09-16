@@ -97,12 +97,18 @@ struct ProficiencyPerk {
 	uint8_t index = 0;
 
 	// A shaped perk replaced the one the proficiency file defines at (level, index).
-	// It is not in the file at all, so it is stored whole in the player's KV and read
-	// back from there, unlike a normal selection which is rebuilt from the file every
-	// time. `rank` is what Refine raises; it selects the value from the shaping
-	// option's ValuePerRank table. A perk that is not shaped keeps rank 0 and its
-	// value always comes from the file.
+	// What is stored for it is its IDENTITY, not its effect: which shaping option was
+	// rolled and at what rank. Everything else below - value, type, element, skill,
+	// spell, range, augment - is rebuilt from the current shaping rules on every read,
+	// exactly like a normal selection is rebuilt from the proficiency file. Storing
+	// the computed effect instead would freeze it: a balance change to ValuePerRank
+	// would never reach a player who already owns the perk.
+	//
+	// shapingOptionId is the option's stable Id from shaping.json, never its position
+	// in the array, so reordering the file cannot silently repoint a player's perk.
+	// 0 means the perk is not shaped.
 	bool shaped = false;
+	uint16_t shapingOptionId = 0;
 	uint8_t rank = 0;
 
 	double_t value = 0.0;
@@ -122,6 +128,11 @@ struct ProficiencyPerk {
 // operation costs, and what each slot requires. It lives in
 // data/items/proficiencies/shaping.json so balancing never needs a rebuild.
 struct ProficiencyShapingOption {
+	// Stable identity, assigned by hand in shaping.json and never reused. A player's
+	// shaped perk stores this, so an option keeps its meaning however the file is
+	// reordered, and removing an option is detectable rather than silent.
+	uint16_t id = 0;
+
 	WeaponProficiencyBonus_t type = WeaponProficiencyBonus_t::ATTACK_DAMAGE;
 
 	// Relative draw weight. A roll picks among the options whose requirements the
@@ -174,6 +185,20 @@ struct ProficiencyShapingRules {
 
 	[[nodiscard]] bool empty() const {
 		return options.empty() || slots.empty();
+	}
+
+	[[nodiscard]] const ProficiencyShapingOption* findOption(uint16_t optionId) const {
+		if (optionId == 0) {
+			return nullptr;
+		}
+
+		for (const auto &option : options) {
+			if (option.id == optionId) {
+				return &option;
+			}
+		}
+
+		return nullptr;
 	}
 };
 

@@ -400,7 +400,24 @@ def validate_shaping(errors: list[str], warnings: list[str]) -> int:
     options = payload.get("Options", [])
     seen_types: dict[int, int] = {}
 
-    for option in options:
+    seen_ids: dict[int, int] = {}
+
+    for position, option in enumerate(options):
+        option_id = option.get("Id")
+        if not isinstance(option_id, int) or option_id < 1:
+            errors.append(
+                f"{rel}: option at position {position} has Id {option_id!r}. Every option needs a "
+                "unique, non-zero Id: it is what a player's shaped perk stores, so without it the "
+                "only handle would be the array position and reordering the file would repoint perks."
+            )
+        elif option_id in seen_ids:
+            errors.append(
+                f"{rel}: Id {option_id} is used by the options at positions {seen_ids[option_id]} "
+                f"and {position}. Ids must be unique."
+            )
+        else:
+            seen_ids[option_id] = position
+
         bonus_type = option.get("Type")
         expected_name = BONUS_TYPES.get(bonus_type)
         if expected_name is None:

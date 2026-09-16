@@ -207,17 +207,49 @@ and must be above 0.
 
 ### How a shaped perk is stored
 
-A normal selection is a `(level, index)` pair and the perk is rebuilt from the
-proficiency file on every read, which is what makes `/reload proficiencies` safe. A
-shaped perk is not in any file, so it is the one thing stored whole in the player's
-KV and read back whole. Two consequences:
+What is stored for a shaped perk is its **identity**, never its effect:
 
-- Its enums are validated on load (`hasValidPerkEnums`). A shaped perk that fails
-  validation is demoted to a normal selection, so the slot falls back to whatever the
-  file defines there rather than applying unchecked values.
-- It still has to occupy a slot the file still has. If a balance pass deletes the
-  level or the perk it was shaped over, the shaped perk goes with it, exactly like
-  any other selection.
+| Stored | Meaning |
+|---|---|
+| `level`, `index` | which slot of the proficiency tree it replaces |
+| `shaped` | that this slot was shaped at all |
+| `shapingOptionId` | which option was rolled — the `Id` from `shaping.json` |
+| `rank` | how far it has been refined |
+
+Everything the perk actually *does* — its value, type, element, skill, spell, range,
+augment — is rebuilt from the current shaping option on **every read**, through
+`WeaponProficiency::buildShapedPerk`. The perk is never replayed from storage.
+
+That is what keeps the data authoritative. Edit a `ValuePerRank` and the next read of
+a perk a player already owns reflects it; there is no migration and nothing to
+back-fill. The alternative — storing the computed effect — would freeze it at the
+moment it was rolled, and a balance change would only ever reach new perks.
+
+The reconciliation runs on login, on `/reload proficiencies`, and on every read:
+
+- **Option removed from the file** → the slot falls back to the perk the proficiency
+  file defines there, which is exactly what Clear produces. The player loses the
+  shaping. **Dust is not refunded.**
+- **Rank above the option's new maximum** → clamped down to the new maximum. A
+  shorter `ValuePerRank` can never leave anyone holding a value that no longer exists.
+- **Any other field changed** → rebuilt from the option, so it takes effect at once.
+- **`shaped` with no option id** → the one thing that cannot be rebuilt, so the perk
+  is demoted to a normal selection and the slot falls back to the file.
+
+A shaped perk still has to occupy a slot the file still has. If a balance pass deletes
+the level or the perk it was shaped over, the shaped perk goes with it, exactly like
+any other selection.
+
+### Why options carry an `Id`
+
+`shapingOptionId` stores the option's `Id`, **never its position in the array**. If
+identity depended on position, reordering `shaping.json` — a harmless-looking edit —
+would silently convert every perk players had rolled from one option into another.
+
+So `Id` is required, must be unique and non-zero, and is rejected at load otherwise.
+The one rule the tooling cannot enforce: **never reuse an `Id`**. Deleting an option
+and giving its number to a different one converts every perk rolled from the old one,
+silently and irreversibly.
 
 ### Before committing a balance change
 

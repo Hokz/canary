@@ -67,22 +67,6 @@ namespace {
 		return asLowerCaseString(itemType.vocationString).find("knight") != std::string::npos;
 	}
 
-	// A shaped perk is read back from the player's KV and used as-is, so unlike a perk
-	// rebuilt from a proficiency file its enums have never been checked. Everything
-	// downstream indexes arrays by them, so check before trusting the stored bytes.
-	bool hasValidPerkEnums(const ProficiencyPerk &perk) {
-		if (!magic_enum::enum_contains<WeaponProficiencyBonus_t>(perk.type)) {
-			return false;
-		}
-
-		if (perk.element != COMBAT_NONE && static_cast<uint8_t>(perk.element) >= COMBAT_COUNT) {
-			return false;
-		}
-
-		const auto skill = static_cast<int32_t>(perk.skillId);
-		return perk.skillId == SKILL_NONE || (skill >= MIN_TRACKED_SKILL && skill <= static_cast<int32_t>(SKILL_LEVEL));
-	}
-
 	size_t getMasteryExperienceTierCount(const Proficiency &proficiencyInfo, const std::vector<uint32_t> &experienceArray) {
 		if (proficiencyInfo.maxLevel == 0 || experienceArray.empty()) {
 			return 0;
@@ -230,6 +214,35 @@ static void registerLevels(const nlohmann::json &levelsJson, Proficiency &profic
 	return shapingRules;
 }
 
+// Rebuilds a shaped perk from the shaping rules as they are loaded right now. This
+// is the whole point of storing only (optionId, rank): a balance change to
+// ValuePerRank, SkillId, ElementId or anything else reaches players who already own
+// the perk, on their next read, with no migration.
+ProficiencyPerk WeaponProficiency::buildShapedPerk(const ProficiencyShapingOption &option, uint8_t rank, uint8_t level, uint8_t index) {
+	ProficiencyPerk perk;
+	perk.shaped = true;
+	perk.shapingOptionId = option.id;
+
+	// A rank the option no longer offers is clamped down, never kept. Shrinking a
+	// ValuePerRank table must not leave anyone holding a value that no longer exists.
+	perk.rank = std::min(rank, option.maxRank());
+
+	perk.level = level;
+	perk.index = index;
+
+	perk.type = option.type;
+	perk.value = option.valuePerRank[perk.rank];
+	perk.spellId = option.spellId;
+	perk.range = option.range;
+	perk.bestiaryId = option.bestiaryId;
+	perk.bestiaryName = option.bestiaryName;
+	perk.augmentType = option.augmentType;
+	perk.skillId = option.skillId;
+	perk.element = option.element;
+
+	return perk;
+}
+
 static void registerShapingOption(const nlohmann::json &optionJson, ProficiencyShapingRules &rules) {
 	const auto rawType = optionJson.at("Type").get<uint8_t>();
 	const auto typeOpt = magic_enum::enum_cast<WeaponProficiencyBonus_t>(rawType);
@@ -239,6 +252,17 @@ static void registerShapingOption(const nlohmann::json &optionJson, ProficiencyS
 
 	ProficiencyShapingOption option;
 	option.type = typeOpt.value();
+
+	// The Id is what a player's shaped perk stores. Without it the only handle on an
+	// option would be its position in the array, and reordering the file would
+	// silently repoint every perk rolled from it.
+	option.id = optionJson.at("Id").get<uint16_t>();
+	if (option.id == 0) {
+		throw FailedToInitializeCanary(fmt::format("{} - Shaping option Id must not be 0 (perk Type '{}')", __FUNCTION__, rawType));
+	}
+	if (rules.findOption(option.id) != nullptr) {
+		throw FailedToInitializeCanary(fmt::format("{} - Duplicate shaping option Id '{}'", __FUNCTION__, option.id));
+	}
 
 	for (const auto &valueJson : optionJson.at("ValuePerRank")) {
 		option.valuePerRank.push_back(valueJson.get<double_t>());
@@ -596,16 +620,21 @@ ProficiencyPerk WeaponProficiency::deserializePerk(const ValueWrapper &val) {
 	perk.spellId = static_cast<uint16_t>(getInt("spellId"));
 
 	perk.rank = static_cast<uint8_t>(getInt("rank"));
+	perk.shapingOptionId = static_cast<uint16_t>(getInt("shapingOptionId"));
 	if (auto it = map.find("shaped"); it != map.end()) {
 		perk.shaped = it->second->get<BooleanType>();
 	}
 
-	// Only a shaped perk is used as stored; a normal selection is rebuilt from the
-	// proficiency file and its stored payload is thrown away. So a shaped perk that
-	// does not survive validation is demoted rather than dropped: the slot falls back
-	// to whatever the file defines there, which is always safe to apply.
-	if (perk.shaped && !hasValidPerkEnums(perk)) {
-		g_logger().error("{} - Discarding a shaped perk with out-of-range values (type {}, element {}, skill {})", __FUNCTION__, static_cast<int32_t>(perk.type), static_cast<int32_t>(perk.element), static_cast<int32_t>(perk.skillId));
+	// Everything read above except (level, index, shaped, shapingOptionId, rank) is
+	// carried for diagnostics only. collectValidSelectedPerks rebuilds every perk it
+	// returns - a shaped one from its shaping option, any other from the proficiency
+	// file - so nothing stored here is ever applied as-is, and a stale or tampered
+	// effect cannot reach the player.
+	//
+	// A shaped perk with no option id is the one thing that cannot be rebuilt, so it
+	// is demoted: the slot falls back to whatever the proficiency file defines.
+	if (perk.shaped && perk.shapingOptionId == 0) {
+		g_logger().error("{} - Demoting a shaped perk with no shaping option id (level {}, index {})", __FUNCTION__, perk.level, perk.index);
 		perk.shaped = false;
 		perk.rank = 0;
 	}
@@ -625,6 +654,7 @@ ValueWrapper WeaponProficiency::serializePerk(const ProficiencyPerk &perk) const
 	return {
 		{ "index", static_cast<IntType>(perk.index) },
 		{ "shaped", perk.shaped },
+		{ "shapingOptionId", static_cast<IntType>(perk.shapingOptionId) },
 		{ "rank", static_cast<IntType>(perk.rank) },
 		{ "type", static_cast<IntType>(perk.type) },
 		{ "value", perk.value },
@@ -1165,12 +1195,22 @@ std::vector<ProficiencyPerk> WeaponProficiency::collectValidSelectedPerks(uint16
 			continue;
 		}
 
-		// A shaped perk replaced what the file defines at this slot, so it is the one
-		// thing here that is stored whole and read back whole. It still has to occupy a
-		// slot the file still has: if a balance pass removes the level or the perk it
-		// was shaped over, the shaped perk goes with it, like any other selection.
+		// Every perk returned from here is rebuilt, never replayed from storage. A
+		// normal selection comes from the proficiency file; a shaped one is rebuilt
+		// from its shaping option at its stored rank. That is what keeps the data
+		// authoritative: edit shaping.json and the next read of an existing perk
+		// already reflects it.
 		if (storedPerk.shaped) {
-			validPerks.push_back(storedPerk);
+			const auto* option = shapingRules.findOption(storedPerk.shapingOptionId);
+			if (option == nullptr) {
+				// The option was removed from shaping.json. The slot falls back to the
+				// perk the proficiency file defines there, which is exactly what Clear
+				// produces. The dust spent on the shaping is not refunded.
+				g_logger().debug("{} - Shaping option {} no longer exists; slot (level {}, index {}) falls back to the proficiency file", __FUNCTION__, storedPerk.shapingOptionId, level, index);
+				validPerks.push_back(levelPerks[index]);
+			} else {
+				validPerks.push_back(buildShapedPerk(*option, storedPerk.rank, storedPerk.level, storedPerk.index));
+			}
 		} else {
 			validPerks.push_back(levelPerks[index]);
 		}

@@ -21,6 +21,11 @@
     "  and every ValuePerRank table below.",
     "",
     "OPTIONS",
+    "  'Id' is the option's stable identity. A player's shaped perk stores THIS,",
+    "  never the position in the array, so the file can be reordered freely. Ids are",
+    "  assigned by hand, must be unique and non-zero, and are NEVER reused: deleting",
+    "  an option and giving its Id to a different one would silently convert every",
+    "  perk players rolled from the old one.",
     "  'Type' is a WeaponProficiencyBonus_t (src/enums/weapon_proficiency.hpp).",
     "  'ValuePerRank' is indexed by rank: entry 0 is what a freshly shaped slot rolls,",
     "  the last entry is that option's maximum rank. Tables may differ in length.",
@@ -65,6 +70,7 @@
 
   "Options": [
     {
+      "Id": 1,
       "Type": 8,
       "TypeName": "CRITICAL_HIT_CHANCE",
       "Unit": "percent",
@@ -72,6 +78,7 @@
       "ValuePerRank": [0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.048, 0.05]
     },
     {
+      "Id": 2,
       "Type": 12,
       "TypeName": "CRITICAL_EXTRA_DAMAGE",
       "Unit": "percent",
@@ -79,6 +86,7 @@
       "ValuePerRank": [0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.24]
     },
     {
+      "Id": 3,
       "Type": 16,
       "TypeName": "MANA_LEECH",
       "Unit": "percent",
@@ -86,6 +94,7 @@
       "ValuePerRank": [0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.048, 0.05]
     },
     {
+      "Id": 4,
       "Type": 17,
       "TypeName": "LIFE_LEECH",
       "Unit": "percent",
@@ -93,6 +102,7 @@
       "ValuePerRank": [0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.065]
     },
     {
+      "Id": 5,
       "Type": 25,
       "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
       "Unit": "percent",
@@ -100,6 +110,7 @@
       "ValuePerRank": [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.12]
     },
     {
+      "Id": 6,
       "Type": 30,
       "TypeName": "ARMOR_PENETRATION",
       "Unit": "percent",

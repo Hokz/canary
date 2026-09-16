@@ -22,6 +22,7 @@ class ValueWrapper;
 struct WeaponProficiencyData;
 struct Proficiency;
 struct ProficiencyShapingRules;
+struct ProficiencyShapingOption;
 
 class WeaponProficiency {
 public:
@@ -35,6 +36,11 @@ public:
 	// the same call that loads the proficiency tree, so `/reload proficiencies`
 	// refreshes both. Empty rules mean the feature is not configured on this server.
 	[[nodiscard]] static const ProficiencyShapingRules &getShapingRules();
+
+	// The one way a shaped perk is ever built. Every read rebuilds through this, so a
+	// change to shaping.json reaches perks players already own; the shaping operations
+	// will build through it too, so a rolled perk and a reloaded one cannot diverge.
+	[[nodiscard]] static ProficiencyPerk buildShapedPerk(const ProficiencyShapingOption &option, uint8_t rank, uint8_t level, uint8_t index);
 
 	void load();
 	void save(uint16_t weaponId) const;

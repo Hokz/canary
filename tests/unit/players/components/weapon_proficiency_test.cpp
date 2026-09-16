@@ -96,7 +96,7 @@ namespace {
 				   R"("Refine":{"DustCostPerRank":[0,60]},)"
 				   R"("Reshape":{"DustCost":150,"OptionCount":3},)"
 				   R"("Clear":{"DustCost":0},)"
-				   R"("Options":[{"Type":8,"Weight":100,"ValuePerRank":[)"
+				   R"("Options":[{"Id":1,"Type":8,"Weight":100,"ValuePerRank":[)"
 				+ std::to_string(rank0Value) + R"(,0.02]}]})";
 		}
 
@@ -333,21 +333,21 @@ namespace {
 
 	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsAnUnknownPerkType) {
 		writeFile("sword.json", singleProficiency(1, 5));
-		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Type":250,"ValuePerRank":[1]}]})");
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":1,"Type":250,"ValuePerRank":[1]}]})");
 
 		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
 	}
 
 	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsAnOptionThatCouldNeverBeRolled) {
 		writeFile("sword.json", singleProficiency(1, 5));
-		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Type":8,"Weight":0,"ValuePerRank":[0.01]}]})");
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":1,"Type":8,"Weight":0,"ValuePerRank":[0.01]}]})");
 
 		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
 	}
 
 	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsAnOptionWithNoValues) {
 		writeFile("sword.json", singleProficiency(1, 5));
-		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Type":8,"ValuePerRank":[]}]})");
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":1,"Type":8,"ValuePerRank":[]}]})");
 
 		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
 	}
@@ -356,7 +356,7 @@ namespace {
 		writeFile("sword.json", singleProficiency(1, 5));
 		// Slots are addressed by position, so a file numbering them 1,0 would price the
 		// wrong slot rather than fail.
-		writeShaping(R"({"Slots":[{"Slot":1},{"Slot":0}],"Options":[{"Type":8,"ValuePerRank":[0.01]}]})");
+		writeShaping(R"({"Slots":[{"Slot":1},{"Slot":0}],"Options":[{"Id":1,"Type":8,"ValuePerRank":[0.01]}]})");
 
 		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
 	}
@@ -370,7 +370,7 @@ namespace {
 
 		// The proficiency files are fine; only the shaping file is broken. Both must
 		// survive, because both are published in the same step.
-		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Type":250,"ValuePerRank":[1]}]})");
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":1,"Type":250,"ValuePerRank":[1]}]})");
 		EXPECT_THROW((void)WeaponProficiency::loadFromJson(true), FailedToInitializeCanary);
 
 		EXPECT_EQ(1U, WeaponProficiency::getProficiencies().size());
@@ -389,6 +389,167 @@ namespace {
 
 		ASSERT_EQ(1U, WeaponProficiency::getShapingRules().options.size());
 		EXPECT_DOUBLE_EQ(0.03, WeaponProficiency::getShapingRules().options.front().valuePerRank.front());
+	}
+
+	// ---------------------------------------------------------------------------
+	// Reconciling a shaped perk against the rules as loaded right now.
+	//
+	// A shaped perk stores only its identity: which option was rolled, at what rank.
+	// What it does is rebuilt through buildShapedPerk on every read, so an edit to
+	// shaping.json reaches perks players already own. These pin that contract.
+	// ---------------------------------------------------------------------------
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsADuplicateOptionId) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		// Two options sharing an Id would make a stored perk ambiguous.
+		writeShaping(
+			R"({"Slots":[{"Slot":0}],"Options":[)"
+			R"({"Id":7,"Type":8,"ValuePerRank":[0.01]},)"
+			R"({"Id":7,"Type":12,"ValuePerRank":[0.02]}]})"
+		);
+
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsOptionIdZero) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		// 0 is how a perk says "not shaped", so no option may claim it.
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":0,"Type":8,"ValuePerRank":[0.01]}]})");
+
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, OptionsAreFoundByIdRegardlessOfFileOrder) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(
+			R"({"Slots":[{"Slot":0}],"Options":[)"
+			R"({"Id":10,"Type":8,"ValuePerRank":[0.01]},)"
+			R"({"Id":20,"Type":12,"ValuePerRank":[0.02]}]})"
+		);
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		const auto* before = WeaponProficiency::getShapingRules().findOption(20);
+		ASSERT_NE(nullptr, before);
+		EXPECT_EQ(WeaponProficiencyBonus_t::CRITICAL_EXTRA_DAMAGE, before->type);
+
+		// Same options, swapped in the file. Identity follows the Id, not the position,
+		// or reordering the file would silently repoint players' perks.
+		writeShaping(
+			R"({"Slots":[{"Slot":0}],"Options":[)"
+			R"({"Id":20,"Type":12,"ValuePerRank":[0.02]},)"
+			R"({"Id":10,"Type":8,"ValuePerRank":[0.01]}]})"
+		);
+		ASSERT_TRUE(WeaponProficiency::loadFromJson(true));
+
+		const auto* after = WeaponProficiency::getShapingRules().findOption(20);
+		ASSERT_NE(nullptr, after);
+		EXPECT_EQ(WeaponProficiencyBonus_t::CRITICAL_EXTRA_DAMAGE, after->type);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ARemovedOptionIsReportedMissingRatherThanGuessedAt) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(
+			R"({"Slots":[{"Slot":0}],"Options":[)"
+			R"({"Id":10,"Type":8,"ValuePerRank":[0.01]},)"
+			R"({"Id":20,"Type":12,"ValuePerRank":[0.02]}]})"
+		);
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+		ASSERT_NE(nullptr, WeaponProficiency::getShapingRules().findOption(20));
+
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":10,"Type":8,"ValuePerRank":[0.01]}]})");
+		ASSERT_TRUE(WeaponProficiency::loadFromJson(true));
+
+		// The lookup fails cleanly, which is what makes a perk holding this id fall
+		// back to the perk its proficiency file defines - the Clear outcome.
+		EXPECT_EQ(nullptr, WeaponProficiency::getShapingRules().findOption(20));
+		EXPECT_NE(nullptr, WeaponProficiency::getShapingRules().findOption(10));
+		EXPECT_EQ(nullptr, WeaponProficiency::getShapingRules().findOption(0));
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapedPerkTakesItsValueFromTheCurrentRules) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":10,"Type":8,"ValuePerRank":[0.01,0.02,0.05]}]})");
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		const auto* option = WeaponProficiency::getShapingRules().findOption(10);
+		ASSERT_NE(nullptr, option);
+
+		const auto perk = WeaponProficiency::buildShapedPerk(*option, 2, 3, 1);
+		EXPECT_TRUE(perk.shaped);
+		EXPECT_EQ(10, perk.shapingOptionId);
+		EXPECT_EQ(2, perk.rank);
+		EXPECT_EQ(3, perk.level);
+		EXPECT_EQ(1, perk.index);
+		EXPECT_EQ(WeaponProficiencyBonus_t::CRITICAL_HIT_CHANCE, perk.type);
+		EXPECT_DOUBLE_EQ(0.05, perk.value);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, EditingValuePerRankReachesAPerkAlreadyOwned) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":10,"Type":8,"ValuePerRank":[0.01,0.05]}]})");
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		const auto* before = WeaponProficiency::getShapingRules().findOption(10);
+		ASSERT_NE(nullptr, before);
+		ASSERT_DOUBLE_EQ(0.05, WeaponProficiency::buildShapedPerk(*before, 1, 0, 0).value);
+
+		// Rank 1 was worth 0.05 and is nerfed to 0.04. A player sitting on rank 1 gets
+		// 0.04 on the next read instead of keeping the old number.
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":10,"Type":8,"ValuePerRank":[0.01,0.04]}]})");
+		ASSERT_TRUE(WeaponProficiency::loadFromJson(true));
+
+		const auto* after = WeaponProficiency::getShapingRules().findOption(10);
+		ASSERT_NE(nullptr, after);
+		EXPECT_DOUBLE_EQ(0.04, WeaponProficiency::buildShapedPerk(*after, 1, 0, 0).value);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ARankAboveTheNewMaximumIsClampedNotHonoured) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		// Five ranks become two. A player at rank 4 must not keep a value the option no
+		// longer offers.
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":10,"Type":8,"ValuePerRank":[0.01,0.02]}]})");
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		const auto* option = WeaponProficiency::getShapingRules().findOption(10);
+		ASSERT_NE(nullptr, option);
+		ASSERT_EQ(1, option->maxRank());
+
+		const auto perk = WeaponProficiency::buildShapedPerk(*option, 4, 0, 0);
+		EXPECT_EQ(1, perk.rank);
+		EXPECT_DOUBLE_EQ(0.02, perk.value);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapedPerkCarriesTheOptionSecondaryFields) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		// Changing SkillId, SpellId, Range or AugmentType must reach owners too, so they
+		// are rebuilt from the option like the value is. SkillId 8 is Cipbia "Sword";
+		// the loader converts it to the server's skills_t.
+		writeShaping(
+			R"({"Slots":[{"Slot":0}],"Options":[{"Id":10,"Type":3,)"
+			R"("SkillId":8,"SpellId":42,"Range":5,"AugmentType":6,"BestiaryName":"rat",)"
+			R"("ValuePerRank":[1,2]}]})"
+		);
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		const auto* option = WeaponProficiency::getShapingRules().findOption(10);
+		ASSERT_NE(nullptr, option);
+
+		const auto perk = WeaponProficiency::buildShapedPerk(*option, 1, 0, 0);
+		EXPECT_EQ(option->skillId, perk.skillId);
+		EXPECT_NE(SKILL_NONE, perk.skillId);
+		EXPECT_EQ(42, perk.spellId);
+		EXPECT_EQ(5, perk.range);
+		EXPECT_EQ(6, perk.augmentType);
+		EXPECT_EQ("rat", perk.bestiaryName);
+		EXPECT_DOUBLE_EQ(2.0, perk.value);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsAnInvalidSkillId) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		// Caught at load, so a bad combination never reaches a player's perk.
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":10,"Type":3,"SkillId":250,"ValuePerRank":[1]}]})");
+
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
 	}
 
 } // namespace
