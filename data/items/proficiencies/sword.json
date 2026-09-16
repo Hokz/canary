@@ -1,0 +1,7535 @@
+{
+  "$schema": "./proficiencies.schema.json",
+  "Category": "Sword",
+  "Proficiencies": [
+    {
+      "ProficiencyId": 6,
+      "Name": "Sanguine 1H Sword",
+      "Weapon": [
+        "sanguine blade"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 105,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 105,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 10.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 10,
+      "Name": "Sanguine 2H Sword",
+      "Weapon": [
+        "sanguine razor"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 105,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 105,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 105,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 105,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 10.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 19,
+      "Name": "Grand Sanguine 1H Sword",
+      "Weapon": [
+        "grand sanguine blade"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 105,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 105,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 10.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 20,
+      "Name": "Grand Sanguine 2H Sword",
+      "Weapon": [
+        "grand sanguine razor"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 105,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 105,
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 105,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 105,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 10.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 29,
+      "Name": "Soul 1H Sword",
+      "Weapon": [
+        "soulcutter"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 21,
+              "BestiaryName": "Inkborn",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 261,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 261,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 261,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.075,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 261,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 30,
+      "Name": "Soul 2H Sword",
+      "Weapon": [
+        "soulshredder"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 261,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 21,
+              "BestiaryName": "Inkborn",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 261,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 261,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 261,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.075,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 261,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 37,
+      "Name": "Amber 1H Sword",
+      "Weapon": [
+        "amber sabre"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 62,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 62,
+              "Value": -6.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 62,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 62,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 62,
+              "Value": -8.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 42,
+      "Name": "Amber 2H Sword",
+      "Weapon": [
+        "amber slayer"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 62,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 62,
+              "Value": -6.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 62,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 62,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 62,
+              "Value": -8.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 49,
+      "Name": "Inferniarch 1H Sword",
+      "Weapon": [
+        "inferniarch blade"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 52,
+      "Name": "Inferniarch 2H Sword",
+      "Weapon": [
+        "inferniarch slayer"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 59,
+      "Name": "Rending Inferniarch 2H Sword",
+      "Weapon": [
+        "rending inferniarch slayer"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.48,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 62,
+      "Name": "Rending Inferniarch 1H Sword",
+      "Weapon": [
+        "rending inferniarch blade"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.48,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 69,
+      "Name": "Draining Inferniarch 2H Sword",
+      "Weapon": [
+        "draining inferniarch slayer"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 80,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 72,
+      "Name": "Draining Inferniarch 1H Sword",
+      "Weapon": [
+        "draining inferniarch blade"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 80,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 79,
+      "Name": "Siphoning Inferniarch 2H Sword",
+      "Weapon": [
+        "siphoning inferniarch slayer"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 80,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 82,
+      "Name": "Siphoning Inferniarch 1H Sword",
+      "Weapon": [
+        "siphoning inferniarch blade"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 80,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 89,
+      "Name": "Eldritch 2H Sword",
+      "Weapon": [
+        "eldritch claymore"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.75,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.5,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 106,
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 106,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 96,
+      "Name": "Gilded Eldritch 2H Sword",
+      "Weapon": [
+        "gilded eldritch claymore"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.3,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.5,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 106,
+              "Value": 0.12,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 106,
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 103,
+      "Name": "Crude Umbral 1H Sword",
+      "Weapon": [
+        "crude umbral blade"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 106,
+      "Name": "Crude Umbral 2H Sword",
+      "Weapon": [
+        "crude umbral slayer"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 111,
+      "Name": "Umbral 1H Sword",
+      "Weapon": [
+        "umbral blade"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.12,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 114,
+      "Name": "Umbral 2H Sword",
+      "Weapon": [
+        "umbral slayer"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.12,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 119,
+      "Name": "Master Umbral 1H Sword",
+      "Weapon": [
+        "umbral masterblade"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 40,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 122,
+      "Name": "Master Umbral 2H Sword",
+      "Weapon": [
+        "umbral master slayer"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.16,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 40,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 136,
+      "Name": "Cobra 1H Sword",
+      "Weapon": [
+        "cobra sword"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.12,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 59,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 16,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 59,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 59,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 14,
+              "BestiaryName": "Mammal",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 141,
+      "Name": "Lion 1H Sword",
+      "Weapon": [
+        "lion longsword"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 59,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 59,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 59,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 145,
+      "Name": "Falcon 2H Sword",
+      "Weapon": [
+        "falcon longsword"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.14,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 59,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 59,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 59,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 3,
+              "BestiaryName": "Bird",
+              "Value": 0.06,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.28,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 161,
+      "Name": "Sword 1H Ice Rapier",
+      "Weapon": [
+        "ice rapier"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.3,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 166,
+      "Name": "Replica Carving Sword",
+      "Weapon": [
+        "ornate carving blade",
+        "ornate carving slayer",
+        "plain carving blade",
+        "plain carving slayer",
+        "valuable carving blade",
+        "valuable carving slayer"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 271,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 271,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 271,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 271,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 181,
+      "Name": "Replica Mayhem Sword",
+      "Weapon": [
+        "ornate mayhem blade",
+        "ornate mayhem slayer",
+        "plain mayhem blade",
+        "plain mayhem slayer",
+        "valuable mayhem blade",
+        "valuable mayhem slayer"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 271,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 271,
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 271,
+              "Value": 0.3,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 271,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 196,
+      "Name": "Replica Remedy Sword",
+      "Weapon": [
+        "ornate remedy blade",
+        "ornate remedy slayer",
+        "plain remedy blade",
+        "plain remedy slayer",
+        "valuable remedy blade",
+        "valuable remedy slayer"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 271,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 271,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 271,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 271,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 210,
+      "Name": "Destruction 1H Sword",
+      "Weapon": [
+        "blade of destruction"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.035,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 212,
+      "Name": "Destruction 2H Sword",
+      "Weapon": [
+        "slayer of destruction"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.035,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 218,
+      "Name": "Sword 1H Templar Scytheblade",
+      "Weapon": [
+        "templar scytheblade"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 219,
+      "Name": "Generic 1H Sword Class 1",
+      "Weapon": [
+        "Zaoan sword",
+        "carlin sword",
+        "combat knife",
+        "cowtana",
+        "crystalline sword",
+        "dagger",
+        "epee",
+        "fire sword",
+        "jagged sword",
+        "katana",
+        "knife",
+        "longsword",
+        "nightmare blade",
+        "rapier",
+        "ratana",
+        "relic sword",
+        "runed sword",
+        "sabre",
+        "scimitar",
+        "short sword",
+        "spike sword",
+        "sword",
+        "wooden sword"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 225,
+      "Name": "Generic 2H Sword Class 1",
+      "Weapon": [
+        "berserker",
+        "broadsword",
+        "crystal sword",
+        "demonrage sword",
+        "haunted blade",
+        "mercenary sword",
+        "twiceslicer",
+        "twin hooks",
+        "two handed sword"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 231,
+      "Name": "Sword 1H Silver Dagger",
+      "Weapon": [
+        "silver dagger"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 232,
+      "Name": "Sword 1H Serpent Sword",
+      "Weapon": [
+        "serpent sword"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 16,
+              "BestiaryName": "Reptile",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 233,
+      "Name": "Sword 1H Poison Dagger",
+      "Weapon": [
+        "poison dagger"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 19,
+              "BestiaryName": "Vermin",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 234,
+      "Name": "Sword 1H Machete",
+      "Weapon": [
+        "machete"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 235,
+      "Name": "Sword 1H Heavy Machete",
+      "Weapon": [
+        "heavy machete"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 236,
+      "Name": "Sword 1H Bone Sword",
+      "Weapon": [
+        "bone sword"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 238,
+      "Name": "Sword 1H Magic Sword",
+      "Weapon": [
+        "magic sword"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.07,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 158,
+              "Value": -30.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 239,
+      "Name": "Sword 1H Crimson Sword",
+      "Weapon": [
+        "crimson sword"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 240,
+      "Name": "Sword 1H Assassin Dagger",
+      "Weapon": [
+        "assassin dagger"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 241,
+      "Name": "Sword 1H Bloody Edge",
+      "Weapon": [
+        "bloody edge"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 14,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 141,
+              "Value": -10.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 242,
+      "Name": "Sword 1H Mumpiz Slayer",
+      "Weapon": [
+        "incredible mumpiz slayer"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 10,
+              "SkillName": "Axe",
+              "Value": 0.25,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.25,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 8,
+              "BestiaryName": "Fey",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.5,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 254,
+      "Name": "Naga 1H Sword",
+      "Weapon": [
+        "naga sword"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 30,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.75,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 16,
+              "BestiaryName": "Reptile",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 259,
+      "Name": "Sword 1H Pointed Rabbitslayer",
+      "Weapon": [
+        "pointed rabbitslayer"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 13,
+              "SkillName": "Fishing",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 14,
+              "BestiaryName": "Mammal",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 260,
+      "Name": "Sword 1H Poets Fencing Quill\t",
+      "Weapon": [
+        "poet's fencing quill"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 3,
+              "Unit": "flat"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 21,
+              "BestiaryName": "Inkborn",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 266,
+      "Name": "Sword 1H Wyvern Fang",
+      "Weapon": [
+        "wyvern fang"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 6,
+              "BestiaryName": "Dragon",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 268,
+      "Name": "Sword 1H Djinn Blade",
+      "Weapon": [
+        "djinn blade"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 21,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 14,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.14,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.42,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 275,
+      "Name": "Sword 1H Pharao Sword",
+      "Weapon": [
+        "pharaoh sword"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 285,
+      "Name": "Sword 2H Dragon Slayer",
+      "Weapon": [
+        "dragon slayer"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 6,
+              "BestiaryName": "Dragon",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 288,
+      "Name": "Sword 2H Thaian Sword",
+      "Weapon": [
+        "thaian sword"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 289,
+      "Name": "Sword 2H Giant Sword",
+      "Weapon": [
+        "giant sword"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 9,
+              "BestiaryName": "Giant",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 296,
+      "Name": "Replica Earth Sword",
+      "Weapon": [
+        "earth blacksteel replica",
+        "earth mystic blade replica",
+        "earth relic sword replica",
+        "earth slayer replica",
+        "earth spike sword replica"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 299,
+      "Name": "Replica Energy Sword",
+      "Weapon": [
+        "energy blacksteel replica",
+        "energy blade replica",
+        "energy relic sword replica",
+        "energy slayer replica",
+        "energy spike sword replica"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 32,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 302,
+      "Name": "Replica Ice Sword",
+      "Weapon": [
+        "icy blacksteel replica",
+        "icy dragon slayer replica",
+        "icy mystic blade replica",
+        "icy relic sword replica",
+        "icy spike sword replica"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 305,
+      "Name": "Replica Fire Sword",
+      "Weapon": [
+        "fiery dragon slayer replica",
+        "fiery mystic blade replica",
+        "fiery relic sword replica",
+        "fiery spike sword replica",
+        "fire blacksteel replica"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 8,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 307,
+      "Name": "Sword 2H Havoc Blade",
+      "Weapon": [
+        "havoc blade"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 59,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 308,
+      "Name": "Sword 2H Avenger",
+      "Weapon": [
+        "the avenger"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 2.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 309,
+      "Name": "Sword 2H Calamity",
+      "Weapon": [
+        "the calamity"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.12,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 310,
+      "Name": "Sword 2H Magic Longsword",
+      "Weapon": [
+        "magic longsword"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 2.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 9,
+              "BestiaryName": "Giant",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 2.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 311,
+      "Name": "Sword 2H Warlord Sword",
+      "Weapon": [
+        "warlord sword"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 316,
+      "Name": "Sword 1H Shiny Blade",
+      "Weapon": [
+        "shiny blade"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 317,
+      "Name": "Sword 1H The Epiphany",
+      "Weapon": [
+        "the epiphany"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 30,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 357,
+      "Name": "Sword 1H Shimmer Sword",
+      "Weapon": [
+        "shimmer sword"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 13,
+              "SkillName": "Fishing",
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 2,
+              "BestiaryName": "Aquatic",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 13,
+              "SkillName": "Fishing",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 366,
+      "Name": "Sword 1H Bright Sword",
+      "Weapon": [
+        "bright sword"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 367,
+      "Name": "Sword 1H Gnome Sword",
+      "Weapon": [
+        "gnome sword"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 16,
+              "BestiaryName": "Reptile",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 368,
+      "Name": "Sword 1H Winterblade",
+      "Weapon": [
+        "winterblade"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 369,
+      "Name": "Sword 1H Summerblade",
+      "Weapon": [
+        "summerblade"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 370,
+      "Name": "Sword 1H Impaler Of The Igniter",
+      "Weapon": [
+        "impaler of the igniter"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.07,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 371,
+      "Name": "Sword 1H Ink Sword",
+      "Weapon": [
+        "ink sword"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 21,
+              "BestiaryName": "Inkborn",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 374,
+      "Name": "Sword 1H Mystic Blade",
+      "Weapon": [
+        "mystic blade"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 7,
+              "BestiaryName": "Elemental",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 61,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 377,
+      "Name": "Sword 1H Justice Seeker",
+      "Weapon": [
+        "the justice seeker"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.06,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 61,
+              "Value": 0.4,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 61,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 385,
+      "Name": "Sword 2H Blacksteel Sword",
+      "Weapon": [
+        "blacksteel sword"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 61,
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 387,
+      "Name": "Sword 1H Blade of Corruption",
+      "Weapon": [
+        "blade of corruption"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 10,
+              "BestiaryName": "Human",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 389,
+      "Name": "Sword 1H Emerald Sword",
+      "Weapon": [
+        "emerald sword"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 105,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 413,
+      "Name": "Glooth 2H Sword",
+      "Weapon": [
+        "glooth blade"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 4,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 8,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 16,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 32,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 421,
+      "Name": "Sword 1H Broken Macuahuitl",
+      "Weapon": [
+        "broken macuahuitl"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 20,
+              "BestiaryName": "Extra Dimensional",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 443,
+      "Name": "Sword 1H Ripper's Sabre",
+      "Weapon": [
+        "Ron the Ripper's sabre"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.35,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 444,
+      "Name": "Sword 1H Ritual Bone Knife",
+      "Weapon": [
+        "ritual bone knife"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 7,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 449,
+      "Name": "Sword 2H Tagralt Blade",
+      "Weapon": [
+        "tagralt blade"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 16,
+              "BestiaryName": "Reptile",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 457,
+      "Name": "Crypt 2H Sword",
+      "Weapon": [
+        "crypt slicer"
+      ],
+      "Version": 12,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1.0,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.12,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 16,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 1,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 28,
+              "TypeName": "ALPHA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 29,
+              "TypeName": "OMEGA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 16,
+              "Value": 0.15,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.16,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 7.0,
+              "Unit": "percent"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 16,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 1,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

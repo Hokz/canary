@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 #include <limits>
 
 // Player.hpp already includes the weapon
@@ -211,38 +212,77 @@ static void registerLevels(const nlohmann::json &levelsJson, Proficiency &profic
 bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 	g_logger().info("{}oading weapon proficiencies...", reload ? "Rel" : "L");
 
-	if (reload) {
-		proficiencies.clear();
-	}
-
 	auto coreFolder = g_configManager().getString(CORE_DIRECTORY);
-	auto folder = fmt::format("{}/items/proficiencies.json", coreFolder);
-	std::ifstream file(folder);
-	if (!file.is_open()) {
-		throw FailedToInitializeCanary(fmt::format("{} - Unable to open file '{}'", __FUNCTION__, folder));
+	auto folder = fmt::format("{}/items/proficiencies", coreFolder);
+	if (!std::filesystem::is_directory(folder)) {
+		throw FailedToInitializeCanary(fmt::format("{} - Unable to open folder '{}'", __FUNCTION__, folder));
 	}
 
-	nlohmann::json proficienciesJson;
-	try {
-		file >> proficienciesJson;
-	} catch (const nlohmann::json::parse_error &e) {
-		throw FailedToInitializeCanary(fmt::format("{} - JSON parsing error in file '{}': {}", __FUNCTION__, folder, e.what()));
-	}
-
-	try {
-		for (const auto &proficiencyJson : proficienciesJson) {
-			Proficiency proficiency;
-			proficiency.id = proficiencyJson["ProficiencyId"].get<uint16_t>();
-
-			registerLevels(proficiencyJson["Levels"], proficiency);
-
-			proficiencies[proficiency.id] = std::move(proficiency);
+	// One file per weapon category, so a balance change only touches the weapons
+	// it is about.
+	// _orphaned.json is loaded like any other file: no item references those ids,
+	// but keeping them in the map preserves the behaviour of the single file this
+	// replaced, where an items.xml override could still name one of them.
+	std::vector<std::filesystem::path> files;
+	for (const auto &entry : std::filesystem::directory_iterator(folder)) {
+		const auto &path = entry.path();
+		if (entry.is_regular_file() && path.extension() == ".json" && path.filename() != "proficiencies.schema.json") {
+			files.emplace_back(path);
 		}
-	} catch (const nlohmann::json::exception &e) {
-		throw FailedToInitializeCanary(fmt::format("{} - JSON exception in file '{}': {}", __FUNCTION__, folder, e.what()));
+	}
+	// directory_iterator has no defined order; sort so any load-order-dependent
+	// behaviour is at least reproducible across machines.
+	std::ranges::sort(files);
+
+	if (files.empty()) {
+		throw FailedToInitializeCanary(fmt::format("{} - No proficiency files found in '{}'", __FUNCTION__, folder));
 	}
 
-	g_logger().info("Weapon proficiencies loaded!");
+	// Parsed into a local map and published only once every file has been read, so
+	// a reload that hits a bad file leaves the running server on the data it already
+	// had instead of on a half-loaded map.
+	std::unordered_map<uint16_t, Proficiency> loaded;
+	for (const auto &path : files) {
+		const auto fileName = path.string();
+		std::ifstream file(fileName);
+		if (!file.is_open()) {
+			throw FailedToInitializeCanary(fmt::format("{} - Unable to open file '{}'", __FUNCTION__, fileName));
+		}
+
+		nlohmann::json categoryJson;
+		try {
+			file >> categoryJson;
+		} catch (const nlohmann::json::parse_error &e) {
+			throw FailedToInitializeCanary(fmt::format("{} - JSON parsing error in file '{}': {}", __FUNCTION__, fileName, e.what()));
+		}
+
+		try {
+			for (const auto &proficiencyJson : categoryJson.at("Proficiencies")) {
+				const auto id = proficiencyJson["ProficiencyId"].get<uint16_t>();
+
+				// Ten ids belong to weapons in two categories and are written in full into
+				// both files, so each file stands alone for balancing. The copies are kept
+				// identical by `python -m tools.proficiency_split validate`, which the
+				// Repository Audit job runs on every change to the data or the tool. The
+				// first copy read therefore wins and the rest are skipped without parsing
+				// their levels.
+				if (loaded.contains(id)) {
+					continue;
+				}
+
+				Proficiency proficiency;
+				proficiency.id = id;
+				registerLevels(proficiencyJson["Levels"], proficiency);
+				loaded[id] = std::move(proficiency);
+			}
+		} catch (const nlohmann::json::exception &e) {
+			throw FailedToInitializeCanary(fmt::format("{} - JSON exception in file '{}': {}", __FUNCTION__, fileName, e.what()));
+		}
+	}
+
+	proficiencies = std::move(loaded);
+
+	g_logger().info("Weapon proficiencies {}! ({} proficiencies from {} files)", reload ? "reloaded" : "loaded", proficiencies.size(), files.size());
 
 	return true;
 }
@@ -637,6 +677,24 @@ void WeaponProficiency::setSelectedPerk(uint8_t level, uint8_t perkIndex, uint16
 	}
 
 	playerProficiencyIt->second.perks.push_back(selectedPerk);
+}
+
+void WeaponProficiency::onDataReloaded() {
+	// The proficiency files were reloaded under this player's stored state. Bring
+	// that state in line with the new data exactly as a login would: clamp the
+	// experience to the new maximum, recompute `mastered`, and drop a selection
+	// whose level or perk index the edit removed. Reads already filter those out,
+	// but without this the stale entries would be written back by the next save.
+	for (const auto weaponId : getTrackedWeaponIds()) {
+		normalizeStoredState(weaponId);
+	}
+
+	// Bonuses currently applied came from the old data, so drop them and re-apply
+	// from what is loaded now. The caller sends the updated stats and skills.
+	clearAllStats();
+	if (const auto weaponId = m_player.getWeaponId(true); weaponId != 0) {
+		applyPerks(weaponId, false);
+	}
 }
 
 std::unordered_map<std::pair<uint16_t, uint8_t>, double, PairHash, PairEqual> WeaponProficiency::getActiveAugments(uint16_t weaponId) {

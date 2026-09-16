@@ -14,7 +14,9 @@
 #include "creatures/interactions/chat.hpp"
 #include "creatures/monsters/monsters.hpp"
 #include "creatures/npcs/npcs.hpp"
+#include "creatures/players/components/weapon_proficiency.hpp"
 #include "creatures/players/imbuements/imbuements.hpp"
+#include "creatures/players/player.hpp"
 #include "game/game.hpp"
 #include "game/zones/zone.hpp"
 #include "lib/di/container.hpp"
@@ -61,6 +63,8 @@ bool GameReload::init(Reload_t reloadTypes) {
 			return reloadScripts();
 		case Reload_t::RELOAD_TYPE_ITEMS:
 			return reloadItems();
+		case Reload_t::RELOAD_TYPE_PROFICIENCIES:
+			return reloadProficiencies();
 		case Reload_t::RELOAD_TYPE_MONSTERS:
 			return reloadMonsters();
 		case Reload_t::RELOAD_TYPE_NPCS:
@@ -206,6 +210,35 @@ bool GameReload::reloadItems() {
 	g_game().map.invalidateNavigationEpoch();
 	logReloadStatus("Items", result);
 	return result;
+}
+
+bool GameReload::reloadProficiencies() {
+	// The proficiency files are meant to be edited by hand for balancing, so a typo
+	// in one of them is an expected outcome of this command, not an impossible one.
+	// loadFromJson only publishes the new data once every file has parsed, so a
+	// failure here leaves the server running on the data it already had.
+	try {
+		if (!WeaponProficiency::loadFromJson(true)) {
+			logReloadStatus("Weapon proficiencies", false);
+			return false;
+		}
+	} catch (const std::exception &e) {
+		g_logger().error("Failed to reload: Weapon proficiencies - {}", e.what());
+		return false;
+	}
+
+	// Online players are holding state that came from the old data, so reconcile
+	// each of them against what was just loaded and push the result to the client.
+	for ([[maybe_unused]] const auto &[playerId, player] : g_game().getPlayers()) {
+		player->weaponProficiency().onDataReloaded();
+
+		player->sendWeaponProficiency();
+		player->sendStats();
+		player->sendSkills();
+	}
+
+	logReloadStatus("Weapon proficiencies", true);
+	return true;
 }
 
 bool GameReload::reloadMonsters() {

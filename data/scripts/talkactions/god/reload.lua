@@ -25,6 +25,8 @@ local reloadTypes = {
 	["outfits"] = RELOAD_TYPE_OUTFITS,
 	["npc"] = RELOAD_TYPE_NPCS,
 	["npcs"] = RELOAD_TYPE_NPCS,
+	["proficiencies"] = RELOAD_TYPE_PROFICIENCIES,
+	["proficiency"] = RELOAD_TYPE_PROFICIENCIES,
 	["raid"] = RELOAD_TYPE_RAIDS,
 	["raids"] = RELOAD_TYPE_RAIDS,
 	["rate"] = RELOAD_TYPE_CORE,
@@ -34,6 +36,8 @@ local reloadTypes = {
 	["stage"] = RELOAD_TYPE_CORE,
 	["stages"] = RELOAD_TYPE_CORE,
 	["vocations"] = RELOAD_TYPE_VOCATIONS,
+	["weaponproficiencies"] = RELOAD_TYPE_PROFICIENCIES,
+	["weaponproficiency"] = RELOAD_TYPE_PROFICIENCIES,
 }
 
 local reload = TalkAction("/reload")
