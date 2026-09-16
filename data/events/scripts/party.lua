@@ -65,24 +65,30 @@ function Party:onDisband()
 	return true
 end
 
--- GLOBAL 2026: diversity-bonus multiplier per unique vocation count in the party, updated to the
--- current-live published values (2 unique vocations = +35%, 3 = +70%). The 1- and 4-vocation results
--- are unchanged from the prior formula's own output (1.2 / 2.0 respectively) - only the 2 and 3 cases
--- were adjusted, per the current-live foundation contract. getUniqueVocationsCount() (party.cpp) is
--- capped at 4 and already deduplicates same-vocation members, so this table is exhaustive for every
--- reachable input.
-local sharedExperienceMultiplierByVocationCount = {
-	[1] = 1.2,
-	[2] = 1.35,
-	[3] = 1.70,
-	[4] = 2.0,
-}
+-- Shared-experience bonus, keyed purely on party size. Vocation composition no longer affects it:
+-- a party of the same vocation and a party of four different vocations receive the same bonus.
+-- Two or three members grant +25%, four or more grant +50%.
+--
+-- The multiplier applies to the shared pool, which onShareExperience then divides by the party size,
+-- so a larger party still dilutes the per-member share. That division is pre-existing behaviour and
+-- is deliberately left unchanged here.
+--
+-- A single-member party receives no bonus. Party::getSharedExperienceStatus (party.cpp) enforces no
+-- minimum member count, so a lone leader with shared experience active does reach this path.
+local SHARED_EXPERIENCE_MULTIPLIER_SOLO = 1.0
+local SHARED_EXPERIENCE_MULTIPLIER_SMALL_PARTY = 1.25
+local SHARED_EXPERIENCE_MULTIPLIER_LARGE_PARTY = 1.50
+local LARGE_PARTY_MEMBER_THRESHOLD = 4
 
 function Party:onShareExperience(exp)
-	local uniqueVocationsCount = self:getUniqueVocationsCount()
 	local partySize = self:getMemberCount() + 1
 
-	local sharedExperienceMultiplier = sharedExperienceMultiplierByVocationCount[uniqueVocationsCount] or 1.2
+	local sharedExperienceMultiplier = SHARED_EXPERIENCE_MULTIPLIER_SOLO
+	if partySize >= LARGE_PARTY_MEMBER_THRESHOLD then
+		sharedExperienceMultiplier = SHARED_EXPERIENCE_MULTIPLIER_LARGE_PARTY
+	elseif partySize >= 2 then
+		sharedExperienceMultiplier = SHARED_EXPERIENCE_MULTIPLIER_SMALL_PARTY
+	end
 
 	return math.ceil((exp * sharedExperienceMultiplier) / partySize)
 end
