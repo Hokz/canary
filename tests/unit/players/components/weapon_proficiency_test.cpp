@@ -581,8 +581,7 @@ namespace {
 
 	TEST_F(WeaponProficiencyLoaderTest, ShapingRefusesAnInvalidWeapon) {
 		writeFile("sword.json", singleProficiency(1, 5));
-		// Protection zone off, so the weapon check is what answers rather than the
-		// tile check a default-constructed player would fail.
+		// Protection zone off, so nothing but the weapon check could refuse this.
 		writeShaping(
 			R"({"RequiresProtectionZone":false,"Slots":[{"Slot":0}],)"
 			R"("Options":[{"Id":1,"Type":8,"ValuePerRank":[0.01]}]})"
@@ -597,16 +596,24 @@ namespace {
 		EXPECT_EQ(ProficiencyShapingResult::InvalidWeapon, proficiency.clearShapedPerk(0, 0));
 	}
 
-	TEST_F(WeaponProficiencyLoaderTest, ShapingRefusesOutsideAProtectionZone) {
+	TEST_F(WeaponProficiencyLoaderTest, TheWeaponCheckRunsBeforeTheProtectionZoneCheck) {
 		writeFile("sword.json", singleProficiency(1, 5));
 		writeShaping(minimalShaping());
 		ASSERT_TRUE(WeaponProficiency::loadFromJson());
 		ASSERT_TRUE(WeaponProficiency::getShapingRules().requiresProtectionZone);
 
 		auto player = std::make_shared<Player>();
-		// A player with no tile is not in a protection zone, and the rules say shaping
-		// only happens in one.
-		EXPECT_EQ(ProficiencyShapingResult::NotInProtectionZone, player->weaponProficiency().shapePerk(0, 0, 0));
+
+		// This player would fail the protection zone check too - it has no tile at all -
+		// but the weapon check comes first, so that is what answers. The order matters
+		// for the message the client shows: telling someone to walk to a temple when the
+		// real problem is the weapon would send them on a pointless trip.
+		//
+		// The protection zone branch itself cannot be reached from a unit test:
+		// isValidWeaponId needs weaponId < Item::items.size(), and Item::items is empty
+		// until the item files are loaded, so no weapon id gets past the second guard.
+		// Exercising that branch needs an integration test with items loaded.
+		EXPECT_EQ(ProficiencyShapingResult::InvalidWeapon, player->weaponProficiency().shapePerk(0, 0, 0));
 	}
 
 	TEST_F(WeaponProficiencyLoaderTest, APlayerWithNoDataHasNothingShapedAndNothingToReshape) {
