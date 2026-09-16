@@ -180,7 +180,7 @@ and the previous rules untouched.
 |---|---|
 | **Shape** | Replaces the slot's perk with a rolled effect, at rank 0 (its lowest value) |
 | **Refine** | Raises that perk's rank one step, up to the option's maximum |
-| **Reshape** | Offers `Reshape.OptionCount` alternatives at the current rank; keeping the current one is always allowed |
+| **Reshape** | Offers `Reshape.OptionCount` alternatives at the current rank; keeping the current one is always allowed. The offer is **derived from the perk's `reshapeSeed`**, not drawn fresh, so the server can re-derive the same alternatives when the player answers and refuse (`NotOffered`) an option it never showed |
 | **Clear** | Restores the slot to the perk the proficiency file defines |
 
 `Slots` is listed in order from `Slot: 0` and the engine addresses slots by position,
@@ -215,6 +215,8 @@ What is stored for a shaped perk is its **identity**, never its effect:
 | `shaped` | that this slot was shaped at all |
 | `shapingOptionId` | which option was rolled — the `Id` from `shaping.json` |
 | `rank` | how far it has been refined |
+| `shapingSlot` | which shaping slot was bought, so clearing and re-shaping re-buys *that* slot rather than whichever is next by count |
+| `reshapeSeed` | seeds the reshape offer, so the same three alternatives come back when the player answers |
 
 Everything the perk actually *does* — its value, type, element, skill, spell, range,
 augment — is rebuilt from the current shaping option on **every read**, through
@@ -235,6 +237,18 @@ The reconciliation runs on login, on `/reload proficiencies`, and on every read:
 - **Any other field changed** → rebuilt from the option, so it takes effect at once.
 - **`shaped` with no option id** → the one thing that cannot be rebuilt, so the perk
   is demoted to a normal selection and the slot falls back to the file.
+
+Reconciliation decides what a perk **does**; it never decides what is **stored**. What
+gets written back is only ever pruned — entries pointing at a level or index the
+proficiency file no longer has. `shaped`, `shapingOptionId` and `rank` are never
+rewritten by it. The distinction is load-bearing: a `shaping.json` that failed to
+deploy makes every option lookup miss, and persisting that fallback would erase the
+identity of every shaped perk on the server, with no refund and no way back. A missing
+file switches the feature off; it does not delete anything.
+
+Rearranging the perk tree does not touch shaping either. The `0x02` and `0x03` actions
+clear the player's **selections**, and `clearSelectedPerks` leaves shaped perks where
+they are — only Clear removes a shaping, and only through `clearShapedPerk`.
 
 A shaped perk still has to occupy a slot the file still has. If a balance pass deletes
 the level or the perk it was shaped over, the shaped perk goes with it, exactly like

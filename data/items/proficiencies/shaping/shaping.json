@@ -26,6 +26,9 @@
     "  assigned by hand, must be unique and non-zero, and are NEVER reused: deleting",
     "  an option and giving its Id to a different one would silently convert every",
     "  perk players rolled from the old one.",
+    "  BURNED IDS, never to be reused: 5 (was SKILL_PERCENTAGE_AUTO_ATTACK; a shaping",
+    "  option cannot name a skill, because it is rolled onto any weapon and the skill",
+    "  would be wrong on most of them).",
     "  'Type' is a WeaponProficiencyBonus_t (src/enums/weapon_proficiency.hpp).",
     "  'ValuePerRank' is indexed by rank: entry 0 is what a freshly shaped slot rolls,",
     "  the last entry is that option's maximum rank. Tables may differ in length.",
@@ -64,10 +67,6 @@
     "DustCost": 0
   },
 
-  "LunarAscensionOrb": {
-    "ItemId": 0
-  },
-
   "Options": [
     {
       "Id": 1,
@@ -100,14 +99,6 @@
       "Unit": "percent",
       "Weight": 80,
       "ValuePerRank": [0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.065]
-    },
-    {
-      "Id": 5,
-      "Type": 25,
-      "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
-      "Unit": "percent",
-      "Weight": 60,
-      "ValuePerRank": [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.12]
     },
     {
       "Id": 6,

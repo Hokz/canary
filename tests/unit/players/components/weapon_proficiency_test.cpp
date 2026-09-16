@@ -9,6 +9,7 @@
 
 #include "pch.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 
@@ -344,6 +345,106 @@ namespace {
 		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":1,"Type":8,"Weight":0,"ValuePerRank":[0.01]}]})");
 
 		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsASkillAddressedTypeWithNoSkillId) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		// Type 25 is SKILL_PERCENTAGE_AUTO_ATTACK. Its effect is filed under a skill,
+		// so without a SkillId it lands on SKILL_NONE and the protocol never reads it:
+		// the player rolls the option, pays for it, and receives nothing. Shipped that
+		// way once already, which is why the loader now refuses it.
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":1,"Type":25,"ValuePerRank":[0.01]}]})");
+
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingAcceptsASkillAddressedTypeThatNamesItsSkill) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":1,"Type":25,"SkillId":8,"ValuePerRank":[0.01]}]})");
+
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+		ASSERT_NE(nullptr, WeaponProficiency::getShapingRules().findOption(1));
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsARankTableLongerThanRankCanCount) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		// rank is a uint8_t and maxRank() is size - 1 cast down to it. Past 256 entries
+		// that cast truncates, so the option would report a maximum far below its own
+		// table and strand every rank above it.
+		std::string values = "0.001";
+		for (int i = 1; i < 300; ++i) {
+			values += ",0.001";
+		}
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":1,"Type":8,"ValuePerRank":[)" + values + R"(]}]})");
+
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, AReshapeOffersTheSameThreeOptionsEveryTimeItIsAsked) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(
+			R"({"Slots":[{"Slot":0}],"Reshape":{"DustCost":150,"OptionCount":3},"Options":[)"
+			R"({"Id":10,"Type":8,"Weight":100,"ValuePerRank":[0.01]},)"
+			R"({"Id":20,"Type":12,"Weight":100,"ValuePerRank":[0.02]},)"
+			R"({"Id":30,"Type":16,"Weight":100,"ValuePerRank":[0.03]},)"
+			R"({"Id":40,"Type":17,"Weight":100,"ValuePerRank":[0.04]},)"
+			R"({"Id":50,"Type":30,"Weight":100,"ValuePerRank":[0.05]}]})"
+		);
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		const auto &rules = WeaponProficiency::getShapingRules();
+		const auto* option = rules.findOption(10);
+		ASSERT_NE(nullptr, option);
+
+		auto perk = WeaponProficiency::buildShapedPerk(*option, 0, 0, 0);
+		perk.reshapeSeed = 123456;
+
+		// Derived from the stored seed, not drawn fresh. Without this the three options
+		// could not be enforced when the player answers: the server would have no way
+		// to tell one it offered from one the client invented.
+		const auto first = WeaponProficiency::reshapeOptionsFor(rules, perk);
+		const auto second = WeaponProficiency::reshapeOptionsFor(rules, perk);
+		EXPECT_EQ(first, second);
+		EXPECT_EQ(3U, first.size());
+
+		// Never the perk the player already has, and never the same one twice.
+		EXPECT_EQ(first.end(), std::ranges::find(first, perk.shapingOptionId));
+		auto sorted = first;
+		std::ranges::sort(sorted);
+		EXPECT_EQ(sorted.end(), std::ranges::unique(sorted).begin());
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ADifferentSeedOffersADifferentReshape) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(
+			R"({"Slots":[{"Slot":0}],"Reshape":{"DustCost":150,"OptionCount":2},"Options":[)"
+			R"({"Id":10,"Type":8,"Weight":100,"ValuePerRank":[0.01]},)"
+			R"({"Id":20,"Type":12,"Weight":100,"ValuePerRank":[0.02]},)"
+			R"({"Id":30,"Type":16,"Weight":100,"ValuePerRank":[0.03]},)"
+			R"({"Id":40,"Type":17,"Weight":100,"ValuePerRank":[0.04]},)"
+			R"({"Id":50,"Type":30,"Weight":100,"ValuePerRank":[0.05]}]})"
+		);
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		const auto &rules = WeaponProficiency::getShapingRules();
+		const auto* option = rules.findOption(10);
+		ASSERT_NE(nullptr, option);
+
+		// A reshape re-seeds the perk, so the next offer must not be the same three.
+		// Scanning seeds proves the seed reaches the draw at all; a single pair could
+		// collide by chance even with a working derivation.
+		auto perk = WeaponProficiency::buildShapedPerk(*option, 0, 0, 0);
+		perk.reshapeSeed = 1;
+		const auto baseline = WeaponProficiency::reshapeOptionsFor(rules, perk);
+		ASSERT_EQ(2U, baseline.size());
+
+		bool sawADifferentOffer = false;
+		for (uint32_t seed = 2; seed < 40 && !sawADifferentOffer; ++seed) {
+			perk.reshapeSeed = seed;
+			sawADifferentOffer = WeaponProficiency::reshapeOptionsFor(rules, perk) != baseline;
+		}
+
+		EXPECT_TRUE(sawADifferentOffer);
 	}
 
 	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsAnOptionWithNoValues) {

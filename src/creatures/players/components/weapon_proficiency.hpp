@@ -38,6 +38,13 @@ public:
 	// refreshes both. Empty rules mean the feature is not configured on this server.
 	[[nodiscard]] static const ProficiencyShapingRules &getShapingRules();
 
+	// The alternatives a reshape offers for a given shaped perk. Derived from the
+	// perk's stored seed rather than drawn fresh, so calling it twice gives the same
+	// answer - which is what lets reshapePerk reject an option it never offered.
+	// Public and static for the same reason buildShapedPerk is: it is the one
+	// definition of the rule, and a test can reach it without a loaded item list.
+	[[nodiscard]] static std::vector<uint16_t> reshapeOptionsFor(const ProficiencyShapingRules &rules, const ProficiencyPerk &perk);
+
 	// The one way a shaped perk is ever built. Every read rebuilds through this, so a
 	// change to shaping.json reaches perks players already own; the shaping operations
 	// will build through it too, so a rolled perk and a reloaded one cannot diverge.
@@ -77,6 +84,7 @@ public:
 	[[nodiscard]] std::vector<uint16_t> rollReshapeOptions(uint16_t weaponId, uint8_t level) const;
 
 	[[nodiscard]] uint8_t countShapedPerks(uint16_t weaponId) const;
+	[[nodiscard]] size_t firstFreeShapingSlot(uint16_t weaponId) const;
 	std::vector<ProficiencyPerk> getSelectedPerks(uint16_t itemId) const;
 	void clearSelectedPerks(uint16_t weaponId);
 	void setSelectedPerk(uint8_t level, uint8_t perkIndex, uint16_t weaponId = 0);
@@ -163,6 +171,7 @@ private:
 	[[nodiscard]] size_t getUnlockedLevelCount(uint16_t weaponId) const;
 	[[nodiscard]] std::vector<ProficiencyPerk> collectValidSelectedPerks(uint16_t weaponId) const;
 	void normalizeStoredState(uint16_t weaponId);
+	void pruneStoredPerks(uint16_t weaponId);
 
 	[[nodiscard]] ProficiencyPerk* findStoredPerk(uint16_t weaponId, uint8_t level);
 	[[nodiscard]] const ProficiencyPerk* findStoredPerk(uint16_t weaponId, uint8_t level) const;

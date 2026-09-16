@@ -375,6 +375,11 @@ def _iter_generated() -> Iterable[tuple[Path, dict]]:
         yield path, json.loads(path.read_text(encoding="utf-8"))
 
 
+# The bonus types whose effect is addressed by a skill, mirroring skillDependentBonus
+# in src/creatures/players/components/weapon_proficiency.cpp.
+SKILL_ADDRESSED_TYPES = frozenset({3, 25, 26, 27})
+
+
 def validate_shaping(errors: list[str], warnings: list[str]) -> int:
     """Check the perk shaping rules the same way the proficiency files are checked.
 
@@ -429,6 +434,23 @@ def validate_shaping(errors: list[str], warnings: list[str]) -> int:
         if option.get("TypeName") != expected_name:
             errors.append(
                 f"{rel}: Type {bonus_type} is {expected_name}, but TypeName says {option.get('TypeName')!r}"
+            )
+
+        # Types 3, 25, 26 and 27 are addressed by skill. The engine now refuses one
+        # without a SkillId, because the perk would apply to nothing and a player who
+        # rolled it would pay for silence. Catch it here too, before it ships.
+        if bonus_type in SKILL_ADDRESSED_TYPES and not isinstance(option.get("SkillId"), int):
+            errors.append(
+                f"{rel}: Type {bonus_type} ({expected_name}) needs a SkillId. Without one the "
+                "bonus is filed under SKILL_NONE and never read, so the option would roll a "
+                "perk that does nothing."
+            )
+
+        values = option.get("ValuePerRank", [])
+        if len(values) > 256:
+            errors.append(
+                f"{rel}: option Id {option_id} has {len(values)} ValuePerRank entries; the "
+                "maximum is 256, because rank is a uint8_t and the cast would truncate."
             )
 
         expected_unit = unit_for(option)

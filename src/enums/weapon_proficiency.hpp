@@ -111,6 +111,17 @@ struct ProficiencyPerk {
 	uint16_t shapingOptionId = 0;
 	uint8_t rank = 0;
 
+	// Which shaping slot this perk bought. Slots differ in price and requirement, so
+	// clearing the cheap one and shaping again has to re-buy that same slot rather
+	// than whichever is next by count.
+	uint8_t shapingSlot = 0;
+
+	// Seeds the reshape offer. The three alternatives a reshape shows are derived
+	// from this rather than drawn fresh on every call, so the server can re-derive
+	// the same three when the player answers and reject an option that was never
+	// offered. Bumped after each completed reshape so the next offer differs.
+	uint32_t reshapeSeed = 0;
+
 	double_t value = 0.0;
 
 	uint16_t spellId = 0;
@@ -146,6 +157,7 @@ enum class ProficiencyShapingResult : uint8_t {
 	NotEnoughDust,
 	AtMaximumRank,
 	RefineDisabled, // the rules define no cost for the next rank
+	NotOffered, // the option named was not one of the three the reshape offered
 	UnknownOption,
 };
 
@@ -195,9 +207,6 @@ struct ProficiencyShapingRules {
 	uint64_t reshapeDustCost = 0;
 	uint8_t reshapeOptionCount = 3;
 	uint64_t clearDustCost = 0;
-
-	// Instantly refines a perk to its maximum rank. 0 means no item is configured.
-	uint16_t lunarAscensionOrbItemId = 0;
 
 	// Shaping is only allowed inside a protection zone, as on the official servers.
 	bool requiresProtectionZone = true;

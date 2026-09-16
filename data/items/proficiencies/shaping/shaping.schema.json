@@ -71,14 +71,6 @@
         "DustCost": { "type": "integer", "minimum": 0 }
       }
     },
-    "LunarAscensionOrb": {
-      "description": "Item that instantly refines a perk to its maximum rank. ItemId 0 means no such item is configured.",
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "ItemId": { "type": "integer", "minimum": 0, "maximum": 65535 }
-      }
-    },
     "Options": {
       "description": "The effects a shape or reshape may roll.",
       "type": "array",
@@ -127,7 +119,7 @@
           "BestiaryId": { "type": "integer", "minimum": 0, "maximum": 65535 },
           "BestiaryName": { "type": "string" },
           "SkillId": {
-            "description": "A CipbiaSkills_t, NOT the server's skills_t. An id outside the Cipbia set is rejected at load.",
+            "description": "A CipbiaSkills_t, NOT the server's skills_t. REQUIRED for Type 3, 25, 26 and 27: those bonuses are addressed by skill, and without one the perk applies to nothing and is rejected at load. An id outside the Cipbia set is rejected too.",
             "type": "integer",
             "minimum": 0,
             "maximum": 255
