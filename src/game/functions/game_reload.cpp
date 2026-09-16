@@ -227,14 +227,10 @@ bool GameReload::reloadProficiencies() {
 		return false;
 	}
 
-	// Perks already applied to online players came from the old data. Clear and
-	// re-apply them so the edit takes effect without anyone relogging; a selection
-	// whose level or perk index no longer exists is dropped by collectValidSelectedPerks.
+	// Online players are holding state that came from the old data, so reconcile
+	// each of them against what was just loaded and push the result to the client.
 	for ([[maybe_unused]] const auto &[playerId, player] : g_game().getPlayers()) {
-		player->weaponProficiency().clearAllStats();
-		if (const auto weaponId = player->getWeaponId(true); weaponId != 0) {
-			player->weaponProficiency().applyPerks(weaponId, false);
-		}
+		player->weaponProficiency().onDataReloaded();
 
 		player->sendWeaponProficiency();
 		player->sendStats();

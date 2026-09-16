@@ -43,6 +43,7 @@ public:
 	std::vector<ValueWrapper> serializePerks(const std::vector<ProficiencyPerk> &perks) const;
 
 	void applyPerks(uint16_t weaponId, bool sendSkillUpdate = true);
+	void onDataReloaded();
 	std::vector<ProficiencyPerk> getSelectedPerks(uint16_t itemId) const;
 	void clearSelectedPerks(uint16_t weaponId);
 	void setSelectedPerk(uint8_t level, uint8_t perkIndex, uint16_t weaponId = 0);

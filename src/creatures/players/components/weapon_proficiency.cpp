@@ -679,6 +679,24 @@ void WeaponProficiency::setSelectedPerk(uint8_t level, uint8_t perkIndex, uint16
 	playerProficiencyIt->second.perks.push_back(selectedPerk);
 }
 
+void WeaponProficiency::onDataReloaded() {
+	// The proficiency files were reloaded under this player's stored state. Bring
+	// that state in line with the new data exactly as a login would: clamp the
+	// experience to the new maximum, recompute `mastered`, and drop a selection
+	// whose level or perk index the edit removed. Reads already filter those out,
+	// but without this the stale entries would be written back by the next save.
+	for (const auto weaponId : getTrackedWeaponIds()) {
+		normalizeStoredState(weaponId);
+	}
+
+	// Bonuses currently applied came from the old data, so drop them and re-apply
+	// from what is loaded now. The caller sends the updated stats and skills.
+	clearAllStats();
+	if (const auto weaponId = m_player.getWeaponId(true); weaponId != 0) {
+		applyPerks(weaponId, false);
+	}
+}
+
 std::unordered_map<std::pair<uint16_t, uint8_t>, double, PairHash, PairEqual> WeaponProficiency::getActiveAugments(uint16_t weaponId) {
 	std::unordered_map<std::pair<uint16_t, uint8_t>, double, PairHash, PairEqual> augments;
 

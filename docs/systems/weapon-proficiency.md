@@ -72,9 +72,9 @@ Validation:
 
 ### Reload
 
-`/reload proficiencies` (also `proficiency`, `weaponproficiency`) re-runs step 1
-and re-applies perks for every online player. Steps 2 and 3 are not re-run, so
-an id that does not yet exist on an item still needs `/reload items`.
+`/reload proficiencies` (also `proficiency`, `weaponproficiency`) re-runs step 1,
+then reconciles and re-applies every online player. Steps 2 and 3 are not re-run,
+so an id that does not yet exist on an item still needs `/reload items`.
 
 ### Player load/save
 
@@ -155,9 +155,11 @@ into a separate map and only published once every file has parsed. A syntax
 error or a malformed entry logs `Failed to reload: Weapon proficiencies` and
 leaves the server on the data it already had.
 
-A player whose stored selection points at a level or a perk index that your edit
-removed simply loses that selection — it is dropped on re-apply rather than
-faulting.
+Every online player is reconciled against the new data the same way a login
+reconciles them: the experience is clamped to the new maximum, `mastered` is
+recomputed, and a stored selection pointing at a level or a perk index your edit
+removed is dropped. Nothing faults, and nothing stale is written back by the
+next save.
 
 ### Before committing a balance change
 
