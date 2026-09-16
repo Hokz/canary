@@ -713,6 +713,9 @@ void ConditionAttributes::addCondition(std::shared_ptr<Creature> creature, const
 		increases = conditionAttrs->increases;
 		increasesPercent = conditionAttrs->increasesPercent;
 		charmChanceModifier = conditionAttrs->charmChanceModifier;
+		specializedMagicLevelSource = conditionAttrs->specializedMagicLevelSource;
+		specializedMagicLevelPercent = conditionAttrs->specializedMagicLevelPercent;
+		dodgeRanged = conditionAttrs->dodgeRanged;
 
 		updatePercentBuffs(creature);
 		updateBuffs(creature);
@@ -728,6 +731,10 @@ void ConditionAttributes::addCondition(std::shared_ptr<Creature> creature, const
 			updateSkills(player);
 			updatePercentStats(player);
 			updateStats(player);
+			updateSpecializedMagicLevel(player);
+			if (dodgeRanged != 0) {
+				player->setVarRangedDodge(dodgeRanged);
+			}
 		}
 	}
 	if (drainBodyStage > 0) {
@@ -741,6 +748,14 @@ namespace {
 	// truncated, or written by a build with a longer enum - would otherwise write past
 	// the end. Refusing the attribute makes the condition fail to load instead, which
 	// unserialize already treats as "stop reading this condition".
+	// The skills a specialized-magic-level recipe may read from. SKILL_MAGLEVEL sits
+	// outside [SKILL_FIRST, SKILL_LAST] on purpose in skills_t, so a plain range check
+	// would refuse exactly the source Elemental Synthesis needs. Player::getSkillLevel
+	// handles it explicitly.
+	bool isSpecializedMagicLevelSource(int32_t value) {
+		return value == SKILL_NONE || value == SKILL_MAGLEVEL || (value >= SKILL_FIRST && value <= SKILL_LAST);
+	}
+
 	template <size_t N>
 	bool readIndexed(PropStream &propStream, int32_t (&values)[N], int32_t &index) {
 		if (index < 0 || static_cast<size_t>(index) >= N) {
@@ -790,6 +805,30 @@ bool ConditionAttributes::unserializeProp(ConditionAttr_t attr, PropStream &prop
 		return readIndexed(propStream, statsPercent, currentStatPercent);
 	} else if (attr == CONDITIONATTR_BUFFSPERCENT) {
 		return readIndexed(propStream, buffsPercent, currentBuffPercent);
+	} else if (attr == CONDITIONATTR_SPECIALIZED_MAGICLEVEL_SOURCE) {
+		int8_t source;
+		if (!propStream.read<int8_t>(source) || !isSpecializedMagicLevelSource(source)) {
+			return false;
+		}
+		specializedMagicLevelSource = static_cast<skills_t>(source);
+		return true;
+	} else if (attr == CONDITIONATTR_SPECIALIZED_MAGICLEVEL_PERCENT) {
+		for (int32_t i = 0; i < CombatType_t::COMBAT_COUNT; ++i) {
+			uint8_t index;
+			int32_t value;
+			if (!propStream.read<uint8_t>(index) || !propStream.read<int32_t>(value) || index >= COMBAT_COUNT) {
+				return false;
+			}
+			specializedMagicLevelPercent[index] = std::max<int32_t>(0, value);
+		}
+		return true;
+	} else if (attr == CONDITIONATTR_DODGE_RANGED) {
+		int32_t value;
+		if (!propStream.read<int32_t>(value)) {
+			return false;
+		}
+		dodgeRanged = std::clamp<int32_t>(value, 0, 10000);
+		return true;
 	}
 	return Condition::unserializeProp(attr, propStream);
 }
@@ -857,6 +896,23 @@ void ConditionAttributes::serialize(PropWriteStream &propWriteStream) {
 	// Save charm percent
 	propWriteStream.write<uint8_t>(CONDITIONATTR_CHARM_CHANCE_MODIFIER);
 	propWriteStream.write<int8_t>(charmChanceModifier);
+
+	// 15.25 stances: the recipe only. The flat specialized magic level it produced is
+	// recomputed at startCondition on login, against the skill the player has then.
+	propWriteStream.write<uint8_t>(CONDITIONATTR_SPECIALIZED_MAGICLEVEL_SOURCE);
+	// int8_t on purpose: SKILL_NONE is -1, and that is what every condition without
+	// this recipe carries. As an unsigned byte it would read back as 255 and be
+	// refused, failing to load every saved attribute condition on the server.
+	propWriteStream.write<int8_t>(static_cast<int8_t>(specializedMagicLevelSource));
+
+	propWriteStream.write<uint8_t>(CONDITIONATTR_SPECIALIZED_MAGICLEVEL_PERCENT);
+	for (int32_t i = 0; i < CombatType_t::COMBAT_COUNT; ++i) {
+		propWriteStream.write<uint8_t>(i);
+		propWriteStream.write<int32_t>(specializedMagicLevelPercent[i]);
+	}
+
+	propWriteStream.write<uint8_t>(CONDITIONATTR_DODGE_RANGED);
+	propWriteStream.write<int32_t>(dodgeRanged);
 }
 
 ConditionAttributes::ConditionAttributes(ConditionId_t initId, ConditionType_t initType, int32_t initTicks, bool initBuff, uint32_t initSubId) :
@@ -881,6 +937,10 @@ bool ConditionAttributes::startCondition(std::shared_ptr<Creature> creature) {
 		updateSkills(player);
 		updatePercentStats(player);
 		updateStats(player);
+		updateSpecializedMagicLevel(player);
+		if (dodgeRanged != 0) {
+			player->setVarRangedDodge(dodgeRanged);
+		}
 	}
 
 	return true;
@@ -937,6 +997,44 @@ void ConditionAttributes::updatePercentSkills(const std::shared_ptr<Player> &pla
 
 		int32_t unmodifiedSkill = player->getBaseSkill(skill);
 		skills[skill] = static_cast<int32_t>(unmodifiedSkill * ((skillsPercent[skill] - 100) / 100.f));
+	}
+}
+
+// Turns the percent-of-skill recipe into flat specialized magic level and hands it
+// to the player. Reads the player's total skill, equipment included, because that is
+// what the 15.25 notes say these stances scale from; it is a new parameter, so
+// choosing that here moves nothing else. The flat values are remembered so the
+// removal gives back exactly what was given, even if the skill has changed since.
+void ConditionAttributes::updateSpecializedMagicLevel(const std::shared_ptr<Player> &player) {
+	if (specializedMagicLevelSource == SKILL_NONE) {
+		return;
+	}
+
+	// Anything still applied from an earlier apply (a merge) comes off first, so the
+	// player never carries two copies.
+	removeSpecializedMagicLevel(player);
+
+	const int32_t source = player->getSkillLevel(specializedMagicLevelSource);
+	for (uint8_t i = 0; i < COMBAT_COUNT; ++i) {
+		const auto percent = specializedMagicLevelPercent[i];
+		if (percent == 0) {
+			continue;
+		}
+
+		const auto value = static_cast<int32_t>(std::floor(source * percent / 100.0));
+		specializedMagicLevel[i] = value;
+		if (value != 0) {
+			player->setSpecializedMagicLevel(indexToCombatType(i), value);
+		}
+	}
+}
+
+void ConditionAttributes::removeSpecializedMagicLevel(const std::shared_ptr<Player> &player) {
+	for (uint8_t i = 0; i < COMBAT_COUNT; ++i) {
+		if (specializedMagicLevel[i] != 0) {
+			player->setSpecializedMagicLevel(indexToCombatType(i), -specializedMagicLevel[i]);
+			specializedMagicLevel[i] = 0;
+		}
 	}
 }
 
@@ -1048,6 +1146,10 @@ void ConditionAttributes::endCondition(std::shared_ptr<Creature> creature) {
 		}
 
 		player->setCharmChanceModifier(player->getCharmChanceModifier() - charmChanceModifier);
+		removeSpecializedMagicLevel(player);
+		if (dodgeRanged != 0) {
+			player->setVarRangedDodge(-dodgeRanged);
+		}
 
 		if (needUpdate) {
 			player->sendStats();
@@ -1256,6 +1358,39 @@ bool ConditionAttributes::setParam(ConditionParam_t param, int32_t value) {
 
 		case CONDITION_PARAM_BUFF_AUTOATTACKDEALT: {
 			buffsPercent[BUFF_AUTOATTACKDEALT] = std::max<int32_t>(0, value);
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_SOURCE: {
+			if (!isSpecializedMagicLevelSource(value)) {
+				return false;
+			}
+			specializedMagicLevelSource = static_cast<skills_t>(value);
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_HOLYPERCENT: {
+			specializedMagicLevelPercent[combatTypeToIndex(COMBAT_HOLYDAMAGE)] = std::max<int32_t>(0, value);
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_HEALINGPERCENT: {
+			specializedMagicLevelPercent[combatTypeToIndex(COMBAT_HEALING)] = std::max<int32_t>(0, value);
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_ICEPERCENT: {
+			specializedMagicLevelPercent[combatTypeToIndex(COMBAT_ICEDAMAGE)] = std::max<int32_t>(0, value);
+			return true;
+		}
+
+		case CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_EARTHPERCENT: {
+			specializedMagicLevelPercent[combatTypeToIndex(COMBAT_EARTHDAMAGE)] = std::max<int32_t>(0, value);
+			return true;
+		}
+
+		case CONDITION_PARAM_DODGE_RANGED: {
+			dodgeRanged = std::clamp<int32_t>(value, 0, 10000);
 			return true;
 		}
 

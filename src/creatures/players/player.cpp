@@ -335,6 +335,14 @@ void Player::setVarSkill(skills_t skill, int32_t modifier) {
 	varSkills[skill] += modifier;
 }
 
+uint16_t Player::getRangedDodgeChance() const {
+	return static_cast<uint16_t>(std::clamp<int32_t>(varRangedDodge, 0, 10000));
+}
+
+void Player::setVarRangedDodge(int32_t modifier) {
+	varRangedDodge += modifier;
+}
+
 bool Player::isSuppress(ConditionType_t conditionType, bool attackerPlayer) const {
 	auto minDelay = g_configManager().getNumber(MIN_DELAY_BETWEEN_CONDITIONS);
 	if (IsConditionSuppressible(conditionType) && checkLastConditionTimeWithin(conditionType, minDelay)) {

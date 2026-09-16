@@ -113,6 +113,9 @@ enum ConditionAttr_t {
 	CONDITIONATTR_SKILLSPERCENT,
 	CONDITIONATTR_STATSPERCENT,
 	CONDITIONATTR_BUFFSPERCENT,
+	CONDITIONATTR_SPECIALIZED_MAGICLEVEL_SOURCE,
+	CONDITIONATTR_SPECIALIZED_MAGICLEVEL_PERCENT,
+	CONDITIONATTR_DODGE_RANGED,
 
 	// reserved for serialization
 	CONDITIONATTR_END = 254,
@@ -270,6 +273,23 @@ enum ConditionParam_t {
 	CONDITION_PARAM_BUFF_HEALINGDEALT = 84,
 	CONDITION_PARAM_BUFF_HARMONYBONUS = 85,
 	CONDITION_PARAM_BUFF_AUTOATTACKDEALT = 86,
+
+	// Specialized magic level derived from a skill (15.25 stances). SOURCE names the
+	// skills_t the percentages are taken from - SKILL_DISTANCE for Divine Defiance,
+	// SKILL_MAGLEVEL for Elemental Synthesis - and each *PERCENT is how much of that
+	// skill becomes specialized magic level for one damage type. Recomputed from the
+	// player's current skill at startCondition, so the bonus follows the skill.
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_SOURCE = 87,
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_HOLYPERCENT = 88,
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_HEALINGPERCENT = 89,
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_ICEPERCENT = 90,
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_EARTHPERCENT = 91,
+
+	// Dodge chance in basis points (1200 = 12%) that only applies against attackers
+	// who are not adjacent to the player. Divine Defiance's "dodge against non-adjacent
+	// enemies"; the adjacency test lives where both positions are known,
+	// Game::combatBlockHit.
+	CONDITION_PARAM_DODGE_RANGED = 92,
 };
 
 enum stats_t {

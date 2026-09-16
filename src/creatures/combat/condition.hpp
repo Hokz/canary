@@ -196,6 +196,15 @@ private:
 	std::array<int32_t, COMBAT_COUNT> increases = {};
 	std::array<int32_t, COMBAT_COUNT> increasesPercent = {};
 
+	// 15.25 stances. specializedMagicLevelPercent is the recipe (a percentage of the
+	// source skill per damage type) and is what gets saved; specializedMagicLevel is
+	// the flat value that recipe produced at startCondition, kept so endCondition can
+	// take back exactly what was given, and never saved - it is recomputed on login.
+	skills_t specializedMagicLevelSource = SKILL_NONE;
+	std::array<int32_t, COMBAT_COUNT> specializedMagicLevelPercent = {};
+	std::array<int32_t, COMBAT_COUNT> specializedMagicLevel = {};
+	int32_t dodgeRanged = 0;
+
 	bool disableDefense = false;
 
 	void updatePercentStats(const std::shared_ptr<Player> &player);
@@ -211,6 +220,10 @@ private:
 	void updateIncreases(const std::shared_ptr<Creature> &creature) const;
 	void updateCharmChanceModifier(const std::shared_ptr<Creature> &creature) const;
 	void updatePercentBuffs(const std::shared_ptr<Creature> &creature);
+
+	// 15.25 stances
+	void updateSpecializedMagicLevel(const std::shared_ptr<Player> &player);
+	void removeSpecializedMagicLevel(const std::shared_ptr<Player> &player);
 };
 
 class ConditionRegeneration final : public ConditionGeneric {

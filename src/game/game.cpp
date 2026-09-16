@@ -7874,6 +7874,12 @@ bool Game::combatBlockHit(CombatDamage &damage, const std::shared_ptr<Creature> 
 	// Skill dodge (ruse)
 	if (targetPlayer) {
 		auto chance = targetPlayer->getDodgeChance();
+		// Divine Defiance: extra dodge only against attackers that are not adjacent.
+		// Without an attacker (fields, some conditions) there is no distance to judge,
+		// and the extra does not apply.
+		if (attacker && !Position::areInRange<1, 1, 0>(attacker->getPosition(), target->getPosition())) {
+			chance += targetPlayer->getRangedDodgeChance();
+		}
 		if ((chance > 0 && uniform_random(0, 10000) < chance) || damage.hazardDodge) {
 			InternalGame::sendBlockEffect(BLOCK_DODGE, damage.primary.type, target->getPosition(), attacker);
 			targetPlayer->sendTextMessage(MESSAGE_ATTENTION, "You dodged an attack.");

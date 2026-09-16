@@ -311,6 +311,12 @@ public:
 
 	uint16_t getDodgeChance() const;
 
+	// Extra dodge, in basis points, that only counts against attackers not adjacent
+	// to this player. Granted by conditions (Divine Defiance); the adjacency test is
+	// made where the attacker is known, in Game::combatBlockHit.
+	uint16_t getRangedDodgeChance() const;
+	void setVarRangedDodge(int32_t modifier);
+
 	uint8_t isRandomMounted() const;
 	void setRandomMount(uint8_t isMountRandomized);
 
@@ -1781,6 +1787,7 @@ private:
 	uint32_t editListId = 0;
 	uint32_t manaMax = 0;
 	int32_t varSkills[SKILL_LAST + 1] = {};
+	int32_t varRangedDodge = 0;
 	int32_t varStats[STAT_LAST + 1] = {};
 	int32_t shopCallback = -1;
 	int32_t MessageBufferCount = 0;

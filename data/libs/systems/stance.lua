@@ -108,3 +108,63 @@ function Stance.cast(creature, subId, family, build, effect)
 	creature:getPosition():sendMagicEffect(effect or CONST_ME_MAGIC_GREEN)
 	return true
 end
+
+--- Shared Conservation: whom a Heal Friend or Nature's Embrace also heals.
+--
+-- The stance makes those two spells heal a second party member on screen for 30% of
+-- the amount. This picks that member: the visible party member with the lowest
+-- health fraction, never the spell's own target. The caster counts as a party member
+-- - the update says "a second member of the party", and does not exclude them.
+--
+-- Returns nil when the caster has no Shared Conservation stance, is not in a party,
+-- or nobody else on screen qualifies - and the healing spell then behaves exactly as
+-- it did before the stance existed.
+--
+-- @param caster Player casting the heal
+-- @param primaryTarget Creature the heal was aimed at
+-- @return Player|nil
+function Stance.sharedConservationTarget(caster, primaryTarget)
+	if not Stance.active(caster, AttrSubId_StanceSharedConservation) then
+		return nil
+	end
+
+	local party = caster:getParty()
+	if not party then
+		return nil
+	end
+
+	local candidates = party:getMembers() or {}
+	local leader = party:getLeader()
+	if leader then
+		table.insert(candidates, leader)
+	end
+
+	local best, bestFraction = nil, 1.0
+	for _, member in ipairs(candidates) do
+		if member ~= primaryTarget and member:getId() ~= primaryTarget:getId() and caster:canSeeCreature(member) then
+			local maxHealth = member:getMaxHealth()
+			if maxHealth > 0 then
+				local fraction = member:getHealth() / maxHealth
+				if fraction < bestFraction then
+					best, bestFraction = member, fraction
+				end
+			end
+		end
+	end
+
+	return best
+end
+
+--- The 30% companion heal. A Combat of its own, built once per healing spell with a
+--- formula scaled to 30% of that spell's, so the secondary heal goes through the
+--- same pipeline as any other healing: critical heals, healing buffs, the Wheel.
+-- @param combat Combat to execute on the secondary target
+-- @param caster Player
+-- @param secondary Player returned by Stance.sharedConservationTarget
+function Stance.castSharedConservation(combat, caster, secondary)
+	if not secondary then
+		return
+	end
+
+	combat:execute(caster, Variant(secondary:getId()))
+end
