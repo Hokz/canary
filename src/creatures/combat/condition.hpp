@@ -204,6 +204,8 @@ private:
 	std::array<int32_t, COMBAT_COUNT> specializedMagicLevelPercent = {};
 	std::array<int32_t, COMBAT_COUNT> specializedMagicLevel = {};
 	int32_t dodgeRanged = 0;
+	std::array<int32_t, COMBAT_COUNT> elementCriticalChance = {};
+	std::array<int32_t, COMBAT_COUNT> elementCriticalDamage = {};
 
 	bool disableDefense = false;
 
@@ -224,6 +226,7 @@ private:
 	// 15.25 stances
 	void updateSpecializedMagicLevel(const std::shared_ptr<Player> &player);
 	void removeSpecializedMagicLevel(const std::shared_ptr<Player> &player);
+	void applyElementCritical(const std::shared_ptr<Player> &player, int32_t sign) const;
 };
 
 class ConditionRegeneration final : public ConditionGeneric {

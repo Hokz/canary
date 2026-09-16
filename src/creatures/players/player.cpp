@@ -343,6 +343,24 @@ void Player::setVarRangedDodge(int32_t modifier) {
 	varRangedDodge += modifier;
 }
 
+void Player::setVarElementCritical(CombatType_t combat, int32_t chanceModifier, int32_t damageModifier) {
+	if (combat == COMBAT_NONE || combat >= COMBAT_COUNT) {
+		return;
+	}
+	const auto index = combatTypeToIndex(combat);
+	varElementCriticalChance[index] += chanceModifier;
+	varElementCriticalDamage[index] += damageModifier;
+}
+
+void Player::applyConditionElementCritical(CombatDamage &damage) const {
+	if (damage.primary.type == COMBAT_NONE || damage.primary.type >= COMBAT_COUNT) {
+		return;
+	}
+	const auto index = combatTypeToIndex(damage.primary.type);
+	damage.criticalChance += std::max<int32_t>(0, varElementCriticalChance[index]);
+	damage.criticalDamage += std::max<int32_t>(0, varElementCriticalDamage[index]);
+}
+
 bool Player::isSuppress(ConditionType_t conditionType, bool attackerPlayer) const {
 	auto minDelay = g_configManager().getNumber(MIN_DELAY_BETWEEN_CONDITIONS);
 	if (IsConditionSuppressible(conditionType) && checkLastConditionTimeWithin(conditionType, minDelay)) {
@@ -1084,6 +1102,13 @@ phmap::flat_hash_map<uint8_t, std::shared_ptr<Item>> Player::getAllSlotItems() c
 
 uint16_t Player::getLoyaltySkill(skills_t skill) const {
 	uint16_t level = getBaseSkill(skill);
+	// A player with no vocation yet has no loyalty curve to read; the base skill is
+	// the whole answer. Without this the dereference below is a crash for any
+	// Player that has not been fully loaded - a unit-test Player, for one.
+	if (!vocation) {
+		return level;
+	}
+
 	absl::uint128 currReqTries = vocation->getReqSkillTries(skill, level);
 	absl::uint128 nextReqTries = vocation->getReqSkillTries(skill, level + 1);
 	if (currReqTries >= nextReqTries) {

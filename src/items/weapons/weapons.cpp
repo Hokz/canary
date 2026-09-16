@@ -150,7 +150,9 @@ int32_t Weapon::playerWeaponCheck(const std::shared_ptr<Player> &player, const s
 			return 0;
 		}
 
-		if (player->getMana() < getManaCost(player)) {
+		// Wands generate mana as of 15.25 (see internalUseWeapon), so an empty mana
+		// pool must not stop them firing.
+		if (getWeaponType() != WEAPON_WAND && player->getMana() < getManaCost(player)) {
 			return 0;
 		}
 
@@ -343,11 +345,19 @@ void Weapon::onUsedWeapon(const std::shared_ptr<Player> &player, const std::shar
 
 	const uint32_t manaCost = getManaCost(player);
 	if (manaCost != 0) {
-		player->addManaSpent(manaCost);
-		player->changeMana(-static_cast<int32_t>(manaCost));
-
-		if (g_configManager().getBoolean(REFUND_BEGINNING_WEAPON_MANA) && (item->getName() == "wand of vortex" || item->getName() == "snakebite rod")) {
+		if (getWeaponType() == WEAPON_WAND) {
+			// 15.25: wands and rods generate mana instead of consuming it. The update
+			// gives no amount, so the mana they used to cost is what they now give -
+			// the one number the data already carries per wand. No mana is "spent",
+			// so nothing counts towards magic level.
 			player->changeMana(static_cast<int32_t>(manaCost));
+		} else {
+			player->addManaSpent(manaCost);
+			player->changeMana(-static_cast<int32_t>(manaCost));
+
+			if (g_configManager().getBoolean(REFUND_BEGINNING_WEAPON_MANA) && (item->getName() == "wand of vortex" || item->getName() == "snakebite rod")) {
+				player->changeMana(static_cast<int32_t>(manaCost));
+			}
 		}
 	}
 

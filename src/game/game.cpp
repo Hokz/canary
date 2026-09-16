@@ -8584,6 +8584,15 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 		if (target->hasCondition(CONDITION_MANASHIELD) && damage.primary.type != COMBAT_UNDEFINEDDAMAGE) {
 			int32_t manaDamage = std::min<int32_t>(target->getMana(), healthChange);
 			uint32_t manaShield = target->getManaShield();
+			// 15.25: the Energy Ring's shield costs 2 mana per hit point instead of 1.
+			// The ring is the shield with no capacity - the Magic Shield spell always
+			// sets one - so that is the distinguishing test. manaAbsorbRatio is what
+			// divides the mana drained back into the hit points it covered, below.
+			int32_t manaAbsorbRatio = 1;
+			if (manaShield == 0) {
+				manaAbsorbRatio = 2;
+				manaDamage = std::min<int32_t>(target->getMana(), healthChange * manaAbsorbRatio);
+			}
 			if (manaShield > 0) {
 				if (manaShield > manaDamage) {
 					target->setManaShield(manaShield - manaDamage);
@@ -8605,7 +8614,7 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 						if (healthChange == 0) {
 							return true;
 						}
-						manaDamage = std::min<int32_t>(target->getMana(), healthChange);
+						manaDamage = std::min<int32_t>(target->getMana(), healthChange * manaAbsorbRatio);
 					}
 				}
 
@@ -8672,7 +8681,7 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 					tmpPlayer->sendTextMessage(message);
 				}
 
-				damage.primary.value -= manaDamage;
+				damage.primary.value -= manaDamage / manaAbsorbRatio;
 				if (damage.primary.value < 0) {
 					damage.secondary.value = std::max<int32_t>(0, damage.secondary.value + damage.primary.value);
 					damage.primary.value = 0;
@@ -8702,6 +8711,44 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 		// Apply Custom PvP Damage (must be placed here to avoid recursive calls)
 		if (attackerPlayer && targetPlayer) {
 			applyPvPDamage(damage, attackerPlayer, targetPlayer);
+		}
+
+		// Mana Buffer (15.25): Sorcerers and Druids may spend mana to survive a hit that
+		// would otherwise kill them. The part of the damage past what they can take
+		// costs eight times its value in mana, and the buffer also burns 25% of max
+		// mana - that extra at most once every two seconds. Not enough mana for the
+		// whole bill means no buffer at all; the hit lands as it would have.
+		//
+		// "Past what they can take" is read as everything beyond leaving them at 1
+		// hit point: a buffer that let the killing blow through would not "reduce
+		// instant deaths", which is what the update says it is for.
+		if (targetPlayer && attacker != target && damage.primary.type != COMBAT_AGONYDAMAGE) {
+			const auto vocation = targetPlayer->getPlayerVocationEnum();
+			const int32_t total = damage.primary.value + damage.secondary.value;
+			const int32_t health = target->getHealth();
+			if ((vocation == VOCATION_SORCERER_CIP || vocation == VOCATION_DRUID_CIP) && total >= health && health > 0) {
+				const int32_t survivable = health - 1;
+				const int32_t excess = total - survivable;
+				int64_t manaCost = static_cast<int64_t>(excess) * 8;
+				const bool burst = OTSYS_TIME() - targetPlayer->getLastManaBufferBurst() >= 2000;
+				if (burst) {
+					manaCost += static_cast<int64_t>(targetPlayer->getMaxMana()) * 25 / 100;
+				}
+				if (manaCost > 0 && targetPlayer->getMana() >= manaCost) {
+					if (burst) {
+						targetPlayer->setLastManaBufferBurst(OTSYS_TIME());
+					}
+					targetPlayer->drainMana(attacker, static_cast<int32_t>(manaCost));
+					// Cut the damage down to the survivable part, taking from the
+					// secondary value first so the primary keeps its type.
+					int32_t remaining = survivable;
+					damage.primary.value = std::min<int32_t>(damage.primary.value, remaining);
+					remaining -= damage.primary.value;
+					damage.secondary.value = std::min<int32_t>(damage.secondary.value, remaining);
+					damage.exString = "mana buffer";
+					targetPlayer->sendTextMessage(MESSAGE_ATTENTION, fmt::format("Your mana buffer absorbed the excess damage for {} mana.", manaCost));
+				}
+			}
 		}
 
 		auto targetHealth = target->getHealth();

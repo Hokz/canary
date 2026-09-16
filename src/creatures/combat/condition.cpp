@@ -716,6 +716,8 @@ void ConditionAttributes::addCondition(std::shared_ptr<Creature> creature, const
 		specializedMagicLevelSource = conditionAttrs->specializedMagicLevelSource;
 		specializedMagicLevelPercent = conditionAttrs->specializedMagicLevelPercent;
 		dodgeRanged = conditionAttrs->dodgeRanged;
+		elementCriticalChance = conditionAttrs->elementCriticalChance;
+		elementCriticalDamage = conditionAttrs->elementCriticalDamage;
 
 		updatePercentBuffs(creature);
 		updateBuffs(creature);
@@ -735,6 +737,7 @@ void ConditionAttributes::addCondition(std::shared_ptr<Creature> creature, const
 			if (dodgeRanged != 0) {
 				player->setVarRangedDodge(dodgeRanged);
 			}
+			applyElementCritical(player, 1);
 		}
 	}
 	if (drainBodyStage > 0) {
@@ -829,6 +832,17 @@ bool ConditionAttributes::unserializeProp(ConditionAttr_t attr, PropStream &prop
 		}
 		dodgeRanged = std::clamp<int32_t>(value, 0, 10000);
 		return true;
+	} else if (attr == CONDITIONATTR_ELEMENT_CRITICAL_CHANCE || attr == CONDITIONATTR_ELEMENT_CRITICAL_DAMAGE) {
+		auto &values = attr == CONDITIONATTR_ELEMENT_CRITICAL_CHANCE ? elementCriticalChance : elementCriticalDamage;
+		for (int32_t i = 0; i < CombatType_t::COMBAT_COUNT; ++i) {
+			uint8_t index;
+			int32_t value;
+			if (!propStream.read<uint8_t>(index) || !propStream.read<int32_t>(value) || index >= COMBAT_COUNT) {
+				return false;
+			}
+			values[index] = std::max<int32_t>(0, value);
+		}
+		return true;
 	}
 	return Condition::unserializeProp(attr, propStream);
 }
@@ -913,6 +927,18 @@ void ConditionAttributes::serialize(PropWriteStream &propWriteStream) {
 
 	propWriteStream.write<uint8_t>(CONDITIONATTR_DODGE_RANGED);
 	propWriteStream.write<int32_t>(dodgeRanged);
+
+	propWriteStream.write<uint8_t>(CONDITIONATTR_ELEMENT_CRITICAL_CHANCE);
+	for (int32_t i = 0; i < CombatType_t::COMBAT_COUNT; ++i) {
+		propWriteStream.write<uint8_t>(i);
+		propWriteStream.write<int32_t>(elementCriticalChance[i]);
+	}
+
+	propWriteStream.write<uint8_t>(CONDITIONATTR_ELEMENT_CRITICAL_DAMAGE);
+	for (int32_t i = 0; i < CombatType_t::COMBAT_COUNT; ++i) {
+		propWriteStream.write<uint8_t>(i);
+		propWriteStream.write<int32_t>(elementCriticalDamage[i]);
+	}
 }
 
 ConditionAttributes::ConditionAttributes(ConditionId_t initId, ConditionType_t initType, int32_t initTicks, bool initBuff, uint32_t initSubId) :
@@ -941,6 +967,7 @@ bool ConditionAttributes::startCondition(std::shared_ptr<Creature> creature) {
 		if (dodgeRanged != 0) {
 			player->setVarRangedDodge(dodgeRanged);
 		}
+		applyElementCritical(player, 1);
 	}
 
 	return true;
@@ -1025,6 +1052,16 @@ void ConditionAttributes::updateSpecializedMagicLevel(const std::shared_ptr<Play
 		specializedMagicLevel[i] = value;
 		if (value != 0) {
 			player->setSpecializedMagicLevel(indexToCombatType(i), value);
+		}
+	}
+}
+
+// sign is +1 on apply and -1 on removal, so both paths hand the player exactly the
+// same numbers and nothing can drift between them.
+void ConditionAttributes::applyElementCritical(const std::shared_ptr<Player> &player, int32_t sign) const {
+	for (uint8_t i = 0; i < COMBAT_COUNT; ++i) {
+		if (elementCriticalChance[i] != 0 || elementCriticalDamage[i] != 0) {
+			player->setVarElementCritical(indexToCombatType(i), sign * elementCriticalChance[i], sign * elementCriticalDamage[i]);
 		}
 	}
 }
@@ -1150,6 +1187,7 @@ void ConditionAttributes::endCondition(std::shared_ptr<Creature> creature) {
 		if (dodgeRanged != 0) {
 			player->setVarRangedDodge(-dodgeRanged);
 		}
+		applyElementCritical(player, -1);
 
 		if (needUpdate) {
 			player->sendStats();
@@ -1391,6 +1429,16 @@ bool ConditionAttributes::setParam(ConditionParam_t param, int32_t value) {
 
 		case CONDITION_PARAM_DODGE_RANGED: {
 			dodgeRanged = std::clamp<int32_t>(value, 0, 10000);
+			return true;
+		}
+
+		case CONDITION_PARAM_ELEMENT_CRITICAL_CHANCE_ENERGY: {
+			elementCriticalChance[combatTypeToIndex(COMBAT_ENERGYDAMAGE)] = std::clamp<int32_t>(value, 0, 10000);
+			return true;
+		}
+
+		case CONDITION_PARAM_ELEMENT_CRITICAL_DAMAGE_DEATH: {
+			elementCriticalDamage[combatTypeToIndex(COMBAT_DEATHDAMAGE)] = std::max<int32_t>(0, value);
 			return true;
 		}
 

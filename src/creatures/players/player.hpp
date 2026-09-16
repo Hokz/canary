@@ -317,6 +317,31 @@ public:
 	uint16_t getRangedDodgeChance() const;
 	void setVarRangedDodge(int32_t modifier);
 
+	// Element-specific critical bonus granted by conditions (Master of Thunder, Master
+	// of Decay), in basis points, added to a spell's critical roll next to the weapon
+	// proficiency's own element critical.
+	void setVarElementCritical(CombatType_t combat, int32_t chanceModifier, int32_t damageModifier);
+	void applyConditionElementCritical(CombatDamage &damage) const;
+
+	// Master of Flames / Thunder / Decay: after a spell of the stance's element, the
+	// next spell of another element is converted to it. This is the armed element,
+	// COMBAT_NONE when nothing is armed. Runtime only; not saved.
+	CombatType_t getPendingElementalConversion() const {
+		return m_pendingElementalConversion;
+	}
+	void setPendingElementalConversion(CombatType_t combat) {
+		m_pendingElementalConversion = combat;
+	}
+
+	// Mana Buffer: the 25%-of-max-mana part may only be charged once every two
+	// seconds. This is when it was last charged.
+	int64_t getLastManaBufferBurst() const {
+		return m_lastManaBufferBurst;
+	}
+	void setLastManaBufferBurst(int64_t time) {
+		m_lastManaBufferBurst = time;
+	}
+
 	uint8_t isRandomMounted() const;
 	void setRandomMount(uint8_t isMountRandomized);
 
@@ -1788,6 +1813,10 @@ private:
 	uint32_t manaMax = 0;
 	int32_t varSkills[SKILL_LAST + 1] = {};
 	int32_t varRangedDodge = 0;
+	std::array<int32_t, COMBAT_COUNT> varElementCriticalChance = {};
+	std::array<int32_t, COMBAT_COUNT> varElementCriticalDamage = {};
+	CombatType_t m_pendingElementalConversion = COMBAT_NONE;
+	int64_t m_lastManaBufferBurst = 0;
 	int32_t varStats[STAT_LAST + 1] = {};
 	int32_t shopCallback = -1;
 	int32_t MessageBufferCount = 0;

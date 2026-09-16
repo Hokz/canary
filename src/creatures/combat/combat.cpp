@@ -71,6 +71,36 @@ CombatDamage Combat::getCombatDamage(const std::shared_ptr<Creature> &creature, 
 		}
 	}
 
+	// Master of Flames / Thunder / Decay (15.25): after casting a spell of the
+	// stance's element, the next spell of a different element is converted to it.
+	// The stance is the condition itself - holding the subId is the whole flag - and
+	// the armed element lives on the player. Healing is never converted, and only
+	// spells and runes take part; auto attacks are not spells.
+	if (casterPlayer && (!instantSpellName.empty() || !runeSpellName.empty()) && damage.primary.type != COMBAT_HEALING) {
+		static constexpr std::array<std::pair<AttrSubId_t, CombatType_t>, 3> elementalStances = { {
+			{ AttrSubId_t::StanceMasterOfFlames, COMBAT_FIREDAMAGE },
+			{ AttrSubId_t::StanceMasterOfThunder, COMBAT_ENERGYDAMAGE },
+			{ AttrSubId_t::StanceMasterOfDecay, COMBAT_DEATHDAMAGE },
+		} };
+
+		CombatType_t stanceElement = COMBAT_NONE;
+		for (const auto &[subId, element] : elementalStances) {
+			if (casterPlayer->getCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, magic_enum::enum_integer(subId))) {
+				stanceElement = element;
+				break;
+			}
+		}
+
+		if (stanceElement == COMBAT_NONE) {
+			casterPlayer->setPendingElementalConversion(COMBAT_NONE);
+		} else if (damage.primary.type == stanceElement) {
+			casterPlayer->setPendingElementalConversion(stanceElement);
+		} else if (casterPlayer->getPendingElementalConversion() == stanceElement) {
+			damage.primary.type = stanceElement;
+			casterPlayer->setPendingElementalConversion(COMBAT_NONE);
+		}
+	}
+
 	damage.instantSpellName = instantSpellName;
 	damage.runeSpellName = runeSpellName;
 	// Wheel of destiny
@@ -2508,6 +2538,7 @@ void Combat::applyExtensions(const std::shared_ptr<Creature> &caster, const std:
 		player->weaponProficiency().applyAutoAttackCritical(damage);
 		player->weaponProficiency().applyRunesCritical(damage, params.aggressive);
 		player->weaponProficiency().applyElementCritical(damage);
+		player->applyConditionElementCritical(damage);
 
 		baseBonus += damage.criticalDamage;
 		baseChance += static_cast<uint16_t>(damage.criticalChance);

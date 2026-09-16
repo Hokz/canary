@@ -116,6 +116,8 @@ enum ConditionAttr_t {
 	CONDITIONATTR_SPECIALIZED_MAGICLEVEL_SOURCE,
 	CONDITIONATTR_SPECIALIZED_MAGICLEVEL_PERCENT,
 	CONDITIONATTR_DODGE_RANGED,
+	CONDITIONATTR_ELEMENT_CRITICAL_CHANCE,
+	CONDITIONATTR_ELEMENT_CRITICAL_DAMAGE,
 
 	// reserved for serialization
 	CONDITIONATTR_END = 254,
@@ -290,6 +292,13 @@ enum ConditionParam_t {
 	// enemies"; the adjacency test lives where both positions are known,
 	// Game::combatBlockHit.
 	CONDITION_PARAM_DODGE_RANGED = 92,
+
+	// Element-specific critical bonus, in basis points (400 = 4%). Master of Thunder
+	// (+4% critical chance on energy spells) and Master of Decay (+30% critical extra
+	// damage on death spells). Only the pairs the stances need exist; add a param
+	// when a stance needs another element.
+	CONDITION_PARAM_ELEMENT_CRITICAL_CHANCE_ENERGY = 93,
+	CONDITION_PARAM_ELEMENT_CRITICAL_DAMAGE_DEATH = 94,
 };
 
 enum stats_t {
