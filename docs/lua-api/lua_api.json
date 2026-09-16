@@ -841,6 +841,12 @@
         "source": "src/lua/functions/creatures/creature_functions.cpp"
       },
       {
+        "name": "hasNextAutoAttackDebuff",
+        "params": [],
+        "return": "boolean|nil",
+        "source": "src/lua/functions/creatures/creature_functions.cpp"
+      },
+      {
         "name": "isCreature",
         "params": [],
         "return": "boolean",
@@ -1035,6 +1041,15 @@
           "moveLocked: boolean"
         ],
         "return": "boolean|nil",
+        "source": "src/lua/functions/creatures/creature_functions.cpp"
+      },
+      {
+        "name": "setNextAutoAttackDebuff",
+        "params": [
+          "percent: number",
+          "durationMs: number"
+        ],
+        "return": "boolean",
         "source": "src/lua/functions/creatures/creature_functions.cpp"
       },
       {

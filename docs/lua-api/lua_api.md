@@ -586,6 +586,11 @@ C++ Lua binding handlers and registration lines can override inferred signatures
 - Returns: `boolean|nil`
 - Source: `src/lua/functions/creatures/creature_functions.cpp`
 
+#### `Creature:hasNextAutoAttackDebuff()`
+
+- Returns: `boolean|nil`
+- Source: `src/lua/functions/creatures/creature_functions.cpp`
+
 #### `Creature:isCreature()`
 
 - Returns: `boolean`
@@ -709,6 +714,11 @@ C++ Lua binding handlers and registration lines can override inferred signatures
 #### `Creature:setMoveLocked(moveLocked: boolean)`
 
 - Returns: `boolean|nil`
+- Source: `src/lua/functions/creatures/creature_functions.cpp`
+
+#### `Creature:setNextAutoAttackDebuff(percent: number, durationMs: number)`
+
+- Returns: `boolean`
 - Source: `src/lua/functions/creatures/creature_functions.cpp`
 
 #### `Creature:setOutfit(outfit: any)`
