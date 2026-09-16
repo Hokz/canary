@@ -4,8 +4,9 @@ combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_HOLYAREA)
 combat:setArea(createCombatArea(AREA_CIRCLE3X3))
 
 function onGetFormulaValues(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 4)
-	local max = (level / 5) + (maglevel * 6)
+	-- 15.25.3a4a52: base power 140 -> 160, expressed in the datapack's level/magic-level form by scaling the magic-level multipliers and constants by the same ratio.
+	local min = (level / 5) + (maglevel * 4.6)
+	local max = (level / 5) + (maglevel * 6.9)
 	return -min, -max
 end
 
