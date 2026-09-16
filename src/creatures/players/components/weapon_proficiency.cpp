@@ -223,10 +223,7 @@ bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 	}
 
 	// One file per weapon category, so a balance change only touches the weapons
-	// it is about. A proficiency shared by two categories is written in full into
-	// both files. The first file to define an id wins; the check below is a cheap
-	// guard that only catches a differing level count, so
-	// `python -m tools.proficiency_split validate` remains the thorough check.
+	// it is about.
 	// _orphaned.json is loaded like any other file: no item references those ids,
 	// but keeping them in the map preserves the behaviour of the single file this
 	// replaced, where an items.xml override could still name one of them.
@@ -245,7 +242,6 @@ bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 		throw FailedToInitializeCanary(fmt::format("{} - No proficiency files found in '{}'", __FUNCTION__, folder));
 	}
 
-	std::unordered_map<uint16_t, std::string> idOrigin;
 	for (const auto &path : files) {
 		const auto fileName = path.string();
 		std::ifstream file(fileName);
@@ -262,24 +258,22 @@ bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 
 		try {
 			for (const auto &proficiencyJson : categoryJson.at("Proficiencies")) {
-				Proficiency proficiency;
-				proficiency.id = proficiencyJson["ProficiencyId"].get<uint16_t>();
+				const auto id = proficiencyJson["ProficiencyId"].get<uint16_t>();
 
-				registerLevels(proficiencyJson["Levels"], proficiency);
-
-				if (const auto it = idOrigin.find(proficiency.id); it != idOrigin.end()) {
-					const auto &existing = proficiencies[proficiency.id];
-					if (existing.maxLevel != proficiency.maxLevel) {
-						throw FailedToInitializeCanary(fmt::format(
-							"{} - Proficiency {} is defined differently in '{}' and '{}'. Shared proficiencies must be identical in every file; run 'python -m tools.proficiency_split validate'",
-							__FUNCTION__, proficiency.id, it->second, fileName
-						));
-					}
+				// Ten ids belong to weapons in two categories and are written in full into
+				// both files, so each file stands alone for balancing. The copies are kept
+				// identical by `python -m tools.proficiency_split validate`, which the
+				// Repository Audit job runs on every change to the data or the tool. The
+				// first copy read therefore wins and the rest are skipped without parsing
+				// their levels.
+				if (proficiencies.contains(id)) {
 					continue;
 				}
 
-				idOrigin.emplace(proficiency.id, fileName);
-				proficiencies[proficiency.id] = std::move(proficiency);
+				Proficiency proficiency;
+				proficiency.id = id;
+				registerLevels(proficiencyJson["Levels"], proficiency);
+				proficiencies[id] = std::move(proficiency);
 			}
 		} catch (const nlohmann::json::exception &e) {
 			throw FailedToInitializeCanary(fmt::format("{} - JSON exception in file '{}': {}", __FUNCTION__, fileName, e.what()));
