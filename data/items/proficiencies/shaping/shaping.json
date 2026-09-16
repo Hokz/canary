@@ -1,0 +1,110 @@
+{
+  "$schema": "./shaping.schema.json",
+  "_comment": [
+    "Perk shaping rules for the weapon proficiency system.",
+    "",
+    "Everything here is data. The engine reads it and applies it; changing a cost, a",
+    "requirement or a value per rank never needs a rebuild. Edit this file and run",
+    "'/reload proficiencies' on a running server.",
+    "",
+    "PROVENANCE OF THE NUMBERS",
+    "  Sourced from the Summer Update 2026 (15.30) notes:",
+    "    - two shapeable slots per weapon",
+    "    - first slot: 250 dust, proficiency level 3",
+    "    - second slot: 1000 dust, weapon mastered",
+    "    - a freshly shaped slot rolls its effect at the lowest value (rank 0)",
+    "    - reshape offers three options at the current rank",
+    "    - refine raises the rank one step at a time, each step costing more",
+    "    - all shaping happens inside a protection zone",
+    "  NOT yet sourced, PLACEHOLDER VALUES pending the official Perk Shaping Options",
+    "  page: RefineDustCostPerRank, ReshapeDustCost, ClearDustCost, the option list",
+    "  and every ValuePerRank table below.",
+    "",
+    "OPTIONS",
+    "  'Type' is a WeaponProficiencyBonus_t (src/enums/weapon_proficiency.hpp).",
+    "  'ValuePerRank' is indexed by rank: entry 0 is what a freshly shaped slot rolls,",
+    "  the last entry is that option's maximum rank. Tables may differ in length.",
+    "  'Weight' is the relative draw chance among the options a roll may pick from.",
+    "  'Unit' and 'TypeName' are documentation only, kept honest by the validator.",
+    "  Percent values are FRACTIONS: 0.10 is 10%, writing 10 means 1000%."
+  ],
+
+  "RequiresProtectionZone": true,
+
+  "Slots": [
+    {
+      "Slot": 0,
+      "UnlockDustCost": 250,
+      "RequiredProficiencyLevel": 3,
+      "RequiresMastery": false
+    },
+    {
+      "Slot": 1,
+      "UnlockDustCost": 1000,
+      "RequiredProficiencyLevel": 0,
+      "RequiresMastery": true
+    }
+  ],
+
+  "Refine": {
+    "DustCostPerRank": [0, 60, 90, 135, 200, 300, 450, 675, 1010, 1515, 2275]
+  },
+
+  "Reshape": {
+    "DustCost": 150,
+    "OptionCount": 3
+  },
+
+  "Clear": {
+    "DustCost": 0
+  },
+
+  "LunarAscensionOrb": {
+    "ItemId": 0
+  },
+
+  "Options": [
+    {
+      "Type": 8,
+      "TypeName": "CRITICAL_HIT_CHANCE",
+      "Unit": "percent",
+      "Weight": 100,
+      "ValuePerRank": [0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.048, 0.05]
+    },
+    {
+      "Type": 12,
+      "TypeName": "CRITICAL_EXTRA_DAMAGE",
+      "Unit": "percent",
+      "Weight": 100,
+      "ValuePerRank": [0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.24]
+    },
+    {
+      "Type": 16,
+      "TypeName": "MANA_LEECH",
+      "Unit": "percent",
+      "Weight": 80,
+      "ValuePerRank": [0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.048, 0.05]
+    },
+    {
+      "Type": 17,
+      "TypeName": "LIFE_LEECH",
+      "Unit": "percent",
+      "Weight": 80,
+      "ValuePerRank": [0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.065]
+    },
+    {
+      "Type": 25,
+      "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+      "Unit": "percent",
+      "Weight": 60,
+      "ValuePerRank": [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.12]
+    },
+    {
+      "Type": 30,
+      "TypeName": "ARMOR_PENETRATION",
+      "Unit": "percent",
+      "Weight": 60,
+      "ValuePerRank": [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.12]
+    }
+  ]
+}

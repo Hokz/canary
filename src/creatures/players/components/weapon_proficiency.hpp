@@ -21,6 +21,7 @@ class ValueWrapper;
 
 struct WeaponProficiencyData;
 struct Proficiency;
+struct ProficiencyShapingRules;
 
 class WeaponProficiency {
 public:
@@ -29,6 +30,11 @@ public:
 	[[nodiscard]] static bool loadFromJson(bool reload = false);
 
 	[[nodiscard]] static std::unordered_map<uint16_t, Proficiency> &getProficiencies();
+
+	// Shaping rules are loaded from data/items/proficiencies/shaping/shaping.json by
+	// the same call that loads the proficiency tree, so `/reload proficiencies`
+	// refreshes both. Empty rules mean the feature is not configured on this server.
+	[[nodiscard]] static const ProficiencyShapingRules &getShapingRules();
 
 	void load();
 	void save(uint16_t weaponId) const;
@@ -136,6 +142,7 @@ private:
 	std::unordered_map<uint16_t, WeaponProficiencyData> proficiency;
 
 	static std::unordered_map<uint16_t, Proficiency> proficiencies;
+	static ProficiencyShapingRules shapingRules;
 
 	static std::vector<uint32_t> crossbowExperience;
 	static std::vector<uint32_t> standardExperience;

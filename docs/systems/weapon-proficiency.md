@@ -161,6 +161,64 @@ recomputed, and a stored selection pointing at a level or a perk index your edit
 removed is dropped. Nothing faults, and nothing stale is written back by the
 next save.
 
+## 5.1 Perk shaping — `data/items/proficiencies/shaping/`
+
+The Summer Update 2026 (15.30) lets a player replace the perk in up to two slots of
+a weapon's proficiency tree, then refine, reshape or clear it. All of it is driven by
+`shaping.json`: costs, requirements, which effects may be rolled and what each is
+worth at every rank. Changing any of that is a data edit followed by
+`/reload proficiencies` — never a rebuild.
+
+If the file is absent the feature is simply off, and the server logs
+`Weapon proficiency shaping is not configured`. It is loaded and published in the
+same step as the proficiency tree, so a broken `shaping.json` leaves *both* the tree
+and the previous rules untouched.
+
+### The four operations
+
+| Operation | What it does |
+|---|---|
+| **Shape** | Replaces the slot's perk with a rolled effect, at rank 0 (its lowest value) |
+| **Refine** | Raises that perk's rank one step, up to the option's maximum |
+| **Reshape** | Offers `Reshape.OptionCount` alternatives at the current rank; keeping the current one is always allowed |
+| **Clear** | Restores the slot to the perk the proficiency file defines |
+
+`Slots` is listed in order from `Slot: 0` and the engine addresses slots by position,
+so the order is part of the contract — the loader refuses a file that numbers them
+any other way. Per the official behaviour, the first slot needs a proficiency level
+and the second needs the weapon mastered.
+
+`Refine.DustCostPerRank` is indexed by the rank being *bought*: entry 3 is the cost
+of going from rank 2 to rank 3, and entry 0 is unused. It must be at least as long
+as the longest `ValuePerRank`, or the top ranks could never be bought — the validator
+fails on that.
+
+`Options[].ValuePerRank` is indexed by rank, entry 0 being what a freshly shaped slot
+rolls. Tables may differ in length, so each option carries its own maximum rank.
+Values must never decrease as the rank rises. `Weight` is the relative draw chance
+and must be above 0.
+
+> The numeric values shipped today are **placeholders** for everything the update
+> notes do not state outright. Sourced: two slots, 250 dust at proficiency level 3,
+> 1000 dust at mastery, rank 0 on a fresh shape, three reshape options, a rising
+> refine curve, protection zone only. Everything else — the refine curve itself, the
+> reshape and clear costs, the option list and every value — is waiting on the
+> official Perk Shaping Options table.
+
+### How a shaped perk is stored
+
+A normal selection is a `(level, index)` pair and the perk is rebuilt from the
+proficiency file on every read, which is what makes `/reload proficiencies` safe. A
+shaped perk is not in any file, so it is the one thing stored whole in the player's
+KV and read back whole. Two consequences:
+
+- Its enums are validated on load (`hasValidPerkEnums`). A shaped perk that fails
+  validation is demoted to a normal selection, so the slot falls back to whatever the
+  file defines there rather than applying unchecked values.
+- It still has to occupy a slot the file still has. If a balance pass deletes the
+  level or the perk it was shaped over, the shaped perk goes with it, exactly like
+  any other selection.
+
 ### Before committing a balance change
 
 ```

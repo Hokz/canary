@@ -67,6 +67,22 @@ namespace {
 		return asLowerCaseString(itemType.vocationString).find("knight") != std::string::npos;
 	}
 
+	// A shaped perk is read back from the player's KV and used as-is, so unlike a perk
+	// rebuilt from a proficiency file its enums have never been checked. Everything
+	// downstream indexes arrays by them, so check before trusting the stored bytes.
+	bool hasValidPerkEnums(const ProficiencyPerk &perk) {
+		if (!magic_enum::enum_contains<WeaponProficiencyBonus_t>(perk.type)) {
+			return false;
+		}
+
+		if (perk.element != COMBAT_NONE && static_cast<uint8_t>(perk.element) >= COMBAT_COUNT) {
+			return false;
+		}
+
+		const auto skill = static_cast<int32_t>(perk.skillId);
+		return perk.skillId == SKILL_NONE || (skill >= MIN_TRACKED_SKILL && skill <= static_cast<int32_t>(SKILL_LEVEL));
+	}
+
 	size_t getMasteryExperienceTierCount(const Proficiency &proficiencyInfo, const std::vector<uint32_t> &experienceArray) {
 		if (proficiencyInfo.maxLevel == 0 || experienceArray.empty()) {
 			return 0;
@@ -78,6 +94,7 @@ namespace {
 }
 
 std::unordered_map<uint16_t, Proficiency> WeaponProficiency::proficiencies;
+ProficiencyShapingRules WeaponProficiency::shapingRules;
 
 std::vector<uint32_t> WeaponProficiency::crossbowExperience = {
 	600,
@@ -209,6 +226,137 @@ static void registerLevels(const nlohmann::json &levelsJson, Proficiency &profic
 	return proficiencies;
 }
 
+[[nodiscard]] const ProficiencyShapingRules &WeaponProficiency::getShapingRules() {
+	return shapingRules;
+}
+
+static void registerShapingOption(const nlohmann::json &optionJson, ProficiencyShapingRules &rules) {
+	const auto rawType = optionJson.at("Type").get<uint8_t>();
+	const auto typeOpt = magic_enum::enum_cast<WeaponProficiencyBonus_t>(rawType);
+	if (!typeOpt.has_value()) {
+		throw FailedToInitializeCanary(fmt::format("{} - Unknown perk Type '{}' in shaping options", __FUNCTION__, rawType));
+	}
+
+	ProficiencyShapingOption option;
+	option.type = typeOpt.value();
+
+	for (const auto &valueJson : optionJson.at("ValuePerRank")) {
+		option.valuePerRank.push_back(valueJson.get<double_t>());
+	}
+	if (option.valuePerRank.empty()) {
+		throw FailedToInitializeCanary(fmt::format("{} - Perk Type '{}' has an empty ValuePerRank", __FUNCTION__, rawType));
+	}
+
+	// A zero weight can never be drawn, which is a silent way to lose an option; say
+	// so instead of shipping a table with a dead entry in it.
+	option.weight = optionJson.value("Weight", 1U);
+	if (option.weight == 0) {
+		throw FailedToInitializeCanary(fmt::format("{} - Perk Type '{}' has Weight 0 and could never be rolled", __FUNCTION__, rawType));
+	}
+
+	// Optional fields, read the same way registerPerks reads them for a perk that
+	// comes from a proficiency file, so a shaped perk is indistinguishable from a
+	// file-defined one once it is built.
+	option.range = optionJson.value("Range", uint8_t { 0 });
+	option.augmentType = optionJson.value("AugmentType", uint8_t { 0 });
+	option.spellId = optionJson.value("SpellId", uint16_t { 0 });
+	option.bestiaryId = optionJson.value("BestiaryId", uint16_t { 0 });
+	option.bestiaryName = optionJson.value("BestiaryName", std::string {});
+
+	if (optionJson.contains("SkillId")) {
+		const auto skill = optionJson.at("SkillId").get<uint8_t>();
+		const auto skillOpt = magic_enum::enum_cast<CipbiaSkills_t>(skill);
+		if (!skillOpt.has_value()) {
+			throw FailedToInitializeCanary(fmt::format("{} - Invalid SkillId '{}' for perk Type '{}'", __FUNCTION__, skill, rawType));
+		}
+		option.skillId = getSkillsFromCipbiaSkill(skillOpt.value());
+	}
+
+	if (optionJson.contains("ElementId")) {
+		const auto element = optionJson.at("ElementId").get<uint64_t>();
+		const auto unshifted = undoShift(element);
+		option.element = getCombatFromCipbiaElement(static_cast<Cipbia_Elementals_t>(unshifted));
+		if (option.element == COMBAT_NONE) {
+			throw FailedToInitializeCanary(fmt::format("{} - Invalid ElementId '{}' for perk Type '{}'", __FUNCTION__, element, rawType));
+		}
+	}
+
+	rules.options.push_back(std::move(option));
+}
+
+static ProficiencyShapingRules loadShapingRules(const std::string &folder) {
+	ProficiencyShapingRules rules;
+
+	const auto fileName = fmt::format("{}/shaping/shaping.json", folder);
+	if (!std::filesystem::is_regular_file(fileName)) {
+		// Optional: a server that does not run perk shaping simply has no file, and
+		// every shaping operation reports the feature as unavailable.
+		g_logger().info("Weapon proficiency shaping is not configured ('{}' not found)", fileName);
+		return rules;
+	}
+
+	std::ifstream file(fileName);
+	if (!file.is_open()) {
+		throw FailedToInitializeCanary(fmt::format("{} - Unable to open file '{}'", __FUNCTION__, fileName));
+	}
+
+	nlohmann::json shapingJson;
+	try {
+		file >> shapingJson;
+	} catch (const nlohmann::json::parse_error &e) {
+		throw FailedToInitializeCanary(fmt::format("{} - JSON parsing error in file '{}': {}", __FUNCTION__, fileName, e.what()));
+	}
+
+	try {
+		rules.requiresProtectionZone = shapingJson.value("RequiresProtectionZone", true);
+
+		for (const auto &slotJson : shapingJson.at("Slots")) {
+			ProficiencyShapingSlot slot;
+			slot.slot = slotJson.at("Slot").get<uint8_t>();
+			slot.unlockDustCost = slotJson.value("UnlockDustCost", uint64_t { 0 });
+			slot.requiredProficiencyLevel = slotJson.value("RequiredProficiencyLevel", uint8_t { 0 });
+			slot.requiresMastery = slotJson.value("RequiresMastery", false);
+			rules.slots.push_back(slot);
+		}
+
+		if (shapingJson.contains("Refine")) {
+			for (const auto &costJson : shapingJson.at("Refine").at("DustCostPerRank")) {
+				rules.refineDustCostPerRank.push_back(costJson.get<uint64_t>());
+			}
+		}
+
+		if (shapingJson.contains("Reshape")) {
+			const auto &reshapeJson = shapingJson.at("Reshape");
+			rules.reshapeDustCost = reshapeJson.value("DustCost", uint64_t { 0 });
+			rules.reshapeOptionCount = reshapeJson.value("OptionCount", uint8_t { 3 });
+		}
+
+		if (shapingJson.contains("Clear")) {
+			rules.clearDustCost = shapingJson.at("Clear").value("DustCost", uint64_t { 0 });
+		}
+
+		if (shapingJson.contains("LunarAscensionOrb")) {
+			rules.lunarAscensionOrbItemId = shapingJson.at("LunarAscensionOrb").value("ItemId", uint16_t { 0 });
+		}
+
+		for (const auto &optionJson : shapingJson.at("Options")) {
+			registerShapingOption(optionJson, rules);
+		}
+	} catch (const nlohmann::json::exception &e) {
+		throw FailedToInitializeCanary(fmt::format("{} - JSON exception in file '{}': {}", __FUNCTION__, fileName, e.what()));
+	}
+
+	// Slots are addressed by their position in this vector everywhere else, so a file
+	// that numbers them out of order or repeats one would silently mis-price a slot.
+	for (size_t i = 0; i < rules.slots.size(); ++i) {
+		if (rules.slots[i].slot != static_cast<uint8_t>(i)) {
+			throw FailedToInitializeCanary(fmt::format("{} - Slot at position {} declares Slot {}; slots must be listed in order starting at 0", __FUNCTION__, i, rules.slots[i].slot));
+		}
+	}
+
+	return rules;
+}
+
 bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 	g_logger().info("{}oading weapon proficiencies...", reload ? "Rel" : "L");
 
@@ -280,9 +428,14 @@ bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 		}
 	}
 
-	proficiencies = std::move(loaded);
+	// Same atomicity: parsed before anything is published, so a broken shaping file
+	// leaves both the tree and the rules as they were.
+	auto loadedShaping = loadShapingRules(folder);
 
-	g_logger().info("Weapon proficiencies {}! ({} proficiencies from {} files)", reload ? "reloaded" : "loaded", proficiencies.size(), files.size());
+	proficiencies = std::move(loaded);
+	shapingRules = std::move(loadedShaping);
+
+	g_logger().info("Weapon proficiencies {}! ({} proficiencies from {} files, {} shaping options)", reload ? "reloaded" : "loaded", proficiencies.size(), files.size(), shapingRules.options.size());
 
 	return true;
 }
@@ -442,6 +595,21 @@ ProficiencyPerk WeaponProficiency::deserializePerk(const ValueWrapper &val) {
 	perk.skillId = static_cast<skills_t>(getInt("skillId"));
 	perk.spellId = static_cast<uint16_t>(getInt("spellId"));
 
+	perk.rank = static_cast<uint8_t>(getInt("rank"));
+	if (auto it = map.find("shaped"); it != map.end()) {
+		perk.shaped = it->second->get<BooleanType>();
+	}
+
+	// Only a shaped perk is used as stored; a normal selection is rebuilt from the
+	// proficiency file and its stored payload is thrown away. So a shaped perk that
+	// does not survive validation is demoted rather than dropped: the slot falls back
+	// to whatever the file defines there, which is always safe to apply.
+	if (perk.shaped && !hasValidPerkEnums(perk)) {
+		g_logger().error("{} - Discarding a shaped perk with out-of-range values (type {}, element {}, skill {})", __FUNCTION__, static_cast<int32_t>(perk.type), static_cast<int32_t>(perk.element), static_cast<int32_t>(perk.skillId));
+		perk.shaped = false;
+		perk.rank = 0;
+	}
+
 	return perk;
 }
 
@@ -456,6 +624,8 @@ ValueWrapper WeaponProficiency::serialize(const WeaponProficiencyData &weaponDat
 ValueWrapper WeaponProficiency::serializePerk(const ProficiencyPerk &perk) const {
 	return {
 		{ "index", static_cast<IntType>(perk.index) },
+		{ "shaped", perk.shaped },
+		{ "rank", static_cast<IntType>(perk.rank) },
 		{ "type", static_cast<IntType>(perk.type) },
 		{ "value", perk.value },
 		{ "level", static_cast<IntType>(perk.level) },
@@ -995,7 +1165,16 @@ std::vector<ProficiencyPerk> WeaponProficiency::collectValidSelectedPerks(uint16
 			continue;
 		}
 
-		validPerks.push_back(levelPerks[index]);
+		// A shaped perk replaced what the file defines at this slot, so it is the one
+		// thing here that is stored whole and read back whole. It still has to occupy a
+		// slot the file still has: if a balance pass removes the level or the perk it
+		// was shaped over, the shaped perk goes with it, like any other selection.
+		if (storedPerk.shaped) {
+			validPerks.push_back(storedPerk);
+		} else {
+			validPerks.push_back(levelPerks[index]);
+		}
+
 		usedLevels[level] = true;
 	}
 

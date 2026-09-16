@@ -77,6 +77,29 @@ namespace {
 			return root_ / "core" / "items" / "proficiencies";
 		}
 
+		[[nodiscard]] std::filesystem::path shapingFolder() const {
+			return proficiencyFolder() / "shaping";
+		}
+
+		void writeShaping(const std::string &contents) const {
+			std::error_code ec;
+			std::filesystem::create_directories(shapingFolder(), ec);
+			std::ofstream file(shapingFolder() / "shaping.json");
+			ASSERT_TRUE(file.is_open()) << "Could not write shaping.json";
+			file << contents;
+		}
+
+		// A complete, minimal set of shaping rules: one slot, one rollable option.
+		[[nodiscard]] static std::string minimalShaping(double rank0Value = 0.01) {
+			return R"({"RequiresProtectionZone":true,)"
+				   R"("Slots":[{"Slot":0,"UnlockDustCost":250,"RequiredProficiencyLevel":3}],)"
+				   R"("Refine":{"DustCostPerRank":[0,60]},)"
+				   R"("Reshape":{"DustCost":150,"OptionCount":3},)"
+				   R"("Clear":{"DustCost":0},)"
+				   R"("Options":[{"Type":8,"Weight":100,"ValuePerRank":[)"
+				+ std::to_string(rank0Value) + R"(,0.02]}]})";
+		}
+
 		void writeFile(const std::string &name, const std::string &contents) const {
 			std::ofstream file(proficiencyFolder() / name);
 			ASSERT_TRUE(file.is_open()) << "Could not write " << name;
@@ -268,6 +291,104 @@ namespace {
 		const auto &proficiency = WeaponProficiency::getProficiencies().at(1);
 		ASSERT_EQ(1U, proficiency.level.size());
 		EXPECT_EQ(maxPerks, proficiency.level.front().perks.size());
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingIsOptionalAndOffWhenTheFileIsAbsent) {
+		writeFile("sword.json", singleProficiency(1, 5));
+
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		// A server that does not run perk shaping just has no file. It must still boot.
+		EXPECT_TRUE(WeaponProficiency::getShapingRules().empty());
+		EXPECT_EQ(1U, WeaponProficiency::getProficiencies().size());
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, LoadsShapingRules) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(minimalShaping());
+
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		const auto &rules = WeaponProficiency::getShapingRules();
+		ASSERT_FALSE(rules.empty());
+		EXPECT_TRUE(rules.requiresProtectionZone);
+
+		ASSERT_EQ(1U, rules.slots.size());
+		EXPECT_EQ(250U, rules.slots.front().unlockDustCost);
+		EXPECT_EQ(3, rules.slots.front().requiredProficiencyLevel);
+		EXPECT_FALSE(rules.slots.front().requiresMastery);
+
+		EXPECT_EQ(150U, rules.reshapeDustCost);
+		EXPECT_EQ(3, rules.reshapeOptionCount);
+		ASSERT_EQ(2U, rules.refineDustCostPerRank.size());
+		EXPECT_EQ(60U, rules.refineDustCostPerRank[1]);
+
+		ASSERT_EQ(1U, rules.options.size());
+		const auto &option = rules.options.front();
+		EXPECT_EQ(WeaponProficiencyBonus_t::CRITICAL_HIT_CHANCE, option.type);
+		EXPECT_EQ(100U, option.weight);
+		// maxRank is the last index, not the count: two values means ranks 0 and 1.
+		EXPECT_EQ(1, option.maxRank());
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsAnUnknownPerkType) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Type":250,"ValuePerRank":[1]}]})");
+
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsAnOptionThatCouldNeverBeRolled) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Type":8,"Weight":0,"ValuePerRank":[0.01]}]})");
+
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsAnOptionWithNoValues) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Type":8,"ValuePerRank":[]}]})");
+
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRejectsSlotsListedOutOfOrder) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		// Slots are addressed by position, so a file numbering them 1,0 would price the
+		// wrong slot rather than fail.
+		writeShaping(R"({"Slots":[{"Slot":1},{"Slot":0}],"Options":[{"Type":8,"ValuePerRank":[0.01]}]})");
+
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, FailedShapingReloadKeepsBothTheTreeAndTheRules) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(minimalShaping(0.01));
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+		ASSERT_EQ(1U, WeaponProficiency::getShapingRules().options.size());
+		ASSERT_DOUBLE_EQ(0.01, WeaponProficiency::getShapingRules().options.front().valuePerRank.front());
+
+		// The proficiency files are fine; only the shaping file is broken. Both must
+		// survive, because both are published in the same step.
+		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Type":250,"ValuePerRank":[1]}]})");
+		EXPECT_THROW((void)WeaponProficiency::loadFromJson(true), FailedToInitializeCanary);
+
+		EXPECT_EQ(1U, WeaponProficiency::getProficiencies().size());
+		EXPECT_DOUBLE_EQ(5.0, firstPerkValue(1));
+		ASSERT_EQ(1U, WeaponProficiency::getShapingRules().options.size());
+		EXPECT_DOUBLE_EQ(0.01, WeaponProficiency::getShapingRules().options.front().valuePerRank.front());
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ReloadPicksUpEditedShapingRules) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(minimalShaping(0.01));
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		writeShaping(minimalShaping(0.03));
+		ASSERT_TRUE(WeaponProficiency::loadFromJson(true));
+
+		ASSERT_EQ(1U, WeaponProficiency::getShapingRules().options.size());
+		EXPECT_DOUBLE_EQ(0.03, WeaponProficiency::getShapingRules().options.front().valuePerRank.front());
 	}
 
 } // namespace
