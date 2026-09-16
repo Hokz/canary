@@ -212,10 +212,6 @@ static void registerLevels(const nlohmann::json &levelsJson, Proficiency &profic
 bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 	g_logger().info("{}oading weapon proficiencies...", reload ? "Rel" : "L");
 
-	if (reload) {
-		proficiencies.clear();
-	}
-
 	auto coreFolder = g_configManager().getString(CORE_DIRECTORY);
 	auto folder = fmt::format("{}/items/proficiencies", coreFolder);
 	if (!std::filesystem::is_directory(folder)) {
@@ -242,6 +238,10 @@ bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 		throw FailedToInitializeCanary(fmt::format("{} - No proficiency files found in '{}'", __FUNCTION__, folder));
 	}
 
+	// Parsed into a local map and published only once every file has been read, so
+	// a reload that hits a bad file leaves the running server on the data it already
+	// had instead of on a half-loaded map.
+	std::unordered_map<uint16_t, Proficiency> loaded;
 	for (const auto &path : files) {
 		const auto fileName = path.string();
 		std::ifstream file(fileName);
@@ -266,21 +266,23 @@ bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 				// Repository Audit job runs on every change to the data or the tool. The
 				// first copy read therefore wins and the rest are skipped without parsing
 				// their levels.
-				if (proficiencies.contains(id)) {
+				if (loaded.contains(id)) {
 					continue;
 				}
 
 				Proficiency proficiency;
 				proficiency.id = id;
 				registerLevels(proficiencyJson["Levels"], proficiency);
-				proficiencies[id] = std::move(proficiency);
+				loaded[id] = std::move(proficiency);
 			}
 		} catch (const nlohmann::json::exception &e) {
 			throw FailedToInitializeCanary(fmt::format("{} - JSON exception in file '{}': {}", __FUNCTION__, fileName, e.what()));
 		}
 	}
 
-	g_logger().info("Weapon proficiencies loaded! ({} proficiencies from {} files)", proficiencies.size(), files.size());
+	proficiencies = std::move(loaded);
+
+	g_logger().info("Weapon proficiencies {}! ({} proficiencies from {} files)", reload ? "reloaded" : "loaded", proficiencies.size(), files.size());
 
 	return true;
 }

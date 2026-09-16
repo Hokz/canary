@@ -70,6 +70,12 @@ Validation:
 2. Server loads `appearances.dat` and assigns protobuf `proficiency_id` to item types
 3. Server loads `items.xml`, optionally overriding per item with `key="proficiency"`
 
+### Reload
+
+`/reload proficiencies` (also `proficiency`, `weaponproficiency`) re-runs step 1
+and re-applies perks for every online player. Steps 2 and 3 are not re-run, so
+an id that does not yet exist on an item still needs `/reload items`.
+
 ### Player load/save
 
 - On login init: weapon proficiency state is loaded from KV scope `weapon-proficiency`
@@ -134,6 +140,25 @@ Basic example:
 }
 ```
 
+### Applying a balance change on a running server
+
+```
+/reload proficiencies
+```
+
+The command re-reads every file under `data/items/proficiencies/` and re-applies
+the perks of every online player, so an edit takes effect without a restart and
+without anyone relogging.
+
+It is safe to run against a file you just edited by hand: the new data is parsed
+into a separate map and only published once every file has parsed. A syntax
+error or a malformed entry logs `Failed to reload: Weapon proficiencies` and
+leaves the server on the data it already had.
+
+A player whose stored selection points at a level or a perk index that your edit
+removed simply loses that selection — it is dropped on re-apply rather than
+faulting.
+
 ### Before committing a balance change
 
 ```
@@ -158,8 +183,11 @@ files is identical in both.
 A few ids are shared by weapons of different categories (for example the
 Inferniarch bow and arbalest, or the replica wands and rods). Those entries are
 written in full into both files so each file stands alone. The server keeps the
-first file it reads and ignores the rest, so **the copies must stay identical** —
-edit both, and let the validator confirm it.
+first file it reads (files are read in sorted order) and skips the rest, so
+**the copies must stay identical** — edit both, and let the validator confirm
+it. Nothing in the server checks this; `python -m tools.proficiency_split
+validate` does, and the Repository Audit CI job runs it on every change to the
+data.
 
 Common perk fields:
 
