@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/repository-audit.yml"
       - "tools/canary_audit/**"
+      - "tools/proficiency_split.py"
       - "data/**"
       - "data-canary/**"
       - "data-otservbr-global/**"
@@ -16,6 +17,7 @@ on:
     paths:
       - ".github/workflows/repository-audit.yml"
       - "tools/canary_audit/**"
+      - "tools/proficiency_split.py"
       - "data/**"
       - "data-canary/**"
       - "data-otservbr-global/**"
@@ -52,6 +54,9 @@ jobs:
 
       - name: Validate audit schemas
         run: python -m tools.canary_audit validate-schemas
+
+      - name: Validate weapon proficiency files
+        run: python -m tools.proficiency_split validate
 
       - name: Run audit unit tests
         run: python -m unittest discover -s tools/canary_audit/tests -t . -p "test_*.py" -v

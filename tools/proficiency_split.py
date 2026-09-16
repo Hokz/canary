@@ -394,7 +394,7 @@ def validate() -> int:
                 if previous_fingerprint != fingerprint:
                     errors.append(
                         f"ProficiencyId {proficiency_id} differs between {previous_path} and {rel}. "
-                        "Shared ids must stay byte-identical: the loader keeps whichever file is read last."
+                        "Shared ids must stay byte-identical: the loader keeps whichever file is read first."
                     )
             else:
                 seen[proficiency_id] = (rel, fingerprint)
