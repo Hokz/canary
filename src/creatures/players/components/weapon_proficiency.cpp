@@ -11,6 +11,7 @@
 #include <cmath>
 #include <filesystem>
 #include <limits>
+#include <numeric>
 
 // Player.hpp already includes the weapon
 #include "creatures/players/player.hpp"
@@ -886,13 +887,8 @@ ProficiencyPerk* WeaponProficiency::findStoredPerk(uint16_t weaponId, uint8_t le
 		return nullptr;
 	}
 
-	for (auto &perk : it->second.perks) {
-		if (perk.level == level) {
-			return &perk;
-		}
-	}
-
-	return nullptr;
+	const auto perkIt = std::ranges::find(it->second.perks, level, &ProficiencyPerk::level);
+	return perkIt == it->second.perks.end() ? nullptr : &*perkIt;
 }
 
 const ProficiencyPerk* WeaponProficiency::findStoredPerk(uint16_t weaponId, uint8_t level) const {
@@ -905,14 +901,7 @@ uint8_t WeaponProficiency::countShapedPerks(uint16_t weaponId) const {
 		return 0;
 	}
 
-	uint8_t count = 0;
-	for (const auto &perk : it->second.perks) {
-		if (perk.shaped) {
-			++count;
-		}
-	}
-
-	return count;
+	return static_cast<uint8_t>(std::ranges::count(it->second.perks, true, &ProficiencyPerk::shaped));
 }
 
 // The checks every operation shares: the feature is configured, the weapon is real
@@ -968,12 +957,12 @@ namespace {
 	// Weighted draw over the options a roll may pick from. `excluded` keeps a reshape
 	// from offering the perk the player already has.
 	const ProficiencyShapingOption* rollOption(const ProficiencyShapingRules &rules, const std::vector<uint16_t> &excluded) {
-		uint64_t total = 0;
-		for (const auto &option : rules.options) {
-			if (std::ranges::find(excluded, option.id) == excluded.end()) {
-				total += option.weight;
+		const auto total = std::accumulate(
+			rules.options.begin(), rules.options.end(), uint64_t { 0 },
+			[&excluded](uint64_t sum, const ProficiencyShapingOption &option) {
+				return std::ranges::find(excluded, option.id) == excluded.end() ? sum + option.weight : sum;
 			}
-		}
+		);
 
 		if (total == 0) {
 			return nullptr;
