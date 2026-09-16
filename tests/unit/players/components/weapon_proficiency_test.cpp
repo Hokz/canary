@@ -17,6 +17,7 @@
 #include "canary_server.hpp"
 #include "config/configmanager.hpp"
 #include "creatures/players/components/weapon_proficiency.hpp"
+#include "creatures/players/player.hpp"
 #include "enums/weapon_proficiency.hpp"
 #include "lib/di/container.hpp"
 #include "lib/logging/in_memory_logger.hpp"
@@ -550,6 +551,75 @@ namespace {
 		writeShaping(R"({"Slots":[{"Slot":0}],"Options":[{"Id":10,"Type":3,"SkillId":250,"ValuePerRank":[1]}]})");
 
 		EXPECT_THROW((void)WeaponProficiency::loadFromJson(), FailedToInitializeCanary);
+	}
+
+	// ---------------------------------------------------------------------------
+	// The shaping operations' guard ladder.
+	//
+	// These reach as far as a unit test can: a default-constructed Player has no
+	// tile and Item::items is empty, so every path that needs a real weapon stops at
+	// InvalidWeapon. What is proved here is that the guards short-circuit in the
+	// right order and that an empty player never faults. Charging dust, slot costs
+	// and rank progression need items loaded, which is integration territory.
+	// ---------------------------------------------------------------------------
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRefusesWhenTheServerHasNoShapingFile) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+		ASSERT_TRUE(WeaponProficiency::getShapingRules().empty());
+
+		auto player = std::make_shared<Player>();
+		auto &proficiency = player->weaponProficiency();
+
+		// NotConfigured comes before every other check, so a server that does not run
+		// shaping answers the same way whatever else is wrong with the request.
+		EXPECT_EQ(ProficiencyShapingResult::NotConfigured, proficiency.shapePerk(0, 0, 0));
+		EXPECT_EQ(ProficiencyShapingResult::NotConfigured, proficiency.refinePerk(0, 0));
+		EXPECT_EQ(ProficiencyShapingResult::NotConfigured, proficiency.reshapePerk(0, 0, 1));
+		EXPECT_EQ(ProficiencyShapingResult::NotConfigured, proficiency.clearShapedPerk(0, 0));
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRefusesAnInvalidWeapon) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		// Protection zone off, so the weapon check is what answers rather than the
+		// tile check a default-constructed player would fail.
+		writeShaping(
+			R"({"RequiresProtectionZone":false,"Slots":[{"Slot":0}],)"
+			R"("Options":[{"Id":1,"Type":8,"ValuePerRank":[0.01]}]})"
+		);
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		auto player = std::make_shared<Player>();
+		auto &proficiency = player->weaponProficiency();
+
+		EXPECT_EQ(ProficiencyShapingResult::InvalidWeapon, proficiency.shapePerk(0, 0, 0));
+		EXPECT_EQ(ProficiencyShapingResult::InvalidWeapon, proficiency.refinePerk(0, 0));
+		EXPECT_EQ(ProficiencyShapingResult::InvalidWeapon, proficiency.clearShapedPerk(0, 0));
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, ShapingRefusesOutsideAProtectionZone) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(minimalShaping());
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+		ASSERT_TRUE(WeaponProficiency::getShapingRules().requiresProtectionZone);
+
+		auto player = std::make_shared<Player>();
+		// A player with no tile is not in a protection zone, and the rules say shaping
+		// only happens in one.
+		EXPECT_EQ(ProficiencyShapingResult::NotInProtectionZone, player->weaponProficiency().shapePerk(0, 0, 0));
+	}
+
+	TEST_F(WeaponProficiencyLoaderTest, APlayerWithNoDataHasNothingShapedAndNothingToReshape) {
+		writeFile("sword.json", singleProficiency(1, 5));
+		writeShaping(minimalShaping());
+		ASSERT_TRUE(WeaponProficiency::loadFromJson());
+
+		auto player = std::make_shared<Player>();
+		const auto &proficiency = player->weaponProficiency();
+
+		EXPECT_EQ(0, proficiency.countShapedPerks(0));
+		EXPECT_EQ(0, proficiency.countShapedPerks(1234));
+		EXPECT_TRUE(proficiency.rollReshapeOptions(1234, 0).empty());
 	}
 
 } // namespace

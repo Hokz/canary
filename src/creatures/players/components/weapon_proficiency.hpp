@@ -23,6 +23,7 @@ struct WeaponProficiencyData;
 struct Proficiency;
 struct ProficiencyShapingRules;
 struct ProficiencyShapingOption;
+enum class ProficiencyShapingResult : uint8_t;
 
 class WeaponProficiency {
 public:
@@ -56,6 +57,26 @@ public:
 
 	void applyPerks(uint16_t weaponId, bool sendSkillUpdate = true);
 	void onDataReloaded();
+
+	// The four perk shaping operations. All of them read their costs and requirements
+	// from shaping.json, charge dust on success, persist, and re-apply if the weapon
+	// is in hand. They are the whole of the feature's rules; the protocol layer only
+	// has to call them and report what came back.
+	//
+	// A slot is addressed by (weaponId, level): the tree allows one selected perk per
+	// level, so that pair names it. Which shaping slot is being bought - and therefore
+	// what it costs and requires - follows from how many perks on the weapon are
+	// already shaped.
+	ProficiencyShapingResult shapePerk(uint16_t weaponId, uint8_t level, uint8_t perkIndex);
+	ProficiencyShapingResult refinePerk(uint16_t weaponId, uint8_t level);
+	ProficiencyShapingResult reshapePerk(uint16_t weaponId, uint8_t level, uint16_t optionId);
+	ProficiencyShapingResult clearShapedPerk(uint16_t weaponId, uint8_t level);
+
+	// The alternatives a reshape offers, at the perk's current rank. Keeping the
+	// current perk is always allowed, so it is never among them.
+	[[nodiscard]] std::vector<uint16_t> rollReshapeOptions(uint16_t weaponId, uint8_t level) const;
+
+	[[nodiscard]] uint8_t countShapedPerks(uint16_t weaponId) const;
 	std::vector<ProficiencyPerk> getSelectedPerks(uint16_t itemId) const;
 	void clearSelectedPerks(uint16_t weaponId);
 	void setSelectedPerk(uint8_t level, uint8_t perkIndex, uint16_t weaponId = 0);
@@ -142,6 +163,11 @@ private:
 	[[nodiscard]] size_t getUnlockedLevelCount(uint16_t weaponId) const;
 	[[nodiscard]] std::vector<ProficiencyPerk> collectValidSelectedPerks(uint16_t weaponId) const;
 	void normalizeStoredState(uint16_t weaponId);
+
+	[[nodiscard]] ProficiencyPerk* findStoredPerk(uint16_t weaponId, uint8_t level);
+	[[nodiscard]] const ProficiencyPerk* findStoredPerk(uint16_t weaponId, uint8_t level) const;
+	[[nodiscard]] ProficiencyShapingResult checkShapingPreconditions(uint16_t weaponId, uint8_t level) const;
+	void commitShapingChange(uint16_t weaponId);
 
 	Player &m_player;
 

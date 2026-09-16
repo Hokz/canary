@@ -127,6 +127,28 @@ struct ProficiencyPerk {
 // not code: which effects may be rolled, what each is worth at every rank, what each
 // operation costs, and what each slot requires. It lives in
 // data/items/proficiencies/shaping.json so balancing never needs a rebuild.
+// Why a shaping operation was refused. Everything the player could have done wrong
+// gets its own value so the caller can say which rule stopped them, rather than a
+// bare failure.
+enum class ProficiencyShapingResult : uint8_t {
+	Success,
+	NotConfigured, // the server ships no shaping.json
+	InvalidWeapon,
+	NoProficiencyData, // the player has never used this weapon
+	LevelLocked, // that tree level is not unlocked yet
+	InvalidPerkIndex,
+	AlreadyShaped, // use refine or reshape on a slot that is already shaped
+	NotShaped, // refine, reshape and clear need a shaped slot
+	NoSlotsLeft, // every shaping slot the rules define is already in use
+	ProficiencyTooLow,
+	NotMastered,
+	NotInProtectionZone,
+	NotEnoughDust,
+	AtMaximumRank,
+	RefineDisabled, // the rules define no cost for the next rank
+	UnknownOption,
+};
+
 struct ProficiencyShapingOption {
 	// Stable identity, assigned by hand in shaping.json and never reused. A player's
 	// shaped perk stores this, so an option keeps its meaning however the file is
