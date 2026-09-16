@@ -238,12 +238,19 @@ function portalWatch.onStepIn(creature, item, position, fromPosition)
 	end
 	return true
 end
+-- Every ROOMS[*].portals list is empty until the map contract is fulfilled. Registering with no
+-- position attached leaves the event without a valid key, which the engine rejects with a startup
+-- warning, so the single registration is made only once at least one portal exists.
+local portalTiles = 0
 for _, room in pairs(ROOMS) do
 	for _, position in ipairs(room.portals) do
 		portalWatch:position(position)
+		portalTiles = portalTiles + 1
 	end
 end
-portalWatch:register()
+if portalTiles > 0 then
+	portalWatch:register()
+end
 
 local scarabStrengthen = CreatureEvent("MorgathlaScarabDeath")
 function scarabStrengthen.onDeath(creature, corpse, lasthitkiller, mostdamagekiller)

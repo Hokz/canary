@@ -38,11 +38,11 @@ stonePile:register()
 -- light it. Both steps must be done before the lever will fire.
 local catapultLoaded = {} -- creature id -> true, cleared once fired; ship encounters are short-lived so this doesn't need to survive a restart
 
-local loadStone = Action()
-function loadStone.onUse(player, item, fromPosition, target, toPosition, isHotkey)
-	if not target or target:getActionId() ~= CATAPULT_AID then
-		return false
-	end
+-- Item 12724 is shared with The Rookie Guard's Mission02 roof catapults, so the single Action
+-- registration for it lives in scripts/actions/other/heavy_stone.lua, which dispatches here once
+-- it has confirmed the target is this quest's catapult (CATAPULT_AID). Registering :id() from both
+-- quests meant only one of them survived startup - see that file for the full explanation.
+function APiratesTailLoadHeavyStone(player, item, target)
 	if not shipRaidActive() then
 		player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "There is no pirat ship attacking right now.")
 		return true
@@ -51,8 +51,6 @@ function loadStone.onUse(player, item, fromPosition, target, toPosition, isHotke
 	player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You load the heavy stone onto the catapult. Now light it with a greenish flintstone.")
 	return true
 end
-loadStone:id(HEAVY_STONE_ID)
-loadStone:register()
 
 local lightCatapult = Action()
 function lightCatapult.onUse(player, item, fromPosition, target, toPosition, isHotkey)

@@ -114,8 +114,15 @@ function answerTile.onStepIn(creature, item, position, fromPosition)
 	return true
 end
 
+-- MEMORY_ROOM.answers is empty until the map contract is fulfilled. Registering with no aid or
+-- position attached leaves the event without a valid key, which the engine rejects with a startup
+-- warning, so the single registration is made only once at least one answer tile exists.
+local answerTiles = 0
 for index, position in ipairs(MEMORY_ROOM.answers) do
 	answerTile:aid(MEMORY_ROOM.startAid + index)
 	answerTile:position(position)
+	answerTiles = answerTiles + 1
 end
-answerTile:register()
+if answerTiles > 0 then
+	answerTile:register()
+end

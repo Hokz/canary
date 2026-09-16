@@ -25,6 +25,13 @@ function baking.onUse(player, item, fromPosition, target, toPosition, isHotkey)
 		item:transform(item.itemid, item.type - 1)
 		target:transform(target.itemid, target.type - 1)
 		player:addItem(8018) -- lump of chocolate dough
+		-- Threatened Dreams Mission06 tracks this exact combination as its Gingerbread Key step. It
+		-- cannot own item id 6276 - this generic Action already holds it - so its bookkeeping is
+		-- recorded here. The transformation above is untouched; only the quest storage and messages
+		-- are added, and only for this one recipe.
+		if type(ThreatenedDreamsRecordChocolateDough) == "function" then
+			ThreatenedDreamsRecordChocolateDough(player)
+		end
 	elseif item.itemid == 8195 and target.itemid == 8197 then -- bulb of garlic
 		item:transform(item.itemid, item.type - 1)
 		target:transform(target.itemid, target.type - 1)
