@@ -66,7 +66,7 @@ Validation:
 
 ### Startup
 
-1. Server loads every `*.json` under `data/items/proficiencies/` (skipping the schema and `_`-prefixed files)
+1. Server loads every `*.json` under `data/items/proficiencies/` (all 420 proficiencies, `_orphaned.json` included; only the schema file is skipped)
 2. Server loads `appearances.dat` and assigns protobuf `proficiency_id` to item types
 3. Server loads `items.xml`, optionally overriding per item with `key="proficiency"`
 
@@ -97,8 +97,9 @@ Validation:
 Proficiencies are split into one file per weapon category — `sword.json`,
 `axe.json`, `club.json`, `bow.json`, `crossbow.json`, `wand.json`, `rod.json`,
 `fist.json`, `throwing.json` — so a balance pass only opens the file for the
-weapons it is about. `_orphaned.json` holds ids no item references (kept for
-reference, not loaded).
+weapons it is about. `_orphaned.json` holds ids that no item currently
+references; it is still loaded, so an `items.xml` override can name one of
+them, but it is kept apart so those ids do not clutter a real category.
 
 Each file is an object with `Category` and a `Proficiencies` array. Each entry:
 

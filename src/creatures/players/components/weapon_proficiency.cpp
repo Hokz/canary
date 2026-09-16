@@ -227,10 +227,13 @@ bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 	// both files. The first file to define an id wins; the check below is a cheap
 	// guard that only catches a differing level count, so
 	// `python -m tools.proficiency_split validate` remains the thorough check.
+	// _orphaned.json is loaded like any other file: no item references those ids,
+	// but keeping them in the map preserves the behaviour of the single file this
+	// replaced, where an items.xml override could still name one of them.
 	std::vector<std::filesystem::path> files;
 	for (const auto &entry : std::filesystem::directory_iterator(folder)) {
 		const auto &path = entry.path();
-		if (entry.is_regular_file() && path.extension() == ".json" && path.filename() != "proficiencies.schema.json" && !path.filename().string().starts_with('_')) {
+		if (entry.is_regular_file() && path.extension() == ".json" && path.filename() != "proficiencies.schema.json") {
 			files.emplace_back(path);
 		}
 	}
