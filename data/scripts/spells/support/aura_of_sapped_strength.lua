@@ -22,7 +22,7 @@ spell:name("Aura of Sapped Strength")
 spell:words("exori kor tempo")
 spell:group("support", "crippling")
 spell:vocation("sorcerer;true", "master sorcerer;true")
--- Not the official client id; see divine_defiance.lua.
+-- Canary-internal spell id, NOT the official CipSoft id; see divine_defiance.lua.
 spell:id(312)
 spell:cooldown(2 * 1000)
 spell:groupCooldown(2 * 1000, 2 * 1000)

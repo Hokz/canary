@@ -13,6 +13,7 @@
 
 #include "creatures/combat/condition.hpp"
 #include "creatures/players/player.hpp"
+#include "utils/tools.hpp"
 #include "io/fileloader.hpp"
 
 namespace {
@@ -141,6 +142,24 @@ namespace {
 		after.primary.type = COMBAT_ENERGYDAMAGE;
 		player->applyConditionElementCritical(after);
 		EXPECT_EQ(0, after.criticalChance);
+	}
+
+	TEST_F(ConditionAttributesSerializeTest, ElementalPierceReceivedSurvivesTheBlobAndComesOff) {
+		// Aura of Exposed Weakness lands this on the monster hit. It is what
+		// Creature::applyAbsorbDamageModifications subtracts from the resistance.
+		auto condition = persistentAttributes(7);
+		ASSERT_TRUE(condition->setParam(CONDITION_PARAM_ELEMENTAL_PIERCE_RECEIVED, 8));
+
+		auto restored = roundTrip(condition);
+		ASSERT_NE(nullptr, restored);
+
+		auto creature = std::make_shared<Player>();
+		EXPECT_EQ(0, creature->getElementalPierceReceived());
+		ASSERT_TRUE(creature->addCondition(restored));
+		EXPECT_EQ(8, creature->getElementalPierceReceived());
+
+		creature->removeCondition(restored);
+		EXPECT_EQ(0, creature->getElementalPierceReceived());
 	}
 
 	TEST_F(ConditionAttributesSerializeTest, PercentSkillsSurviveTheBlobAndRecompute) {

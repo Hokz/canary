@@ -118,6 +118,7 @@ enum ConditionAttr_t {
 	CONDITIONATTR_DODGE_RANGED,
 	CONDITIONATTR_ELEMENT_CRITICAL_CHANCE,
 	CONDITIONATTR_ELEMENT_CRITICAL_DAMAGE,
+	CONDITIONATTR_ELEMENTAL_PIERCE_RECEIVED,
 
 	// reserved for serialization
 	CONDITIONATTR_END = 254,
@@ -299,6 +300,11 @@ enum ConditionParam_t {
 	// when a stance needs another element.
 	CONDITION_PARAM_ELEMENT_CRITICAL_CHANCE_ENERGY = 93,
 	CONDITION_PARAM_ELEMENT_CRITICAL_DAMAGE_DEATH = 94,
+
+	// Elemental Pierce granted AGAINST the creature holding the condition, in percent
+	// (Aura of Exposed Weakness: 8). Lowers the resistance elemental damage meets on
+	// it; see Creature::applyAbsorbDamageModifications.
+	CONDITION_PARAM_ELEMENTAL_PIERCE_RECEIVED = 95,
 };
 
 enum stats_t {
@@ -346,6 +352,7 @@ enum CombatParam_t {
 	COMBAT_PARAM_CASTSOUND,
 	COMBAT_PARAM_IMPACTSOUND,
 	COMBAT_PARAM_CHAIN_EFFECT,
+	COMBAT_PARAM_NOCHARM,
 };
 
 enum CombatOrigin : uint8_t {
@@ -1771,6 +1778,8 @@ struct CombatDamage {
 	std::string exString;
 	bool fatal = false;
 	bool hazardDodge = false;
+	// Death Echo's second impact: damage that must not trigger charms.
+	bool noCharm = false;
 
 	int32_t criticalDamage = 0;
 	int32_t criticalChance = 0;
@@ -1789,7 +1798,7 @@ struct CombatDamage {
 	CombatDamage() = default;
 
 	bool isEmpty() const {
-		return primary.type == COMBAT_NONE && primary.value == 0 && secondary.type == COMBAT_NONE && secondary.value == 0 && origin == ORIGIN_NONE && critical == false && affected == 1 && extension == false && exString.empty() && fatal == false && criticalDamage == 0 && criticalChance == 0 && damageMultiplier == 0 && damageReductionMultiplier == 0 && healingMultiplier == 0 && manaLeech == 0 && manaLeechChance == 0 && lifeLeech == 0 && lifeLeechChance == 0 && healingLink == 0 && instantSpellName.empty() && runeSpellName.empty();
+		return primary.type == COMBAT_NONE && primary.value == 0 && secondary.type == COMBAT_NONE && secondary.value == 0 && origin == ORIGIN_NONE && critical == false && affected == 1 && extension == false && exString.empty() && fatal == false && noCharm == false && criticalDamage == 0 && criticalChance == 0 && damageMultiplier == 0 && damageReductionMultiplier == 0 && healingMultiplier == 0 && manaLeech == 0 && manaLeechChance == 0 && lifeLeech == 0 && lifeLeechChance == 0 && healingLink == 0 && instantSpellName.empty() && runeSpellName.empty();
 	}
 };
 

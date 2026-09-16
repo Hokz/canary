@@ -53,6 +53,7 @@ bool ConfigManager::load() {
 		loadFloatConfig(L, HOUSE_RENT_RATE, "houseRentRate", 1.0);
 
 		loadIntConfig(L, DEPOT_BOXES, "depotBoxes", 20);
+		loadIntConfig(L, WAND_MANA_GENERATION_PERCENT, "wandManaGenerationPercent", 100);
 		loadIntConfig(L, FREE_DEPOT_LIMIT, "freeDepotLimit", 2000);
 		loadIntConfig(L, GAME_PORT, "gameProtocolPort", 7172);
 		loadIntConfig(L, LEGACY_1100_GAME_PORT, "legacy1100GameProtocolPort", 0);

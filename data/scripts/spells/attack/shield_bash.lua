@@ -6,10 +6,6 @@
 -- shield equipped means no damage, which is the spell refusing rather than falling
 -- back to the weapon.
 --
--- The hit also weakens the target: "the target's next auto attack within 10 seconds
--- deals 50% less". The engine has a damage-dealt debuff (BUFF_DAMAGEDEALT) but not a
--- "next auto attack only" one, so this is a 10-second -50% to everything the target
--- deals. Stated here because it is stronger than the official rule.
 local SPELL_BASE_POWER = 55
 
 local function shieldDefense(player)
@@ -22,15 +18,29 @@ local function shieldDefense(player)
 	return 0
 end
 
-local weaken = Condition(CONDITION_ATTRIBUTES)
-weaken:setParameter(CONDITION_PARAM_TICKS, 10 * 1000)
-weaken:setParameter(CONDITION_PARAM_BUFF_DAMAGEDEALT, 50)
+-- The hit weakens the target's NEXT auto attack by 50% for up to 10 seconds. That
+-- is a consumable, per-creature status in the engine (setNextAutoAttackDebuff):
+-- the first melee, ranged or fist attack the creature makes is reduced and the
+-- status is spent; spells and runes it casts are untouched; ten seconds with no
+-- auto attack and it expires. Shield Bash has no augment that deepens it; that is
+-- Shield Slam's.
+local function weakenNextAutoAttack(creature, target)
+	if not target or target:isPlayer() then
+		return true
+	end
+	target:setNextAutoAttackDebuff(50, 10 * 1000)
+	return true
+end
+
+function onTargetCreature(creature, target)
+	return weakenNextAutoAttack(creature, target)
+end
 
 local combat = Combat()
 combat:setParameter(COMBAT_PARAM_TYPE, COMBAT_PHYSICALDAMAGE)
 combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_BLOW_WHITE)
 combat:setParameter(COMBAT_PARAM_BLOCKARMOR, 1)
-combat:addCondition(weaken)
+combat:setCallback(CALLBACK_PARAM_TARGETCREATURE, "onTargetCreature")
 
 function onGetFormulaValues(player, skill, attack, factor)
 	local defense = shieldDefense(player)
@@ -53,7 +63,7 @@ function spell.onCastSpell(creature, var)
 end
 
 spell:group("attack")
--- Not the official client id; the 15.25 spell id table was not available.
+-- Canary-internal spell id, NOT the official CipSoft id; see divine_defiance.lua.
 spell:id(301)
 spell:name("Shield Bash")
 spell:words("exori ico scu")

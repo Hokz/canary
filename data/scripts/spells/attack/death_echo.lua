@@ -1,13 +1,13 @@
 -- Death Echo (15.25.3a4a52). Sorcerer, level 120, 150 mana, 6s cooldown.
 --
--- Death damage in a 5x5 around the caster, then, after a short interval, a second
--- impact in a larger area. Base power 85 for the first hit, in the datapack's
--- level/magic-level form. The update does not state the second impact's power, only
--- that it is "additional damage" over a larger area: half of the first, one second
--- later, in the 7x7. Stated here because the half is a choice, not a sourced number.
+-- Death damage in a 5x5 around the caster; one second later the SAME area, at the
+-- position the caster stood on when casting, is hit again for half. Base power 75
+-- (the July balance value; the release build had 85), in the datapack's
+-- level/magic-level form. The echo is bound to the cast position, not the caster:
+-- moving or changing floor does not move it. Its damage never triggers charms.
 function onGetFormulaValues(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 3.4)
-	local max = (level / 5) + (maglevel * 5.6)
+	local min = (level / 5) + (maglevel * 3.0)
+	local max = (level / 5) + (maglevel * 4.9)
 	return -min, -max
 end
 
@@ -25,7 +25,8 @@ combat:setCallback(CALLBACK_PARAM_LEVELMAGICVALUE, "onGetFormulaValues")
 local echo = Combat()
 echo:setParameter(COMBAT_PARAM_TYPE, COMBAT_DEATHDAMAGE)
 echo:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_MORTAREA)
-echo:setArea(createCombatArea(AREA_CIRCLE3X3))
+echo:setArea(createCombatArea(AREA_CIRCLE2X2))
+echo:setParameter(COMBAT_PARAM_NOCHARM, true)
 echo:setCallback(CALLBACK_PARAM_LEVELMAGICVALUE, "onGetEchoFormulaValues")
 
 local function secondImpact(playerId, position)

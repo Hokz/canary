@@ -3,21 +3,25 @@
 -- its debuff to the enemy hit. This fires once per target of every combat, before
 -- the hit resolves, which is the one place that sees each pair exactly once.
 --
--- Approximations, stated: the engine's damage buffs are not split by damage type,
--- so "8% more elemental damage taken" is 8% more of all damage taken; and a hit that
--- is later blocked or dodged still applied the debuff, because this runs before the
--- roll. Durations follow the old targeted Sap Strength / Expose Weakness: 16s.
-local DEBUFF_TICKS = 16 * 1000
+-- Sapped Strength: the enemy deals 10% less. Exposed Weakness: +8% Elemental
+-- Pierce against the enemy for 10 seconds - a pierce, not a damage multiplier. It
+-- lowers the resistance elemental damage meets on that creature, inside the
+-- engine's one resistance calculation, so physical damage gains nothing and an
+-- immunity stays an immunity. One approximation remains and is stated: this fires
+-- before the hit resolves, so a hit that is then blocked or dodged still applied
+-- the debuff.
+local SAPPED_STRENGTH_TICKS = 16 * 1000
+local EXPOSED_WEAKNESS_TICKS = 10 * 1000
 
-local function debuff(param, value)
+local function debuff(param, value, ticks)
 	local condition = Condition(CONDITION_ATTRIBUTES)
-	condition:setParameter(CONDITION_PARAM_TICKS, DEBUFF_TICKS)
+	condition:setParameter(CONDITION_PARAM_TICKS, ticks)
 	condition:setParameter(param, value)
 	return condition
 end
 
-local sappedStrength = debuff(CONDITION_PARAM_BUFF_DAMAGEDEALT, 90)
-local exposedWeakness = debuff(CONDITION_PARAM_BUFF_DAMAGERECEIVED, 108)
+local sappedStrength = debuff(CONDITION_PARAM_BUFF_DAMAGEDEALT, 90, SAPPED_STRENGTH_TICKS)
+local exposedWeakness = debuff(CONDITION_PARAM_ELEMENTAL_PIERCE_RECEIVED, 8, EXPOSED_WEAKNESS_TICKS)
 
 local callback = EventCallback("CripplingStancesOnTargetCombat")
 

@@ -1,9 +1,10 @@
 -- Master of Flames (15.25.3a4a52). Sorcerer elemental stance, level 20, 400 mana. See
 -- data/libs/systems/stance.lua.
 --
--- Two effects. "+4% base power on fire spells" is INCREASE_FIREPERCENT on the condition. That
--- parameter raises all fire damage the player deals, auto attacks with a fire
--- weapon included, not spells alone - the engine has nothing narrower.
+-- Two effects, both in the engine and both keyed on this stance's subId. +4% base
+-- power on fire SPELLS - Combat::getCombatDamage applies it on the spell's natural
+-- element and only to instant spells, so fire runes, wand hits and converted spells
+-- get nothing. The condition itself carries no parameter.
 --
 -- The other lives in Combat::getCombatDamage: after a fire spell, the next spell
 -- of another element is converted to fire. The engine reads that off the stance
@@ -13,9 +14,7 @@
 -- Elemental and Crippling are separate families, so a Sorcerer may hold one of
 -- each; casting another Master of * replaces this one.
 local function build()
-	return Stance.condition(AttrSubId_StanceMasterOfFlames, function(condition)
-		condition:setParameter(CONDITION_PARAM_INCREASE_FIREPERCENT, 4)
-	end)
+	return Stance.condition(AttrSubId_StanceMasterOfFlames, function(condition) end)
 end
 
 local spell = Spell("instant")
@@ -28,7 +27,7 @@ spell:name("Master of Flames")
 spell:words("uteta flam")
 spell:group("support", "focus")
 spell:vocation("sorcerer;true", "master sorcerer;true")
--- Not the official client id; see divine_defiance.lua.
+-- Canary-internal spell id, NOT the official CipSoft id; see divine_defiance.lua.
 spell:id(309)
 spell:cooldown(2 * 1000)
 spell:groupCooldown(2 * 1000, 2 * 1000)

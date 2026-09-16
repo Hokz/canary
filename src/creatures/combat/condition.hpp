@@ -206,6 +206,7 @@ private:
 	int32_t dodgeRanged = 0;
 	std::array<int32_t, COMBAT_COUNT> elementCriticalChance = {};
 	std::array<int32_t, COMBAT_COUNT> elementCriticalDamage = {};
+	int32_t elementalPierceReceived = 0;
 
 	bool disableDefense = false;
 

@@ -88,6 +88,12 @@ freeDepotLimit = 2000
 premiumDepotLimit = 10000
 depotBoxes = 20
 
+-- wandManaGenerationPercent: 15.25 vocation balancing made wands and rods generate mana on each
+-- hit instead of consuming it. The amount CipSoft uses is NOT publicly documented, so it is a
+-- setting rather than a constant: each hit gives this percent of the mana the wand used to cost.
+-- 100 = the old cost, 0 = neither generate nor consume. Change it when the real value is known.
+wandManaGenerationPercent = 100
+
 -- Item and containers limit
 -- NOTE: 'maxContainerDepth' defines the maximum depth to which containers can be nested
 -- NOTE: 'maxInboxItems' defines the maximum items allowed in inbox, set to 0 for limit it to uint32_t max limit (4.294.967.295)

@@ -8446,6 +8446,14 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 			return true;
 		}
 
+		// Shield Bash / Shield Slam: the attacker's next auto attack deals less. This
+		// is the first point every damage source passes with its origin set, so it is
+		// where "next auto attack" is decided - consumeNextAutoAttackDebuff only acts
+		// on melee, ranged and fist origins and leaves spells and runes alone.
+		if (attacker) {
+			attacker->consumeNextAutoAttackDebuff(damage);
+		}
+
 		const auto &attackerPlayer = attacker ? attacker->getPlayer() : nullptr;
 
 		const auto &targetPlayer = target->getPlayer();
@@ -8713,28 +8721,29 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 			applyPvPDamage(damage, attackerPlayer, targetPlayer);
 		}
 
-		// Mana Buffer (15.25): Sorcerers and Druids may spend mana to survive a hit that
-		// would otherwise kill them. The part of the damage past what they can take
-		// costs eight times its value in mana, and the buffer also burns 25% of max
-		// mana - that extra at most once every two seconds. Not enough mana for the
-		// whole bill means no buffer at all; the hit lands as it would have.
+		// Mana Buffer (15.25, July balance values): a lethal-hit rescue for Sorcerers
+		// and Druids, not a mana shield - ordinary damage is never moved to mana. When
+		// a hit would kill, the player is left at 1 hit point and pays for it in mana:
 		//
-		// "Past what they can take" is read as everything beyond leaving them at 1
-		// hit point: a buffer that let the killing blow through would not "reduce
-		// instant deaths", which is what the update says it is for.
+		//   overkill conversion   (damage - health) x 10
+		//   activation penalty    25% of max mana, charged at most once per 2 seconds
+		//
+		// An exactly lethal hit has overkill 0 and still costs the penalty. Not enough
+		// mana for the whole bill means no rescue; the hit lands and the player dies.
+		// The release build used x8; x10 is the later balance value.
 		if (targetPlayer && attacker != target && damage.primary.type != COMBAT_AGONYDAMAGE) {
 			const auto vocation = targetPlayer->getPlayerVocationEnum();
 			const int32_t total = damage.primary.value + damage.secondary.value;
 			const int32_t health = target->getHealth();
 			if ((vocation == VOCATION_SORCERER_CIP || vocation == VOCATION_DRUID_CIP) && total >= health && health > 0) {
 				const int32_t survivable = health - 1;
-				const int32_t excess = total - survivable;
-				int64_t manaCost = static_cast<int64_t>(excess) * 8;
+				const int64_t overkill = static_cast<int64_t>(total) - health;
+				int64_t manaCost = overkill * 10;
 				const bool burst = OTSYS_TIME() - targetPlayer->getLastManaBufferBurst() >= 2000;
 				if (burst) {
 					manaCost += static_cast<int64_t>(targetPlayer->getMaxMana()) * 25 / 100;
 				}
-				if (manaCost > 0 && targetPlayer->getMana() >= manaCost) {
+				if (manaCost >= 0 && static_cast<int64_t>(targetPlayer->getMana()) >= manaCost) {
 					if (burst) {
 						targetPlayer->setLastManaBufferBurst(OTSYS_TIME());
 					}
@@ -8798,7 +8807,9 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 
 		if (attackerPlayer) {
 			if (!damage.extension && damage.origin != ORIGIN_CONDITION) {
-				applyCharmRune(targetMonster, attackerPlayer, target, realDamage);
+				if (!damage.noCharm) {
+					applyCharmRune(targetMonster, attackerPlayer, target, realDamage);
+				}
 				applyLifeLeech(attackerPlayer, targetMonster, target, damage, realDamage);
 				applyManaLeech(attackerPlayer, targetMonster, target, damage, realDamage);
 			}

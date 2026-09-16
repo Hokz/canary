@@ -48,6 +48,8 @@ private:
 	static int luaCreatureReload(lua_State* L);
 
 	static int luaCreatureGetMaster(lua_State* L);
+	static int luaCreatureSetNextAutoAttackDebuff(lua_State* L);
+	static int luaCreatureHasNextAutoAttackDebuff(lua_State* L);
 	static int luaCreatureSetMaster(lua_State* L);
 
 	static int luaCreatureGetLight(lua_State* L);

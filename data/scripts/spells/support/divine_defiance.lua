@@ -30,8 +30,8 @@ spell:name("Divine Defiance")
 spell:words("utori hur")
 spell:group("support", "focus")
 spell:vocation("paladin;true", "royal paladin;true")
--- Not the official client id: the 15.25 spell id table was not available, so this
--- is the next free id in the datapack. Replace when the official one is known.
+-- Canary-internal spell id, NOT the official CipSoft id: the 15.25 spell id table was
+-- not available. The next free id in this datapack; replace when the official one is proven.
 spell:id(298)
 spell:cooldown(2 * 1000)
 spell:groupCooldown(2 * 1000, 2 * 1000)

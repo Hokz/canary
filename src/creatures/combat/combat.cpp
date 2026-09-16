@@ -53,6 +53,7 @@ CombatDamage Combat::getCombatDamage(const std::shared_ptr<Creature> &creature, 
 	CombatDamage damage;
 	damage.origin = params.origin;
 	damage.primary.type = params.combatType;
+	damage.noCharm = params.noCharm;
 
 	// If the caster is a player and their vocation is "Monk" (CipSoft style),
 	// and the spell isn't a healing spell, try applying the elementalBond from the equipped weapon if it exists and is valid.
@@ -74,9 +75,16 @@ CombatDamage Combat::getCombatDamage(const std::shared_ptr<Creature> &creature, 
 	// Master of Flames / Thunder / Decay (15.25): after casting a spell of the
 	// stance's element, the next spell of a different element is converted to it.
 	// The stance is the condition itself - holding the subId is the whole flag - and
-	// the armed element lives on the player. Healing is never converted, and only
-	// spells and runes take part; auto attacks are not spells.
-	if (casterPlayer && (!instantSpellName.empty() || !runeSpellName.empty()) && damage.primary.type != COMBAT_HEALING) {
+	// the armed element lives on the player. Healing is never converted. Only instant
+	// spells take part: the mechanic is described for spells, and neither runes nor
+	// auto attacks are shown to join it, so they do not until that is proven.
+	//
+	// naturalType is the element the spell has before any conversion. The stance's
+	// own bonus (below) is decided on that, so a converted spell is not treated as a
+	// fire spell just because it now deals fire.
+	const CombatType_t naturalType = damage.primary.type;
+	CombatType_t elementalStanceOf = COMBAT_NONE;
+	if (casterPlayer && !instantSpellName.empty() && damage.primary.type != COMBAT_HEALING) {
 		static constexpr std::array<std::pair<AttrSubId_t, CombatType_t>, 3> elementalStances = { {
 			{ AttrSubId_t::StanceMasterOfFlames, COMBAT_FIREDAMAGE },
 			{ AttrSubId_t::StanceMasterOfThunder, COMBAT_ENERGYDAMAGE },
@@ -91,6 +99,7 @@ CombatDamage Combat::getCombatDamage(const std::shared_ptr<Creature> &creature, 
 			}
 		}
 
+		elementalStanceOf = stanceElement;
 		if (stanceElement == COMBAT_NONE) {
 			casterPlayer->setPendingElementalConversion(COMBAT_NONE);
 		} else if (damage.primary.type == stanceElement) {
@@ -153,6 +162,16 @@ CombatDamage Combat::getCombatDamage(const std::shared_ptr<Creature> &creature, 
 			wheelSpell->getCombatDataAugment(casterPlayer, damage);
 			casterPlayer->weaponProficiency().applySpellAugment(damage, wheelSpell->getSpellId());
 		}
+	}
+
+	// Master of Flames: +4% base power on fire SPELLS. Decided on the spell's natural
+	// element and only for instant spells, so fire runes, wand hits, and a spell that
+	// became fire through conversion get nothing from it. Thunder and Decay grant
+	// critical bonuses instead and are applied where criticals are rolled. The Wheel's
+	// Lord of Destruction raises this percentage on the official servers; that perk
+	// does not exist in this engine's wheel data yet, so the base 4% is all there is.
+	if (casterPlayer && elementalStanceOf == COMBAT_FIREDAMAGE && naturalType == COMBAT_FIREDAMAGE && !instantSpellName.empty()) {
+		damage.primary.value = static_cast<int32_t>(static_cast<int64_t>(damage.primary.value) * 104 / 100);
 	}
 
 	return damage;
@@ -572,6 +591,11 @@ bool Combat::setParam(CombatParam_t param, uint32_t value) {
 
 		case COMBAT_PARAM_CHAIN_EFFECT: {
 			params.chainEffect = static_cast<uint16_t>(value);
+			return true;
+		}
+
+		case COMBAT_PARAM_NOCHARM: {
+			params.noCharm = value != 0;
 			return true;
 		}
 	}

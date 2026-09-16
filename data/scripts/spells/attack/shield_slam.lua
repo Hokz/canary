@@ -1,9 +1,8 @@
 -- Shield Slam (15.25.3a4a52). Knight, level 30, 110 mana, 6s cooldown.
 --
 -- Shield Bash's area sibling: hits every adjacent enemy, base power 52, damage from
--- the shield's defence, and the same 10-second weakening on each target. See
--- shield_bash.lua for how the shield is read and why the debuff is broader than the
--- official "next auto attack".
+-- the shield's defence, and the same next-auto-attack weakening on each target,
+-- each creature carrying its own. See shield_bash.lua for how the shield is read.
 local SPELL_BASE_POWER = 52
 
 local function shieldDefense(player)
@@ -16,16 +15,35 @@ local function shieldDefense(player)
 	return 0
 end
 
-local weaken = Condition(CONDITION_ATTRIBUTES)
-weaken:setParameter(CONDITION_PARAM_TICKS, 10 * 1000)
-weaken:setParameter(CONDITION_PARAM_BUFF_DAMAGEDEALT, 50)
+-- The hit weakens the target's NEXT auto attack by 50% for up to 10 seconds. That
+-- is a consumable, per-creature status in the engine (setNextAutoAttackDebuff):
+-- the first melee, ranged or fist attack the creature makes is reduced and the
+-- status is spent; spells and runes it casts are untouched; ten seconds with no
+-- auto attack and it expires. Shield Slam's Augment II deepens the reduction to
+-- 75% - read through the Wheel grade, which is NONE until the Wheel data carries
+-- this spell.
+local function weakenNextAutoAttack(creature, target)
+	if not target or target:isPlayer() then
+		return true
+	end
+	local percent = 50
+	if creature:isPlayer() and creature:upgradeSpellsWOD("Shield Slam") == WHEEL_GRADE_UPGRADED then
+		percent = 75
+	end
+	target:setNextAutoAttackDebuff(percent, 10 * 1000)
+	return true
+end
+
+function onTargetCreature(creature, target)
+	return weakenNextAutoAttack(creature, target)
+end
 
 local combat = Combat()
 combat:setParameter(COMBAT_PARAM_TYPE, COMBAT_PHYSICALDAMAGE)
 combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_BLOW_WHITE)
 combat:setParameter(COMBAT_PARAM_BLOCKARMOR, 1)
 combat:setArea(createCombatArea(AREA_SQUARE1X1))
-combat:addCondition(weaken)
+combat:setCallback(CALLBACK_PARAM_TARGETCREATURE, "onTargetCreature")
 
 function onGetFormulaValues(player, skill, attack, factor)
 	local defense = shieldDefense(player)

@@ -25,7 +25,7 @@ spell:name("Shared Conservation")
 spell:words("utura sio")
 spell:group("support", "focus")
 spell:vocation("druid;true", "elder druid;true")
--- Not the official client id; see divine_defiance.lua.
+-- Canary-internal spell id, NOT the official CipSoft id; see divine_defiance.lua.
 spell:id(300)
 spell:cooldown(2 * 1000)
 spell:groupCooldown(2 * 1000, 2 * 1000)

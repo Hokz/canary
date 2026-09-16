@@ -346,11 +346,16 @@ void Weapon::onUsedWeapon(const std::shared_ptr<Player> &player, const std::shar
 	const uint32_t manaCost = getManaCost(player);
 	if (manaCost != 0) {
 		if (getWeaponType() == WEAPON_WAND) {
-			// 15.25: wands and rods generate mana instead of consuming it. The update
-			// gives no amount, so the mana they used to cost is what they now give -
-			// the one number the data already carries per wand. No mana is "spent",
-			// so nothing counts towards magic level.
-			player->changeMana(static_cast<int32_t>(manaCost));
+			// 15.25: wands and rods generate mana on each hit instead of consuming it.
+			// The amount is not publicly documented, so it is config
+			// (wandManaGenerationPercent), a percentage of the mana the wand used to
+			// cost - not a constant pretending to be the official value. No mana is
+			// "spent", so nothing counts towards magic level.
+			const auto percent = std::max<int32_t>(0, g_configManager().getNumber(WAND_MANA_GENERATION_PERCENT));
+			const auto generated = static_cast<int32_t>(static_cast<int64_t>(manaCost) * percent / 100);
+			if (generated > 0) {
+				player->changeMana(generated);
+			}
 		} else {
 			player->addManaSpent(manaCost);
 			player->changeMana(-static_cast<int32_t>(manaCost));

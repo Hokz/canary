@@ -28,7 +28,7 @@ spell:name("Master of Decay")
 spell:words("uteta mort")
 spell:group("support", "focus")
 spell:vocation("sorcerer;true", "master sorcerer;true")
--- Not the official client id; see divine_defiance.lua.
+-- Canary-internal spell id, NOT the official CipSoft id; see divine_defiance.lua.
 spell:id(311)
 spell:cooldown(2 * 1000)
 spell:groupCooldown(2 * 1000, 2 * 1000)

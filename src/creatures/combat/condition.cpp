@@ -718,6 +718,10 @@ void ConditionAttributes::addCondition(std::shared_ptr<Creature> creature, const
 		dodgeRanged = conditionAttrs->dodgeRanged;
 		elementCriticalChance = conditionAttrs->elementCriticalChance;
 		elementCriticalDamage = conditionAttrs->elementCriticalDamage;
+		elementalPierceReceived = conditionAttrs->elementalPierceReceived;
+		if (elementalPierceReceived != 0) {
+			creature->setVarElementalPierceReceived(elementalPierceReceived);
+		}
 
 		updatePercentBuffs(creature);
 		updateBuffs(creature);
@@ -843,6 +847,13 @@ bool ConditionAttributes::unserializeProp(ConditionAttr_t attr, PropStream &prop
 			values[index] = std::max<int32_t>(0, value);
 		}
 		return true;
+	} else if (attr == CONDITIONATTR_ELEMENTAL_PIERCE_RECEIVED) {
+		int32_t value;
+		if (!propStream.read<int32_t>(value)) {
+			return false;
+		}
+		elementalPierceReceived = std::clamp<int32_t>(value, 0, 100);
+		return true;
 	}
 	return Condition::unserializeProp(attr, propStream);
 }
@@ -939,6 +950,9 @@ void ConditionAttributes::serialize(PropWriteStream &propWriteStream) {
 		propWriteStream.write<uint8_t>(i);
 		propWriteStream.write<int32_t>(elementCriticalDamage[i]);
 	}
+
+	propWriteStream.write<uint8_t>(CONDITIONATTR_ELEMENTAL_PIERCE_RECEIVED);
+	propWriteStream.write<int32_t>(elementalPierceReceived);
 }
 
 ConditionAttributes::ConditionAttributes(ConditionId_t initId, ConditionType_t initType, int32_t initTicks, bool initBuff, uint32_t initSubId) :
@@ -958,6 +972,9 @@ bool ConditionAttributes::startCondition(std::shared_ptr<Creature> creature) {
 	updatePercentIncreases(creature);
 	updateIncreases(creature);
 	updateCharmChanceModifier(creature);
+	if (elementalPierceReceived != 0) {
+		creature->setVarElementalPierceReceived(elementalPierceReceived);
+	}
 	if (const auto &player = creature->getPlayer()) {
 		updatePercentSkills(player);
 		updateSkills(player);
@@ -1193,6 +1210,9 @@ void ConditionAttributes::endCondition(std::shared_ptr<Creature> creature) {
 			player->sendStats();
 			player->sendSkills();
 		}
+	}
+	if (elementalPierceReceived != 0) {
+		creature->setVarElementalPierceReceived(-elementalPierceReceived);
 	}
 	bool needUpdateIcons = false;
 	for (int32_t i = BUFF_FIRST; i <= BUFF_LAST; ++i) {
@@ -1439,6 +1459,11 @@ bool ConditionAttributes::setParam(ConditionParam_t param, int32_t value) {
 
 		case CONDITION_PARAM_ELEMENT_CRITICAL_DAMAGE_DEATH: {
 			elementCriticalDamage[combatTypeToIndex(COMBAT_DEATHDAMAGE)] = std::max<int32_t>(0, value);
+			return true;
+		}
+
+		case CONDITION_PARAM_ELEMENTAL_PIERCE_RECEIVED: {
+			elementalPierceReceived = std::clamp<int32_t>(value, 0, 100);
 			return true;
 		}
 
