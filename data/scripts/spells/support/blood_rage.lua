@@ -1,23 +1,23 @@
-local condition = Condition(CONDITION_ATTRIBUTES)
-condition:setParameter(CONDITION_PARAM_SUBID, AttrSubId_BloodRageProtector)
-condition:setParameter(CONDITION_PARAM_TICKS, 10000)
-condition:setParameter(CONDITION_PARAM_SKILL_MELEEPERCENT, 125) -- GLOBAL 2026: BLOOD_RAGE_NUMERIC_MATCH_ONLY (legacy architecture; stance rework pending)
-condition:setParameter(CONDITION_PARAM_BUFF_DAMAGERECEIVED, 115)
-condition:setParameter(CONDITION_PARAM_DISABLE_DEFENSE, true)
-condition:setParameter(CONDITION_PARAM_BUFF_SPELL, true)
-
-local combat = Combat()
-combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_MAGIC_GREEN)
-combat:setParameter(COMBAT_PARAM_AGGRESSIVE, 0)
-combat:addCondition(condition)
+-- Blood Rage is a stance as of 15.25: it stays on until recast or replaced by
+-- Protector, and it survives logout and death. See data/libs/systems/stance.lua.
+--
+-- Numbers from the 15.25.3a4a52 spell table: +25% melee skill, +15% damage taken,
+-- blocking disabled. The changelog section of the same update announced +30%; the
+-- spell table is the shipped value and that is what is used here.
+local function build()
+	return Stance.condition(AttrSubId_StanceBloodRage, function(condition)
+		-- MELEEPERCENT covers fist, axe, club and sword in one parameter, which is
+		-- exactly the set the update names.
+		condition:setParameter(CONDITION_PARAM_SKILL_MELEEPERCENT, 125)
+		condition:setParameter(CONDITION_PARAM_BUFF_DAMAGERECEIVED, 115)
+		condition:setParameter(CONDITION_PARAM_DISABLE_DEFENSE, true)
+	end)
+end
 
 local spell = Spell("instant")
 
 function spell.onCastSpell(creature, var)
-	if creature:getCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, AttrSubId_BloodRageProtector) then
-		creature:removeCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, AttrSubId_BloodRageProtector)
-	end
-	return combat:execute(creature, var)
+	return Stance.cast(creature, AttrSubId_StanceBloodRage, Stance.Family.General, build)
 end
 
 spell:name("Blood Rage")
@@ -28,8 +28,8 @@ spell:castSound(SOUND_EFFECT_TYPE_SPELL_BLOOD_RAGE)
 spell:id(133)
 spell:cooldown(2 * 1000)
 spell:groupCooldown(2 * 1000, 2 * 1000)
-spell:level(60)
-spell:mana(290)
+spell:level(20)
+spell:mana(20)
 spell:isSelfTarget(true)
 spell:isAggressive(false)
 spell:isPremium(true)

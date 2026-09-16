@@ -775,6 +775,26 @@ enum class AttrSubId_t {
 	MentorOther,
 	Sanctuary,
 	VirtueOfJustice,
+
+	// Stances (15.25 vocation balancing). One subId per stance, grouped into families
+	// by data/libs/systems/stance.lua: activating one clears the others in its family,
+	// and recasting the one you hold turns it off. A stance needs its own subId rather
+	// than a shared per-family one because the condition carries no other identity -
+	// without it the engine could not tell "switch stance" from "turn this one off".
+	//
+	// Appended at the end on purpose: these values are serialised into the player's
+	// saved conditions blob, so inserting anywhere above would repoint existing ones.
+	StanceBloodRage,
+	StanceProtector,
+	StanceSharpshooter,
+	StanceDivineDefiance,
+	StanceSharedConservation,
+	StanceElementalSynthesis,
+	StanceMasterOfFlames,
+	StanceMasterOfThunder,
+	StanceMasterOfDecay,
+	StanceSappedStrength,
+	StanceExposedWeakness,
 };
 
 enum Concoction_t : uint16_t {
