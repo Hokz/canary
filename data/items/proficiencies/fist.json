@@ -1,0 +1,2677 @@
+{
+  "$schema": "./proficiencies.schema.json",
+  "Category": "Fist",
+  "Proficiencies": [
+    {
+      "ProficiencyId": 14,
+      "Name": "Sanguine 2H Fist",
+      "Weapon": [
+        "sanguine claws"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 294,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 294,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 294,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 294,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 294,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 24,
+      "Name": "Grand Sanguine 2H Fist",
+      "Weapon": [
+        "grand sanguine claws"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 294,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 294,
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 294,
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 294,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 294,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 33,
+      "Name": "Soul 2H Fist",
+      "Weapon": [
+        "soulkamas"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 288,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 21,
+              "BestiaryName": "Inkborn",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 288,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 288,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 288,
+              "Value": 0.035,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.075,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 288,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 43,
+      "Name": "Amber 2H Fist",
+      "Weapon": [
+        "amber kusarigama"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 293,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 293,
+              "Value": 0.35,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 293,
+              "Value": -4.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 293,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 293,
+              "Value": 0.35,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 293,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 293,
+              "Value": -8.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 293,
+              "Value": 0.35,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 53,
+      "Name": "Inferniarch 2H Fist",
+      "Weapon": [
+        "inferniarch claws"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 289,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 289,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 289,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 63,
+      "Name": "Rending Inferniarch 2H Fist",
+      "Weapon": [
+        "rending inferniarch claws"
+      ],
+      "Version": 8,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.48,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 289,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 289,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 289,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 73,
+      "Name": "Draining Inferniarch 2H Fist",
+      "Weapon": [
+        "draining inferniarch claws"
+      ],
+      "Version": 8,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 289,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 289,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 289,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 83,
+      "Name": "Siphoning Inferniarch 2H Fist",
+      "Weapon": [
+        "siphoning inferniarch claws"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 289,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 289,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 289,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 90,
+      "Name": "Eldritch 2H Fist",
+      "Weapon": [
+        "eldritch crescent moon spade"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.125,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 97,
+      "Name": "Gilded Eldritch 2H Fist",
+      "Weapon": [
+        "gilded eldritch crescent moon spade"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.3,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.125,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 107,
+      "Name": "Crude Umbral 2H Fist",
+      "Weapon": [
+        "crude umbral katar"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 115,
+      "Name": "Umbral 2H Fist",
+      "Weapon": [
+        "umbral katar"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.12,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 123,
+      "Name": "Master Umbral 2H Fist",
+      "Weapon": [
+        "umbral master katar"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.16,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 40,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 137,
+      "Name": "Cobra 2H Fist",
+      "Weapon": [
+        "cobra bo"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 287,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 287,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 287,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 14,
+              "BestiaryName": "Mammal",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 142,
+      "Name": "Lion 2H Fist",
+      "Weapon": [
+        "lion claws"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.13,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.06,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 287,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 287,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 287,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 147,
+      "Name": "Falcon 2H Fist",
+      "Weapon": [
+        "falcon sai"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.15,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 287,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 287,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 287,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 3,
+              "BestiaryName": "Bird",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 213,
+      "Name": "Destruction 2H Fist",
+      "Weapon": [
+        "nunchaku of destruction"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.035,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 229,
+      "Name": "Generic 2H Fist Class 1",
+      "Weapon": [
+        "jo staff",
+        "light jo staff",
+        "nunchaku",
+        "pair of iron fists",
+        "pair of monk fists",
+        "sai",
+        "simple jo staff",
+        "staff",
+        "traditional sai"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 257,
+      "Name": "Naga 2H Fist",
+      "Weapon": [
+        "naga katar"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 30,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.12,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 16,
+              "BestiaryName": "Reptile",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.12,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 397,
+      "Name": "Fist 2H Sai Of Enlightenment",
+      "Weapon": [
+        "sai of enlightenment"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 292,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 6,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 292,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 398,
+      "Name": "Fist 2H Nunchaku Of Enlightenment",
+      "Weapon": [
+        "nunchaku of enlightenment"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 292,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 6,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 292,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 399,
+      "Name": "Fist 2H Fists Of Enlightenment",
+      "Weapon": [
+        "fists of enlightenment"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 292,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 6,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 292,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 400,
+      "Name": "Fist 2H Drachaku",
+      "Weapon": [
+        "drachaku"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 6,
+              "BestiaryName": "Dragon",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 401,
+      "Name": "Fist 2H Depth Claws",
+      "Weapon": [
+        "depth claws"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 290,
+              "Value": 0.25,
+              "Unit": "percent"
+            },
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 290,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 290,
+              "Value": 0.14,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 402,
+      "Name": "Jungle 2H Fist",
+      "Weapon": [
+        "bambus jo"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 19,
+              "BestiaryName": "Vermin",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.035,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 460,
+      "Name": "Crypt 2H Fist",
+      "Weapon": [
+        "crypt strike"
+      ],
+      "Version": 13,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 287,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 28,
+              "TypeName": "ALPHA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 287,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 1,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 28,
+              "TypeName": "ALPHA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 29,
+              "TypeName": "OMEGA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.7,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 1,
+              "Value": 0.12,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

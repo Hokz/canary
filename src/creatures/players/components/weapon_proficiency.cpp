@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 #include <limits>
 
 // Player.hpp already includes the weapon
@@ -216,33 +217,73 @@ bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 	}
 
 	auto coreFolder = g_configManager().getString(CORE_DIRECTORY);
-	auto folder = fmt::format("{}/items/proficiencies.json", coreFolder);
-	std::ifstream file(folder);
-	if (!file.is_open()) {
-		throw FailedToInitializeCanary(fmt::format("{} - Unable to open file '{}'", __FUNCTION__, folder));
+	auto folder = fmt::format("{}/items/proficiencies", coreFolder);
+	if (!std::filesystem::is_directory(folder)) {
+		throw FailedToInitializeCanary(fmt::format("{} - Unable to open folder '{}'", __FUNCTION__, folder));
 	}
 
-	nlohmann::json proficienciesJson;
-	try {
-		file >> proficienciesJson;
-	} catch (const nlohmann::json::parse_error &e) {
-		throw FailedToInitializeCanary(fmt::format("{} - JSON parsing error in file '{}': {}", __FUNCTION__, folder, e.what()));
-	}
-
-	try {
-		for (const auto &proficiencyJson : proficienciesJson) {
-			Proficiency proficiency;
-			proficiency.id = proficiencyJson["ProficiencyId"].get<uint16_t>();
-
-			registerLevels(proficiencyJson["Levels"], proficiency);
-
-			proficiencies[proficiency.id] = std::move(proficiency);
+	// One file per weapon category, so a balance change only touches the weapons
+	// it is about. A proficiency shared by two categories is written in full into
+	// both files. The first file to define an id wins; the check below is a cheap
+	// guard that only catches a differing level count, so
+	// `python -m tools.proficiency_split validate` remains the thorough check.
+	std::vector<std::filesystem::path> files;
+	for (const auto &entry : std::filesystem::directory_iterator(folder)) {
+		const auto &path = entry.path();
+		if (entry.is_regular_file() && path.extension() == ".json" && path.filename() != "proficiencies.schema.json" && !path.filename().string().starts_with('_')) {
+			files.emplace_back(path);
 		}
-	} catch (const nlohmann::json::exception &e) {
-		throw FailedToInitializeCanary(fmt::format("{} - JSON exception in file '{}': {}", __FUNCTION__, folder, e.what()));
+	}
+	// directory_iterator has no defined order; sort so any load-order-dependent
+	// behaviour is at least reproducible across machines.
+	std::ranges::sort(files);
+
+	if (files.empty()) {
+		throw FailedToInitializeCanary(fmt::format("{} - No proficiency files found in '{}'", __FUNCTION__, folder));
 	}
 
-	g_logger().info("Weapon proficiencies loaded!");
+	std::unordered_map<uint16_t, std::string> idOrigin;
+	for (const auto &path : files) {
+		const auto fileName = path.string();
+		std::ifstream file(fileName);
+		if (!file.is_open()) {
+			throw FailedToInitializeCanary(fmt::format("{} - Unable to open file '{}'", __FUNCTION__, fileName));
+		}
+
+		nlohmann::json categoryJson;
+		try {
+			file >> categoryJson;
+		} catch (const nlohmann::json::parse_error &e) {
+			throw FailedToInitializeCanary(fmt::format("{} - JSON parsing error in file '{}': {}", __FUNCTION__, fileName, e.what()));
+		}
+
+		try {
+			for (const auto &proficiencyJson : categoryJson.at("Proficiencies")) {
+				Proficiency proficiency;
+				proficiency.id = proficiencyJson["ProficiencyId"].get<uint16_t>();
+
+				registerLevels(proficiencyJson["Levels"], proficiency);
+
+				if (const auto it = idOrigin.find(proficiency.id); it != idOrigin.end()) {
+					const auto &existing = proficiencies[proficiency.id];
+					if (existing.maxLevel != proficiency.maxLevel) {
+						throw FailedToInitializeCanary(fmt::format(
+							"{} - Proficiency {} is defined differently in '{}' and '{}'. Shared proficiencies must be identical in every file; run 'python -m tools.proficiency_split validate'",
+							__FUNCTION__, proficiency.id, it->second, fileName
+						));
+					}
+					continue;
+				}
+
+				idOrigin.emplace(proficiency.id, fileName);
+				proficiencies[proficiency.id] = std::move(proficiency);
+			}
+		} catch (const nlohmann::json::exception &e) {
+			throw FailedToInitializeCanary(fmt::format("{} - JSON exception in file '{}': {}", __FUNCTION__, fileName, e.what()));
+		}
+	}
+
+	g_logger().info("Weapon proficiencies loaded! ({} proficiencies from {} files)", proficiencies.size(), files.size());
 
 	return true;
 }

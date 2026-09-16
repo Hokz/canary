@@ -528,7 +528,7 @@ void CanaryServer::loadModules() {
 	};
 
 	auto coreFolder = g_configManager().getString(CORE_DIRECTORY);
-	timedLoad("proficiencies.json", [] {
+	timedLoad("items/proficiencies", [] {
 		return WeaponProficiency::loadFromJson();
 	});
 	// Load appearances.dat first

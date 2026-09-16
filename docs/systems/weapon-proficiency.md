@@ -15,7 +15,7 @@ This guide is focused on Canary server behavior.
 Main additions in this PR:
 
 - Weapon Proficiency system (experience, perk selection, mastery, combat effects, persistence)
-- New proficiency data file: `data/items/proficiencies.json`
+- New proficiency data files: `data/items/proficiencies/` (one per weapon category)
 - New proficiency metadata in assets protobuf (`proficiency_id` in appearances)
 - Optional weapon proficiency override in `items.xml` using `<attribute key="proficiency" value="..."/>`
 - New catalyst items and helper scripts for adding weapon proficiency XP
@@ -28,7 +28,7 @@ Main implementation files:
 - `src/creatures/players/components/weapon_proficiency.hpp`
 - `src/creatures/players/components/weapon_proficiency.cpp`
 - `src/enums/weapon_proficiency.hpp`
-- `data/items/proficiencies.json`
+- `data/items/proficiencies/` (+ `tools/proficiency_split.py`)
 - `src/items/items.cpp` (protobuf proficiency load)
 - `src/items/functions/item/item_parse.cpp` (XML proficiency override)
 - `src/server/network/protocol/protocolgame.cpp` (window/update packets)
@@ -66,7 +66,7 @@ Validation:
 
 ### Startup
 
-1. Server loads `data/items/proficiencies.json`
+1. Server loads every `*.json` under `data/items/proficiencies/` (skipping the schema and `_`-prefixed files)
 2. Server loads `appearances.dat` and assigns protobuf `proficiency_id` to item types
 3. Server loads `items.xml`, optionally overriding per item with `key="proficiency"`
 
@@ -92,31 +92,73 @@ Validation:
   - bestiary stars
 - Perk effects are applied in combat pipeline (crit, elemental crit, bestiary bonus, powerful foe bonus, life/mana gains, skill percentage bonuses, etc.)
 
-## 5. Editing `data/items/proficiencies.json`
+## 5. Editing `data/items/proficiencies/`
 
-Each entry represents one proficiency profile:
+Proficiencies are split into one file per weapon category — `sword.json`,
+`axe.json`, `club.json`, `bow.json`, `crossbow.json`, `wand.json`, `rod.json`,
+`fist.json`, `throwing.json` — so a balance pass only opens the file for the
+weapons it is about. `_orphaned.json` holds ids no item references (kept for
+reference, not loaded).
 
-- `ProficiencyId` (server-required)
-- `Levels` (server-required array)
+Each file is an object with `Category` and a `Proficiencies` array. Each entry:
+
+- `ProficiencyId` (server-required) — the only real link to a weapon
+- `Levels` (server-required array; the server uses array order, not the `Level` field)
 - `Levels[].Perks` (array of selectable perks at that level)
-- `Name` and `Version` (metadata kept in the JSON, not used by server logic)
+- `Name`, `Weapon`, `Version`, `Level`, `TypeName`, `SkillName`, `AugmentName`,
+  `Unit` — documentation only, ignored by the server, kept honest by the validator
 
 Basic example:
 
 ```json
 {
-  "ProficiencyId": 999,
-  "Name": "Custom Test Profile",
-  "Version": 1,
-  "Levels": [
+  "$schema": "./proficiencies.schema.json",
+  "Category": "Sword",
+  "Proficiencies": [
     {
-      "Perks": [
-        { "Type": 0, "Value": 1.0 }
+      "ProficiencyId": 999,
+      "Name": "Custom Test Profile",
+      "Weapon": ["test blade"],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            { "Type": 0, "TypeName": "ATTACK_DAMAGE", "Value": 1, "Unit": "flat" }
+          ]
+        }
       ]
     }
   ]
 }
 ```
+
+### Before committing a balance change
+
+```
+python -m tools.proficiency_split validate
+```
+
+It checks that every label matches the number it describes, that `SkillId` is a
+valid `CipbiaSkills_t` (an invalid one makes the server drop the perk silently),
+that `Unit` matches the type, and that any proficiency present in two category
+files is identical in both.
+
+### Units
+
+`Unit` tells you how `Value` is read, which is the easiest thing to get wrong:
+
+- `flat` — absolute amount (skill points, mana/life restored, perfect-shot damage, tiles of range)
+- `percent` — a fraction, so `0.10` is 10%. Writing `10` means 1000%.
+- `milliseconds` — only `SPELL_AUGMENT` with `AugmentType: 6` (cooldown), always negative
+
+### A proficiency used by two categories
+
+A few ids are shared by weapons of different categories (for example the
+Inferniarch bow and arbalest, or the replica wands and rods). Those entries are
+written in full into both files so each file stands alone. The server keeps the
+first file it reads and ignores the rest, so **the copies must stay identical** —
+edit both, and let the validator confirm it.
 
 Common perk fields:
 
@@ -132,7 +174,7 @@ Common perk fields:
   - `BestiaryName`
   - `Range`
 
-If protobuf references a proficiency ID that does not exist in this file, the protobuf value is ignored. If an XML override references an unknown or invalid proficiency ID, only that override is ignored; any previously loaded valid protobuf value remains active.
+If protobuf references a proficiency ID that does not exist in these files, the protobuf value is ignored. If an XML override references an unknown or invalid proficiency ID, only that override is ignored; any previously loaded valid protobuf value remains active.
 
 ## 6. Proficiency bonus type IDs (`Type`)
 
@@ -178,7 +220,7 @@ Current options:
 Behavior:
 
 - `weaponProficiencyMaxLevels`:
-  - hard cap while loading levels from `proficiencies.json`
+  - hard cap while loading levels from the proficiency files
   - extra levels in JSON are ignored
 - `weaponProficiencyMaxPerksPerLevel`:
   - hard cap while loading perks in each level
@@ -275,7 +317,7 @@ Example for forcing a specific proficiency ID on one item:
 
 Requirements:
 
-- `value` must be a valid `ProficiencyId` in `data/items/proficiencies.json`
+- `value` must be a valid `ProficiencyId` in `data/items/proficiencies/`
 - server restart/reload needed
 
 ## 12. Testing checklist
@@ -297,7 +339,7 @@ Use this quick validation flow after changes:
 Check all of the following:
 
 - weapon actually has a non-zero resolved `proficiencyId`
-- ID exists in server `data/items/proficiencies.json`
+- ID exists in server `data/items/proficiencies/`
 - client assets were also updated/deployed
 - server and client were restarted (and client cache refreshed if applicable)
 - you are testing with protocol 15.11 path (old protocol path does not process these packets)

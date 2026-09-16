@@ -1,0 +1,7680 @@
+{
+  "$schema": "./proficiencies.schema.json",
+  "Category": "Club",
+  "Proficiencies": [
+    {
+      "ProficiencyId": 9,
+      "Name": "Sanguine 1H Club",
+      "Weapon": [
+        "sanguine cudgel"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 105,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 105,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 10.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 12,
+      "Name": "Sanguine 2H Club",
+      "Weapon": [
+        "sanguine bludgeon"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 105,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 105,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 105,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 105,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 10.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 18,
+      "Name": "Grand Sanguine 1H Club",
+      "Weapon": [
+        "grand sanguine cudgel"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 105,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 105,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 10.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 21,
+      "Name": "Grand Sanguine 2H Club",
+      "Weapon": [
+        "grand sanguine bludgeon"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 105,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 105,
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 105,
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 105,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 105,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 10.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 28,
+      "Name": "Soul 1H Club",
+      "Weapon": [
+        "soulcrusher"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 21,
+              "BestiaryName": "Inkborn",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 261,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 261,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 261,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.075,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 261,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 31,
+      "Name": "Soul 2H Club",
+      "Weapon": [
+        "soulmaimer"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 261,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 21,
+              "BestiaryName": "Inkborn",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 261,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 261,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 261,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.075,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 261,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 39,
+      "Name": "Amber 1H Club",
+      "Weapon": [
+        "amber cudgel"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 62,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 62,
+              "Value": -6.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 62,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 62,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 62,
+              "Value": -8.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 40,
+      "Name": "Amber 2H Club",
+      "Weapon": [
+        "amber bludgeon"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 62,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 62,
+              "Value": -6.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 62,
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 62,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 62,
+              "Value": -8.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 62,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 47,
+      "Name": "Inferniarch 1H Club",
+      "Weapon": [
+        "inferniarch flail"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 50,
+      "Name": "Inferniarch 2H Club",
+      "Weapon": [
+        "inferniarch warhammer"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 57,
+      "Name": "Rending Inferniarch 2H Club",
+      "Weapon": [
+        "rending inferniarch warhammer"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.48,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 60,
+      "Name": "Rending Inferniarch 1H Club",
+      "Weapon": [
+        "rending inferniarch flail"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.48,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 67,
+      "Name": "Draining Inferniarch 2H Club",
+      "Weapon": [
+        "draining inferniarch warhammer"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 80,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 70,
+      "Name": "Draining Inferniarch 1H Club",
+      "Weapon": [
+        "draining inferniarch flail"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 80,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 77,
+      "Name": "Siphoning Inferniarch 2H Club",
+      "Weapon": [
+        "siphoning inferniarch warhammer"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 80,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 80,
+      "Name": "Siphoning Inferniarch 1H Club",
+      "Weapon": [
+        "siphoning inferniarch flail"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 80,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 80,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 87,
+      "Name": "Eldritch 2H Club",
+      "Weapon": [
+        "eldritch warmace"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.75,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.5,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 106,
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 106,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 94,
+      "Name": "Gilded Eldritch 2H Club",
+      "Weapon": [
+        "gilded eldritch warmace"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.3,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.5,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 106,
+              "Value": 0.12,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 106,
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 101,
+      "Name": "Crude Umbral 1H Club",
+      "Weapon": [
+        "crude umbral mace"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 104,
+      "Name": "Crude Umbral 2H Club",
+      "Weapon": [
+        "crude umbral hammer"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 109,
+      "Name": "Umbral 1H Club",
+      "Weapon": [
+        "umbral mace"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.12,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 112,
+      "Name": "Umbral 2H Club",
+      "Weapon": [
+        "umbral hammer"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.12,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 117,
+      "Name": "Master Umbral 1H Club",
+      "Weapon": [
+        "umbral master mace"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 40,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 120,
+      "Name": "Master Umbral 2H Club",
+      "Weapon": [
+        "umbral master hammer"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.16,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 40,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 134,
+      "Name": "Cobra 1H Club",
+      "Weapon": [
+        "cobra club"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 59,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 16,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 59,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 59,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 14,
+              "BestiaryName": "Mammal",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 139,
+      "Name": "Lion 1H Club",
+      "Weapon": [
+        "lion hammer"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 59,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 59,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 59,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 144,
+      "Name": "Falcon 1H Club",
+      "Weapon": [
+        "falcon mace"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 59,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 59,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 59,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 3,
+              "BestiaryName": "Bird",
+              "Value": 0.06,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.28,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 164,
+      "Name": "Replica Carving Club",
+      "Weapon": [
+        "ornate carving hammer",
+        "ornate carving mace",
+        "plain carving hammer",
+        "plain carving mace",
+        "valuable carving hammer",
+        "valuable carving mace"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 271,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 271,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 271,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 271,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 179,
+      "Name": "Replica Mayhem Club",
+      "Weapon": [
+        "ornate mayhem hammer",
+        "ornate mayhem mace",
+        "plain mayhem hammer",
+        "plain mayhem mace",
+        "valuable mayhem hammer",
+        "valuable mayhem mace"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 271,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 271,
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 271,
+              "Value": 0.3,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 271,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 194,
+      "Name": "Replica Remedy Club",
+      "Weapon": [
+        "ornate remedy hammer",
+        "ornate remedy mace",
+        "plain remedy hammer",
+        "plain remedy mace",
+        "valuable remedy hammer",
+        "valuable remedy mace"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 271,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 271,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 271,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 271,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 207,
+      "Name": "Destruction 2H Club",
+      "Weapon": [
+        "hammer of destruction"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.035,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 208,
+      "Name": "Destruction 1H Club",
+      "Weapon": [
+        "mace of destruction"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.035,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 226,
+      "Name": "Generic 2H Club Class 1",
+      "Weapon": [
+        "abyss hammer",
+        "bonebreaker",
+        "chaos mace",
+        "hammer of wrath",
+        "heavy mace",
+        "lunar staff",
+        "moohtant cudgel",
+        "ogre klubba",
+        "scythe",
+        "taurus mace",
+        "war hammer"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 227,
+      "Name": "Generic 1H Club Class 1",
+      "Weapon": [
+        "battle hammer",
+        "bone club",
+        "clerical mace",
+        "club",
+        "crystal mace",
+        "daramian mace",
+        "diamond sceptre",
+        "dragon hammer",
+        "dragonbone staff",
+        "furry club",
+        "iron hammer",
+        "jade hammer",
+        "mace",
+        "mammoth whopper",
+        "metal bat",
+        "morning star",
+        "onyx flail",
+        "sapphire hammer",
+        "shadow sceptre",
+        "skull staff",
+        "spiky club",
+        "studded club",
+        "swampling club"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 229,
+      "Name": "Generic 2H Fist Class 1",
+      "Weapon": [
+        "jo staff",
+        "light jo staff",
+        "nunchaku",
+        "pair of iron fists",
+        "pair of monk fists",
+        "sai",
+        "simple jo staff",
+        "staff",
+        "traditional sai"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 243,
+      "Name": "Club 1H Crowbar",
+      "Weapon": [
+        "crowbar"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 4,
+              "BestiaryName": "Construct",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 244,
+      "Name": "Club 1H Gluttons Mace",
+      "Weapon": [
+        "glutton's mace"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 61,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 61,
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 245,
+      "Name": "Club 1H Club Of The Fury",
+      "Weapon": [
+        "club of the fury"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 246,
+      "Name": "Club 1H Stale Bread Of Ancientness",
+      "Weapon": [
+        "stale bread of ancientness"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 247,
+      "Name": "Club 1H Gongs Mallet",
+      "Weapon": [
+        "strange mallet"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 4,
+              "BestiaryName": "Construct",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 248,
+      "Name": "Club 1H Banana Staff",
+      "Weapon": [
+        "banana staff"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 249,
+      "Name": "Club 1H Life Preserver",
+      "Weapon": [
+        "life preserver"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 3,
+              "AugmentName": "HEAL",
+              "SpellId": 123,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 250,
+      "Name": "Club 1H Giant Smithhammer",
+      "Weapon": [
+        "giant smithhammer"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.075,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 252,
+      "Name": "Naga 1H Club",
+      "Weapon": [
+        "naga club"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 30,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 16,
+              "BestiaryName": "Reptile",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.75,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 258,
+      "Name": "Club 1H lich staff",
+      "Weapon": [
+        "lich staff"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 4,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.5,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 266,
+              "Value": -3600.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 267,
+              "Value": -3600.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 265,
+              "Value": -3600.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 283,
+              "Value": -3600.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 264,
+              "Value": -3600.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 263,
+      "Name": "Jungle 2H Club",
+      "Weapon": [
+        "jungle flail"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 19,
+              "BestiaryName": "Vermin",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 107,
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 107,
+              "Value": 0.065,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 107,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 283,
+      "Name": "Generic 1H Club Class 2",
+      "Weapon": [
+        "mycological mace"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 294,
+      "Name": "Replica Earth Club",
+      "Weapon": [
+        "earth basher replica",
+        "earth cleric mace replica",
+        "earth crystal mace replica",
+        "earth orcish maul replica",
+        "earth war hammer replica"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 297,
+      "Name": "Replica Energy Club",
+      "Weapon": [
+        "energy basher replica",
+        "energy cleric mace replica",
+        "energy mace replica",
+        "energy orcish maul replica",
+        "energy war hammer replica"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 32,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 300,
+      "Name": "Replica Ice Club",
+      "Weapon": [
+        "icy clerical mace replica",
+        "icy cranial basher replica",
+        "icy crystal mace replica",
+        "icy orcish maul replica",
+        "icy war hammer replica"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 303,
+      "Name": "Replica Fire Club",
+      "Weapon": [
+        "fiery basher replica",
+        "fiery clerical mace replica",
+        "fiery crystal mace replica",
+        "fiery orcish maul replica",
+        "fiery war hammer replica"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 8,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 328,
+      "Name": "Club 2H Brutetamer's Staff",
+      "Weapon": [
+        "brutetamer's staff"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 329,
+      "Name": "Club 2H Spiked Squelcher",
+      "Weapon": [
+        "spiked squelcher"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 330,
+      "Name": "Club 2H Amber Staff",
+      "Weapon": [
+        "amber staff"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 332,
+      "Name": "Club 2H Deepling Staff",
+      "Weapon": [
+        "deepling staff"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.07,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 2,
+              "BestiaryName": "Aquatic",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.07,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 339,
+      "Name": "Club 1H Silver Mace",
+      "Weapon": [
+        "silver mace"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 106,
+              "Value": 0.15,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 106,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 341,
+      "Name": "Club 1H Ornate Mace",
+      "Weapon": [
+        "ornate mace"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 342,
+      "Name": "Club 1H Northern Star",
+      "Weapon": [
+        "northern star"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 6,
+              "BestiaryName": "Dragon",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 376,
+      "Name": "Club 1H Cranial Basher",
+      "Weapon": [
+        "cranial basher"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 7,
+              "BestiaryName": "Elemental",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 61,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 380,
+      "Name": "Club 1H Blessed Sceptre",
+      "Weapon": [
+        "blessed sceptre"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 61,
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 383,
+      "Name": "Club 2H Orcish Maul",
+      "Weapon": [
+        "orcish maul"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 61,
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 408,
+      "Name": "Club 1H Obsidian Truncheon",
+      "Weapon": [
+        "obsidian truncheon"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 409,
+      "Name": "Club 1H Maimer",
+      "Weapon": [
+        "maimer"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 8,
+              "BestiaryName": "Fey",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 410,
+      "Name": "Club 1H Mortal Mace",
+      "Weapon": [
+        "mortal mace"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 6,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 411,
+      "Name": "Glooth 2H Club",
+      "Weapon": [
+        "glooth club"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 4,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 8,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 16,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 32,
+              "Unit": "flat"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 420,
+      "Name": "Club 1H Glooth Whip",
+      "Weapon": [
+        "glooth whip"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 17,
+              "BestiaryName": "Slime",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 422,
+      "Name": "Club 1H Deepling Squelcher",
+      "Weapon": [
+        "deepling squelcher"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 2,
+              "BestiaryName": "Aquatic",
+              "Value": 0.005,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 2,
+              "BestiaryName": "Aquatic",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 423,
+      "Name": "Club 2H Enchanted Staff",
+      "Weapon": [
+        "enchanted staff"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 1048576,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 424,
+      "Name": "Club 1H Light Mace",
+      "Weapon": [
+        "light mace"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 4,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.35,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.3,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 425,
+      "Name": "Club 1H Queen's Sceptre",
+      "Weapon": [
+        "queen's sceptre"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.07,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 2,
+              "TypeName": "WEAPON_SHIELD_MODIFIER",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 61,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 3,
+              "AugmentName": "HEAL",
+              "SpellId": 123,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 61,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 1048576,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 426,
+      "Name": "Club 1H Sulphurous Demonbone",
+      "Weapon": [
+        "sulphurous demonbone"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 7,
+              "BestiaryName": "Elemental",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 427,
+      "Name": "Club 1H Unliving Demonbone",
+      "Weapon": [
+        "unliving demonbone"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 428,
+      "Name": "Club 1H Energized Demonbone",
+      "Weapon": [
+        "energized demonbone"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 429,
+      "Name": "Club 1H Rotten Demonbone",
+      "Weapon": [
+        "rotten demonbone"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 430,
+      "Name": "Club 1H Demonbone",
+      "Weapon": [
+        "demonbone"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 10,
+              "BestiaryName": "Human",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 431,
+      "Name": "Club 1H Snake God's Sceptre",
+      "Weapon": [
+        "snake god's sceptre"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 16,
+              "BestiaryName": "Reptile",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 6,
+              "BestiaryName": "Dragon",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 432,
+      "Name": "Club 1H Thunder Hammer",
+      "Weapon": [
+        "thunder hammer"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 9,
+              "BestiaryName": "Giant",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 107,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 107,
+              "Value": 0.16,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 107,
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 433,
+      "Name": "Club 1H Dark Trinity Mace",
+      "Weapon": [
+        "dark trinity mace"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 256,
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 434,
+      "Name": "Club 1H Ferumbras Staff",
+      "Weapon": [
+        "Ferumbras' staff"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 435,
+      "Name": "Club 2H One Hit Wonder",
+      "Weapon": [
+        "one hit wonder"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 61,
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 61,
+              "Value": 0.4,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 61,
+              "Value": 0.075,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 436,
+      "Name": "Club 2H Arcane Staff",
+      "Weapon": [
+        "arcane staff"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 437,
+      "Name": "Club 2H Hammer Of Prophecy",
+      "Weapon": [
+        "hammer of prophecy"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 16,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 62,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 438,
+      "Name": "Club 2H Resizer",
+      "Weapon": [
+        "resizer"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.0075,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.0175,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 439,
+      "Name": "Club 2H Skullcrusher",
+      "Weapon": [
+        "skullcrusher"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 30,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 440,
+      "Name": "Club 2H The Stomper",
+      "Weapon": [
+        "the stomper"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 1,
+              "TypeName": "DEFENSE_BONUS",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 11,
+              "SkillName": "Fist",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 446,
+      "Name": "Club 1H Mallet Handle",
+      "Weapon": [
+        "mallet handle"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 459,
+      "Name": "Crypt 2H Club",
+      "Weapon": [
+        "crypt breaker"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1.0,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 80,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.12,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 8,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 80,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 1,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 28,
+              "TypeName": "ALPHA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 29,
+              "TypeName": "OMEGA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 8,
+              "Value": 0.15,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.16,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 7.0,
+              "Unit": "percent"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 8,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 1,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

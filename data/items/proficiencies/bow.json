@@ -1,0 +1,3302 @@
+{
+  "$schema": "./proficiencies.schema.json",
+  "Category": "Bow",
+  "Proficiencies": [
+    {
+      "ProficiencyId": 13,
+      "Name": "Sanguine 2H Bow",
+      "Weapon": [
+        "sanguine bow"
+      ],
+      "Version": 8,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 3,
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 124,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 124,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 124,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 124,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 124,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 2.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 23,
+      "Name": "Grand Sanguine 2H Bow",
+      "Weapon": [
+        "grand sanguine bow"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 3,
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 124,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 124,
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 124,
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 124,
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 124,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 2.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 34,
+      "Name": "Soul 2H Bow",
+      "Weapon": [
+        "soulbleeder"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            },
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 4,
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 21,
+              "BestiaryName": "Inkborn",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.75,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1.25,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 44,
+      "Name": "Amber 2H Bow",
+      "Weapon": [
+        "amber bow"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.125,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 258,
+              "Value": 0.06,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 258,
+              "Value": 0.35,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.125,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 2,
+              "BestiaryName": "Aquatic",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 258,
+              "Value": 0.06,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 258,
+              "Value": 0.35,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 258,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 258,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 258,
+              "Value": 0.35,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 54,
+      "Name": "Inferniarch 2H Distance",
+      "Weapon": [
+        "inferniarch arbalest",
+        "inferniarch bow"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 57,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 57,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 57,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 64,
+      "Name": "Rending Inferniarch 2H Bow",
+      "Weapon": [
+        "rending inferniarch arbalest",
+        "rending inferniarch bow"
+      ],
+      "Version": 8,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.48,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 57,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 57,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 238,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 57,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 10,
+              "TypeName": "RUNE_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 74,
+      "Name": "Draining Inferniarch 2H Bow",
+      "Weapon": [
+        "draining inferniarch arbalest",
+        "draining inferniarch bow"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 57,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 57,
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 238,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 57,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 10,
+              "TypeName": "RUNE_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 86,
+      "Name": "Siphoning Inferniarch 2H Bow",
+      "Weapon": [
+        "siphoning inferniarch arbalest",
+        "siphoning inferniarch bow"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 57,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 57,
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 238,
+              "Value": -2.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 57,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 10,
+              "TypeName": "RUNE_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 91,
+      "Name": "Eldritch 2H Distance",
+      "Weapon": [
+        "eldritch bow"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 2,
+              "Value": 12,
+              "Unit": "flat"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 4,
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 1,
+              "Value": 24,
+              "Unit": "flat"
+            },
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 128,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 4,
+              "Value": 16,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 98,
+      "Name": "Gilded Eldritch 2H Distance",
+      "Weapon": [
+        "gilded eldritch bow"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 2,
+              "Value": 12,
+              "Unit": "flat"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 4,
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 1,
+              "Value": 24,
+              "Unit": "flat"
+            },
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 128,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 4,
+              "Value": 16,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 108,
+      "Name": "Crude Umbral 2H Bow",
+      "Weapon": [
+        "crude umbral bow"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 3,
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 124,
+      "Name": "Master Umbral 2H Bow",
+      "Weapon": [
+        "umbral master bow"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 3,
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.12,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 40,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 130,
+      "Name": "Umbral 2H Bow",
+      "Weapon": [
+        "umbral bow"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 3,
+              "Value": 7,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 143,
+      "Name": "Lion 2H Distance",
+      "Weapon": [
+        "lion longbow"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 1,
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 122,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 122,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 122,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 1048576,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 148,
+      "Name": "Falcon 2H Distance",
+      "Weapon": [
+        "falcon bow"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 6,
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 122,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 122,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 122,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 3,
+              "BestiaryName": "Bird",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 1048576,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 215,
+      "Name": "Destruction 2H Distance",
+      "Weapon": [
+        "bow of destruction",
+        "crossbow of destruction"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.035,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.035,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 228,
+      "Name": "Generic 2H Distance",
+      "Weapon": [
+        "bow",
+        "crossbow",
+        "refined bow"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 2,
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 265,
+      "Name": "Jungle 2H Distance",
+      "Weapon": [
+        "jungle bow"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 12,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 19,
+              "BestiaryName": "Vermin",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 12,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 331,
+      "Name": "Distance 2H Musician's Bow",
+      "Weapon": [
+        "musician's bow"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 4,
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 8,
+              "BestiaryName": "Fey",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 333,
+      "Name": "Distance 2H Elvish Bow",
+      "Weapon": [
+        "elvish bow"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 335,
+      "Name": "Distance 2H Icicle Bow",
+      "Weapon": [
+        "icicle bow"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 270,
+              "Value": -4.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.08,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 270,
+              "Value": 1.0,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 270,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 336,
+      "Name": "Distance 2H Silkweaver Bow",
+      "Weapon": [
+        "silkweaver bow"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 11,
+              "BestiaryName": "Humanoid",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 338,
+      "Name": "Distance 2H Warsinger Bow",
+      "Weapon": [
+        "warsinger bow"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 7,
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 340,
+      "Name": "Distance 2H Composite Hornbow",
+      "Weapon": [
+        "composite hornbow"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 348,
+      "Name": "Distance 2H Hive Bow",
+      "Weapon": [
+        "hive bow"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 19,
+              "BestiaryName": "Vermin",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 356,
+      "Name": "Distance 2H Shimmer Bow",
+      "Weapon": [
+        "shimmer bow"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 13,
+              "SkillName": "Fishing",
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 2,
+              "BestiaryName": "Aquatic",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 13,
+              "SkillName": "Fishing",
+              "Value": 0.25,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 361,
+      "Name": "Distance 2H Mycological Bow",
+      "Weapon": [
+        "mycological bow"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 4,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 1,
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 363,
+      "Name": "Distance 2H Rift Bow",
+      "Weapon": [
+        "rift bow"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.075,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 24,
+              "TypeName": "ATTACK_RANGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 7,
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 8,
+              "BestiaryName": "Fey",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 364,
+      "Name": "Distance 2H Living Vine Bow",
+      "Weapon": [
+        "living vine bow"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 1,
+              "Value": 6,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 2,
+              "Value": 7,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 3,
+              "Value": 8,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 4,
+              "Value": 9,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 5,
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 6,
+              "Value": 11,
+              "Unit": "flat"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 365,
+      "Name": "Distance 2H Bow of Cataclysm",
+      "Weapon": [
+        "bow of cataclysm"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 128,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 128,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 403,
+      "Name": "Distance 2H Elethriel's Elemental Bow",
+      "Weapon": [
+        "Elethriel's elemental bow"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 4,
+              "Value": 25,
+              "Unit": "flat"
+            },
+            {
+              "Type": 24,
+              "TypeName": "ATTACK_RANGE",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 258,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 258,
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 4,
+              "Value": 25,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 30,
+              "Unit": "flat"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 128,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 23,
+              "TypeName": "RANGED_HIT_CHANCE",
+              "Value": 1.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 128,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 6,
+              "BestiaryName": "Dragon",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 405,
+      "Name": "Distance 2H Yol's Bow",
+      "Weapon": [
+        "Yol's bow"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 268,
+              "Value": -4.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 3,
+              "AugmentName": "HEAL",
+              "SpellId": 125,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 30,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 461,
+      "Name": "Crypt 2H Bow",
+      "Weapon": [
+        "crypt spine"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 7,
+              "SkillName": "Distance",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.75,
+              "Unit": "percent"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 128,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 24,
+              "TypeName": "ATTACK_RANGE",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 28,
+              "TypeName": "ALPHA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 29,
+              "TypeName": "OMEGA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 128,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 128,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 0,
+              "TypeName": "ATTACK_DAMAGE",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 128,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

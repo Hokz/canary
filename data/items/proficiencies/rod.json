@@ -1,0 +1,3635 @@
+{
+  "$schema": "./proficiencies.schema.json",
+  "Category": "Rod",
+  "Proficiencies": [
+    {
+      "ProficiencyId": 16,
+      "Name": "Sanguine 1H Rod",
+      "Weapon": [
+        "sanguine rod"
+      ],
+      "Version": 12,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 120,
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 118,
+              "Value": 0.125,
+              "Unit": "percent"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 118,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 1048576,
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 3,
+              "AugmentName": "HEAL",
+              "SpellId": 84,
+              "Value": 0.06,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 25,
+      "Name": "Grand Sanguine 1H Rod",
+      "Weapon": [
+        "grand sanguine rod"
+      ],
+      "Version": 12,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 120,
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 118,
+              "Value": 0.25,
+              "Unit": "percent"
+            },
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 118,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 1048576,
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 3,
+              "AugmentName": "HEAL",
+              "SpellId": 84,
+              "Value": 0.06,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 35,
+      "Name": "Soul 1H Rod",
+      "Weapon": [
+        "soulhexer"
+      ],
+      "Version": 8,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.075,
+              "Unit": "percent"
+            },
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 263,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 21,
+              "BestiaryName": "Inkborn",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 263,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 10,
+              "TypeName": "RUNE_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.12,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 45,
+      "Name": "Amber 1H Rod",
+      "Weapon": [
+        "amber rod"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.08,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 10,
+              "TypeName": "RUNE_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 5,
+              "BestiaryName": "Demon",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 43,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.07,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 43,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 56,
+      "Name": "Inferniarch 1H Rod",
+      "Weapon": [
+        "inferniarch rod"
+      ],
+      "Version": 8,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 13,
+              "SkillName": "Fishing",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 157,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 157,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 157,
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 66,
+      "Name": "Rending Inferniarch 1H Rod",
+      "Weapon": [
+        "rending inferniarch rod"
+      ],
+      "Version": 7,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.48,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 157,
+              "Value": -8.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 157,
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 157,
+              "Value": 0.2,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.07,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 75,
+      "Name": "Draining Inferniarch 1H Rod",
+      "Weapon": [
+        "draining inferniarch rod"
+      ],
+      "Version": 8,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 17,
+              "TypeName": "LIFE_LEECH",
+              "Value": 0.145,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 157,
+              "Value": -8.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 157,
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 157,
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.07,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 85,
+      "Name": "Siphoning Inferniarch 1H Rod",
+      "Weapon": [
+        "siphoning inferniarch rod"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 15,
+              "BestiaryName": "Plant",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.06,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 157,
+              "Value": -8.0,
+              "Unit": "milliseconds"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 157,
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 157,
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.07,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 92,
+      "Name": "Eldritch 1H Rod",
+      "Weapon": [
+        "eldritch rod"
+      ],
+      "Version": 9,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 1048576,
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.035,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 3,
+              "AugmentName": "HEAL",
+              "SpellId": 84,
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 10,
+              "TypeName": "RUNE_CRITICAL_HIT_CHANCE",
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 100,
+      "Name": "Gilded Eldritch 1H Rod",
+      "Weapon": [
+        "gilded eldritch rod"
+      ],
+      "Version": 9,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 1048576,
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 3,
+              "AugmentName": "HEAL",
+              "SpellId": 84,
+              "Value": 0.06,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 10,
+              "TypeName": "RUNE_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 151,
+      "Name": "Cobra 1H Rod",
+      "Weapon": [
+        "cobra rod"
+      ],
+      "Version": 8,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 6,
+              "AugmentName": "COOLDOWN",
+              "SpellId": 153,
+              "Value": -4.0,
+              "Unit": "milliseconds"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 14,
+              "BestiaryName": "Mammal",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 153,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 153,
+      "Name": "Lion 1H Rod",
+      "Weapon": [
+        "lion rod"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 43,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 12,
+              "BestiaryName": "Lycanthrope",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 155,
+      "Name": "Falcon 1H Rod",
+      "Weapon": [
+        "falcon rod"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 120,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 6,
+              "SkillName": "Shield",
+              "Value": 1.0,
+              "Unit": "percent"
+            },
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.5,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 16,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 3,
+              "BestiaryName": "Bird",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 162,
+      "Name": "Replica Carving Caster",
+      "Weapon": [
+        "ornate carving rod",
+        "ornate carving wand",
+        "plain carving rod",
+        "plain carving wand",
+        "valuable carving rod",
+        "valuable carving wand"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 169,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 169,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 169,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 169,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 177,
+      "Name": "Replica Mayhem Caster",
+      "Weapon": [
+        "ornate mayhem rod",
+        "ornate mayhem wand",
+        "plain mayhem rod",
+        "plain mayhem wand",
+        "valuable mayhem rod",
+        "valuable mayhem wand"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 169,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 169,
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 169,
+              "Value": 0.3,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 169,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 192,
+      "Name": "Replica Remedy Caster",
+      "Weapon": [
+        "ornate remedy rod",
+        "ornate remedy wand",
+        "plain remedy rod",
+        "plain remedy wand",
+        "valuable remedy rod",
+        "valuable remedy wand"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 169,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 169,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 169,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 169,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 214,
+      "Name": "Destruction 1H Rod",
+      "Weapon": [
+        "rod of destruction"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 7,
+              "TypeName": "POWERFUL_FOE_BONUS",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 217,
+      "Name": "Caster 1H Energized Limb",
+      "Weapon": [
+        "energized limb"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 7,
+              "BestiaryName": "Elemental",
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 8,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 8,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 8,
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 9,
+              "SkillName": "Club",
+              "Value": 1.0,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 220,
+      "Name": "Caster 1H Deepling Fork",
+      "Weapon": [
+        "deepling fork"
+      ],
+      "Version": 6,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 8,
+              "TypeName": "CRITICAL_HIT_CHANCE",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.075,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 12,
+              "TypeName": "CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.075,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 26,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_DAMAGE",
+              "SkillId": 13,
+              "SkillName": "Fishing",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 221,
+      "Name": "Caster 1H Deepling Ceremonial Dagger",
+      "Weapon": [
+        "deepling ceremonial dagger"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 23,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 121,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 8,
+              "SkillName": "Sword",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 23,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 121,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 2,
+              "BestiaryName": "Aquatic",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 222,
+      "Name": "Caster 1H Dream Blossom Staff",
+      "Weapon": [
+        "dream blossom staff"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 32,
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 88,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 112,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 13,
+              "BestiaryName": "Magical",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 32,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 88,
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 17,
+              "AugmentName": "CRITICAL_CHANCE",
+              "SpellId": 112,
+              "Value": 0.015,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 253,
+      "Name": "Naga 1H Rod",
+      "Weapon": [
+        "naga rod"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 16,
+              "BestiaryName": "Reptile",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 156,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 156,
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 156,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 156,
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 261,
+      "Name": "Jungle 1H Rod",
+      "Weapon": [
+        "jungle rod"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 19,
+              "BestiaryName": "Vermin",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 64,
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 22,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 270,
+      "Name": "Rod 1H Chiller",
+      "Weapon": [
+        "the chiller"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 173,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 271,
+      "Name": "Rod 1H Snakebite Rod",
+      "Weapon": [
+        "snakebite rod"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 3,
+              "AugmentName": "HEAL",
+              "SpellId": 1,
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 273,
+      "Name": "Rod 1H Moonlight Rod",
+      "Weapon": [
+        "moonlight rod"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 3,
+              "Value": 5,
+              "Unit": "flat"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 112,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 287,
+      "Name": "Rod 1H Necrotic Rod",
+      "Weapon": [
+        "necrotic rod"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 2,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 4,
+              "Unit": "flat"
+            },
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.2,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 291,
+      "Name": "Rod 1H Northwind Rod",
+      "Weapon": [
+        "northwind rod"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 3,
+              "Value": 5,
+              "Unit": "flat"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 3,
+              "Unit": "flat"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 112,
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 293,
+      "Name": "Rod 1H Terra Rod",
+      "Weapon": [
+        "terra rod"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 18,
+              "TypeName": "MANA_GAIN_ON_HIT",
+              "Value": 5,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 113,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 10,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 10,
+              "TypeName": "RUNE_CRITICAL_HIT_CHANCE",
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 313,
+      "Name": "Rod 1H Hailstorm Rod",
+      "Weapon": [
+        "hailstorm rod"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 19,
+              "TypeName": "LIFE_GAIN_ON_HIT",
+              "Value": 3,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 112,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.01,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 112,
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 318,
+      "Name": "Rod 1H Ogre Scepta",
+      "Weapon": [
+        "ogre scepta"
+      ],
+      "Version": 1,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 22,
+              "TypeName": "PERFECT_SHOT_DAMAGE",
+              "Range": 1,
+              "Value": 12,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 16,
+              "AugmentName": "CRITICAL_DAMAGE",
+              "SpellId": 148,
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 15,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 148,
+              "Value": 0.05,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 9,
+              "BestiaryName": "Giant",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 319,
+      "Name": "Rod 1H Springsprout Rod",
+      "Weapon": [
+        "springsprout rod"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.02,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 0.05,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 322,
+      "Name": "Rod 1H Muck Rod",
+      "Weapon": [
+        "muck rod"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 30,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 16,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 7,
+              "BestiaryName": "Elemental",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 323,
+      "Name": "Rod 1H Glacial Rod",
+      "Weapon": [
+        "glacial rod"
+      ],
+      "Version": 3,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 30,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 9,
+              "TypeName": "ELEMENTAL_HIT_CHANCE",
+              "ElementId": 64,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 64,
+              "Value": 0.1,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 7,
+              "BestiaryName": "Elemental",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 326,
+      "Name": "Rod 1H Underworld Rod",
+      "Weapon": [
+        "underworld rod"
+      ],
+      "Version": 2,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 25,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.025,
+              "Unit": "percent"
+            },
+            {
+              "Type": 21,
+              "TypeName": "LIFE_GAIN_ON_KILL",
+              "Value": 8,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 14,
+              "TypeName": "RUNE_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 352,
+      "Name": "Rod 1H Shimmer Rod",
+      "Weapon": [
+        "shimmer rod"
+      ],
+      "Version": 4,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 20,
+              "TypeName": "MANA_GAIN_ON_KILL",
+              "Value": 20,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 27,
+              "TypeName": "SKILL_PERCENTAGE_SPELL_HEALING",
+              "SkillId": 13,
+              "SkillName": "Fishing",
+              "Value": 0.07,
+              "Unit": "percent"
+            },
+            {
+              "Type": 11,
+              "TypeName": "AUTO_ATTACK_CRITICAL_HIT_CHANCE",
+              "Value": 0.03,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 2,
+              "BestiaryName": "Aquatic",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 15,
+              "TypeName": "AUTO_ATTACK_CRITICAL_EXTRA_DAMAGE",
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 25,
+              "TypeName": "SKILL_PERCENTAGE_AUTO_ATTACK",
+              "SkillId": 13,
+              "SkillName": "Fishing",
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ProficiencyId": 463,
+      "Name": "Crypt 1H Rod",
+      "Weapon": [
+        "crypt jaw"
+      ],
+      "Version": 5,
+      "Levels": [
+        {
+          "Level": 1,
+          "Perks": [
+            {
+              "Type": 30,
+              "TypeName": "ARMOR_PENETRATION",
+              "Value": 1.0,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 2,
+          "Perks": [
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 16,
+              "Value": 0.075,
+              "Unit": "percent"
+            },
+            {
+              "Type": 3,
+              "TypeName": "SKILL_BONUS",
+              "SkillId": 1,
+              "SkillName": "MagicLevel",
+              "Value": 1,
+              "Unit": "flat"
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "Perks": [
+            {
+              "Type": 28,
+              "TypeName": "ALPHA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 1,
+              "Value": 0.4,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 15,
+              "AugmentName": "MANA_LEECH",
+              "SpellId": 56,
+              "Value": 0.35,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 4,
+          "Perks": [
+            {
+              "Type": 28,
+              "TypeName": "ALPHA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.1,
+              "Unit": "percent"
+            },
+            {
+              "Type": 6,
+              "TypeName": "WEAPON_PROFICIENCY_BESTIARY",
+              "BestiaryId": 18,
+              "BestiaryName": "Undead",
+              "Value": 0.03,
+              "Unit": "percent"
+            },
+            {
+              "Type": 29,
+              "TypeName": "OMEGA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.025,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 5,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 16,
+              "Value": 0.02,
+              "Unit": "percent"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.01,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 14,
+              "AugmentName": "LIFE_LEECH",
+              "SpellId": 56,
+              "Value": 0.5,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 6,
+          "Perks": [
+            {
+              "Type": 4,
+              "TypeName": "SPECIALIZED_MAGIC_LEVEL",
+              "DamageType": 1048576,
+              "Value": 2,
+              "Unit": "flat"
+            },
+            {
+              "Type": 16,
+              "TypeName": "MANA_LEECH",
+              "Value": 0.015,
+              "Unit": "percent"
+            },
+            {
+              "Type": 5,
+              "TypeName": "SPELL_AUGMENT",
+              "AugmentType": 2,
+              "AugmentName": "DAMAGE",
+              "SpellId": 56,
+              "Value": 0.15,
+              "Unit": "percent"
+            }
+          ]
+        },
+        {
+          "Level": 7,
+          "Perks": [
+            {
+              "Type": 31,
+              "TypeName": "ELEMENTAL_PIERCE",
+              "ElementId": 16,
+              "Value": 0.04,
+              "Unit": "percent"
+            },
+            {
+              "Type": 13,
+              "TypeName": "ELEMENTAL_CRITICAL_EXTRA_DAMAGE",
+              "ElementId": 1,
+              "Value": 1.0,
+              "Unit": "percent"
+            },
+            {
+              "Type": 29,
+              "TypeName": "OMEGA_STRIKE_EXTRA_DAMAGE",
+              "Value": 0.04,
+              "Unit": "percent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
