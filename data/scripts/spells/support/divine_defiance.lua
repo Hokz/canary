@@ -33,8 +33,9 @@ spell:vocation("paladin;true", "royal paladin;true")
 -- Canary-internal spell id, NOT the official CipSoft id: the 15.25 spell id table was
 -- not available. The next free id in this datapack; replace when the official one is proven.
 spell:id(298)
-spell:cooldown(2 * 1000)
-spell:groupCooldown(2 * 1000, 2 * 1000)
+-- Cooldowns: 10s own, 2s Support, 10s on the stance family (secondary group Focus).
+spell:cooldown(10 * 1000)
+spell:groupCooldown(2 * 1000, 10 * 1000)
 spell:level(20)
 spell:mana(250)
 spell:isSelfTarget(true)

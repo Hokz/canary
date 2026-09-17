@@ -12,7 +12,10 @@
 -- to be set for it.
 --
 -- Elemental and Crippling are separate families, so a Sorcerer may hold one of
--- each; casting another Master of * replaces this one.
+-- each; casting another Master of * replaces this one. A conversion this stance
+-- armed is disarmed the moment the stance comes off - toggled off or replaced -
+-- in ConditionAttributes::endCondition; a Crippling or General stance changing
+-- leaves it armed.
 local function build()
 	return Stance.condition(AttrSubId_StanceMasterOfFlames, function(condition) end)
 end
@@ -29,8 +32,10 @@ spell:group("support", "focus")
 spell:vocation("sorcerer;true", "master sorcerer;true")
 -- Canary-internal spell id, NOT the official CipSoft id; see divine_defiance.lua.
 spell:id(309)
-spell:cooldown(2 * 1000)
-spell:groupCooldown(2 * 1000, 2 * 1000)
+-- Cooldowns: 30s own, 2s Support, 30s on the Elemental stance family (secondary
+-- group). The engine's Focus group is that family here - see stance.lua.
+spell:cooldown(30 * 1000)
+spell:groupCooldown(2 * 1000, 30 * 1000)
 spell:level(20)
 spell:mana(400)
 spell:isSelfTarget(true)

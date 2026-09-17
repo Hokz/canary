@@ -1,18 +1,19 @@
 -- Shared Conservation (15.25). Druid group-healing stance. See
 -- data/libs/systems/stance.lua.
 --
--- Two effects. The +10% self-healing lives on the condition. The other - Heal Friend
--- and Nature's Embrace also heal a second party member on screen for 30% of the
--- amount - lives in those two spells, which ask Stance.sharedConservationTarget for
--- whom to heal. The stance itself only has to exist for that to switch on.
+-- Two effects, and the condition itself carries no parameter: holding this subId is
+-- the whole flag.
 --
--- Approximation, stated: the engine has BUFF_HEALINGRECEIVED (everything that heals
--- this player) but nothing narrower for "healing you cast on yourself", so the +10%
--- also applies to heals the Druid receives from others.
+-- +10% self-healing lives in the engine, Player::applySharedConservationSelfHeal,
+-- applied from Game::combatChangeHealth where healer and target are both known:
+-- healing spells (instant or rune) the Druid casts on themselves. A heal from
+-- someone else, a heal the Druid casts on someone else, and a potion get nothing.
+--
+-- The other - Heal Friend and Nature's Embrace also heal a second party member on
+-- screen for 30% of the amount - lives in those two spells, which ask
+-- Stance.sharedConservationTarget for whom to heal.
 local function build()
-	return Stance.condition(AttrSubId_StanceSharedConservation, function(condition)
-		condition:setParameter(CONDITION_PARAM_BUFF_HEALINGRECEIVED, 110)
-	end)
+	return Stance.condition(AttrSubId_StanceSharedConservation, function(condition) end)
 end
 
 local spell = Spell("instant")
@@ -27,8 +28,9 @@ spell:group("support", "focus")
 spell:vocation("druid;true", "elder druid;true")
 -- Canary-internal spell id, NOT the official CipSoft id; see divine_defiance.lua.
 spell:id(300)
-spell:cooldown(2 * 1000)
-spell:groupCooldown(2 * 1000, 2 * 1000)
+-- Cooldowns: 10s own, 2s Support, 10s on the stance family (secondary group Focus).
+spell:cooldown(10 * 1000)
+spell:groupCooldown(2 * 1000, 10 * 1000)
 spell:level(20)
 spell:mana(400)
 spell:isSelfTarget(true)

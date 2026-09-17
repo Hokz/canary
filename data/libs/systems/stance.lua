@@ -112,9 +112,13 @@ end
 --- Shared Conservation: whom a Heal Friend or Nature's Embrace also heals.
 --
 -- The stance makes those two spells heal a second party member on screen for 30% of
--- the amount. This picks that member: the visible party member with the lowest
--- health fraction, never the spell's own target. The caster counts as a party member
--- - the update says "a second member of the party", and does not exclude them.
+-- the amount. This picks that member: the party member with the LOWEST CURRENT
+-- HEALTH - absolute hit points, not a fraction of maximum, which can pick a
+-- different player (a Knight at 2000/10000 loses to a Sorcerer at 1000/2000) - who
+-- is on the caster's game window and visible to them, never the spell's own target.
+-- The caster counts as a party member: the update says "a second member of the
+-- party" and does not exclude them. Party:getMembers() does not include the leader,
+-- so the leader is added once.
 --
 -- Returns nil when the caster has no Shared Conservation stance, is not in a party,
 -- or nobody else on screen qualifies - and the healing spell then behaves exactly as
@@ -136,18 +140,25 @@ function Stance.sharedConservationTarget(caster, primaryTarget)
 	local candidates = party:getMembers() or {}
 	local leader = party:getLeader()
 	if leader then
-		table.insert(candidates, leader)
+		local listed = false
+		for _, member in ipairs(candidates) do
+			if member:getId() == leader:getId() then
+				listed = true
+				break
+			end
+		end
+		if not listed then
+			table.insert(candidates, leader)
+		end
 	end
 
-	local best, bestFraction = nil, 1.0
+	local primaryId = primaryTarget and primaryTarget:getId() or nil
+	local best, bestHealth = nil, nil
 	for _, member in ipairs(candidates) do
-		if member ~= primaryTarget and member:getId() ~= primaryTarget:getId() and caster:canSeeCreature(member) then
-			local maxHealth = member:getMaxHealth()
-			if maxHealth > 0 then
-				local fraction = member:getHealth() / maxHealth
-				if fraction < bestFraction then
-					best, bestFraction = member, fraction
-				end
+		if member and member:getId() ~= primaryId and member:getHealth() > 0 and caster:canSee(member:getPosition()) and caster:canSeeCreature(member) then
+			local health = member:getHealth()
+			if bestHealth == nil or health < bestHealth then
+				best, bestHealth = member, health
 			end
 		end
 	end
@@ -157,7 +168,11 @@ end
 
 --- The 30% companion heal. A Combat of its own, built once per healing spell with a
 --- formula scaled to 30% of that spell's, so the secondary heal goes through the
---- same pipeline as any other healing: critical heals, healing buffs, the Wheel.
+--- same pipeline as any other healing - critical heals, healing buffs, the Wheel -
+--- and the same rules: Combat::doCombatHealth refuses to heal a monster, a summon
+--- of another player, or a player from a monster, exactly as it does for the main
+--- heal. The +10% self-heal of the stance never reaches it, because its target is
+--- never the caster.
 -- @param combat Combat to execute on the secondary target
 -- @param caster Player
 -- @param secondary Player returned by Stance.sharedConservationTarget

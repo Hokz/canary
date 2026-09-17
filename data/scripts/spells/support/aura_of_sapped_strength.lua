@@ -2,9 +2,12 @@
 -- data/libs/systems/stance.lua.
 --
 -- The condition carries no effect of its own. What the stance does - every attack,
--- spell and rune the Sorcerer lands applies a 10% damage-dealt reduction to the enemy hit - lives in
--- data/scripts/eventcallbacks/creature/on_target_combat_stances.lua, which fires
--- once per target of every combat and looks for this subId on the attacker.
+-- spell and rune the Sorcerer LANDS applies Sapped Strength (-10% damage dealt) to
+-- the enemy hit - lives in the engine, src/creatures/combat/crippling_aura.cpp,
+-- applied from Game::combatChangeHealth after the hit has resolved and taken
+-- health. A dodged, blocked or cancelled hit applies nothing; a landed hit refreshes
+-- the debuff and never stacks it. Its duration (10s) is not proven and is stated
+-- as such there.
 --
 -- Replaces the targeted Sap Strength spell of earlier versions; that script is left in
 -- place untouched, since removing a spell players may have is a separate decision.
@@ -24,8 +27,10 @@ spell:group("support", "crippling")
 spell:vocation("sorcerer;true", "master sorcerer;true")
 -- Canary-internal spell id, NOT the official CipSoft id; see divine_defiance.lua.
 spell:id(312)
-spell:cooldown(2 * 1000)
-spell:groupCooldown(2 * 1000, 2 * 1000)
+-- Cooldowns: 30s own, 2s Support, 30s on the Crippling stance family (secondary
+-- group Crippling, the group the Sap Strength spell this replaces was in).
+spell:cooldown(30 * 1000)
+spell:groupCooldown(2 * 1000, 30 * 1000)
 spell:level(175)
 spell:mana(1500)
 spell:isSelfTarget(true)

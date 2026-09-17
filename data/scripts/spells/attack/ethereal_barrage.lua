@@ -2,7 +2,12 @@
 --
 -- Physical damage on the target and the 21-square area around it, base power 40,
 -- scaling with Distance Fighting and the equipped weapon in the datapack's base-power
--- form. Aiming: see divine_barrage.lua.
+-- form.
+--
+-- AIMING - supported subset: one of the update's three modes, "under the selected
+-- target"; the crosshair and cursor-position modes need a client packet this server
+-- does not have. See divine_barrage.lua.
+-- FIDELITY_BLOCKER — TARGETING_PROTOCOL_EVIDENCE_REQUIRED.
 local SPELL_BASE_POWER = 40
 
 local area = createCombatArea({

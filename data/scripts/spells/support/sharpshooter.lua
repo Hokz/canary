@@ -34,8 +34,10 @@ spell:group("support", "focus")
 spell:vocation("paladin;true", "royal paladin;true")
 spell:castSound(SOUND_EFFECT_TYPE_SPELL_SHARPSHOOTER)
 spell:id(135)
-spell:cooldown(2 * 1000)
-spell:groupCooldown(2 * 1000, 2 * 1000)
+-- Cooldowns: 10s own, 2s Support, 10s on the stance family (secondary group Focus) -
+-- the same contract the pre-15.25 Sharpshooter had.
+spell:cooldown(10 * 1000)
+spell:groupCooldown(2 * 1000, 10 * 1000)
 spell:level(20)
 spell:mana(250)
 spell:isSelfTarget(true)

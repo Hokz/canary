@@ -5,14 +5,16 @@
 -- each creature carrying its own. See shield_bash.lua for how the shield is read.
 local SPELL_BASE_POWER = 52
 
+-- DAMAGE FORMULA - UNVERIFIED. The official spell uses the shield's defence as the
+-- base of its damage; the exact formula is not published. The shape below - base
+-- power x (Shielding / 100) x (shield defence / 10) + flat damage - is this
+-- datapack's base-power convention with the shield's defence in the weapon's
+-- place, and is an inference, not a proven formula. It is kept in this one
+-- function, and the shield's defence comes from Player:getEquippedShieldDefense,
+-- so a corrected formula or a changed valuation of shield defence lands in one
+-- place. FIDELITY_BLOCKER — FORMULA_EVIDENCE_REQUIRED.
 local function shieldDefense(player)
-	for _, slot in ipairs({ CONST_SLOT_LEFT, CONST_SLOT_RIGHT }) do
-		local item = player:getSlotItem(slot)
-		if item and item:getType():getWeaponType() == WEAPON_SHIELD then
-			return item:getType():getDefense()
-		end
-	end
-	return 0
+	return player:getEquippedShieldDefense()
 end
 
 -- The hit weakens the target's NEXT auto attack by 50% for up to 10 seconds. That

@@ -5,12 +5,13 @@ combat:setParameter(COMBAT_PARAM_AGGRESSIVE, 0)
 combat:setParameter(COMBAT_PARAM_DISPEL, CONDITION_PARALYZE)
 
 -- 15.25: base healing 650 -> 2000, and the heal is described as more consistent.
--- Kept as a level/magic-level formula in the datapack's own shape; the multiplier
--- was raised in the same proportion the update raised the base power, and the
--- spread between min and max narrowed to match "more consistent".
+-- Kept as a level/magic-level formula in the datapack's own shape. Derivation: the
+-- pre-15.25 coefficients were 20 (min) and 28 (max) per magic level, mean 24; the
+-- mean scales as 2000/650 = 3.077 -> 73.8, and the spread narrows from +-16.7% to
+-- +-5.4% for "more consistent": 70 / 78 (mean 74, within 0.2% of the scaled mean).
 -- A local, so the companion formula reads THIS spell's numbers; see heal_friend.lua.
 local function formula(level, maglevel)
-	local min = (level / 2.5) + (maglevel * 62)
+	local min = (level / 2.5) + (maglevel * 70)
 	local max = (level / 2.5) + (maglevel * 78)
 	return min, max
 end

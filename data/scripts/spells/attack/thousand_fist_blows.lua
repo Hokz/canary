@@ -1,9 +1,12 @@
 -- Thousand Fist Blows (15.25.3a4a52). Monk, level 120, 145 mana, 12s cooldown.
 --
 -- A Builder: raises harmony when cast. Physical damage on the target and the area
--- around it, base power 62 in the datapack's base-power form. Aiming modes: the
--- update lists three; this implements "under the selected target" - see
--- divine_barrage.lua for why.
+-- around it, base power 62 in the datapack's base-power form.
+--
+-- AIMING - supported subset: one of the update's three modes, "under the selected
+-- target"; the crosshair and cursor-position modes need a client packet this server
+-- does not have. See divine_barrage.lua.
+-- FIDELITY_BLOCKER — TARGETING_PROTOCOL_EVIDENCE_REQUIRED.
 local SPELL_BASE_POWER = 62
 
 local combat = Combat()

@@ -1,7 +1,9 @@
 -- Forked Thorns (15.25.3a4a52). Druid, level 80, 180 mana, 6s cooldown.
 --
 -- Earth damage on the target and up to 5 additional nearby targets: a chain of six.
--- Base power 105. See forked_glacier.lua.
+-- Base power 105 at release, adjusted to 97 in the July balance pass; 97 is the
+-- value here: the release coefficients (4.2 / 6.9 at 105) scaled by 97/105 give
+-- 3.88 / 6.37, rounded to one decimal. See forked_glacier.lua.
 local combat = Combat()
 combat:setParameter(COMBAT_PARAM_TYPE, COMBAT_EARTHDAMAGE)
 combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_GREEN_RINGS)
@@ -9,8 +11,8 @@ combat:setParameter(COMBAT_PARAM_DISTANCEEFFECT, CONST_ANI_EARTH)
 combat:setParameter(COMBAT_PARAM_CHAIN_EFFECT, CONST_ME_GREEN_RINGS)
 
 function onGetFormulaValues(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 4.2)
-	local max = (level / 5) + (maglevel * 6.9)
+	local min = (level / 5) + (maglevel * 3.9)
+	local max = (level / 5) + (maglevel * 6.4)
 	return -min, -max
 end
 

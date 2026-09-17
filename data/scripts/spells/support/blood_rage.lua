@@ -26,6 +26,8 @@ spell:group("support", "focus")
 spell:vocation("knight;true", "elite knight;true")
 spell:castSound(SOUND_EFFECT_TYPE_SPELL_BLOOD_RAGE)
 spell:id(133)
+-- Cooldowns: 2s own, 2s Support, 2s Focus - the contract the pre-15.25 datapack
+-- already had for this spell, kept as its own rather than a blanket stance value.
 spell:cooldown(2 * 1000)
 spell:groupCooldown(2 * 1000, 2 * 1000)
 spell:level(20)

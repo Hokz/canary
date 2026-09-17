@@ -1,8 +1,11 @@
 -- Forked Glacier (15.25.3a4a52). Druid, level 90, 180 mana, 6s cooldown.
 --
 -- Ice damage on the target and up to 6 additional nearby targets: a chain of seven,
--- in the shape Chained Penance already uses. Base power 97 in the datapack's
--- level/magic-level form. The Wheel's "Forked Spells" augment II adds a target.
+-- in the shape Chained Penance already uses. Base power 97 at release, adjusted to
+-- 90 in the July balance pass; 90 is the value here. In the datapack's
+-- level/magic-level form, the release coefficients (3.9 / 6.4 at 97) scaled by
+-- 90/97 give 3.62 / 5.94, rounded to one decimal. The Wheel's "Forked Spells"
+-- augment II adds a target.
 local combat = Combat()
 combat:setParameter(COMBAT_PARAM_TYPE, COMBAT_ICEDAMAGE)
 combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_ICEATTACK)
@@ -10,8 +13,8 @@ combat:setParameter(COMBAT_PARAM_DISTANCEEFFECT, CONST_ANI_ICE)
 combat:setParameter(COMBAT_PARAM_CHAIN_EFFECT, CONST_ME_ICEATTACK)
 
 function onGetFormulaValues(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 3.9)
-	local max = (level / 5) + (maglevel * 6.4)
+	local min = (level / 5) + (maglevel * 3.6)
+	local max = (level / 5) + (maglevel * 5.9)
 	return -min, -max
 end
 

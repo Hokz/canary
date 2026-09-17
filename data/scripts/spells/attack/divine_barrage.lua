@@ -1,14 +1,19 @@
 -- Divine Barrage (15.25.3a4a52). Paladin, level 70, 175 mana, 4s cooldown.
 --
 -- Holy damage on the target and the area around it - "the same size as Diamond
--- Arrows", so the diamond arrow's 21-square shape. Base power 140, scaling with
--- Magic Level, expressed here in the level/magic-level form the datapack uses for
--- Divine Caldera, scaled to 140/160 of Caldera's post-update numbers.
+-- Arrows", so the diamond arrow's 21-square shape. Base power 140 at release,
+-- adjusted to 130 in the July balance pass; 130 is the value here, scaling with
+-- Magic Level in the level/magic-level form the datapack uses for Divine Caldera:
+-- k = 4/140 (min) and 6/140 (max) per point of base power, so 130 -> 3.71 / 5.57,
+-- rounded to one decimal.
 --
--- The update gives it three aiming modes (crosshair, cursor position, under the
--- target). This implements the third: the spell needs a target and the area is
--- centred on it. The other two need a position sent by the client, which is the
--- protocol layer's concern.
+-- AIMING - supported subset, stated exactly: the update gives this spell three
+-- modes (crosshair / use-with, the cursor position, under the selected target or
+-- under the character without one). This server implements ONE: under the selected
+-- target - the spell needs a target and the area is centred on it. The other two
+-- need the client to send a position with an instant spell, and this server's
+-- protocol has no such packet; none is invented here.
+-- FIDELITY_BLOCKER — TARGETING_PROTOCOL_EVIDENCE_REQUIRED.
 local area = createCombatArea({
 	{ 0, 1, 1, 1, 0 },
 	{ 1, 1, 1, 1, 1 },
@@ -24,8 +29,8 @@ combat:setParameter(COMBAT_PARAM_DISTANCEEFFECT, CONST_ANI_HOLY)
 combat:setArea(area)
 
 function onGetFormulaValues(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 4.0)
-	local max = (level / 5) + (maglevel * 6.0)
+	local min = (level / 5) + (maglevel * 3.7)
+	local max = (level / 5) + (maglevel * 5.6)
 	return -min, -max
 end
 
