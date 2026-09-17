@@ -343,16 +343,22 @@ void Player::addPercentDerivedSkill(skills_t skill, int32_t modifier) {
 }
 
 void Player::refreshPercentSkillRecipes() {
+	if (rederivePercentSkillRecipes()) {
+		sendSkills();
+	}
+}
+
+bool Player::rederivePercentSkillRecipes() {
 	// A recipe being re-derived writes through addPercentDerivedSkill, never through
 	// setVarSkill, so this cannot recurse; the guard is for a flat recipe on the
 	// same condition being applied while its neighbours are re-derived.
 	if (refreshingPercentSkillRecipes) {
-		return;
+		return false;
 	}
 
 	const auto attributeConditions = getConditionsByType(CONDITION_ATTRIBUTES);
 	if (attributeConditions.empty()) {
-		return;
+		return false;
 	}
 
 	refreshingPercentSkillRecipes = true;
@@ -365,9 +371,7 @@ void Player::refreshPercentSkillRecipes() {
 	}
 	refreshingPercentSkillRecipes = false;
 
-	if (changed) {
-		sendSkills();
-	}
+	return changed;
 }
 
 uint16_t Player::getRangedDodgeChance() const {

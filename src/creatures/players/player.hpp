@@ -744,6 +744,11 @@ public:
 	// Re-derives every attribute condition's percent skills from the current
 	// non-percent sources. Idempotent: the same state always yields the same skills.
 	void refreshPercentSkillRecipes();
+	// The same re-derivation without the client update, answering whether any derived
+	// skill actually moved. For a caller that is going to send the skills itself once
+	// its own work is finished - PlayerWheel's conditional abilities - so the player
+	// is not sent two skill payloads for one event.
+	bool rederivePercentSkillRecipes();
 
 	void setVarStats(stats_t stat, int32_t modifier);
 	int32_t getDefaultStats(stats_t stat) const;

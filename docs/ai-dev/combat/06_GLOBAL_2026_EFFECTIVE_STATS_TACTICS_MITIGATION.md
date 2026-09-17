@@ -95,13 +95,43 @@ on `startCondition`, on a merge, on `endCondition` (retiring the recipe), and fr
 | training | `Player::addSkillAdvance` | the advance, per level gained |
 | Weapon Proficiency | `WeaponProficiency::m_skills`, written directly | `addSkillBonus` and `resetSkillBonuses` |
 | Wheel skill stats | `PlayerWheel::m_stats`, written directly | `addStat` and `resetStats` |
-| Wheel conditional bonuses (`getMajorStatConditional`) | instants and major stats settled by a whole bonus-data pass | the end of `PlayerWheel::loadPlayerBonusData` |
+| Wheel conditional bonuses, on login or a Wheel reload | instants and major stats settled by a whole bonus-data pass | the end of `PlayerWheel::registerPlayerBonusData` |
+| Wheel conditional bonuses, **while playing** (`getMajorStatConditional`) | `PlayerWheel::m_majorStats`, moved on and off by `onThink` | `applyConditionalMajorStat` marks it, `flushConditionalSkillSources` acts on it |
 
-The two component arrays are the ones that would silently go stale: the bonus lands in the
+The component arrays are the ones that would silently go stale: the bonus lands in the
 skill the player has while the percentage keeps scaling from the skill he had before it, until
 some later, unrelated `setVarSkill` corrects it. `AProficiencyBonusGainedWhileTheStanceIsOnRecalculatesAtOnce`
 and `AWheelSkillStatGainedWhileTheStanceIsOnRecalculatesAtOnce` exercise exactly that order —
 stance first, source second — because the reverse order passes either way.
+
+### The dynamic conditional bonuses
+
+Positional Tactics (+3 Distance with no monster adjacent) and Battle Instinct (+6 Shielding per
+adjacent monster beyond the fourth) are not stored skill stats. They are major stats that
+`Player::computeSkillLevel` reads back through `getMajorStatConditional`, moved on and off by
+`PlayerWheel::onThink` several times a minute. They are a skill source like any other, and the
+first round of this work reached only the login and reload pass — while playing, a stance stayed
+frozen at whatever the source was when it was cast.
+
+Four major stats, and only four, reach a skill: `DISTANCE` (Positional Tactics → `SKILL_DISTANCE`),
+`SHIELD` (Battle Instinct → `SKILL_SHIELD`), `CRITICAL_DMG` (Ballistic Mastery) and `CRITICAL_DMG_2`
+(Combat Mastery), both → `SKILL_CRITICAL_HIT_DAMAGE`. `MELEE` looks like one and is not: the melee
+skills read `WheelStat_t::MELEE`, a static stat. `DEFENSE`, `DAMAGE`, `PHYSICAL_DMG`, `HOLY_DMG`,
+`MAGIC` and `HOLY_RESISTANCE` feed damage, defence or a resistance and no skill at all.
+`PlayerWheel::majorStatFeedsEffectiveSkill` is that list, and it has to be kept in step with
+`computeSkillLevel`.
+
+The invalidation is deliberately not a hook on `setMajorStat`, which would re-derive on every tick
+that moves a damage bonus. Instead every conditional ability writes through
+`applyConditionalMajorStat`, which marks the recipes stale only when the value actually moved *and*
+what moved feeds a skill; `flushConditionalSkillSources` then re-derives **once** at the end of the
+evaluation — `onThink` (both its normal path and its leave-combat reset) and `checkAbilities`. It
+uses `Player::rederivePercentSkillRecipes`, the variant that does not send, because those two
+callers send one skills payload themselves once they know the whole outcome.
+
+`checkBattleInstinct` and `checkPositionalTactics` now do the counting only and hand the rule to
+`applyBattleInstinct` / `applyPositionalTactics`. The counting needs a map; the rule does not, so
+the regression tests drive the real mutation path without one.
 
 Two recipes on the same skill read the same source, so they add and the order they arrive in
 does not change the result: 100 with +30% and +20% is 150, never 100 × 1.3 × 1.2.
@@ -220,7 +250,7 @@ retiring a spell and is the Technical Director's call, not a side effect this la
 | File | Cases | What it proves |
 |---|---|---|
 | `tests/unit/items/effective_combat_values_test.cpp` | 9 | the three percentages, that they differ, fractions kept, nothing ≤ 0 scaled, shield vs spellbook vs other classification, a double application is visibly wrong, the rounding point |
-| `tests/unit/players/condition/effective_skill_percent_test.cpp` | 16 | 100 +30% = 130; equipment counts and follows up and down; five refreshes do not compound; recast applies once and removal restores exactly; two recipes add and are order-independent; a relog restores once; the blob carries the recipe not the value; flat and percent coexist; a proficiency skill bonus counts as source; a proficiency bonus, a Wheel stat and both together gained **while the stance is already on** re-derive at once and unwind exactly; a condition's own flat recipe feeds its own percentage; `getBaseSkill` stays raw; a pre-separation blob drops the stale value |
+| `tests/unit/players/condition/effective_skill_percent_test.cpp` | 24 | 100 +30% = 130; equipment counts and follows up and down; five refreshes do not compound; recast applies once and removal restores exactly; two recipes add and are order-independent; a relog restores once; the blob carries the recipe not the value; flat and percent coexist; a proficiency skill bonus counts as source; a proficiency bonus, a Wheel stat and both together gained **while the stance is already on** re-derive at once and unwind exactly; a condition's own flat recipe feeds its own percentage; `getBaseSkill` stays raw; a pre-separation blob drops the stale value; **Positional Tactics' Distance and Battle Instinct's Shielding move an already-active stance at once, unwind exactly and do not compound over five enter/leave cycles**; a conditional bonus is worth nothing while its instant is not held; a non-skill major stat asks for no re-derivation; one evaluation that moves two stats costs one pass; the leave-combat reset takes both stances down with it |
 | `tests/unit/players/combat_tactics_test.cpp` | 9 | attack factor, defence factor, defence, mitigation, attack total and defence equipment identical in all three fight modes; a legacy client still gets the old weighting and those numbers really differ; weapon +20% modern only; shield +30% and spellbook +60%; an ordinary off-hand gets neither; raw item data untouched; Shield Bash reads the same compensated value; no percentage applied twice along the defence chain |
 
 Existing suites kept green locally: `test_stance_library.lua` (15), `test_vocation_balance_formulas.lua` (18), `stylua`, `luac`, `clang-format`, `cmake-format`, the Lua API quality and binding-doc checks.

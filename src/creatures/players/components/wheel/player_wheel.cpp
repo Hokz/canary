@@ -2895,6 +2895,10 @@ void PlayerWheel::checkAbilities() {
 	if (getInstant("Ballistic Mastery") && getOnThinkTimer(WheelOnThink_t::BALLISTIC_MASTERY) < OTSYS_TIME() && checkBallisticMastery()) {
 		reloadClient = true;
 	}
+	// Same boundary as onThink: the server-side skills settle first, then one payload.
+	if (flushConditionalSkillSources()) {
+		reloadClient = true;
+	}
 
 	if (reloadClient) {
 		m_player.sendSkills();
@@ -2904,23 +2908,23 @@ void PlayerWheel::checkAbilities() {
 
 bool PlayerWheel::checkBattleInstinct() {
 	setOnThinkTimer(WheelOnThink_t::BATTLE_INSTINCT, OTSYS_TIME() + 2000);
+	const uint16_t creaturesNearby = Spectators().find<Monster>(m_player.getPosition(), false, 1, 1, 1, 1, false).excludePlayerMaster().size();
+	return applyBattleInstinct(creaturesNearby);
+}
+
+bool PlayerWheel::applyBattleInstinct(uint16_t creaturesNearby) {
 	bool updateClient = false;
 	m_creaturesNearby = 0;
-	uint16_t creaturesNearby = Spectators().find<Monster>(m_player.getPosition(), false, 1, 1, 1, 1, false).excludePlayerMaster().size();
 	if (creaturesNearby >= 5) {
 		m_creaturesNearby = creaturesNearby;
 		creaturesNearby -= 4;
 		const uint16_t meleeSkill = 1 * creaturesNearby;
 		const uint16_t shieldSkill = 6 * creaturesNearby;
-		if (getMajorStat(WheelMajor_t::MELEE) != meleeSkill || getMajorStat(WheelMajor_t::SHIELD) != shieldSkill) {
-			setMajorStat(WheelMajor_t::MELEE, meleeSkill);
-			setMajorStat(WheelMajor_t::SHIELD, shieldSkill);
-			updateClient = true;
-		}
-	} else if (getMajorStat(WheelMajor_t::MELEE) != 0 || getMajorStat(WheelMajor_t::SHIELD) != 0) {
-		setMajorStat(WheelMajor_t::MELEE, 0);
-		setMajorStat(WheelMajor_t::SHIELD, 0);
-		updateClient = true;
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::MELEE, meleeSkill);
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::SHIELD, shieldSkill);
+	} else {
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::MELEE, 0);
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::SHIELD, 0);
 	}
 
 	return updateClient;
@@ -2928,18 +2932,19 @@ bool PlayerWheel::checkBattleInstinct() {
 
 bool PlayerWheel::checkPositionalTactics() {
 	setOnThinkTimer(WheelOnThink_t::POSITIONAL_TACTICS, OTSYS_TIME() + 2000);
+	const uint16_t creaturesNearby = Spectators().find<Monster>(m_player.getPosition(), false, 1, 1, 1, 1, false).excludePlayerMaster().size();
+	return applyPositionalTactics(creaturesNearby);
+}
+
+bool PlayerWheel::applyPositionalTactics(uint16_t creaturesNearby) {
 	m_creaturesNearby = 0;
 	bool updateClient = false;
-	uint16_t creaturesNearby = Spectators().find<Monster>(m_player.getPosition(), false, 1, 1, 1, 1, false).excludePlayerMaster().size();
 	constexpr uint16_t holyMagicSkill = 3;
 	constexpr uint16_t healingMagicSkill = 3;
 	constexpr uint16_t distanceSkill = 3;
 	if (creaturesNearby == 0) {
 		m_creaturesNearby = creaturesNearby;
-		if (getMajorStat(WheelMajor_t::DISTANCE) != distanceSkill) {
-			setMajorStat(WheelMajor_t::DISTANCE, distanceSkill);
-			updateClient = true;
-		}
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::DISTANCE, distanceSkill);
 		if (getSpecializedMagic(COMBAT_HOLYDAMAGE) != 0) {
 			setSpecializedMagic(COMBAT_HOLYDAMAGE, 0);
 			updateClient = true;
@@ -2949,10 +2954,7 @@ bool PlayerWheel::checkPositionalTactics() {
 			updateClient = true;
 		}
 	} else {
-		if (getMajorStat(WheelMajor_t::DISTANCE) != 0) {
-			setMajorStat(WheelMajor_t::DISTANCE, 0);
-			updateClient = true;
-		}
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::DISTANCE, 0);
 		if (getSpecializedMagic(COMBAT_HOLYDAMAGE) != holyMagicSkill) {
 			setSpecializedMagic(COMBAT_HOLYDAMAGE, holyMagicSkill);
 			updateClient = true;
@@ -2975,35 +2977,17 @@ bool PlayerWheel::checkBallisticMastery() {
 
 	const auto &item = m_player.getWeapon();
 	if (item && item->getAmmoType() == AMMO_BOLT) {
-		if (getMajorStat(WheelMajor_t::CRITICAL_DMG) != newCritical) {
-			setMajorStat(WheelMajor_t::CRITICAL_DMG, newCritical);
-			updateClient = true;
-		}
-		if (getMajorStat(WheelMajor_t::PHYSICAL_DMG) != 0 || getMajorStat(WheelMajor_t::HOLY_DMG) != 0) {
-			setMajorStat(WheelMajor_t::PHYSICAL_DMG, 0);
-			setMajorStat(WheelMajor_t::HOLY_DMG, 0);
-			updateClient = true;
-		}
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::CRITICAL_DMG, newCritical);
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::PHYSICAL_DMG, 0);
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::HOLY_DMG, 0);
 	} else if (item && item->getAmmoType() == AMMO_ARROW) {
-		if (getMajorStat(WheelMajor_t::CRITICAL_DMG) != 0) {
-			setMajorStat(WheelMajor_t::CRITICAL_DMG, 0);
-			updateClient = true;
-		}
-		if (getMajorStat(WheelMajor_t::PHYSICAL_DMG) != newPhysicalBonus || getMajorStat(WheelMajor_t::HOLY_DMG) != newHolyBonus) {
-			setMajorStat(WheelMajor_t::PHYSICAL_DMG, newPhysicalBonus);
-			setMajorStat(WheelMajor_t::HOLY_DMG, newHolyBonus);
-			updateClient = true;
-		}
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::CRITICAL_DMG, 0);
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::PHYSICAL_DMG, newPhysicalBonus);
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::HOLY_DMG, newHolyBonus);
 	} else {
-		if (getMajorStat(WheelMajor_t::CRITICAL_DMG) != 0) {
-			setMajorStat(WheelMajor_t::CRITICAL_DMG, 0);
-			updateClient = true;
-		}
-		if (getMajorStat(WheelMajor_t::PHYSICAL_DMG) != 0 || getMajorStat(WheelMajor_t::HOLY_DMG) != 0) {
-			setMajorStat(WheelMajor_t::PHYSICAL_DMG, 0);
-			setMajorStat(WheelMajor_t::HOLY_DMG, 0);
-			updateClient = true;
-		}
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::CRITICAL_DMG, 0);
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::PHYSICAL_DMG, 0);
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::HOLY_DMG, 0);
 	}
 
 	return updateClient;
@@ -3025,19 +3009,12 @@ bool PlayerWheel::checkCombatMastery() {
 			criticalSkill = 400;
 		}
 
-		if (getMajorStat(WheelMajor_t::CRITICAL_DMG_2) != criticalSkill) {
-			setMajorStat(WheelMajor_t::CRITICAL_DMG_2, criticalSkill);
-			updateClient = true;
-		}
-		if (getMajorStat(WheelMajor_t::DEFENSE) != 0) {
-			setMajorStat(WheelMajor_t::DEFENSE, 0);
-			updateClient = true;
-		}
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::CRITICAL_DMG_2, criticalSkill);
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::DEFENSE, 0);
 	} else {
-		if (getMajorStat(WheelMajor_t::CRITICAL_DMG_2) != 0) {
-			setMajorStat(WheelMajor_t::CRITICAL_DMG_2, 0);
-			updateClient = true;
-		}
+		updateClient |= applyConditionalMajorStat(WheelMajor_t::CRITICAL_DMG_2, 0);
+		// Left as it was: the Defence is only taken while it is still zero, so a stage
+		// changed under an already granted Defence does not move it.
 		if (getMajorStat(WheelMajor_t::DEFENSE) == 0) {
 			int32_t shieldSkill = 0;
 			if (stage >= 3) {
@@ -3047,7 +3024,7 @@ bool PlayerWheel::checkCombatMastery() {
 			} else if (stage >= 1) {
 				shieldSkill = 10;
 			}
-			setMajorStat(WheelMajor_t::DEFENSE, shieldSkill);
+			applyConditionalMajorStat(WheelMajor_t::DEFENSE, shieldSkill);
 			updateClient = true;
 		}
 	}
@@ -3089,10 +3066,7 @@ bool PlayerWheel::checkDivineEmpowerment() {
 		}
 	}
 
-	if (damageBonus != getMajorStat(WheelMajor_t::DAMAGE)) {
-		setMajorStat(WheelMajor_t::DAMAGE, damageBonus);
-		updateClient = true;
-	}
+	updateClient |= applyConditionalMajorStat(WheelMajor_t::DAMAGE, damageBonus);
 
 	return updateClient;
 }
@@ -3338,18 +3312,10 @@ void PlayerWheel::onThink(bool force /* = false*/) {
 		decreaseGiftOfCooldown(1);
 	}
 	if (!m_player.hasCondition(CONDITION_INFIGHT) || m_player.getZoneType() == ZONE_PROTECTION || (!getInstant("Battle Instinct") && !getInstant("Positional Tactics") && !getInstant("Ballistic Mastery") && !getInstant("Gift of Life") && !getInstant("Combat Mastery") && !getInstant("Divine Empowerment") && getGiftOfCooldown() == 0)) {
-		bool mustReset = false;
-		for (int i = 0; i < static_cast<int>(WheelMajor_t::TOTAL_COUNT); i++) {
-			if (getMajorStat(static_cast<WheelMajor_t>(i)) != 0) {
-				mustReset = true;
-				break;
-			}
-		}
-
-		if (mustReset) {
-			for (int i = 0; i < static_cast<int>(WheelMajor_t::TOTAL_COUNT); i++) {
-				setMajorStat(static_cast<WheelMajor_t>(i), 0);
-			}
+		if (resetConditionalMajorStats()) {
+			// The conditional skill sources just went to zero with everything else, so
+			// an active percent stance has to unwind before the skills are sent.
+			flushConditionalSkillSources();
 			m_player.sendSkills();
 			m_player.sendStats();
 			g_game().reloadCreature(m_player.getPlayer());
@@ -3376,6 +3342,12 @@ void PlayerWheel::onThink(bool force /* = false*/) {
 	}
 	// Divine Empowerment
 	if (getInstant("Divine Empowerment") && (force || getOnThinkTimer(WheelOnThink_t::DIVINE_EMPOWERMENT) < OTSYS_TIME()) && checkDivineEmpowerment()) {
+		updateClient = true;
+	}
+	// One re-derivation for the whole evaluation, before anything is sent: if one of
+	// the checks above moved a conditional stat a percent stance scales from, the
+	// stance follows it here rather than at some unrelated later event.
+	if (flushConditionalSkillSources()) {
 		updateClient = true;
 	}
 	if (updateClient) {
@@ -3532,6 +3504,56 @@ void PlayerWheel::setMajorStat(WheelMajor_t type, int32_t value) {
 	} catch (const std::out_of_range &e) {
 		g_logger().error("[{}]. Type {} is out of range, value {}. Error message: {}", __FUNCTION__, enumValue, value, e.what());
 	}
+}
+
+bool PlayerWheel::majorStatFeedsEffectiveSkill(WheelMajor_t major) {
+	// The four getMajorStatConditional calls in Player::computeSkillLevel, and only
+	// those. MELEE is deliberately not one of them: the melee skills read
+	// WheelStat_t::MELEE, a static stat, so Battle Instinct's melee half never
+	// reaches a skill. Keep this list and computeSkillLevel in step.
+	switch (major) {
+		case WheelMajor_t::DISTANCE: // "Positional Tactics" -> SKILL_DISTANCE
+		case WheelMajor_t::SHIELD: // "Battle Instinct"    -> SKILL_SHIELD
+		case WheelMajor_t::CRITICAL_DMG: // "Ballistic Mastery"  -> SKILL_CRITICAL_HIT_DAMAGE
+		case WheelMajor_t::CRITICAL_DMG_2: // "Combat Mastery"     -> SKILL_CRITICAL_HIT_DAMAGE
+			return true;
+		default:
+			return false;
+	}
+}
+
+bool PlayerWheel::applyConditionalMajorStat(WheelMajor_t type, int32_t value) {
+	if (getMajorStat(type) == value) {
+		return false;
+	}
+
+	setMajorStat(type, value);
+	if (majorStatFeedsEffectiveSkill(type)) {
+		// The skill a percent stance scales from just moved. The re-derivation waits
+		// for flushConditionalSkillSources so one evaluation that moves several stats
+		// costs one pass, not one per stat.
+		m_conditionalSkillSourceChanged = true;
+	}
+	return true;
+}
+
+bool PlayerWheel::flushConditionalSkillSources() {
+	if (!m_conditionalSkillSourceChanged) {
+		return false;
+	}
+
+	m_conditionalSkillSourceChanged = false;
+	// Deliberately the variant that does not send: every caller of this already sends
+	// the skills itself once it knows the whole evaluation's outcome.
+	return m_player.rederivePercentSkillRecipes();
+}
+
+bool PlayerWheel::resetConditionalMajorStats() {
+	bool changed = false;
+	for (int i = 0; i < static_cast<int>(WheelMajor_t::TOTAL_COUNT); i++) {
+		changed |= applyConditionalMajorStat(static_cast<WheelMajor_t>(i), 0);
+	}
+	return changed;
 }
 
 void PlayerWheel::setSpecializedMagic(CombatType_t type, int32_t value) {

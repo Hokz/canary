@@ -295,6 +295,30 @@ public:
 	bool checkBallisticMastery();
 	bool checkCombatMastery();
 	bool checkDivineEmpowerment();
+	// The stat rule of each of the two conditional abilities, given how many monsters
+	// stand next to the player. checkBattleInstinct / checkPositionalTactics are that
+	// count plus these: the counting needs a map, the rule does not, so this is the
+	// narrowest production helper that actually moves the player's skill sources.
+	bool applyBattleInstinct(uint16_t creaturesNearby);
+	bool applyPositionalTactics(uint16_t creaturesNearby);
+	// Puts every conditional major stat back to zero - the player left combat, entered
+	// a protection zone, or holds no instant that grants one. Answers whether anything
+	// had to be reset.
+	bool resetConditionalMajorStats();
+	// setMajorStat for a conditional ability: answers whether the value actually moved
+	// and, when what moved is one of the stats Player::computeSkillLevel reads,
+	// remembers that the skill a percent stance scales from is now out of date.
+	bool applyConditionalMajorStat(WheelMajor_t type, int32_t value);
+	// The end of one logical conditional-ability evaluation. Re-derives the percent
+	// skill recipes once, if and only if one of the writes above moved a skill source
+	// since the last call, and answers whether any derived skill changed so the caller
+	// folds it into the single skills payload it was already going to send.
+	bool flushConditionalSkillSources();
+	// Whether Player::computeSkillLevel reads this major stat through
+	// getMajorStatConditional. Everything else feeds damage, defence or a resistance
+	// and no skill at all, and must not drag the recipes through a re-derivation on
+	// every tick that changes one.
+	[[nodiscard]] static bool majorStatFeedsEffectiveSkill(WheelMajor_t major);
 	int32_t checkDrainBodyLeech(const std::shared_ptr<Creature> &target, skills_t skill) const;
 	int32_t checkBeamMasteryDamage() const;
 	int32_t checkBattleHealingAmount() const;
@@ -513,6 +537,10 @@ private:
 	std::array<int32_t, COMBAT_COUNT> m_specializedMagic = { 0 };
 
 	int32_t m_creaturesNearby = 0;
+	// Set by applyConditionalMajorStat when a stat the effective skill is built from
+	// moves, cleared by flushConditionalSkillSources. Carries the change from the
+	// ability that made it to the end of the evaluation that is going to send it.
+	bool m_conditionalSkillSourceChanged = false;
 	std::map<std::string, WheelSpellGrade_t> m_spellsSelected;
 	std::vector<std::string> m_learnedSpellsSelected;
 	std::unordered_map<std::string, WheelSpells::Bonus> m_spellsBonuses;
