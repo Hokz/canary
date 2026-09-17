@@ -180,8 +180,13 @@ two level-menu entries, and the levels 175 and 275 from its level list; `gundral
 
 **Preserved:** the debuffs themselves. `CripplingAura::sappedStrength()` and
 `exposedWeakness()` (`src/creatures/combat/crippling_aura.cpp`) are the engine-side
-implementation the auras use, and they are untouched. `aura_of_sapped_strength.lua` and
-`aura_of_exposed_weakness.lua` are untouched.
+implementation the auras use, and they are untouched. The two aura scripts keep their
+behaviour; only their header notes changed, because they claimed the old scripts were left in
+place and that is no longer true.
+
+**One Wheel reference had to follow.** `src/io/io_wheel.cpp` named "Sap Strength" in three
+places — the Sorcerer spell table and the two 100-point slot grants. See **J**: the dead name
+fails the build, so the slots now name the stance that replaced the spell.
 
 **Player impact, stated plainly:** a character who had learned either spell keeps the learned
 entry but can no longer cast it, and the gold spent is not refunded. That is inherent to
@@ -225,11 +230,17 @@ and no proficiency unless stated.
   Defense indicators are client-side. The server already omits the fight-mode byte for the
   current profile (`TacticsWithoutFightMode`, PR #42). Removing the indicators themselves
   needs verified packet evidence this repository does not have, and no byte was invented.
-- `FIDELITY_BLOCKER — WHEEL_SORCERER_SLOT_SPELL` — `src/io/io_wheel.cpp` still names
-  "Sap Strength" as the sorcerer's red-middle slot spell. The Wheel is explicitly out of scope
-  for this lane, and the reference degrades safely (`getSpellByName` returns null, so no
-  augment is registered and nothing throws). What the official 15.25 Wheel grants in that slot
-  instead is not evidenced.
+- `FIDELITY_BLOCKER — WHEEL_SORCERER_SLOT_SPELL` — the Sorcerer's red- and blue-middle 100
+  slots used to grant the retired Sap Strength; they now grant Aura of Sapped Strength, the
+  stance that replaced it. **This was a forced choice, not an evidenced one.** Leaving the dead
+  name in place was the first attempt and it does *not* degrade safely:
+  `InternalPlayerWheel::registerWheelSpellTable` logs a warning for a name it cannot resolve,
+  and the CI runtime smoke test fails the build on any warning line. The two grade upgrades on
+  that slot (`increase.area`, `increase.damageReduction`) were read by the old script through
+  `upgradeSpellsWOD` and `getWheelSpellAdditionalArea`; a stance reads neither, so they are
+  kept but inert — the same wired-and-doing-nothing state PR #49 left Lord of Destruction and
+  the Shield Slam augments in. What the official 15.25 Wheel actually grants in that slot is
+  not published, so the Technical Director should confirm or replace this mapping.
 - `FIDELITY_BLOCKER — FORMULA_EVIDENCE_REQUIRED` — Shield Bash / Slam damage shape, carried
   over from PR #49 unchanged. This lane only corrected the stat that feeds it.
 - Every other PR #49 blocker (`WAND_MANA_GENERATION_AMOUNT`, `OFFICIAL_SPELL_IDS`,
