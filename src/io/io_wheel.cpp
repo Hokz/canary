@@ -50,6 +50,13 @@ namespace InternalPlayerWheel {
 	 */
 	template <typename T>
 	void registerWheelSpellTable(const T &spellData, const std::string &name, WheelSpellGrade_t gradeType) {
+		// A slot with no spell name is a slot that grants no spell - not a spell that
+		// could not be found. The Sorcerer's slot 1 is one of these; see
+		// IOWheel::initializeSorcererSpells.
+		if (name.empty()) {
+			return;
+		}
+
 		if (name == "Any_Focus_Mage_Spell") {
 			for (const std::string &focusSpellName : m_focusSpells) {
 				g_logger().trace("[{}] registered any spell: {}", __FUNCTION__, focusSpellName);
@@ -302,17 +309,15 @@ void IOWheel::initializeSorcererSpells() {
 	m_wheelBonusData.spells.sorcerer[0].name = "Magic Shield";
 	m_wheelBonusData.spells.sorcerer[0].grade[2].decrease.cooldown = 6;
 
-	// The slot's spell is the Sorcerer's crippling one, which as of 15.25 is the
-	// stance rather than the targeted Sap Strength this replaced. The two grade
-	// upgrades below were read by that old script (a wider area, a deeper damage
-	// reduction) through upgradeSpellsWOD and getWheelSpellAdditionalArea; a stance
-	// reads neither, so they are inert here - wired and doing nothing, the way
-	// Lord of Destruction and the Shield Slam augments already are. They are kept
-	// rather than deleted because what the official 15.25 Wheel grants in this slot
-	// is not evidenced. FIDELITY_BLOCKER - WHEEL_SORCERER_SLOT_SPELL.
-	m_wheelBonusData.spells.sorcerer[1].name = "Aura of Sapped Strength";
-	m_wheelBonusData.spells.sorcerer[1].grade[1].increase.area = true;
-	m_wheelBonusData.spells.sorcerer[1].grade[2].increase.damageReduction = 1;
+	// Slot 1 used to be "Sap Strength", with two grade upgrades the old targeted
+	// script read through upgradeSpellsWOD and getWheelSpellAdditionalArea: a wider
+	// area and a deeper damage reduction. That spell is retired, and what the
+	// official 15.25 Wheel grants in its place is NOT evidenced - the replacement
+	// stance reads neither upgrade, so naming it here would assert an equivalence
+	// nothing proves. The entry is left empty on purpose: the Sorcerer's red- and
+	// blue-middle 100 slots grant no spell until the mapping is evidenced, and a
+	// nameless entry registers nothing rather than warning about a missing spell.
+	// FIDELITY_BLOCKER - WHEEL_SORCERER_SLOT_SPELL.
 
 	m_wheelBonusData.spells.sorcerer[2].name = "Energy Wave";
 	m_wheelBonusData.spells.sorcerer[2].grade[1].increase.damage = 5;
@@ -620,9 +625,9 @@ void IOWheel::slotRedMiddle100(const std::shared_ptr<Player> &player, uint16_t p
 		addSpell(player, bonusData, WheelSlots_t::SLOT_RED_MIDDLE_100, points, "Divine Dazzle");
 		bonusData.stats.mana += 3 * points;
 	} else if (isSorcerer(vocationCipId) || isDruid(vocationCipId)) {
-		if (isSorcerer(vocationCipId)) {
-			addSpell(player, bonusData, WheelSlots_t::SLOT_RED_MIDDLE_100, points, "Aura of Sapped Strength");
-		} else {
+		// The Sorcerer's spell for this slot is an open fidelity question; see
+		// initializeSorcererSpells. The Druid's is unaffected.
+		if (isDruid(vocationCipId)) {
 			addSpell(player, bonusData, WheelSlots_t::SLOT_RED_MIDDLE_100, points, "Nature's Embrace");
 		}
 		bonusData.stats.mana += 6 * points;
@@ -872,9 +877,7 @@ void IOWheel::slotBlueMiddle100(const std::shared_ptr<Player> &player, uint16_t 
 	} else if (isPaladin(vocationCipId)) {
 		addSpell(player, bonusData, WheelSlots_t::SLOT_BLUE_MIDDLE_100, points, "Divine Dazzle");
 	} else if (isSorcerer(vocationCipId) || isDruid(vocationCipId)) {
-		if (isSorcerer(vocationCipId)) {
-			addSpell(player, bonusData, WheelSlots_t::SLOT_BLUE_MIDDLE_100, points, "Aura of Sapped Strength");
-		} else {
+		if (isDruid(vocationCipId)) {
 			addSpell(player, bonusData, WheelSlots_t::SLOT_BLUE_MIDDLE_100, points, "Nature's Embrace");
 		}
 	} else {

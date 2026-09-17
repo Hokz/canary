@@ -1124,10 +1124,15 @@ void WeaponProficiency::addSkillBonus(skills_t type, uint32_t value) {
 	}
 
 	m_skills[static_cast<size_t>(enumValue)] += value;
+	// This bonus is part of the skill the player has, so a percent stance scales from
+	// it. It does not go through Player::setVarSkill, so the re-derivation has to be
+	// asked for here - on every add, reset, clear, reload and re-apply.
+	m_player.refreshPercentSkillRecipes();
 }
 
 void WeaponProficiency::resetSkillBonuses() {
 	m_skills.fill(0);
+	m_player.refreshPercentSkillRecipes();
 }
 
 double_t WeaponProficiency::getPowerfulFoeDamage() const {

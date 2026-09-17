@@ -2407,6 +2407,9 @@ void PlayerWheel::registerPlayerBonusData() {
 
 	onThink(false); // Not forcing the reload
 	reloadPlayerData();
+	// The instants and major stats settled above feed getMajorStatConditional, which
+	// a percent stance scales from; a stat-level hook cannot see those change.
+	m_player.refreshPercentSkillRecipes();
 }
 
 void PlayerWheel::loadPlayerBonusData() {
@@ -3556,6 +3559,9 @@ void PlayerWheel::addStat(WheelStat_t type, int32_t value) {
 		return;
 	}
 	m_stats[enumValue] += value;
+	// Wheel skill stats count towards the skill a percent stance scales from, and
+	// they never pass through Player::setVarSkill; see WeaponProficiency::addSkillBonus.
+	m_player.refreshPercentSkillRecipes();
 }
 
 void PlayerWheel::addResistance(CombatType_t type, int32_t value) {
@@ -3712,6 +3718,7 @@ void PlayerWheel::resetStats() {
 	for (int32_t i = 0; i < static_cast<int>(WheelStat_t::TOTAL_COUNT); i++) {
 		m_stats[i] = 0;
 	}
+	m_player.refreshPercentSkillRecipes();
 }
 
 // Wheel of destiny - Header get:

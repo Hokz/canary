@@ -211,7 +211,7 @@ namespace {
 		EXPECT_EQ(100, player->getSkillLevel(SKILL_DISTANCE));
 	}
 
-	TEST_F(EffectiveSkillPercentTest, AWeaponProficiencySkillBonusCountsTowardsThePercentage) {
+	TEST_F(EffectiveSkillPercentTest, AWeaponProficiencySkillBonusAlreadyHeldCountsTowardsThePercentage) {
 		// Weapon Proficiency adds its skill bonus inside getSkillLevel, so it is part of
 		// the skill the player actually has and the percentage scales from it - the same
 		// rule equipment gets. The proficiency's own percentage perks keep reading the
@@ -225,6 +225,76 @@ namespace {
 		ASSERT_TRUE(player->addCondition(percentStance(AttrSubId_t::StanceSharpshooter, CONDITION_PARAM_SKILL_DISTANCEPERCENT, 130)));
 		EXPECT_EQ(156, player->getSkillLevel(SKILL_DISTANCE)) << "30% of 120";
 		EXPECT_EQ(120, player->getSkillLevelForPercentScaling(SKILL_DISTANCE)) << "and the source is still the pre-percent skill";
+	}
+
+	TEST_F(EffectiveSkillPercentTest, AProficiencyBonusGainedWhileTheStanceIsOnRecalculatesAtOnce) {
+		// The order that matters. Weapon Proficiency writes its skill bonus straight
+		// into its own array and never goes through Player::setVarSkill, so with the
+		// stance already active nothing would ask for the re-derivation unless the
+		// component asks for it itself - the bonus would sit in the player's skill
+		// while the percentage went on scaling from the skill he had before it.
+		auto player = std::make_shared<Player>();
+		equipFlatDistance(player, 90);
+		ASSERT_TRUE(player->addCondition(sharpshooter()));
+		ASSERT_EQ(132, player->getSkillLevel(SKILL_DISTANCE));
+
+		player->weaponProficiency().addSkillBonus(SKILL_DISTANCE, 20);
+		EXPECT_EQ(120, player->getSkillLevelForPercentScaling(SKILL_DISTANCE)) << "10 trained + 90 equipment + 20 proficiency";
+		EXPECT_EQ(158, player->getSkillLevel(SKILL_DISTANCE)) << "32% of 120 is 38, on top of 10 + 90 + 20";
+
+		for (int i = 0; i < 3; ++i) {
+			player->refreshPercentSkillRecipes();
+			EXPECT_EQ(158, player->getSkillLevel(SKILL_DISTANCE)) << "refresh " << i << " compounded";
+		}
+
+		player->weaponProficiency().resetSkillBonuses();
+		EXPECT_EQ(132, player->getSkillLevel(SKILL_DISTANCE)) << "clearing it takes the bonus and its share of the percentage";
+		EXPECT_EQ(100, player->getSkillLevelForPercentScaling(SKILL_DISTANCE));
+	}
+
+	TEST_F(EffectiveSkillPercentTest, AWheelSkillStatGainedWhileTheStanceIsOnRecalculatesAtOnce) {
+		// Same rule, same reason: the Wheel's skill stats are part of the skill the
+		// player has and never pass through setVarSkill either.
+		auto player = std::make_shared<Player>();
+		equipFlatDistance(player, 90);
+		ASSERT_TRUE(player->addCondition(sharpshooter()));
+		ASSERT_EQ(132, player->getSkillLevel(SKILL_DISTANCE));
+
+		player->wheel().addStat(WheelStat_t::DISTANCE, 20);
+		EXPECT_EQ(120, player->getSkillLevelForPercentScaling(SKILL_DISTANCE));
+		EXPECT_EQ(158, player->getSkillLevel(SKILL_DISTANCE));
+
+		for (int i = 0; i < 3; ++i) {
+			player->refreshPercentSkillRecipes();
+			EXPECT_EQ(158, player->getSkillLevel(SKILL_DISTANCE)) << "refresh " << i << " compounded";
+		}
+
+		player->wheel().resetStats();
+		EXPECT_EQ(132, player->getSkillLevel(SKILL_DISTANCE));
+		EXPECT_EQ(100, player->getSkillLevelForPercentScaling(SKILL_DISTANCE));
+	}
+
+	TEST_F(EffectiveSkillPercentTest, ProficiencyAndWheelStackOnTheSameSkillWithoutCompounding) {
+		// Both sources at once, added after the stance: they add to the source, the
+		// percentage is taken once against the sum, and removing them unwinds exactly.
+		auto player = std::make_shared<Player>();
+		equipFlatDistance(player, 90);
+		ASSERT_TRUE(player->addCondition(sharpshooter()));
+
+		player->weaponProficiency().addSkillBonus(SKILL_DISTANCE, 20);
+		player->wheel().addStat(WheelStat_t::DISTANCE, 20);
+		EXPECT_EQ(140, player->getSkillLevelForPercentScaling(SKILL_DISTANCE));
+		EXPECT_EQ(184, player->getSkillLevel(SKILL_DISTANCE)) << "32% of 140 is 44, on top of 10 + 90 + 20 + 20";
+
+		player->wheel().resetStats();
+		EXPECT_EQ(158, player->getSkillLevel(SKILL_DISTANCE));
+		player->weaponProficiency().resetSkillBonuses();
+		EXPECT_EQ(132, player->getSkillLevel(SKILL_DISTANCE));
+
+		const auto &stance = player->getCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, magic_enum::enum_integer(AttrSubId_t::StanceSharpshooter));
+		ASSERT_NE(nullptr, stance);
+		player->removeCondition(stance);
+		EXPECT_EQ(100, player->getSkillLevel(SKILL_DISTANCE));
 	}
 
 	TEST_F(EffectiveSkillPercentTest, TheBaseSkillStaysRawThroughoutAndUnrelatedSkillsAreUntouched) {

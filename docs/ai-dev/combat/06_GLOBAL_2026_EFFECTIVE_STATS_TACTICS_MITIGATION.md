@@ -85,8 +85,23 @@ Wheel skill stats, Weapon Proficiency skill bonuses.
 player right now, compares it with what it *does* have (`skillsFromPercentApplied`) and moves
 the difference. Applying it any number of times is therefore a no-op after the first. It runs
 on `startCondition`, on a merge, on `endCondition` (retiring the recipe), and from
-`Player::refreshPercentSkillRecipes` whenever a non-percent source changes — `setVarSkill` and
-a skill advance both call it.
+`Player::refreshPercentSkillRecipes` whenever a non-percent source changes.
+
+**Every source has to announce itself, and two of them do not go through `setVarSkill`:**
+
+| Source | How it reaches the skill | What asks for the re-derivation |
+|---|---|---|
+| equipment, imbuements, flat condition recipes, item decay | `Player::setVarSkill` | `setVarSkill` itself |
+| training | `Player::addSkillAdvance` | the advance, per level gained |
+| Weapon Proficiency | `WeaponProficiency::m_skills`, written directly | `addSkillBonus` and `resetSkillBonuses` |
+| Wheel skill stats | `PlayerWheel::m_stats`, written directly | `addStat` and `resetStats` |
+| Wheel conditional bonuses (`getMajorStatConditional`) | instants and major stats settled by a whole bonus-data pass | the end of `PlayerWheel::loadPlayerBonusData` |
+
+The two component arrays are the ones that would silently go stale: the bonus lands in the
+skill the player has while the percentage keeps scaling from the skill he had before it, until
+some later, unrelated `setVarSkill` corrects it. `AProficiencyBonusGainedWhileTheStanceIsOnRecalculatesAtOnce`
+and `AWheelSkillStatGainedWhileTheStanceIsOnRecalculatesAtOnce` exercise exactly that order —
+stance first, source second — because the reverse order passes either way.
 
 Two recipes on the same skill read the same source, so they add and the order they arrive in
 does not change the result: 100 with +30% and +20% is 150, never 100 × 1.3 × 1.2.
@@ -193,7 +208,8 @@ place and that is no longer true.
 
 **One Wheel reference had to follow.** `src/io/io_wheel.cpp` named "Sap Strength" in three
 places — the Sorcerer spell table and the two 100-point slot grants. See **J**: the dead name
-fails the build, so the slots now name the stance that replaced the spell.
+fails the build, and no evidenced replacement exists, so the slot now grants no spell and the
+mapping is an open blocker rather than a guess.
 
 **Player impact, stated plainly:** a character who had learned either spell keeps the learned
 entry but can no longer cast it, and the gold spent is not refunded. That is inherent to
@@ -204,7 +220,7 @@ retiring a spell and is the Technical Director's call, not a side effect this la
 | File | Cases | What it proves |
 |---|---|---|
 | `tests/unit/items/effective_combat_values_test.cpp` | 9 | the three percentages, that they differ, fractions kept, nothing ≤ 0 scaled, shield vs spellbook vs other classification, a double application is visibly wrong, the rounding point |
-| `tests/unit/players/condition/effective_skill_percent_test.cpp` | 11 | 100 +30% = 130; equipment counts and follows up and down; five refreshes do not compound; recast applies once and removal restores exactly; two recipes add and are order-independent; a relog restores once; the blob carries the recipe not the value; flat and percent coexist; a proficiency skill bonus counts as source; `getBaseSkill` stays raw; a pre-separation blob drops the stale value |
+| `tests/unit/players/condition/effective_skill_percent_test.cpp` | 16 | 100 +30% = 130; equipment counts and follows up and down; five refreshes do not compound; recast applies once and removal restores exactly; two recipes add and are order-independent; a relog restores once; the blob carries the recipe not the value; flat and percent coexist; a proficiency skill bonus counts as source; a proficiency bonus, a Wheel stat and both together gained **while the stance is already on** re-derive at once and unwind exactly; a condition's own flat recipe feeds its own percentage; `getBaseSkill` stays raw; a pre-separation blob drops the stale value |
 | `tests/unit/players/combat_tactics_test.cpp` | 9 | attack factor, defence factor, defence, mitigation, attack total and defence equipment identical in all three fight modes; a legacy client still gets the old weighting and those numbers really differ; weapon +20% modern only; shield +30% and spellbook +60%; an ordinary off-hand gets neither; raw item data untouched; Shield Bash reads the same compensated value; no percentage applied twice along the defence chain |
 
 Existing suites kept green locally: `test_stance_library.lua` (15), `test_vocation_balance_formulas.lua` (18), `stylua`, `luac`, `clang-format`, `cmake-format`, the Lua API quality and binding-doc checks.
@@ -237,17 +253,22 @@ and no proficiency unless stated.
   Defense indicators are client-side. The server already omits the fight-mode byte for the
   current profile (`TacticsWithoutFightMode`, PR #42). Removing the indicators themselves
   needs verified packet evidence this repository does not have, and no byte was invented.
-- `FIDELITY_BLOCKER — WHEEL_SORCERER_SLOT_SPELL` — the Sorcerer's red- and blue-middle 100
-  slots used to grant the retired Sap Strength; they now grant Aura of Sapped Strength, the
-  stance that replaced it. **This was a forced choice, not an evidenced one.** Leaving the dead
-  name in place was the first attempt and it does *not* degrade safely:
-  `InternalPlayerWheel::registerWheelSpellTable` logs a warning for a name it cannot resolve,
-  and the CI runtime smoke test fails the build on any warning line. The two grade upgrades on
-  that slot (`increase.area`, `increase.damageReduction`) were read by the old script through
-  `upgradeSpellsWOD` and `getWheelSpellAdditionalArea`; a stance reads neither, so they are
-  kept but inert — the same wired-and-doing-nothing state PR #49 left Lord of Destruction and
-  the Shield Slam augments in. What the official 15.25 Wheel actually grants in that slot is
-  not published, so the Technical Director should confirm or replace this mapping.
+- `FIDELITY_BLOCKER — WHEEL_SORCERER_SLOT_SPELL` — **open, and deliberately left open.** The
+  Sorcerer's red- and blue-middle 100 slots used to grant the retired Sap Strength. Three
+  things are true at once: leaving the dead name in place does *not* degrade safely
+  (`registerWheelSpellTable` logs a warning for a name it cannot resolve, and the runtime smoke
+  test fails the build on any warning line); naming the replacement stance there would assert
+  an equivalence nothing proves, and the slot's two grade upgrades (`increase.area`,
+  `increase.damageReduction`) were read by the old script through `upgradeSpellsWOD` and
+  `getWheelSpellAdditionalArea`, which a stance reads neither of; and what the official 15.25
+  Wheel grants in that slot is not published.
+
+  So the entry is left **nameless**, `registerWheelSpellTable` skips an empty name as "this
+  slot grants no spell" rather than "this spell is missing", and the two slot grants are now
+  Druid-only. **Consequence, stated plainly: a Sorcerer with 100 points in either slot gets no
+  spell from it** (the slot's mana stat is unaffected). That is a real loss against the
+  pre-retirement behaviour and it is the Technical Director's call to resolve — mapping the
+  slot to `Aura of Sapped Strength` is a one-line change if that is the decision.
 - `FIDELITY_BLOCKER — FORMULA_EVIDENCE_REQUIRED` — Shield Bash / Slam damage shape, carried
   over from PR #49 unchanged. This lane only corrected the stat that feeds it.
 - Every other PR #49 blocker (`WAND_MANA_GENERATION_AMOUNT`, `OFFICIAL_SPELL_IDS`,
