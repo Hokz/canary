@@ -5,6 +5,7 @@ target_sources(
             dispatcher_wdrr_test.cpp
             events_scheduler_test.cpp
             highscores_test.cpp
+            mana_shield_absorption_test.cpp
             monster_combat_intention_test.cpp
             monster_compute_service_test.cpp
             monster_pathfinding_test.cpp

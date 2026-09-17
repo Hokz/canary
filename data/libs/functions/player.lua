@@ -883,3 +883,18 @@ function Player.findItemInInbox(self, itemId, name)
 	end
 	return nil
 end
+
+--- The defence value of the shield this player has equipped, or 0 without one.
+-- One place for it, so Shield Bash and Shield Slam read the same number and a
+-- future change to how shield defence is valued (the 15.25 +30% is not in this
+-- lane) lands here once rather than in each spell.
+-- @return number
+function Player.getEquippedShieldDefense(self)
+	for _, slot in ipairs({ CONST_SLOT_LEFT, CONST_SLOT_RIGHT }) do
+		local item = self:getSlotItem(slot)
+		if item and item:getType():getWeaponType() == WEAPON_SHIELD then
+			return item:getType():getDefense()
+		end
+	end
+	return 0
+end

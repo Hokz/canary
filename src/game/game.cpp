@@ -13,6 +13,8 @@
 #include "creatures/appearance/mounts/mounts.hpp"
 #include "creatures/appearance/attached_effects/attached_effects.hpp"
 #include "creatures/combat/condition.hpp"
+#include "creatures/combat/crippling_aura.hpp"
+#include "creatures/combat/mana_shield_absorption.hpp"
 #include "creatures/combat/spells.hpp"
 #include "creatures/creature.hpp"
 #include "creatures/interactions/chat.hpp"
@@ -7874,6 +7876,12 @@ bool Game::combatBlockHit(CombatDamage &damage, const std::shared_ptr<Creature> 
 	// Skill dodge (ruse)
 	if (targetPlayer) {
 		auto chance = targetPlayer->getDodgeChance();
+		// Divine Defiance: extra dodge only against attackers that are not adjacent.
+		// Without an attacker (fields, some conditions) there is no distance to judge,
+		// and the extra does not apply.
+		if (attacker && !Position::areInRange<1, 1, 0>(attacker->getPosition(), target->getPosition())) {
+			chance += targetPlayer->getRangedDodgeChance();
+		}
 		if ((chance > 0 && uniform_random(0, 10000) < chance) || damage.hazardDodge) {
 			InternalGame::sendBlockEffect(BLOCK_DODGE, damage.primary.type, target->getPosition(), attacker);
 			targetPlayer->sendTextMessage(MESSAGE_ATTENTION, "You dodged an attack.");
@@ -8358,6 +8366,13 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 			}
 		}
 
+		// Shared Conservation (15.25): +10% on healing spells the holder casts on
+		// themselves. Applied here because this is where healer and target are both
+		// known; the rule itself is Player::applySharedConservationSelfHeal.
+		if (attackerPlayer) {
+			attackerPlayer->applySharedConservationSelfHeal(target, damage);
+		}
+
 		// Wheel of destiny combat healing
 		applyWheelOfDestinyHealing(damage, attackerPlayer, target);
 
@@ -8438,6 +8453,14 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 				addMagicEffect(targetPos, CONST_ME_POFF);
 			}
 			return true;
+		}
+
+		// Shield Bash / Shield Slam: the attacker's next auto attack deals less. This
+		// is the first point every damage source passes with its origin set, so it is
+		// where "next auto attack" is decided - consumeNextAutoAttackDebuff only acts
+		// on melee, ranged and fist origins and leaves spells and runes alone.
+		if (attacker) {
+			attacker->consumeNextAutoAttackDebuff(damage);
 		}
 
 		const auto &attackerPlayer = attacker ? attacker->getPlayer() : nullptr;
@@ -8576,8 +8599,15 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 		std::stringstream ss;
 
 		if (target->hasCondition(CONDITION_MANASHIELD) && damage.primary.type != COMBAT_UNDEFINEDDAMAGE) {
-			int32_t manaDamage = std::min<int32_t>(target->getMana(), healthChange);
 			uint32_t manaShield = target->getManaShield();
+			// 15.25: the Energy Ring's shield costs 2 mana per hit point instead of 1.
+			// The ring is the shield with no capacity - the Magic Shield spell always
+			// sets one - so that is the distinguishing test. The arithmetic is in
+			// computeManaShieldAbsorption: hit points covered are decided first from
+			// the mana at the exchange rate, and the mana spent is exactly those hit
+			// points times the rate, so no mana is ever spent on a fraction of one.
+			const int32_t manaPerHitPoint = manaShield == 0 ? 2 : 1;
+			int32_t manaDamage = computeManaShieldAbsorption(static_cast<int32_t>(target->getMana()), healthChange, manaPerHitPoint).manaSpent;
 			if (manaShield > 0) {
 				if (manaShield > manaDamage) {
 					target->setManaShield(manaShield - manaDamage);
@@ -8599,7 +8629,7 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 						if (healthChange == 0) {
 							return true;
 						}
-						manaDamage = std::min<int32_t>(target->getMana(), healthChange);
+						manaDamage = computeManaShieldAbsorption(static_cast<int32_t>(target->getMana()), healthChange, manaPerHitPoint).manaSpent;
 					}
 				}
 
@@ -8666,11 +8696,10 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 					tmpPlayer->sendTextMessage(message);
 				}
 
-				damage.primary.value -= manaDamage;
-				if (damage.primary.value < 0) {
-					damage.secondary.value = std::max<int32_t>(0, damage.secondary.value + damage.primary.value);
-					damage.primary.value = 0;
-				}
+				// manaDamage is a whole number of hit points times the rate (the
+				// capacity cap above only ever lowers it on the 1:1 shield), so this
+				// division is exact.
+				takeAbsorbedHealthOff(damage, manaDamage / manaPerHitPoint);
 
 				if (attackerPlayer) {
 					attackerPlayer->updateImpactTracker(damage.primary.type, damage.primary.value);
@@ -8696,6 +8725,45 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 		// Apply Custom PvP Damage (must be placed here to avoid recursive calls)
 		if (attackerPlayer && targetPlayer) {
 			applyPvPDamage(damage, attackerPlayer, targetPlayer);
+		}
+
+		// Mana Buffer (15.25, July balance values): a lethal-hit rescue for Sorcerers
+		// and Druids, not a mana shield - ordinary damage is never moved to mana. When
+		// a hit would kill, the player is left at 1 hit point and pays for it in mana:
+		//
+		//   overkill conversion   (damage - health) x 10
+		//   activation penalty    25% of max mana, charged at most once per 2 seconds
+		//
+		// An exactly lethal hit has overkill 0 and still costs the penalty. Not enough
+		// mana for the whole bill means no rescue; the hit lands and the player dies.
+		// The release build used x8; x10 is the later balance value.
+		if (targetPlayer && attacker != target && damage.primary.type != COMBAT_AGONYDAMAGE) {
+			const auto vocation = targetPlayer->getPlayerVocationEnum();
+			const int32_t total = damage.primary.value + damage.secondary.value;
+			const int32_t health = target->getHealth();
+			if ((vocation == VOCATION_SORCERER_CIP || vocation == VOCATION_DRUID_CIP) && total >= health && health > 0) {
+				const int32_t survivable = health - 1;
+				const int64_t overkill = static_cast<int64_t>(total) - health;
+				int64_t manaCost = overkill * 10;
+				const bool burst = OTSYS_TIME() - targetPlayer->getLastManaBufferBurst() >= 2000;
+				if (burst) {
+					manaCost += static_cast<int64_t>(targetPlayer->getMaxMana()) * 25 / 100;
+				}
+				if (manaCost >= 0 && static_cast<int64_t>(targetPlayer->getMana()) >= manaCost) {
+					if (burst) {
+						targetPlayer->setLastManaBufferBurst(OTSYS_TIME());
+					}
+					targetPlayer->drainMana(attacker, static_cast<int32_t>(manaCost));
+					// Cut the damage down to the survivable part, taking from the
+					// secondary value first so the primary keeps its type.
+					int32_t remaining = survivable;
+					damage.primary.value = std::min<int32_t>(damage.primary.value, remaining);
+					remaining -= damage.primary.value;
+					damage.secondary.value = std::min<int32_t>(damage.secondary.value, remaining);
+					damage.exString = "mana buffer";
+					targetPlayer->sendTextMessage(MESSAGE_ATTENTION, fmt::format("Your mana buffer absorbed the excess damage for {} mana.", manaCost));
+				}
+			}
 		}
 
 		auto targetHealth = target->getHealth();
@@ -8745,10 +8813,16 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 
 		if (attackerPlayer) {
 			if (!damage.extension && damage.origin != ORIGIN_CONDITION) {
-				applyCharmRune(targetMonster, attackerPlayer, target, realDamage);
+				if (!damage.noCharm) {
+					applyCharmRune(targetMonster, attackerPlayer, target, realDamage);
+				}
 				applyLifeLeech(attackerPlayer, targetMonster, target, damage, realDamage);
 				applyManaLeech(attackerPlayer, targetMonster, target, damage, realDamage);
 			}
+			// Aura of Sapped Strength / Exposed Weakness: the debuff lands with the
+			// hit, here, after it has resolved and taken health - never from target
+			// selection, where a later dodge or block was still unknown.
+			CripplingAura::apply(attackerPlayer, target, damage, realDamage);
 			updatePlayerPartyHuntAnalyzer(damage, attackerPlayer);
 		}
 	}

@@ -150,7 +150,9 @@ int32_t Weapon::playerWeaponCheck(const std::shared_ptr<Player> &player, const s
 			return 0;
 		}
 
-		if (player->getMana() < getManaCost(player)) {
+		// Wands generate mana as of 15.25 (see internalUseWeapon), so an empty mana
+		// pool must not stop them firing.
+		if (getWeaponType() != WEAPON_WAND && player->getMana() < getManaCost(player)) {
 			return 0;
 		}
 
@@ -343,11 +345,24 @@ void Weapon::onUsedWeapon(const std::shared_ptr<Player> &player, const std::shar
 
 	const uint32_t manaCost = getManaCost(player);
 	if (manaCost != 0) {
-		player->addManaSpent(manaCost);
-		player->changeMana(-static_cast<int32_t>(manaCost));
+		if (getWeaponType() == WEAPON_WAND) {
+			// 15.25: wands and rods generate mana on each hit instead of consuming it.
+			// The amount is not publicly documented, so it is config
+			// (wandManaGenerationPercent), a percentage of the mana the wand used to
+			// cost - not a constant pretending to be the official value. No mana is
+			// "spent", so nothing counts towards magic level.
+			const auto percent = std::max<int32_t>(0, g_configManager().getNumber(WAND_MANA_GENERATION_PERCENT));
+			const auto generated = static_cast<int32_t>(static_cast<int64_t>(manaCost) * percent / 100);
+			if (generated > 0) {
+				player->changeMana(generated);
+			}
+		} else {
+			player->addManaSpent(manaCost);
+			player->changeMana(-static_cast<int32_t>(manaCost));
 
-		if (g_configManager().getBoolean(REFUND_BEGINNING_WEAPON_MANA) && (item->getName() == "wand of vortex" || item->getName() == "snakebite rod")) {
-			player->changeMana(static_cast<int32_t>(manaCost));
+			if (g_configManager().getBoolean(REFUND_BEGINNING_WEAPON_MANA) && (item->getName() == "wand of vortex" || item->getName() == "snakebite rod")) {
+				player->changeMana(static_cast<int32_t>(manaCost));
+			}
 		}
 	}
 

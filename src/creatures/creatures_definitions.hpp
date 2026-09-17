@@ -105,6 +105,21 @@ enum ConditionAttr_t {
 	CONDITIONATTR_CHARM_CHANCE_MODIFIER,
 	CONDITIONATTR_PERSISTENT,
 
+	// The percent arrays behind skills, stats and buffs. Without these only the
+	// computed flat bonus survives a save, and the percentage that produced it is
+	// lost - so the bonus can never be recomputed against the player's current
+	// values. Appended here so every value above keeps its number: these are read
+	// back out of saved condition blobs.
+	CONDITIONATTR_SKILLSPERCENT,
+	CONDITIONATTR_STATSPERCENT,
+	CONDITIONATTR_BUFFSPERCENT,
+	CONDITIONATTR_SPECIALIZED_MAGICLEVEL_SOURCE,
+	CONDITIONATTR_SPECIALIZED_MAGICLEVEL_PERCENT,
+	CONDITIONATTR_DODGE_RANGED,
+	CONDITIONATTR_ELEMENT_CRITICAL_CHANCE,
+	CONDITIONATTR_ELEMENT_CRITICAL_DAMAGE,
+	CONDITIONATTR_ELEMENTAL_PIERCE_RECEIVED,
+
 	// reserved for serialization
 	CONDITIONATTR_END = 254,
 };
@@ -261,6 +276,35 @@ enum ConditionParam_t {
 	CONDITION_PARAM_BUFF_HEALINGDEALT = 84,
 	CONDITION_PARAM_BUFF_HARMONYBONUS = 85,
 	CONDITION_PARAM_BUFF_AUTOATTACKDEALT = 86,
+
+	// Specialized magic level derived from a skill (15.25 stances). SOURCE names the
+	// skills_t the percentages are taken from - SKILL_DISTANCE for Divine Defiance,
+	// SKILL_MAGLEVEL for Elemental Synthesis - and each *PERCENT is how much of that
+	// skill becomes specialized magic level for one damage type. Recomputed from the
+	// player's current skill at startCondition, so the bonus follows the skill.
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_SOURCE = 87,
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_HOLYPERCENT = 88,
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_HEALINGPERCENT = 89,
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_ICEPERCENT = 90,
+	CONDITION_PARAM_SPECIALIZED_MAGICLEVEL_EARTHPERCENT = 91,
+
+	// Dodge chance in basis points (1200 = 12%) that only applies against attackers
+	// who are not adjacent to the player. Divine Defiance's "dodge against non-adjacent
+	// enemies"; the adjacency test lives where both positions are known,
+	// Game::combatBlockHit.
+	CONDITION_PARAM_DODGE_RANGED = 92,
+
+	// Element-specific critical bonus, in basis points (400 = 4%). Master of Thunder
+	// (+4% critical chance on energy spells) and Master of Decay (+30% critical extra
+	// damage on death spells). Only the pairs the stances need exist; add a param
+	// when a stance needs another element.
+	CONDITION_PARAM_ELEMENT_CRITICAL_CHANCE_ENERGY = 93,
+	CONDITION_PARAM_ELEMENT_CRITICAL_DAMAGE_DEATH = 94,
+
+	// Elemental Pierce granted AGAINST the creature holding the condition, in percent
+	// (Aura of Exposed Weakness: 8). Lowers the resistance elemental damage meets on
+	// it; see Creature::applyAbsorbDamageModifications.
+	CONDITION_PARAM_ELEMENTAL_PIERCE_RECEIVED = 95,
 };
 
 enum stats_t {
@@ -308,6 +352,7 @@ enum CombatParam_t {
 	COMBAT_PARAM_CASTSOUND,
 	COMBAT_PARAM_IMPACTSOUND,
 	COMBAT_PARAM_CHAIN_EFFECT,
+	COMBAT_PARAM_NOCHARM,
 };
 
 enum CombatOrigin : uint8_t {
@@ -1733,6 +1778,13 @@ struct CombatDamage {
 	std::string exString;
 	bool fatal = false;
 	bool hazardDodge = false;
+	// Death Echo's second impact: damage that must not trigger charms.
+	bool noCharm = false;
+	// The primary element the source had before any stance conversion (Master of
+	// Flames / Thunder / Decay), so a converted spell can still be judged by what it
+	// naturally is. Set by Combat::getCombatDamage; COMBAT_NONE on damage built
+	// anywhere else (auto attacks, wands, item and script damage).
+	CombatType_t naturalPrimaryType = COMBAT_NONE;
 
 	int32_t criticalDamage = 0;
 	int32_t criticalChance = 0;
@@ -1751,7 +1803,7 @@ struct CombatDamage {
 	CombatDamage() = default;
 
 	bool isEmpty() const {
-		return primary.type == COMBAT_NONE && primary.value == 0 && secondary.type == COMBAT_NONE && secondary.value == 0 && origin == ORIGIN_NONE && critical == false && affected == 1 && extension == false && exString.empty() && fatal == false && criticalDamage == 0 && criticalChance == 0 && damageMultiplier == 0 && damageReductionMultiplier == 0 && healingMultiplier == 0 && manaLeech == 0 && manaLeechChance == 0 && lifeLeech == 0 && lifeLeechChance == 0 && healingLink == 0 && instantSpellName.empty() && runeSpellName.empty();
+		return primary.type == COMBAT_NONE && primary.value == 0 && secondary.type == COMBAT_NONE && secondary.value == 0 && origin == ORIGIN_NONE && critical == false && affected == 1 && extension == false && exString.empty() && fatal == false && noCharm == false && naturalPrimaryType == COMBAT_NONE && criticalDamage == 0 && criticalChance == 0 && damageMultiplier == 0 && damageReductionMultiplier == 0 && healingMultiplier == 0 && manaLeech == 0 && manaLeechChance == 0 && lifeLeech == 0 && lifeLeechChance == 0 && healingLink == 0 && instantSpellName.empty() && runeSpellName.empty();
 	}
 };
 

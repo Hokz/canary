@@ -4,8 +4,9 @@ combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_SMALLPLANTS)
 combat:setArea(createCombatArea(AREA_CIRCLE6X6))
 
 function onGetFormulaValues(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 5)
-	local max = (level / 5) + (maglevel * 10)
+	-- 15.25.3a4a52: base power 150 -> 175, expressed in the datapack's level/magic-level form by scaling the magic-level multipliers and constants by the same ratio.
+	local min = (level / 5) + (maglevel * 5.8)
+	local max = (level / 5) + (maglevel * 11.7)
 	return -min, -max
 end
 

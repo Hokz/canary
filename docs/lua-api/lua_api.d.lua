@@ -469,6 +469,9 @@ function Creature:hasBeenSummoned() end
 function Creature:hasCondition(conditionType, subId) end
 
 ---@return boolean
+function Creature:hasNextAutoAttackDebuff() end
+
+---@return boolean
 function Creature:isCreature() end
 
 ---@return boolean|nil
@@ -571,6 +574,11 @@ function Creature:setMaxHealth(maxHealth) end
 ---@param moveLocked boolean
 ---@return boolean|nil
 function Creature:setMoveLocked(moveLocked) end
+
+---@param percent number
+---@param durationMs number
+---@return boolean
+function Creature:setNextAutoAttackDebuff(percent, durationMs) end
 
 ---@param outfit any
 ---@return boolean|nil

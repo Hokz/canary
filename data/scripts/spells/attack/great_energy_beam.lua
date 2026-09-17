@@ -1,6 +1,10 @@
+-- Base power 170 -> 155 in the July balance pass (CipSoft, 7 July), the same
+-- adjustment Great Death Beam received. This spell's own datapack coefficients are
+-- 4 (min) and 7 (max) at base power 170; both scale by 155/170: 3.6471 and 6.3824,
+-- to two decimals. See great_death_beam.lua.
 local function formulaFunction(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 4)
-	local max = (level / 5) + (maglevel * 7)
+	local min = (level / 5) + (maglevel * 3.65)
+	local max = (level / 5) + (maglevel * 6.38)
 	return -min, -max
 end
 

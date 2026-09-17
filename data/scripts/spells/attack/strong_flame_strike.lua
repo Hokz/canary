@@ -4,8 +4,9 @@ combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_FIREATTACK)
 combat:setParameter(COMBAT_PARAM_DISTANCEEFFECT, CONST_ANI_FIRE)
 
 function onGetFormulaValues(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 2.8) + 16
-	local max = (level / 5) + (maglevel * 4.4) + 28
+	-- 15.25.3a4a52: base power 90 -> 125, expressed in the datapack's level/magic-level form by scaling the magic-level multipliers and constants by the same ratio.
+	local min = (level / 5) + (maglevel * 3.9) + 22
+	local max = (level / 5) + (maglevel * 6.1) + 39
 	return -min, -max
 end
 
@@ -26,7 +27,7 @@ spell:impactSound(SOUND_EFFECT_TYPE_SPELL_STRONG_FLAME_STRIKE)
 spell:level(70)
 spell:mana(60)
 spell:isPremium(true)
-spell:range(3)
+spell:range(7)
 spell:needCasterTargetOrDirection(true)
 spell:blockWalls(true)
 spell:cooldown(8 * 1000)

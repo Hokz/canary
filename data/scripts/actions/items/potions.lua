@@ -60,6 +60,11 @@ local potions = {
 	[7644] = { combat = antidote, flask = 285 },
 	[7876] = { health = { 60, 90 }, flask = 285 },
 	[23373] = { mana = { 425, 575 }, vocations = { VOCATION.BASE_ID.SORCERER, VOCATION.BASE_ID.DRUID }, level = 130, flask = 284, description = "Only druids and sorcerers of level 130 or above may drink this fluid." },
+	-- 15.25.3a4a52 vocation balancing. Superior sits between Great and Ultimate; the
+	-- Distilled versions heal the same and may be drunk by any vocation, at a higher price.
+	[53162] = { mana = { 240, 360 }, vocations = { VOCATION.BASE_ID.PALADIN, VOCATION.BASE_ID.MONK, VOCATION.BASE_ID.SORCERER, VOCATION.BASE_ID.DRUID }, level = 100, flask = 284, description = "Only paladins, monks, sorcerers and druids of level 100 or above may drink this fluid." },
+	[53163] = { mana = { 240, 360 }, level = 100, flask = 284, description = "Only players of level 100 or above may drink this fluid." },
+	[53164] = { mana = { 425, 575 }, level = 130, flask = 284, description = "Only players of level 130 or above may drink this fluid." },
 	[23374] = { health = { 420, 580 }, mana = { 250, 350 }, vocations = { VOCATION.BASE_ID.PALADIN, VOCATION.BASE_ID.MONK }, level = 130, flask = 284, description = "Only paladins and monks of level 130 or above may drink this fluid." },
 	[23375] = { health = { 875, 1125 }, vocations = { VOCATION.BASE_ID.KNIGHT }, level = 200, flask = 284, description = "Only knights of level 200 or above may drink this fluid." },
 	[35563] = { vocations = { VOCATION.BASE_ID.SORCERER, VOCATION.BASE_ID.DRUID }, level = 14, func = magicshield, effect = CONST_ME_ENERGYAREA, description = "Only sorcerers and druids of level 14 or above may drink this potion." },

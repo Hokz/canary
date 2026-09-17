@@ -921,9 +921,61 @@ void Creature::mitigateDamage(const CombatType_t &combatType, BlockType_t &block
 	}
 }
 
+namespace {
+	// The damage types Elemental Pierce applies to. Physical, healing and the drains
+	// are not elements, and pierce never touches them.
+	bool isElementalCombat(CombatType_t type) {
+		return type == COMBAT_FIREDAMAGE || type == COMBAT_ENERGYDAMAGE || type == COMBAT_EARTHDAMAGE || type == COMBAT_ICEDAMAGE || type == COMBAT_HOLYDAMAGE || type == COMBAT_DEATHDAMAGE;
+	}
+}
+
+void Creature::setNextAutoAttackDebuff(int32_t percent, int32_t durationMs) {
+	nextAutoAttackDebuffPercent = std::clamp<int32_t>(percent, 0, 100);
+	nextAutoAttackDebuffUntil = nextAutoAttackDebuffPercent > 0 && durationMs > 0 ? OTSYS_TIME() + durationMs : 0;
+}
+
+bool Creature::hasNextAutoAttackDebuff() const {
+	return nextAutoAttackDebuffPercent > 0 && nextAutoAttackDebuffUntil > OTSYS_TIME();
+}
+
+bool Creature::consumeNextAutoAttackDebuff(CombatDamage &damage) {
+	if (damage.origin != ORIGIN_MELEE && damage.origin != ORIGIN_RANGED && damage.origin != ORIGIN_FIST) {
+		return false;
+	}
+
+	if (!hasNextAutoAttackDebuff()) {
+		// Expired without a swing: clear so the next application starts clean.
+		nextAutoAttackDebuffPercent = 0;
+		nextAutoAttackDebuffUntil = 0;
+		return false;
+	}
+
+	const auto keep = 100 - nextAutoAttackDebuffPercent;
+	damage.primary.value = static_cast<int32_t>(static_cast<int64_t>(damage.primary.value) * keep / 100);
+	damage.secondary.value = static_cast<int32_t>(static_cast<int64_t>(damage.secondary.value) * keep / 100);
+	nextAutoAttackDebuffPercent = 0;
+	nextAutoAttackDebuffUntil = 0;
+	return true;
+}
+
 void Creature::applyAbsorbDamageModifications(const std::shared_ptr<Creature> &attacker, int32_t &damage, CombatType_t combatType) const {
 	if (combatType != COMBAT_HEALING && damage != 0) {
 		int32_t value = getAbsorbPercent(combatType);
+
+		// Elemental Pierce (15.25). The one place resistances are applied, so the one
+		// place pierce belongs: it lowers the resistance elemental damage meets here.
+		// Two sources add up - what the attacker carries (weapon proficiency's
+		// ELEMENTAL_PIERCE perk, a fraction) and what conditions on this creature grant
+		// against it (Aura of Exposed Weakness). Pierce never turns a resistance into a
+		// weakness, and a 100% absorb is an immunity and is left alone.
+		if (isElementalCombat(combatType) && value > 0 && value < 100) {
+			int32_t pierce = getElementalPierceReceived();
+			if (const auto &attackerPlayer = attacker ? attacker->getPlayer() : nullptr) {
+				pierce += static_cast<int32_t>(std::round(attackerPlayer->weaponProficiency().getStat(WeaponProficiencyBonus_t::ELEMENTAL_PIERCE) * 100));
+			}
+			value = std::max<int32_t>(0, value - pierce);
+		}
+
 		if (value != 0) {
 			damage -= std::round(damage * value / 100.f);
 		}

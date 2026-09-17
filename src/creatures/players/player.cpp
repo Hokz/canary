@@ -335,6 +335,55 @@ void Player::setVarSkill(skills_t skill, int32_t modifier) {
 	varSkills[skill] += modifier;
 }
 
+uint16_t Player::getRangedDodgeChance() const {
+	return static_cast<uint16_t>(std::clamp<int32_t>(varRangedDodge, 0, 10000));
+}
+
+void Player::setVarRangedDodge(int32_t modifier) {
+	varRangedDodge += modifier;
+}
+
+void Player::setVarElementCritical(CombatType_t combat, int32_t chanceModifier, int32_t damageModifier) {
+	if (combat == COMBAT_NONE || combat >= COMBAT_COUNT) {
+		return;
+	}
+	const auto index = combatTypeToIndex(combat);
+	varElementCriticalChance[index] += chanceModifier;
+	varElementCriticalDamage[index] += damageModifier;
+}
+
+bool Player::hasStance(AttrSubId_t stance) const {
+	return getCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, magic_enum::enum_integer(stance)) != nullptr;
+}
+
+bool Player::applySharedConservationSelfHeal(const std::shared_ptr<Creature> &target, CombatDamage &damage) const {
+	if (!target || target.get() != this || damage.primary.type != COMBAT_HEALING || damage.primary.value <= 0) {
+		return false;
+	}
+	if (damage.origin != ORIGIN_SPELL || (damage.instantSpellName.empty() && damage.runeSpellName.empty())) {
+		return false;
+	}
+	if (!hasStance(AttrSubId_t::StanceSharedConservation)) {
+		return false;
+	}
+	damage.primary.value = static_cast<int32_t>(static_cast<int64_t>(damage.primary.value) * 110 / 100);
+	return true;
+}
+
+void Player::applyConditionElementCritical(CombatDamage &damage) const {
+	// Master of Thunder / Decay grant their critical bonus to SPELLS of the
+	// stance's element, judged by the element the spell naturally has. So an instant
+	// spell is required, and its natural element decides: a rune, a wand hit or an
+	// auto attack of that element gets nothing, and neither does a spell of another
+	// element that the stance's conversion turned into it.
+	if (damage.instantSpellName.empty() || damage.naturalPrimaryType == COMBAT_NONE || damage.naturalPrimaryType >= COMBAT_COUNT) {
+		return;
+	}
+	const auto index = combatTypeToIndex(damage.naturalPrimaryType);
+	damage.criticalChance += std::max<int32_t>(0, varElementCriticalChance[index]);
+	damage.criticalDamage += std::max<int32_t>(0, varElementCriticalDamage[index]);
+}
+
 bool Player::isSuppress(ConditionType_t conditionType, bool attackerPlayer) const {
 	auto minDelay = g_configManager().getNumber(MIN_DELAY_BETWEEN_CONDITIONS);
 	if (IsConditionSuppressible(conditionType) && checkLastConditionTimeWithin(conditionType, minDelay)) {
@@ -1076,6 +1125,13 @@ phmap::flat_hash_map<uint8_t, std::shared_ptr<Item>> Player::getAllSlotItems() c
 
 uint16_t Player::getLoyaltySkill(skills_t skill) const {
 	uint16_t level = getBaseSkill(skill);
+	// A player with no vocation yet has no loyalty curve to read; the base skill is
+	// the whole answer. Without this the dereference below is a crash for any
+	// Player that has not been fully loaded - a unit-test Player, for one.
+	if (!vocation) {
+		return level;
+	}
+
 	absl::uint128 currReqTries = vocation->getReqSkillTries(skill, level);
 	absl::uint128 nextReqTries = vocation->getReqSkillTries(skill, level + 1);
 	if (currReqTries >= nextReqTries) {

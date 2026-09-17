@@ -41,6 +41,8 @@ void CreatureFunctions::init(lua_State* L) {
 	Lua::registerMethod(L, "Creature", "setFollowCreature", CreatureFunctions::luaCreatureSetFollowCreature);
 	Lua::registerMethod(L, "Creature", "reload", CreatureFunctions::luaCreatureReload);
 	Lua::registerMethod(L, "Creature", "getMaster", CreatureFunctions::luaCreatureGetMaster);
+	Lua::registerMethod(L, "Creature", "setNextAutoAttackDebuff", CreatureFunctions::luaCreatureSetNextAutoAttackDebuff);
+	Lua::registerMethod(L, "Creature", "hasNextAutoAttackDebuff", CreatureFunctions::luaCreatureHasNextAutoAttackDebuff);
 	Lua::registerMethod(L, "Creature", "setMaster", CreatureFunctions::luaCreatureSetMaster);
 	Lua::registerMethod(L, "Creature", "getLight", CreatureFunctions::luaCreatureGetLight);
 	Lua::registerMethod(L, "Creature", "setLight", CreatureFunctions::luaCreatureSetLight);
@@ -343,6 +345,26 @@ int CreatureFunctions::luaCreatureSetFollowCreature(lua_State* L) {
 	} else {
 		lua_pushnil(L);
 	}
+	return 1;
+}
+
+int CreatureFunctions::luaCreatureSetNextAutoAttackDebuff(lua_State* L) {
+	// creature:setNextAutoAttackDebuff(percent, durationMs)
+	const auto &creature = Lua::getUserdataShared<Creature>(L, 1, "Creature");
+	if (!creature) {
+		Lua::reportErrorFunc(Lua::getErrorDesc(LUA_ERROR_CREATURE_NOT_FOUND));
+		Lua::pushBoolean(L, false);
+		return 1;
+	}
+	creature->setNextAutoAttackDebuff(Lua::getNumber<int32_t>(L, 2), Lua::getNumber<int32_t>(L, 3));
+	Lua::pushBoolean(L, true);
+	return 1;
+}
+
+int CreatureFunctions::luaCreatureHasNextAutoAttackDebuff(lua_State* L) {
+	// creature:hasNextAutoAttackDebuff()
+	const auto &creature = Lua::getUserdataShared<Creature>(L, 1, "Creature");
+	Lua::pushBoolean(L, creature && creature->hasNextAutoAttackDebuff());
 	return 1;
 }
 

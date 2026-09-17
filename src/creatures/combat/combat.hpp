@@ -107,6 +107,7 @@ struct CombatParams {
 	bool useCharges = false;
 
 	uint16_t chainEffect = CONST_ME_NONE;
+	bool noCharm = false;
 };
 
 using CombatFunction = std::function<void(std::shared_ptr<Creature>, std::shared_ptr<Creature>, const CombatParams &, CombatDamage*)>;

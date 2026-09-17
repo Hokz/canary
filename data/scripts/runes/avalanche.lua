@@ -5,6 +5,8 @@ combat:setParameter(COMBAT_PARAM_DISTANCEEFFECT, CONST_ANI_ICE)
 combat:setArea(createCombatArea(AREA_CIRCLE3X3))
 
 function onGetFormulaValues(player, level, maglevel)
+	-- 15.25.3a4a52: the four area runes now share base power 50. The datapack had two
+	-- formulas across them; the higher one is kept for all four so they are equal.
 	local min = (level / 5) + (maglevel * 1.2) + 7
 	local max = (level / 5) + (maglevel * 2.8) + 17
 	return -min, -max

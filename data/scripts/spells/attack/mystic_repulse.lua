@@ -1,4 +1,5 @@
-local SPELL_BASE_POWER = 72
+-- 15.25.3a4a52: base power 72 -> 85, cooldown 20s -> 12s.
+local SPELL_BASE_POWER = 85
 
 local combat = Combat()
 combat:setParameter(COMBAT_PARAM_TYPE, COMBAT_PHYSICALDAMAGE)
@@ -37,7 +38,7 @@ spell:isPremium(true)
 spell:range(7)
 spell:needTarget(true)
 spell:blockWalls(true)
-spell:cooldown(20 * 1000)
+spell:cooldown(12 * 1000)
 spell:groupCooldown(2 * 1000)
 spell:needLearn(true)
 spell:monkSpellType(MonkSpell_Builder)

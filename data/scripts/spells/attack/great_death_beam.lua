@@ -1,6 +1,10 @@
+-- Base power 170 -> 155 in the July balance pass (CipSoft, 7 July; the same note
+-- moves Great Energy Beam by the same amounts). The datapack expresses this spell
+-- as level/5 + magicLevel x k with k = 5.5 (min) and 9 (max) at base power 170, so
+-- both scale by 155/170: 5.0147 and 8.2059, to two decimals.
 function onGetFormulaValues(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 5.5)
-	local max = (level / 5) + (maglevel * 9)
+	local min = (level / 5) + (maglevel * 5.01)
+	local max = (level / 5) + (maglevel * 8.21)
 	return -min, -max
 end
 
@@ -27,11 +31,11 @@ function spell.onCastSpell(creature, var)
 		return false
 	end
 
+	-- 15.25.3a4a52: a common spell learned at level 66. The Wheel grades still
+	-- lengthen the beam; without one it is the base beam, not a refusal.
 	local grade = creature:upgradeSpellsWOD("Great Death Beam")
 	if grade == WHEEL_GRADE_NONE then
-		creature:sendCancelMessage("You need to learn this spell first")
-		creature:getPosition():sendMagicEffect(CONST_ME_POFF)
-		return false
+		grade = 1
 	end
 
 	return combat[grade]:execute(creature, var)
@@ -41,13 +45,12 @@ spell:group("attack", "greatbeams")
 spell:id(260)
 spell:name("Great Death Beam")
 spell:words("exevo max mort")
-spell:level(300)
+spell:level(66)
 spell:mana(140)
 spell:isPremium(false)
 spell:needDirection(true)
 spell:blockWalls(true)
 spell:cooldown(10 * 1000)
 spell:groupCooldown(2 * 1000, 6 * 1000)
-spell:needLearn(true)
 spell:vocation("sorcerer;true", "master sorcerer;true")
 spell:register()

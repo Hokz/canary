@@ -148,7 +148,7 @@ public:
 
 class ConditionAttributes final : public ConditionGeneric {
 public:
-	ConditionAttributes(ConditionId_t initId, ConditionType_t initType, int32_t initTicks, bool initBuff = false, uint32_t initSubId = 0);
+	ConditionAttributes(ConditionId_t initId, ConditionType_t initType, int32_t initTicks, bool initBuff = false, uint32_t initSubId = 0, bool isPersistent = false);
 
 	bool startCondition(std::shared_ptr<Creature> creature) final;
 	bool executeCondition(const std::shared_ptr<Creature> &creature, int32_t interval) final;
@@ -184,6 +184,9 @@ private:
 	int32_t currentSkill = 0;
 	int32_t currentStat = 0;
 	int32_t currentBuff = 0;
+	int32_t currentSkillPercent = 0;
+	int32_t currentStatPercent = 0;
+	int32_t currentBuffPercent = 0;
 
 	int8_t charmChanceModifier = 0;
 
@@ -192,6 +195,18 @@ private:
 	std::array<int32_t, COMBAT_COUNT> absorbsPercent = {};
 	std::array<int32_t, COMBAT_COUNT> increases = {};
 	std::array<int32_t, COMBAT_COUNT> increasesPercent = {};
+
+	// 15.25 stances. specializedMagicLevelPercent is the recipe (a percentage of the
+	// source skill per damage type) and is what gets saved; specializedMagicLevel is
+	// the flat value that recipe produced at startCondition, kept so endCondition can
+	// take back exactly what was given, and never saved - it is recomputed on login.
+	skills_t specializedMagicLevelSource = SKILL_NONE;
+	std::array<int32_t, COMBAT_COUNT> specializedMagicLevelPercent = {};
+	std::array<int32_t, COMBAT_COUNT> specializedMagicLevel = {};
+	int32_t dodgeRanged = 0;
+	std::array<int32_t, COMBAT_COUNT> elementCriticalChance = {};
+	std::array<int32_t, COMBAT_COUNT> elementCriticalDamage = {};
+	int32_t elementalPierceReceived = 0;
 
 	bool disableDefense = false;
 
@@ -208,6 +223,11 @@ private:
 	void updateIncreases(const std::shared_ptr<Creature> &creature) const;
 	void updateCharmChanceModifier(const std::shared_ptr<Creature> &creature) const;
 	void updatePercentBuffs(const std::shared_ptr<Creature> &creature);
+
+	// 15.25 stances
+	void updateSpecializedMagicLevel(const std::shared_ptr<Player> &player);
+	void removeSpecializedMagicLevel(const std::shared_ptr<Player> &player);
+	void applyElementCritical(const std::shared_ptr<Player> &player, int32_t sign) const;
 };
 
 class ConditionRegeneration final : public ConditionGeneric {

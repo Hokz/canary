@@ -45908,6 +45908,22 @@ hands of its owner. Granted by TibiaRoyal.com"/>
 		<attribute key="description" value="This potion can only be consumed by paladins and monks of level 130 or higher"/>
 		<attribute key="weight" value="310"/>
 	</item>
+	<!-- 15.25.3a4a52 vocation balancing: ids from appearances.dat -->
+	<item id="53162" article="a" name="superior mana potion">
+		<attribute key="primarytype" value="liquids"/>
+		<attribute key="description" value="This potion can only be consumed by paladins, monks, sorcerers and druids of level 100 or higher"/>
+		<attribute key="weight" value="310"/>
+	</item>
+	<item id="53163" article="a" name="distilled superior mana potion">
+		<attribute key="primarytype" value="liquids"/>
+		<attribute key="description" value="This potion can be consumed by any vocation of level 100 or higher"/>
+		<attribute key="weight" value="310"/>
+	</item>
+	<item id="53164" article="a" name="distilled ultimate mana potion">
+		<attribute key="primarytype" value="liquids"/>
+		<attribute key="description" value="This potion can be consumed by any vocation of level 130 or higher"/>
+		<attribute key="weight" value="310"/>
+	</item>
 	<item id="23375" article="a" name="supreme health potion">
 		<attribute key="primarytype" value="liquids"/>
 		<attribute key="description" value="This potion can only be consumed by knights of level 200 or higher"/>
@@ -48958,6 +48974,74 @@ hands of its owner. Granted by TibiaRoyal.com"/>
 		<attribute key="duration" value="3600"/>
 		<attribute key="decayTo" value="0"/>
 		<attribute key="attack" value="37"/>
+		<attribute key="weight" value="80"/>
+	</item>
+	<!-- 15.25.3a4a52 vocation balancing: 13-sqm area arrows. Ids from appearances.dat.
+	     The missile sprites are not mapped: appearances.dat carries no names for missiles,
+	     so each uses the nearest existing arrow animation of its element. -->
+	<item id="53168" article="a" name="shatterstorm arrow">
+		<attribute key="primarytype" value="ammunition"/>
+		<attribute key="weaponType" value="ammunition"/>
+		<attribute key="ammotype" value="arrow"/>
+		<attribute key="attack" value="27"/>
+		<attribute key="shootType" value="diamondarrow"/>
+		<attribute key="maxhitchance" value="100"/>
+		<attribute key="stopduration" value="0"/>
+		<attribute key="showduration" value="1"/>
+		<attribute key="duration" value="3600"/>
+		<attribute key="decayTo" value="0"/>
+		<attribute key="weight" value="80"/>
+	</item>
+	<item id="53169" article="a" name="firestorm arrow">
+		<attribute key="primarytype" value="ammunition"/>
+		<attribute key="weaponType" value="ammunition"/>
+		<attribute key="ammotype" value="arrow"/>
+		<attribute key="attack" value="21"/>
+		<attribute key="shootType" value="flammingarrow"/>
+		<attribute key="maxhitchance" value="100"/>
+		<attribute key="stopduration" value="0"/>
+		<attribute key="showduration" value="1"/>
+		<attribute key="duration" value="3600"/>
+		<attribute key="decayTo" value="0"/>
+		<attribute key="weight" value="80"/>
+	</item>
+	<item id="53170" article="a" name="terrastorm arrow">
+		<attribute key="primarytype" value="ammunition"/>
+		<attribute key="weaponType" value="ammunition"/>
+		<attribute key="ammotype" value="arrow"/>
+		<attribute key="attack" value="21"/>
+		<attribute key="shootType" value="eartharrow"/>
+		<attribute key="maxhitchance" value="100"/>
+		<attribute key="stopduration" value="0"/>
+		<attribute key="showduration" value="1"/>
+		<attribute key="duration" value="3600"/>
+		<attribute key="decayTo" value="0"/>
+		<attribute key="weight" value="80"/>
+	</item>
+	<item id="53171" article="a" name="froststorm arrow">
+		<attribute key="primarytype" value="ammunition"/>
+		<attribute key="weaponType" value="ammunition"/>
+		<attribute key="ammotype" value="arrow"/>
+		<attribute key="attack" value="21"/>
+		<attribute key="shootType" value="shiverarrow"/>
+		<attribute key="maxhitchance" value="100"/>
+		<attribute key="stopduration" value="0"/>
+		<attribute key="showduration" value="1"/>
+		<attribute key="duration" value="3600"/>
+		<attribute key="decayTo" value="0"/>
+		<attribute key="weight" value="80"/>
+	</item>
+	<item id="53172" article="a" name="thunderstorm arrow">
+		<attribute key="primarytype" value="ammunition"/>
+		<attribute key="weaponType" value="ammunition"/>
+		<attribute key="ammotype" value="arrow"/>
+		<attribute key="attack" value="21"/>
+		<attribute key="shootType" value="flasharrow"/>
+		<attribute key="maxhitchance" value="100"/>
+		<attribute key="stopduration" value="0"/>
+		<attribute key="showduration" value="1"/>
+		<attribute key="duration" value="3600"/>
+		<attribute key="decayTo" value="0"/>
 		<attribute key="weight" value="80"/>
 	</item>
 	<item id="25758" article="a" name="spectral bolt">

@@ -1,58 +1,47 @@
-local spellDuration = 10000
-
-local combat = Combat()
-combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_MAGIC_GREEN)
-combat:setParameter(COMBAT_PARAM_AGGRESSIVE, false)
-
-local speed = Condition(CONDITION_PARALYZE)
-speed:setParameter(CONDITION_PARAM_TICKS, spellDuration)
-speed:setFormula(0.7, 56, 0.7, 56)
-combat:addCondition(speed)
-
-local exhaustHealGroup = Condition(CONDITION_SPELLGROUPCOOLDOWN)
-exhaustHealGroup:setParameter(CONDITION_PARAM_SUBID, 2)
-exhaustHealGroup:setParameter(CONDITION_PARAM_TICKS, spellDuration)
-combat:addCondition(exhaustHealGroup)
+-- Sharpshooter is a stance as of 15.25. Three things changed besides that:
+--
+--   - the words are "utori con", not "utito tempo san"; both Paladin stances now
+--     share the "utori" prefix
+--   - the bonus is +32% Distance Fighting. The changelog announced +40%; the spell
+--     table is the shipped value
+--   - the paralyse and the healing-group lockout are gone. They were the cost of a
+--     short, strong burst; a permanent stance does not carry them, and the update's
+--     description lists the skill bonus alone
+--
+-- The Wheel of Destiny grade branch is gone too: Ethereal Barrage's augments replace
+-- Sharpshooter's in this update, so there is no upgraded grade to read.
+--
+-- NOT matched: the update states the bonus applies to total Distance Fighting,
+-- including equipment and other buffs. ConditionAttributes::updatePercentSkills
+-- computes every percent skill bonus from getBaseSkill instead, and changing that
+-- would move every percent skill bonus in the game at once. Left as base-skill until
+-- that is decided on its own.
+local function build()
+	return Stance.condition(AttrSubId_StanceSharpshooter, function(condition)
+		condition:setParameter(CONDITION_PARAM_SKILL_DISTANCEPERCENT, 132)
+	end)
+end
 
 local spell = Spell("instant")
 
 function spell.onCastSpell(creature, variant)
-	if combat:execute(creature, variant) then
-		local skill = Condition(CONDITION_ATTRIBUTES)
-		skill:setParameter(CONDITION_PARAM_SUBID, AttrSubId_Sharpshooter)
-		skill:setParameter(CONDITION_PARAM_TICKS, spellDuration)
-		local grade = creature:upgradeSpellsWOD("Sharpshooter")
-		if grade == WHEEL_GRADE_NONE then
-			local exhaustSupportGroup = Condition(CONDITION_SPELLGROUPCOOLDOWN)
-			exhaustSupportGroup:setParameter(CONDITION_PARAM_SUBID, 3)
-			exhaustSupportGroup:setParameter(CONDITION_PARAM_TICKS, spellDuration)
-			creature:addCondition(exhaustSupportGroup)
-		end
-		if grade == WHEEL_GRADE_UPGRADED then
-			skill:setParameter(CONDITION_PARAM_SKILL_DISTANCEPERCENT, 145)
-		else
-			skill:setParameter(CONDITION_PARAM_SKILL_DISTANCEPERCENT, 140)
-		end
-		skill:setParameter(CONDITION_PARAM_DISABLE_DEFENSE, true)
-		skill:setParameter(CONDITION_PARAM_BUFF_SPELL, true)
-		creature:addCondition(skill)
-		return true
-	end
-	return false
+	return Stance.cast(creature, AttrSubId_StanceSharpshooter, Stance.Family.General, build)
 end
 
 spell:name("Sharpshooter")
-spell:words("utito tempo san")
+spell:words("utori con")
 spell:group("support", "focus")
 spell:vocation("paladin;true", "royal paladin;true")
 spell:castSound(SOUND_EFFECT_TYPE_SPELL_SHARPSHOOTER)
 spell:id(135)
+-- Cooldowns: 10s own, 2s Support, 10s on the stance family (secondary group Focus) -
+-- the same contract the pre-15.25 Sharpshooter had.
 spell:cooldown(10 * 1000)
 spell:groupCooldown(2 * 1000, 10 * 1000)
-spell:level(60)
-spell:mana(450)
+spell:level(20)
+spell:mana(250)
 spell:isSelfTarget(true)
 spell:isAggressive(false)
-spell:isPremium(false)
+spell:isPremium(true)
 
 spell:register()

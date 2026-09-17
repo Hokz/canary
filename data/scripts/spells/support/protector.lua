@@ -1,23 +1,22 @@
-local combat = Combat()
-combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_MAGIC_GREEN)
-combat:setParameter(COMBAT_PARAM_AGGRESSIVE, false)
-
-local skill = Condition(CONDITION_ATTRIBUTES)
-skill:setParameter(CONDITION_PARAM_SUBID, AttrSubId_BloodRageProtector)
-skill:setParameter(CONDITION_PARAM_TICKS, 13000)
-skill:setParameter(CONDITION_PARAM_SKILL_SHIELDPERCENT, 220)
-skill:setParameter(CONDITION_PARAM_BUFF_DAMAGEDEALT, 65)
-skill:setParameter(CONDITION_PARAM_BUFF_DAMAGERECEIVED, 85)
-skill:setParameter(CONDITION_PARAM_BUFF_SPELL, true)
-combat:addCondition(skill)
+-- Protector is a stance as of 15.25: it stays on until recast or replaced by Blood
+-- Rage, and it survives logout and death. See data/libs/systems/stance.lua.
+--
+-- Numbers from the 15.25.3a4a52 spell table: +30% shielding, -15% damage received,
+-- -15% damage dealt. The pre-15.25 values were far larger (+120% shielding, -35%
+-- damage dealt) because the spell was a short timed burst; as a permanent stance it
+-- is the update's smaller, flatter numbers.
+local function build()
+	return Stance.condition(AttrSubId_StanceProtector, function(condition)
+		condition:setParameter(CONDITION_PARAM_SKILL_SHIELDPERCENT, 130)
+		condition:setParameter(CONDITION_PARAM_BUFF_DAMAGEDEALT, 85)
+		condition:setParameter(CONDITION_PARAM_BUFF_DAMAGERECEIVED, 85)
+	end)
+end
 
 local spell = Spell("instant")
 
 function spell.onCastSpell(creature, variant)
-	if creature:getCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, AttrSubId_BloodRageProtector) then
-		creature:removeCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, AttrSubId_BloodRageProtector)
-	end
-	return combat:execute(creature, variant)
+	return Stance.cast(creature, AttrSubId_StanceProtector, Stance.Family.General, build)
 end
 
 spell:name("Protector")
@@ -26,10 +25,12 @@ spell:group("support", "focus")
 spell:vocation("knight;true", "elite knight;true")
 spell:castSound(SOUND_EFFECT_TYPE_SPELL_PROTECTOR)
 spell:id(132)
+-- Cooldowns: 2s own, 2s Support, 2s Focus - the contract the pre-15.25 datapack
+-- already had for this spell, kept as its own rather than a blanket stance value.
 spell:cooldown(2 * 1000)
 spell:groupCooldown(2 * 1000, 2 * 1000)
-spell:level(55)
-spell:mana(200)
+spell:level(20)
+spell:mana(20)
 spell:isSelfTarget(true)
 spell:isAggressive(false)
 spell:isPremium(true)

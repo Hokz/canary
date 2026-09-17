@@ -314,6 +314,27 @@ public:
 		return varBuffs[buff];
 	}
 
+	// Shield Bash / Shield Slam (15.25): the creature's NEXT auto attack deals
+	// `percent` less, then the debuff is gone. It is consumed by the first qualifying
+	// auto attack - melee, ranged or fist - and expires untouched after `duration`.
+	// Spells and runes the creature casts are not affected. Each creature owns its
+	// own instance; applying it again refreshes both the percent and the timer.
+	void setNextAutoAttackDebuff(int32_t percent, int32_t durationMs);
+	// Applies and consumes the debuff if one is live. Returns true when it was.
+	bool consumeNextAutoAttackDebuff(CombatDamage &damage);
+	bool hasNextAutoAttackDebuff() const;
+
+	// Elemental Pierce granted against this creature by conditions (Aura of Exposed
+	// Weakness), in percent. Read by applyAbsorbDamageModifications, which is where
+	// resistances are applied: pierce lowers the resistance that elemental damage
+	// meets on this creature. Immunities (100% absorb) are not pierced.
+	void setVarElementalPierceReceived(int32_t modifier) {
+		varElementalPierceReceived += modifier;
+	}
+	int32_t getElementalPierceReceived() const {
+		return std::max<int32_t>(0, varElementalPierceReceived);
+	}
+
 	void setBuff(buffs_t buff, int32_t modifier) {
 		varBuffs[buff] += modifier;
 	}
@@ -907,6 +928,9 @@ protected:
 	uint32_t manaShield = 0;
 	uint32_t maxManaShield = 0;
 	std::array<int32_t, BUFF_LAST + 1> varBuffs = { 100, 100, 100, 100, 100, 100, 100 };
+	int32_t varElementalPierceReceived = 0;
+	int64_t nextAutoAttackDebuffUntil = 0;
+	int32_t nextAutoAttackDebuffPercent = 0;
 
 	std::array<int32_t, COMBAT_COUNT> reflectPercent = { 0 };
 	std::array<int32_t, COMBAT_COUNT> reflectFlat = { 0 };

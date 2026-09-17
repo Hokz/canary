@@ -20,7 +20,8 @@ function getChainValue(creature)
 	if creature and player then
 		targets = targets + player:getWheelSpellAdditionalTarget("Divine Dazzle")
 	end
-	return targets, 6, false
+	-- 15.25.3a4a52: range raised to 7.
+	return targets, 7, false
 end
 
 combat:setCallback(CALLBACK_PARAM_CHAINVALUE, "getChainValue")
