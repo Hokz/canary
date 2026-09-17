@@ -738,7 +738,8 @@ void ConditionAttributes::addCondition(std::shared_ptr<Creature> creature, const
 		disableDefense = conditionAttrs->disableDefense;
 
 		if (const auto &player = creature->getPlayer()) {
-			updatePercentSkills(player);
+			percentSkillsRetired = false;
+			reapplyPercentSkills(player);
 			updateSkills(player);
 			updatePercentStats(player);
 			updateStats(player);
@@ -811,8 +812,21 @@ bool ConditionAttributes::unserializeProp(ConditionAttr_t attr, PropStream &prop
 		return true;
 	} else if (attr == CONDITIONATTR_CHARM_CHANCE_MODIFIER) {
 		return propStream.read<int8_t>(charmChanceModifier);
+	} else if (attr == CONDITIONATTR_PERCENT_RECIPES_SEPARATE) {
+		percentRecipesSeparate = true;
+		return true;
 	} else if (attr == CONDITIONATTR_SKILLSPERCENT) {
-		return readIndexed(propStream, skillsPercent, currentSkillPercent);
+		const int32_t index = currentSkillPercent;
+		if (!readIndexed(propStream, skillsPercent, currentSkillPercent)) {
+			return false;
+		}
+		// A blob from before the recipes were kept apart saved the value the
+		// percentage produced inside skills[]; with the percentage restored it would
+		// count twice, so it is dropped and derived again on login.
+		if (!percentRecipesSeparate && skillsPercent[index] != 0) {
+			skills[index] = 0;
+		}
+		return true;
 	} else if (attr == CONDITIONATTR_STATSPERCENT) {
 		return readIndexed(propStream, statsPercent, currentStatPercent);
 	} else if (attr == CONDITIONATTR_BUFFSPERCENT) {
@@ -865,6 +879,10 @@ bool ConditionAttributes::unserializeProp(ConditionAttr_t attr, PropStream &prop
 
 void ConditionAttributes::serialize(PropWriteStream &propWriteStream) {
 	Condition::serialize(propWriteStream);
+
+	// skills[] below holds the flat recipe only; the percent recipe's derived values
+	// are not in it. The marker tells the reader so.
+	propWriteStream.write<uint8_t>(CONDITIONATTR_PERCENT_RECIPES_SEPARATE);
 
 	for (int32_t i = SKILL_FIRST; i <= SKILL_LAST; ++i) {
 		propWriteStream.write<uint8_t>(CONDITIONATTR_SKILLS);
@@ -981,7 +999,8 @@ bool ConditionAttributes::startCondition(std::shared_ptr<Creature> creature) {
 		creature->setVarElementalPierceReceived(elementalPierceReceived);
 	}
 	if (const auto &player = creature->getPlayer()) {
-		updatePercentSkills(player);
+		percentSkillsRetired = false;
+		reapplyPercentSkills(player);
 		updateSkills(player);
 		updatePercentStats(player);
 		updateStats(player);
@@ -1037,16 +1056,28 @@ void ConditionAttributes::updateStats(const std::shared_ptr<Player> &player) con
 	}
 }
 
-void ConditionAttributes::updatePercentSkills(const std::shared_ptr<Player> &player) {
+bool ConditionAttributes::reapplyPercentSkills(const std::shared_ptr<Player> &player) {
+	bool changed = false;
 	for (uint8_t i = SKILL_FIRST; i <= SKILL_LAST; ++i) {
-		auto skill = static_cast<skills_t>(i);
-		if (skillsPercent[skill] == 0) {
+		const auto skill = static_cast<skills_t>(i);
+		int32_t wanted = 0;
+		if (!percentSkillsRetired && skillsPercent[skill] != 0) {
+			// The source leaves out every percent-derived value on the player, this
+			// recipe's own included, so what is applied never feeds the next answer.
+			const int32_t source = player->getSkillLevelForPercentScaling(skill);
+			wanted = static_cast<int32_t>(source * ((skillsPercent[skill] - 100) / 100.f));
+		}
+
+		const int32_t applied = skillsFromPercentApplied[skill];
+		if (wanted == applied) {
 			continue;
 		}
 
-		int32_t unmodifiedSkill = player->getBaseSkill(skill);
-		skills[skill] = static_cast<int32_t>(unmodifiedSkill * ((skillsPercent[skill] - 100) / 100.f));
+		player->addPercentDerivedSkill(skill, wanted - applied);
+		skillsFromPercentApplied[skill] = wanted;
+		changed = true;
 	}
+	return changed;
 }
 
 // Turns the percent-of-skill recipe into flat specialized magic level and hands it
@@ -1207,8 +1238,16 @@ void ConditionAttributes::endCondition(std::shared_ptr<Creature> creature) {
 			player->setPendingElementalConversion(COMBAT_NONE);
 		}
 
+		// The percent recipe comes off first and marks itself retired, so the flat
+		// recipe coming off below (which re-derives every recipe on the player)
+		// cannot put it back.
+		percentSkillsRetired = true;
+		if (reapplyPercentSkills(player)) {
+			needUpdate = true;
+		}
+
 		for (int32_t i = SKILL_FIRST; i <= SKILL_LAST; ++i) {
-			if (skills[i] || skillsPercent[i]) {
+			if (skills[i]) {
 				needUpdate = true;
 				player->setVarSkill(static_cast<skills_t>(i), -skills[i]);
 			}

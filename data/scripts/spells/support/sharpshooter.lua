@@ -11,11 +11,12 @@
 -- The Wheel of Destiny grade branch is gone too: Ethereal Barrage's augments replace
 -- Sharpshooter's in this update, so there is no upgraded grade to read.
 --
--- NOT matched: the update states the bonus applies to total Distance Fighting,
--- including equipment and other buffs. ConditionAttributes::updatePercentSkills
--- computes every percent skill bonus from getBaseSkill instead, and changing that
--- would move every percent skill bonus in the game at once. Left as base-skill until
--- that is decided on its own.
+-- The bonus applies to TOTAL Distance Fighting, equipment and other buffs included:
+-- ConditionAttributes::reapplyPercentSkills scales from
+-- Player::getSkillLevelForPercentScaling, which is everything the player's skill has
+-- except what percent recipes themselves added, and it re-derives whenever a flat
+-- source changes. Equipping a +10 Distance item raises this bonus; taking it off
+-- lowers it back, with no compounding.
 local function build()
 	return Stance.condition(AttrSubId_StanceSharpshooter, function(condition)
 		condition:setParameter(CONDITION_PARAM_SKILL_DISTANCEPERCENT, 132)

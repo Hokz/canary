@@ -208,6 +208,7 @@ void PlayerFunctions::init(lua_State* L) {
 
 	Lua::registerMethod(L, "Player", "getSkillLevel", PlayerFunctions::luaPlayerGetSkillLevel);
 	Lua::registerMethod(L, "Player", "getEffectiveSkillLevel", PlayerFunctions::luaPlayerGetEffectiveSkillLevel);
+	Lua::registerMethod(L, "Player", "getEffectiveShieldDefense", PlayerFunctions::luaPlayerGetEffectiveShieldDefense);
 	Lua::registerMethod(L, "Player", "getSkillPercent", PlayerFunctions::luaPlayerGetSkillPercent);
 	Lua::registerMethod(L, "Player", "getSkillTries", PlayerFunctions::luaPlayerGetSkillTries);
 	Lua::registerMethod(L, "Player", "addSkillTries", PlayerFunctions::luaPlayerAddSkillTries);
@@ -1624,6 +1625,17 @@ int PlayerFunctions::luaPlayerGetSkillLevel(lua_State* L) {
 	const auto &player = Lua::getUserdataShared<Player>(L, 1, "Player");
 	if (player && skillType <= SKILL_LAST) {
 		lua_pushnumber(L, player->skills[skillType].level);
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int PlayerFunctions::luaPlayerGetEffectiveShieldDefense(lua_State* L) {
+	// player:getEffectiveShieldDefense()
+	const auto &player = Lua::getUserdataShared<Player>(L, 1, "Player");
+	if (player) {
+		lua_pushnumber(L, player->getEffectiveShieldDefense());
 	} else {
 		lua_pushnil(L);
 	}

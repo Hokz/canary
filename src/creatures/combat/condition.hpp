@@ -163,6 +163,13 @@ public:
 	void serialize(PropWriteStream &propWriteStream) final;
 	bool unserializeProp(ConditionAttr_t attr, PropStream &propStream) final;
 
+	// Derives the percent skill recipe from the player's current non-percent skill
+	// (Player::getSkillLevelForPercentScaling) and puts exactly that on the player,
+	// replacing whatever this condition had there before. Applying it any number
+	// of times leaves the same skills; two recipes on one skill add, in any order.
+	// Returns whether anything on the player changed.
+	bool reapplyPercentSkills(const std::shared_ptr<Player> &player);
+
 private:
 	// Helpers
 	int32_t getAbsorbByIndex(uint8_t index) const;
@@ -174,8 +181,20 @@ private:
 	int32_t getIncreasePercentById(uint8_t index) const;
 	void setIncreasePercent(uint8_t index, int32_t value);
 
+	// Flat recipe values (CONDITION_PARAM_SKILL_SWORD 5). Saved.
 	int32_t skills[SKILL_LAST + 1] = {};
+	// Percent recipe (CONDITION_PARAM_SKILL_SWORDPERCENT 125 is +25%). Saved.
 	int32_t skillsPercent[SKILL_LAST + 1] = {};
+	// What the percent recipe currently has on the player, so a re-derivation or
+	// the end of the condition takes back exactly that. Never saved: it is derived
+	// again from the player's skills whenever those change, and on login.
+	int32_t skillsFromPercentApplied[SKILL_LAST + 1] = {};
+	// Set while the condition ends, so a re-derivation triggered on the way out
+	// (the flat recipe coming off refreshes every recipe) removes and never re-adds.
+	bool percentSkillsRetired = false;
+	// The blob this condition was read from kept percent-derived values out of
+	// skills[]; see CONDITIONATTR_PERCENT_RECIPES_SEPARATE.
+	bool percentRecipesSeparate = false;
 	int32_t stats[STAT_LAST + 1] = {};
 	int32_t statsPercent[STAT_LAST + 1] = {};
 	int32_t buffsPercent[BUFF_LAST + 1] = {};
@@ -212,7 +231,6 @@ private:
 
 	void updatePercentStats(const std::shared_ptr<Player> &player);
 	void updateStats(const std::shared_ptr<Player> &player) const;
-	void updatePercentSkills(const std::shared_ptr<Player> &player);
 	void updateSkills(const std::shared_ptr<Player> &player) const;
 	void updateBuffs(const std::shared_ptr<Creature> &creature) const;
 

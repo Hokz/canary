@@ -113,6 +113,7 @@ class PlayerFunctions {
 
 	static int luaPlayerGetSkillLevel(lua_State* L);
 	static int luaPlayerGetEffectiveSkillLevel(lua_State* L);
+	static int luaPlayerGetEffectiveShieldDefense(lua_State* L);
 	static int luaPlayerGetSkillPercent(lua_State* L);
 	static int luaPlayerGetSkillTries(lua_State* L);
 	static int luaPlayerAddSkillTries(lua_State* L);

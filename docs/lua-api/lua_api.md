@@ -4155,6 +4155,11 @@ C++ Lua binding handlers and registration lines can override inferred signatures
 - Returns: `boolean|nil|Item`
 - Source: `src/lua/functions/creatures/player/player_functions.cpp`
 
+#### `Player:getEffectiveShieldDefense()`
+
+- Returns: `number|nil`
+- Source: `src/lua/functions/creatures/player/player_functions.cpp`
+
 #### `Player:getEffectiveSkillLevel(skillType: any)`
 
 - Returns: `number|nil`

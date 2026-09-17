@@ -3307,6 +3307,9 @@ function Player:getDepotChest(depotId, autoCreate) end
 ---@return boolean|nil|Item
 function Player:getDepotLocker(depotId) end
 
+---@return number|nil
+function Player:getEffectiveShieldDefense() end
+
 ---@param skillType any
 ---@return number|nil
 function Player:getEffectiveSkillLevel(skillType) end

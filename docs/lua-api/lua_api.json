@@ -6225,6 +6225,12 @@
         "source": "src/lua/functions/creatures/player/player_functions.cpp"
       },
       {
+        "name": "getEffectiveShieldDefense",
+        "params": [],
+        "return": "number|nil",
+        "source": "src/lua/functions/creatures/player/player_functions.cpp"
+      },
+      {
         "name": "getEffectiveSkillLevel",
         "params": [
           "skillType: any"

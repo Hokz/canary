@@ -15,6 +15,7 @@
 #include "creatures/appearance/mounts/mounts.hpp"
 #include "creatures/appearance/attached_effects/attached_effects.hpp"
 #include "creatures/combat/condition.hpp"
+#include "creatures/combat/effective_combat_values.hpp"
 #include "creatures/combat/spells.hpp"
 #include "creatures/interactions/chat.hpp"
 #include "creatures/monsters/monster.hpp"
@@ -5357,6 +5358,11 @@ void ProtocolGame::sendCyclopediaCharacterOffenceStats() {
 					attackValue += weaponItem->getAttack();
 				}
 			}
+			// The elemental share is a ratio of two attack values, so the 15.25
+			// compensation cancels out of it: it stays on the raw pair.
+			const int32_t rawAttackValue = attackValue;
+			// What the player's combat actually uses, so the client shows the same number.
+			attackValue = EffectiveCombatValues::toInteger(player->getEffectiveWeaponAttackValue(attackValue));
 
 			int32_t distanceValue = player->getSkillLevel(SKILL_DISTANCE);
 			int32_t attackSkill = player->getDistanceAttackSkill(distanceValue, attackValue);
@@ -5374,7 +5380,7 @@ void ProtocolGame::sendCyclopediaCharacterOffenceStats() {
 			// Converted Damage
 			if (it.abilities && it.abilities->elementType != COMBAT_NONE) {
 				if (physicalAttack) {
-					msg.addDouble(elementalAttack / static_cast<double>(attackValue));
+					msg.addDouble(elementalAttack / static_cast<double>(rawAttackValue));
 				} else {
 					msg.addDouble(0.0);
 				}
@@ -5397,7 +5403,8 @@ void ProtocolGame::sendCyclopediaCharacterOffenceStats() {
 			if (it.abilities && it.abilities->elementType != COMBAT_NONE) {
 				elementalAttack = std::max<int32_t>(0, it.abilities->elementDamage);
 			}
-			int32_t weaponAttack = physicalAttack + elementalAttack;
+			const int32_t rawWeaponAttack = physicalAttack + elementalAttack;
+			int32_t weaponAttack = EffectiveCombatValues::toInteger(player->getEffectiveWeaponAttackValue(rawWeaponAttack));
 			int32_t weaponSkill = player->getWeaponSkill(weapon);
 			int32_t attackSkill = player->getAttackSkill(weapon);
 			uint8_t skillId = player->getWeaponSkillId(weapon);
@@ -5415,7 +5422,7 @@ void ProtocolGame::sendCyclopediaCharacterOffenceStats() {
 			// Converted Damage
 			if (it.abilities && it.abilities->elementType != COMBAT_NONE) {
 				if (physicalAttack) {
-					msg.addDouble(elementalAttack / static_cast<double>(weaponAttack));
+					msg.addDouble(elementalAttack / static_cast<double>(rawWeaponAttack));
 				} else {
 					msg.addDouble(0);
 				}
@@ -9859,6 +9866,8 @@ void ProtocolGame::AddPlayerSkills(NetworkMessage &msg) {
 					attackValue += weaponItem->getAttack();
 				}
 			}
+			const int32_t rawAttackValue = attackValue;
+			attackValue = EffectiveCombatValues::toInteger(player->getEffectiveWeaponAttackValue(attackValue));
 
 			int32_t distanceValue = player->getSkillLevel(SKILL_DISTANCE);
 			const auto attackTotal = player->attackTotal(flatBonus, attackValue, distanceValue);
@@ -9869,7 +9878,7 @@ void ProtocolGame::AddPlayerSkills(NetworkMessage &msg) {
 			// Converted Damage
 			if (it.abilities && it.abilities->elementType != COMBAT_NONE) {
 				if (physicalAttack) {
-					msg.addDouble(elementalAttack / static_cast<double>(attackValue));
+					msg.addDouble(elementalAttack / static_cast<double>(rawAttackValue));
 				} else {
 					msg.addDouble(0.0);
 				}
@@ -9884,7 +9893,8 @@ void ProtocolGame::AddPlayerSkills(NetworkMessage &msg) {
 			if (it.abilities && it.abilities->elementType != COMBAT_NONE) {
 				elementalAttack = std::max<int32_t>(0, it.abilities->elementDamage);
 			}
-			int32_t weaponAttack = physicalAttack + elementalAttack;
+			const int32_t rawWeaponAttack = physicalAttack + elementalAttack;
+			int32_t weaponAttack = EffectiveCombatValues::toInteger(player->getEffectiveWeaponAttackValue(rawWeaponAttack));
 			int32_t weaponSkill = player->getWeaponSkill(weapon);
 			const auto attackTotal = player->attackTotal(flatBonus, weaponAttack, weaponSkill);
 
@@ -9894,7 +9904,7 @@ void ProtocolGame::AddPlayerSkills(NetworkMessage &msg) {
 			// Converted Damage
 			if (it.abilities && it.abilities->elementType != COMBAT_NONE) {
 				if (physicalAttack) {
-					msg.addDouble(elementalAttack / static_cast<double>(weaponAttack));
+					msg.addDouble(elementalAttack / static_cast<double>(rawWeaponAttack));
 				} else {
 					msg.addDouble(0);
 				}

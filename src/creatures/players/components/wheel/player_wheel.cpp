@@ -4032,25 +4032,32 @@ void PlayerWheel::adjustDamageBasedOnResistanceAndSkill(int32_t &damage, CombatT
 
 float PlayerWheel::calculateMitigation() const {
 	const int32_t skill = m_player.getSkillLevel(SKILL_SHIELD);
-	int32_t defenseValue = 0;
-	float fightFactor = 1.0f;
+	// The off-hand's Defence arrives compensated (shield +30%, spellbook +60%) from
+	// Player::getEffectiveOffhandDefense, so mitigation consumes the effective value
+	// once and never scales it again.
+	double defenseValue = 0;
 	float shieldFactor = 1.0f;
 	float distanceFactor = 1.0f;
-	switch (m_player.fightMode) {
-		case FIGHTMODE_ATTACK: {
-			fightFactor = 0.8f;
-			break;
+	// The fight mode no longer weights mitigation on the modern model; a legacy
+	// client keeps the pre-15.25 0.8 / 1.0 / 1.2.
+	float fightFactor = 1.0f;
+	if (!m_player.usesModernCombatModel()) {
+		switch (m_player.fightMode) {
+			case FIGHTMODE_ATTACK: {
+				fightFactor = 0.8f;
+				break;
+			}
+			case FIGHTMODE_BALANCED: {
+				fightFactor = 1.0f;
+				break;
+			}
+			case FIGHTMODE_DEFENSE: {
+				fightFactor = 1.2f;
+				break;
+			}
+			default:
+				break;
 		}
-		case FIGHTMODE_BALANCED: {
-			fightFactor = 1.0f;
-			break;
-		}
-		case FIGHTMODE_DEFENSE: {
-			fightFactor = 1.2f;
-			break;
-		}
-		default:
-			break;
 	}
 
 	const auto &shield = m_player.inventory[CONST_SLOT_RIGHT];
@@ -4060,7 +4067,7 @@ float PlayerWheel::calculateMitigation() const {
 		} else {
 			shieldFactor = m_player.vocation->mitigationPrimaryShield;
 		}
-		defenseValue = shield->getDefense();
+		defenseValue = m_player.getEffectiveOffhandDefense(shield);
 		// Wheel of destiny
 		if (shield->getDefense() > 0) {
 			defenseValue += getMajorStatConditional("Combat Mastery", WheelMajor_t::DEFENSE);

@@ -119,6 +119,11 @@ enum ConditionAttr_t {
 	CONDITIONATTR_ELEMENT_CRITICAL_CHANCE,
 	CONDITIONATTR_ELEMENT_CRITICAL_DAMAGE,
 	CONDITIONATTR_ELEMENTAL_PIERCE_RECEIVED,
+	// Written by a build whose ConditionAttributes keeps the flat values a percent
+	// recipe produced OUT of the skills[] it saves. A blob without it was written by
+	// a build that saved them inside, so a skill with a percentage there carries a
+	// stale derived value, not a flat bonus. No payload.
+	CONDITIONATTR_PERCENT_RECIPES_SEPARATE,
 
 	// reserved for serialization
 	CONDITIONATTR_END = 254,

@@ -44,8 +44,10 @@ public:
 
 	WeaponShared_ptr getWeapon(const std::shared_ptr<Item> &item) const;
 
-	static int32_t getMaxMeleeDamage(int32_t attackSkill, int32_t attackValue);
-	static int32_t getMaxWeaponDamage(uint32_t level, int32_t attackSkill, int32_t attackValue, float attackFactor, bool isMelee);
+	// attackValue is the EFFECTIVE weapon attack (Player::getEffectiveWeaponAttackValue),
+	// a double so the 15.25 compensation keeps its fraction until the damage rounds.
+	static int32_t getMaxMeleeDamage(int32_t attackSkill, double attackValue);
+	static int32_t getMaxWeaponDamage(uint32_t level, int32_t attackSkill, double attackValue, float attackFactor, bool isMelee);
 
 	bool registerLuaEvent(const WeaponShared_ptr &event, bool fromXML = false);
 	void clear(bool isFromXML = false);
@@ -205,7 +207,7 @@ public:
 
 	std::shared_ptr<Combat> getCombat();
 
-	bool calculateSkillFormula(const std::shared_ptr<Player> &player, int32_t &attackSkill, int32_t &attackValue, float &attackFactor, int16_t &elementAttack, CombatDamage &damage, bool useCharges = false) const;
+	bool calculateSkillFormula(const std::shared_ptr<Player> &player, int32_t &attackSkill, double &attackValue, float &attackFactor, int16_t &elementAttack, CombatDamage &damage, bool useCharges = false) const;
 
 	LuaScriptInterface* getScriptInterface() const;
 	bool loadScriptId();
