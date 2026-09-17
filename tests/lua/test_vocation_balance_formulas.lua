@@ -135,6 +135,30 @@ test("Death Echo: base power 75, the echo at half", function()
 end)
 
 ---------------------------------------------------------------------------
+-- The July balance pass on existing spells (CipSoft note of 7 July)
+---------------------------------------------------------------------------
+
+test("Great Death Beam: base power 170 -> 155", function()
+	check(A .. "great_death_beam.lua", { -270.5, -430.5 }, { -701.2, -1085.2 })
+	-- the datapack's coefficients at base power 170 were 5.5 / 9
+	assert_ratio(155 / 170, 8.21 / 9, "Death Beam max coefficient moved as 155/170")
+	assert_ratio(155 / 170, 5.01 / 5.5, "Death Beam min coefficient moved as 155/170")
+end)
+
+test("Great Energy Beam: base power 170 -> 155", function()
+	check(A .. "great_energy_beam.lua", { -202.5, -339 }, { -538, -865.6 })
+	-- its own coefficients at base power 170 were 4 / 7
+	assert_ratio(155 / 170, 6.38 / 7, "Energy Beam max coefficient moved as 155/170")
+	assert_ratio(155 / 170, 3.65 / 4, "Energy Beam min coefficient moved as 155/170")
+end)
+
+test("Strong Ice Wave: base damage 150 -> 140, every term scaled", function()
+	check(A .. "strong_ice_wave.lua", { -248.67, -419.3 }, { -622.67, -995.6 })
+	assert_ratio(140 / 150, 7.09 / 7.6, "Ice Wave max coefficient moved as 140/150")
+	assert_ratio(140 / 150, 44.8 / 48, "Ice Wave max constant moved as 140/150")
+end)
+
+---------------------------------------------------------------------------
 -- Release-value rebalances of existing spells (no later adjustment known)
 ---------------------------------------------------------------------------
 

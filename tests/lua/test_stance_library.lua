@@ -238,7 +238,7 @@ test("Divine Defiance, Shared Conservation, Sharpshooter: 10s own, 2s Support, 1
 	expectContract("sharpshooter", 10, 2, 10, "support", "focus")
 end)
 
-test("Elemental Synthesis: 10s placeholder (UNVERIFIED, stated in the file)", function()
+test("Elemental Synthesis: 10s own, 2s Support, 10s stance family (official library)", function()
 	expectContract("elemental_synthesis", 10, 2, 10, "support", "focus")
 end)
 

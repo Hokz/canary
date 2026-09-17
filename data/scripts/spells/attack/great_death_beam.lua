@@ -1,6 +1,10 @@
+-- Base power 170 -> 155 in the July balance pass (CipSoft, 7 July; the same note
+-- moves Great Energy Beam by the same amounts). The datapack expresses this spell
+-- as level/5 + magicLevel x k with k = 5.5 (min) and 9 (max) at base power 170, so
+-- both scale by 155/170: 5.0147 and 8.2059, to two decimals.
 function onGetFormulaValues(player, level, maglevel)
-	local min = (level / 5) + (maglevel * 5.5)
-	local max = (level / 5) + (maglevel * 9)
+	local min = (level / 5) + (maglevel * 5.01)
+	local max = (level / 5) + (maglevel * 8.21)
 	return -min, -max
 end
 

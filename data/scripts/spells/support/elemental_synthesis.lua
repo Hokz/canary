@@ -23,10 +23,10 @@ spell:group("support", "focus")
 spell:vocation("druid;true", "elder druid;true")
 -- Canary-internal spell id, NOT the official CipSoft id; see divine_defiance.lua.
 spell:id(299)
--- Cooldowns: 10s own, 2s Support, 10s on the stance family (secondary group Focus).
--- UNVERIFIED: no source gives this stance's cooldowns; these are the values of the
--- other new General-family stances (Divine Defiance, Shared Conservation) and are
--- a placeholder, not a claim - FIDELITY_BLOCKER — VALUE_EVIDENCE_REQUIRED.
+-- Cooldowns: 10s own, 2s Support, 10s on the stance family, and premium - all four
+-- confirmed by the official spell library, which names the secondary group "Stance".
+-- The engine's Focus group carries it here because no protocol id for a "Stance"
+-- group is evidenced in this server; see data/libs/systems/stance.lua.
 spell:cooldown(10 * 1000)
 spell:groupCooldown(2 * 1000, 10 * 1000)
 spell:level(20)

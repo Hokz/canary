@@ -31,6 +31,15 @@
 --   condition would then carry no identity: the engine could not tell a player
 --   switching stances from a player turning the current one off, and both are real
 --   actions here.
+--
+-- COOLDOWN GROUPS
+--   The official spell library names the stances' secondary cooldown group
+--   "Stance". This server has no protocol id for such a group, so the stance spells
+--   declare the ids it does have: Focus for the General and Elemental families,
+--   Crippling for the two Auras. The two Sorcerer families therefore still lock
+--   independently, which is the behaviour the update requires; what is missing is
+--   only the client-facing id of the Stance group, not the group itself.
+--   FIDELITY_BLOCKER — STANCE_GROUP_PROTOCOL_ID.
 
 Stance = {}
 
