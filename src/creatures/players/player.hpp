@@ -323,6 +323,18 @@ public:
 	void setVarElementCritical(CombatType_t combat, int32_t chanceModifier, int32_t damageModifier);
 	void applyConditionElementCritical(CombatDamage &damage) const;
 
+	// Whether this player holds the given 15.25 stance: the persistent
+	// CONDITION_ATTRIBUTES on CONDITIONID_COMBAT carrying that stance's subId.
+	bool hasStance(AttrSubId_t stance) const;
+
+	// Shared Conservation: +10% on healing SPELLS the holder casts on themselves.
+	// Decided where healer and target are both known (Game::combatChangeHealth):
+	// the healer is this player, the target is this player, and the heal came from
+	// an instant spell or a rune. A heal from someone else, a heal this player
+	// casts on someone else, and a potion or passive regeneration get nothing.
+	// Returns true when the bonus was applied.
+	bool applySharedConservationSelfHeal(const std::shared_ptr<Creature> &target, CombatDamage &damage) const;
+
 	// Master of Flames / Thunder / Decay: after a spell of the stance's element, the
 	// next spell of another element is converted to it. This is the armed element,
 	// COMBAT_NONE when nothing is armed. Runtime only; not saved.

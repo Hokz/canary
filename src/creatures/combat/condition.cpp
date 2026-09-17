@@ -1180,10 +1180,27 @@ bool ConditionAttributes::executeCondition(const std::shared_ptr<Creature> &crea
 	return ConditionGeneric::executeCondition(creature, interval);
 }
 
+namespace {
+	bool isElementalStanceSubId(uint32_t subId) {
+		return subId == magic_enum::enum_integer(AttrSubId_t::StanceMasterOfFlames)
+			|| subId == magic_enum::enum_integer(AttrSubId_t::StanceMasterOfThunder)
+			|| subId == magic_enum::enum_integer(AttrSubId_t::StanceMasterOfDecay);
+	}
+}
+
 void ConditionAttributes::endCondition(std::shared_ptr<Creature> creature) {
 	const auto &player = creature->getPlayer();
 	if (player) {
 		bool needUpdate = false;
+
+		// Master of Flames / Thunder / Decay: a pending conversion belongs to the
+		// stance that armed it. The stance coming off - toggled off, replaced by
+		// another Elemental stance, or removed any other way - disarms it, here, in
+		// the one path every removal passes. A General or Crippling stance ending
+		// does not reach this branch and leaves a valid conversion armed.
+		if (isElementalStanceSubId(getSubId())) {
+			player->setPendingElementalConversion(COMBAT_NONE);
+		}
 
 		for (int32_t i = SKILL_FIRST; i <= SKILL_LAST; ++i) {
 			if (skills[i] || skillsPercent[i]) {

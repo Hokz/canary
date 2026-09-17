@@ -795,6 +795,11 @@ enum class AttrSubId_t {
 	StanceMasterOfDecay,
 	StanceSappedStrength,
 	StanceExposedWeakness,
+	// The debuffs the two Crippling stances land on the monsters the Sorcerer hits.
+	// Their own subIds, so refreshing one never touches the other or any other
+	// attribute condition the monster carries.
+	DebuffSappedStrength,
+	DebuffExposedWeakness,
 };
 
 enum Concoction_t : uint16_t {

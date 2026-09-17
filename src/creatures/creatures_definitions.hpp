@@ -1780,6 +1780,11 @@ struct CombatDamage {
 	bool hazardDodge = false;
 	// Death Echo's second impact: damage that must not trigger charms.
 	bool noCharm = false;
+	// The primary element the source had before any stance conversion (Master of
+	// Flames / Thunder / Decay), so a converted spell can still be judged by what it
+	// naturally is. Set by Combat::getCombatDamage; COMBAT_NONE on damage built
+	// anywhere else (auto attacks, wands, item and script damage).
+	CombatType_t naturalPrimaryType = COMBAT_NONE;
 
 	int32_t criticalDamage = 0;
 	int32_t criticalChance = 0;
@@ -1798,7 +1803,7 @@ struct CombatDamage {
 	CombatDamage() = default;
 
 	bool isEmpty() const {
-		return primary.type == COMBAT_NONE && primary.value == 0 && secondary.type == COMBAT_NONE && secondary.value == 0 && origin == ORIGIN_NONE && critical == false && affected == 1 && extension == false && exString.empty() && fatal == false && noCharm == false && criticalDamage == 0 && criticalChance == 0 && damageMultiplier == 0 && damageReductionMultiplier == 0 && healingMultiplier == 0 && manaLeech == 0 && manaLeechChance == 0 && lifeLeech == 0 && lifeLeechChance == 0 && healingLink == 0 && instantSpellName.empty() && runeSpellName.empty();
+		return primary.type == COMBAT_NONE && primary.value == 0 && secondary.type == COMBAT_NONE && secondary.value == 0 && origin == ORIGIN_NONE && critical == false && affected == 1 && extension == false && exString.empty() && fatal == false && noCharm == false && naturalPrimaryType == COMBAT_NONE && criticalDamage == 0 && criticalChance == 0 && damageMultiplier == 0 && damageReductionMultiplier == 0 && healingMultiplier == 0 && manaLeech == 0 && manaLeechChance == 0 && lifeLeech == 0 && lifeLeechChance == 0 && healingLink == 0 && instantSpellName.empty() && runeSpellName.empty();
 	}
 };
 

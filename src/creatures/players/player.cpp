@@ -352,11 +352,34 @@ void Player::setVarElementCritical(CombatType_t combat, int32_t chanceModifier, 
 	varElementCriticalDamage[index] += damageModifier;
 }
 
+bool Player::hasStance(AttrSubId_t stance) const {
+	return getCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, magic_enum::enum_integer(stance)) != nullptr;
+}
+
+bool Player::applySharedConservationSelfHeal(const std::shared_ptr<Creature> &target, CombatDamage &damage) const {
+	if (!target || target.get() != this || damage.primary.type != COMBAT_HEALING || damage.primary.value <= 0) {
+		return false;
+	}
+	if (damage.origin != ORIGIN_SPELL || (damage.instantSpellName.empty() && damage.runeSpellName.empty())) {
+		return false;
+	}
+	if (!hasStance(AttrSubId_t::StanceSharedConservation)) {
+		return false;
+	}
+	damage.primary.value = static_cast<int32_t>(static_cast<int64_t>(damage.primary.value) * 110 / 100);
+	return true;
+}
+
 void Player::applyConditionElementCritical(CombatDamage &damage) const {
-	if (damage.primary.type == COMBAT_NONE || damage.primary.type >= COMBAT_COUNT) {
+	// Master of Thunder / Decay grant their critical bonus to SPELLS of the
+	// stance's element, judged by the element the spell naturally has. So an instant
+	// spell is required, and its natural element decides: a rune, a wand hit or an
+	// auto attack of that element gets nothing, and neither does a spell of another
+	// element that the stance's conversion turned into it.
+	if (damage.instantSpellName.empty() || damage.naturalPrimaryType == COMBAT_NONE || damage.naturalPrimaryType >= COMBAT_COUNT) {
 		return;
 	}
-	const auto index = combatTypeToIndex(damage.primary.type);
+	const auto index = combatTypeToIndex(damage.naturalPrimaryType);
 	damage.criticalChance += std::max<int32_t>(0, varElementCriticalChance[index]);
 	damage.criticalDamage += std::max<int32_t>(0, varElementCriticalDamage[index]);
 }

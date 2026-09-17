@@ -110,6 +110,7 @@ CombatDamage Combat::getCombatDamage(const std::shared_ptr<Creature> &creature, 
 		}
 	}
 
+	damage.naturalPrimaryType = naturalType;
 	damage.instantSpellName = instantSpellName;
 	damage.runeSpellName = runeSpellName;
 	// Wheel of destiny

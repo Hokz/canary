@@ -13,6 +13,8 @@
 #include "creatures/appearance/mounts/mounts.hpp"
 #include "creatures/appearance/attached_effects/attached_effects.hpp"
 #include "creatures/combat/condition.hpp"
+#include "creatures/combat/crippling_aura.hpp"
+#include "creatures/combat/mana_shield_absorption.hpp"
 #include "creatures/combat/spells.hpp"
 #include "creatures/creature.hpp"
 #include "creatures/interactions/chat.hpp"
@@ -8364,6 +8366,13 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 			}
 		}
 
+		// Shared Conservation (15.25): +10% on healing spells the holder casts on
+		// themselves. Applied here because this is where healer and target are both
+		// known; the rule itself is Player::applySharedConservationSelfHeal.
+		if (attackerPlayer) {
+			attackerPlayer->applySharedConservationSelfHeal(target, damage);
+		}
+
 		// Wheel of destiny combat healing
 		applyWheelOfDestinyHealing(damage, attackerPlayer, target);
 
@@ -8590,17 +8599,15 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 		std::stringstream ss;
 
 		if (target->hasCondition(CONDITION_MANASHIELD) && damage.primary.type != COMBAT_UNDEFINEDDAMAGE) {
-			int32_t manaDamage = std::min<int32_t>(target->getMana(), healthChange);
 			uint32_t manaShield = target->getManaShield();
 			// 15.25: the Energy Ring's shield costs 2 mana per hit point instead of 1.
 			// The ring is the shield with no capacity - the Magic Shield spell always
-			// sets one - so that is the distinguishing test. manaAbsorbRatio is what
-			// divides the mana drained back into the hit points it covered, below.
-			int32_t manaAbsorbRatio = 1;
-			if (manaShield == 0) {
-				manaAbsorbRatio = 2;
-				manaDamage = std::min<int32_t>(target->getMana(), healthChange * manaAbsorbRatio);
-			}
+			// sets one - so that is the distinguishing test. The arithmetic is in
+			// computeManaShieldAbsorption: hit points covered are decided first from
+			// the mana at the exchange rate, and the mana spent is exactly those hit
+			// points times the rate, so no mana is ever spent on a fraction of one.
+			const int32_t manaPerHitPoint = manaShield == 0 ? 2 : 1;
+			int32_t manaDamage = computeManaShieldAbsorption(static_cast<int32_t>(target->getMana()), healthChange, manaPerHitPoint).manaSpent;
 			if (manaShield > 0) {
 				if (manaShield > manaDamage) {
 					target->setManaShield(manaShield - manaDamage);
@@ -8622,7 +8629,7 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 						if (healthChange == 0) {
 							return true;
 						}
-						manaDamage = std::min<int32_t>(target->getMana(), healthChange * manaAbsorbRatio);
+						manaDamage = computeManaShieldAbsorption(static_cast<int32_t>(target->getMana()), healthChange, manaPerHitPoint).manaSpent;
 					}
 				}
 
@@ -8689,11 +8696,10 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 					tmpPlayer->sendTextMessage(message);
 				}
 
-				damage.primary.value -= manaDamage / manaAbsorbRatio;
-				if (damage.primary.value < 0) {
-					damage.secondary.value = std::max<int32_t>(0, damage.secondary.value + damage.primary.value);
-					damage.primary.value = 0;
-				}
+				// manaDamage is a whole number of hit points times the rate (the
+				// capacity cap above only ever lowers it on the 1:1 shield), so this
+				// division is exact.
+				takeAbsorbedHealthOff(damage, manaDamage / manaPerHitPoint);
 
 				if (attackerPlayer) {
 					attackerPlayer->updateImpactTracker(damage.primary.type, damage.primary.value);
@@ -8813,6 +8819,10 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 				applyLifeLeech(attackerPlayer, targetMonster, target, damage, realDamage);
 				applyManaLeech(attackerPlayer, targetMonster, target, damage, realDamage);
 			}
+			// Aura of Sapped Strength / Exposed Weakness: the debuff lands with the
+			// hit, here, after it has resolved and taken health - never from target
+			// selection, where a later dodge or block was still unknown.
+			CripplingAura::apply(attackerPlayer, target, damage, realDamage);
 			updatePlayerPartyHuntAnalyzer(damage, attackerPlayer);
 		}
 	}
