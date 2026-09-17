@@ -148,7 +148,7 @@ public:
 
 class ConditionAttributes final : public ConditionGeneric {
 public:
-	ConditionAttributes(ConditionId_t initId, ConditionType_t initType, int32_t initTicks, bool initBuff = false, uint32_t initSubId = 0);
+	ConditionAttributes(ConditionId_t initId, ConditionType_t initType, int32_t initTicks, bool initBuff = false, uint32_t initSubId = 0, bool isPersistent = false);
 
 	bool startCondition(std::shared_ptr<Creature> creature) final;
 	bool executeCondition(const std::shared_ptr<Creature> &creature, int32_t interval) final;

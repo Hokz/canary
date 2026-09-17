@@ -125,21 +125,29 @@ namespace {
 		auto player = std::make_shared<Player>();
 		ASSERT_TRUE(player->addCondition(restored));
 
-		CombatDamage energy;
-		energy.primary.type = COMBAT_ENERGYDAMAGE;
+		// The bonus is read for instant spells by their natural element (see
+		// element_critical_natural_spell_test); these packets are such spells.
+		const auto spell = [](CombatType_t element) {
+			CombatDamage damage;
+			damage.origin = ORIGIN_SPELL;
+			damage.instantSpellName = "Strike";
+			damage.naturalPrimaryType = element;
+			damage.primary.type = element;
+			return damage;
+		};
+
+		auto energy = spell(COMBAT_ENERGYDAMAGE);
 		player->applyConditionElementCritical(energy);
 		EXPECT_EQ(400, energy.criticalChance);
 		EXPECT_EQ(0, energy.criticalDamage);
 
-		CombatDamage death;
-		death.primary.type = COMBAT_DEATHDAMAGE;
+		auto death = spell(COMBAT_DEATHDAMAGE);
 		player->applyConditionElementCritical(death);
 		EXPECT_EQ(0, death.criticalChance);
 		EXPECT_EQ(3000, death.criticalDamage);
 
 		player->removeCondition(restored);
-		CombatDamage after;
-		after.primary.type = COMBAT_ENERGYDAMAGE;
+		auto after = spell(COMBAT_ENERGYDAMAGE);
 		player->applyConditionElementCritical(after);
 		EXPECT_EQ(0, after.criticalChance);
 	}

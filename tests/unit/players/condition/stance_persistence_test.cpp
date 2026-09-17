@@ -93,6 +93,12 @@ namespace {
 	}
 
 	TEST_F(StancePersistenceTest, ARelogRestoresThePermanentStanceExactlyOnce) {
+		// The flag has to survive the factory first: Condition::createCondition's
+		// CONDITION_ATTRIBUTES case once dropped it, and a stance that answers
+		// "not persistent" is never written to the conditions blob at logout.
+		EXPECT_TRUE(sharpshooter()->isPersistent()) << "a stance built with the flag must report it";
+		EXPECT_FALSE(sharpshooter()->isRemovableOnDeath());
+
 		PropWriteStream out;
 		sharpshooter()->serialize(out);
 		out.write<uint8_t>(CONDITIONATTR_END);

@@ -359,7 +359,12 @@ std::shared_ptr<Condition> Condition::createCondition(ConditionId_t id, Conditio
 		case CONDITION_GREATERHEX:
 		case CONDITION_MENTOROTHER:
 		case CONDITION_ATTRIBUTES:
-			return ObjectPool<ConditionAttributes, 1024>::allocateShared(id, type, ticks, buff, subId);
+			// The persistent flag has to reach this class too: a stance is a
+			// ConditionAttributes built with it, and without it here the flag was
+			// dropped on the floor - isPersistent() then fell through to the
+			// ticks == -1 branch and answered false, so the stance was never written
+			// to the player's conditions blob and was lost on logout.
+			return ObjectPool<ConditionAttributes, 1024>::allocateShared(id, type, ticks, buff, subId, isPersistent);
 
 		case CONDITION_SPELLCOOLDOWN:
 			return ObjectPool<ConditionSpellCooldown, 1024>::allocateShared(id, type, ticks, buff, subId);
@@ -955,8 +960,8 @@ void ConditionAttributes::serialize(PropWriteStream &propWriteStream) {
 	propWriteStream.write<int32_t>(elementalPierceReceived);
 }
 
-ConditionAttributes::ConditionAttributes(ConditionId_t initId, ConditionType_t initType, int32_t initTicks, bool initBuff, uint32_t initSubId) :
-	ConditionGeneric(initId, initType, initTicks, initBuff, initSubId) { }
+ConditionAttributes::ConditionAttributes(ConditionId_t initId, ConditionType_t initType, int32_t initTicks, bool initBuff, uint32_t initSubId, bool isPersistent) :
+	ConditionGeneric(initId, initType, initTicks, initBuff, initSubId, isPersistent) { }
 
 bool ConditionAttributes::startCondition(std::shared_ptr<Creature> creature) {
 	if (!Condition::startCondition(creature)) {
