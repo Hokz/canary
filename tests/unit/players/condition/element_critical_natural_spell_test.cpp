@@ -11,6 +11,7 @@
 
 #include <gtest/gtest.h>
 
+#include "creatures/combat/condition.hpp"
 #include "creatures/players/player.hpp"
 #include "utils/tools.hpp"
 
