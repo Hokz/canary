@@ -738,9 +738,13 @@ void ConditionAttributes::addCondition(std::shared_ptr<Creature> creature, const
 		disableDefense = conditionAttrs->disableDefense;
 
 		if (const auto &player = creature->getPlayer()) {
+			// The flat recipe lands first, so a condition carrying both has its own
+			// flat bonus counted as a source for its own percentage. Deriving first
+			// and applying the flat afterwards left the percentage computed against a
+			// smaller skill until the next unrelated refresh silently corrected it.
 			percentSkillsRetired = false;
-			reapplyPercentSkills(player);
 			updateSkills(player);
+			reapplyPercentSkills(player);
 			updatePercentStats(player);
 			updateStats(player);
 			updateSpecializedMagicLevel(player);
@@ -999,9 +1003,10 @@ bool ConditionAttributes::startCondition(std::shared_ptr<Creature> creature) {
 		creature->setVarElementalPierceReceived(elementalPierceReceived);
 	}
 	if (const auto &player = creature->getPlayer()) {
+		// Flat first, then the percentage that may scale from it; see addCondition.
 		percentSkillsRetired = false;
-		reapplyPercentSkills(player);
 		updateSkills(player);
+		reapplyPercentSkills(player);
 		updatePercentStats(player);
 		updateStats(player);
 		updateSpecializedMagicLevel(player);

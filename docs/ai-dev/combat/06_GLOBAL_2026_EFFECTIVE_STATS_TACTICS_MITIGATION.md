@@ -91,6 +91,13 @@ a skill advance both call it.
 Two recipes on the same skill read the same source, so they add and the order they arrive in
 does not change the result: 100 with +30% and +20% is 150, never 100 × 1.3 × 1.2.
 
+Within one condition the flat recipe lands **before** its percentage is derived, so a condition
+carrying both counts its own flat bonus as a source for its own percentage. Deriving first and
+applying the flat afterwards left the percentage computed against the smaller skill until the
+next unrelated refresh silently corrected it — a value that depended on when you looked. CI
+caught this: `AConditionsOwnFlatRecipeCountsTowardsItsOwnPercentage` now pins it, and the
+ordering is the same in `startCondition` and in the merge path.
+
 ### Persistence
 
 The condition blob saves the **recipe**, never the value it produced. `skills[]` now holds the

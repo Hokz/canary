@@ -82,9 +82,13 @@ namespace EffectiveCombatValues {
 				return shieldDefense(rawDefense);
 			case OffhandKind::Spellbook:
 				return spellbookDefense(rawDefense);
-			default:
+			case OffhandKind::Other:
 				return rawDefense;
+			case OffhandKind::None:
+				// There is no item, so there is no Defence to compensate or to pass on.
+				return 0;
 		}
+		return 0;
 	}
 
 	// The one rounding point for a consumer that needs an integer: half away from

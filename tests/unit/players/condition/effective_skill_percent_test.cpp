@@ -239,6 +239,28 @@ namespace {
 		EXPECT_EQ(swordBefore, player->getSkillLevelForPercentScaling(SKILL_SWORD));
 	}
 
+	TEST_F(EffectiveSkillPercentTest, AConditionsOwnFlatRecipeCountsTowardsItsOwnPercentage) {
+		// A condition carrying both recipes applies the flat one first, so the
+		// percentage scales from a skill that already includes it, once and for good.
+		// Deriving first and applying the flat afterwards left the value short until
+		// the next unrelated refresh silently corrected it - which is the kind of
+		// "it depends when you look" this whole design exists to rule out.
+		auto player = std::make_shared<Player>();
+		equipFlatDistance(player, 90); // 100 before the condition
+
+		auto both = sharpshooter();
+		ASSERT_TRUE(both->setParam(CONDITION_PARAM_SKILL_DISTANCE, 32));
+		ASSERT_TRUE(player->addCondition(both));
+		EXPECT_EQ(174, player->getSkillLevel(SKILL_DISTANCE)) << "100 + 32 flat, then 32% of the 132 that makes";
+		EXPECT_EQ(132, player->getSkillLevelForPercentScaling(SKILL_DISTANCE));
+
+		// Settled: refreshing again moves nothing.
+		for (int i = 0; i < 3; ++i) {
+			player->refreshPercentSkillRecipes();
+			EXPECT_EQ(174, player->getSkillLevel(SKILL_DISTANCE)) << "refresh " << i << " moved a settled value";
+		}
+	}
+
 	TEST_F(EffectiveSkillPercentTest, APreSeparationBlobDropsTheStaleDerivedValue) {
 		// A blob written before the recipes were kept apart saved the percentage AND
 		// the flat value it had produced, in the same slot a flat recipe uses.
