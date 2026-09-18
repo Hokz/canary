@@ -13,6 +13,7 @@
 
 #include "creatures/players/player.hpp"
 #include "io/io_wheel.hpp"
+#include "utils/tools.hpp"
 
 namespace {
 
