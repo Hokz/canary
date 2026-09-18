@@ -158,6 +158,34 @@ bool Vocations::loadFromXml() {
 				if (secondaryShieldAttribute) {
 					voc->mitigationSecondaryShield = pugi::cast<float>(secondaryShieldAttribute.value());
 				}
+
+				// The legacy three fill every modern knob first, so a vocations.xml
+				// that carries only them keeps exactly the numbers it had...
+				voc->mitigation.deriveFromLegacy(voc->mitigationFactor, voc->mitigationPrimaryShield, voc->mitigationSecondaryShield);
+
+				// ...and any explicit modern attribute then overrides its own knob.
+				// See VocationMitigationProfile for what each one weights and where.
+				const auto readModern = [&childNode](const char* attributeName, float &target) {
+					if (const pugi::xml_attribute attribute = childNode.attribute(attributeName)) {
+						target = pugi::cast<float>(attribute.value());
+					}
+				};
+
+				readModern("skillFactor", voc->mitigation.skillFactor);
+
+				readModern("shieldDefenseFactor", voc->mitigation.shieldDefenseFactor);
+				readModern("spellbookDefenseFactor", voc->mitigation.spellbookDefenseFactor);
+				readModern("oneHandedDefenseFactor", voc->mitigation.oneHandedDefenseFactor);
+				readModern("twoHandedDefenseFactor", voc->mitigation.twoHandedDefenseFactor);
+
+				readModern("shieldEquipmentMultiplier", voc->mitigation.shieldEquipmentMultiplier);
+				readModern("spellbookEquipmentMultiplier", voc->mitigation.spellbookEquipmentMultiplier);
+				readModern("oneHandedEquipmentMultiplier", voc->mitigation.oneHandedEquipmentMultiplier);
+				readModern("twoHandedEquipmentMultiplier", voc->mitigation.twoHandedEquipmentMultiplier);
+				readModern("bowEquipmentMultiplier", voc->mitigation.bowEquipmentMultiplier);
+				readModern("crossbowEquipmentMultiplier", voc->mitigation.crossbowEquipmentMultiplier);
+				readModern("quiverEquipmentMultiplier", voc->mitigation.quiverEquipmentMultiplier);
+				readModern("elementalBondEquipmentMultiplier", voc->mitigation.elementalBondEquipmentMultiplier);
 			} else if (strcasecmp(childNode.name(), "formula") == 0) {
 				pugi::xml_attribute meleeDamageAttribute = childNode.attribute("meleeDamage");
 				if (meleeDamageAttribute) {

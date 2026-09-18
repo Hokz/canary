@@ -8,6 +8,7 @@ target_sources(
             mana_shield_absorption_test.cpp
             monster_combat_intention_test.cpp
             monster_compute_service_test.cpp
+            monster_mitigation_config_test.cpp
             monster_pathfinding_test.cpp
             monster_relevance_test.cpp
             monster_targeting_test.cpp

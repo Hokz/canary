@@ -179,6 +179,11 @@ bool ConfigManager::load() {
 	loadFloatConfig(L, COMBAT_CHAIN_SKILL_FORMULA_SWORD, "combatChainSkillFormulaSword", 1.1);
 	loadFloatConfig(L, COMBAT_CHAIN_SKILL_FORMULA_FIST, "combatChainSkillFormulaFist", 1.1);
 	loadFloatConfig(L, FORGE_AMOUNT_MULTIPLIER, "forgeAmountMultiplier", 3.0);
+	// Monster mitigation. COMMUNITY_DERIVED_TUNABLE: the post-15.25 note says monster
+	// mitigation went up, but not by how much and not to what ceiling, so both are
+	// knobs with the project's accepted defaults rather than hidden constants.
+	loadFloatConfig(L, MONSTER_MITIGATION_MULTIPLIER, "monsterMitigationMultiplier", 1.5);
+	loadFloatConfig(L, MONSTER_MITIGATION_CAP, "monsterMitigationCap", 45.0);
 	loadFloatConfig(L, HAZARD_EXP_BONUS_MULTIPLIER, "hazardExpBonusMultiplier", 2.0);
 	loadFloatConfig(L, LOYALTY_BONUS_PERCENTAGE_MULTIPLIER, "loyaltyBonusPercentageMultiplier", 1.0);
 	loadFloatConfig(L, MOMENTUM_CHANCE_FORMULA_A, "momentumChanceFormulaA", 0.05);

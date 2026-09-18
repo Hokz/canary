@@ -1387,11 +1387,16 @@ RaceType_t Monster::getRace() const {
 }
 
 float Monster::getMitigation() const {
-	float mitigation = m_monsterType->info.mitigation * getDefenseMultiplier();
+	// The 15.25 note says monster mitigation went up, without saying by how much or
+	// to what ceiling. Both are therefore configuration, not constants:
+	// monsterMitigationMultiplier and monsterMitigationCap in config.lua, defaulting
+	// to the project's accepted 1.5 and 45.0. COMMUNITY_DERIVED_TUNABLE.
+	float mitigation = m_monsterType->info.mitigation * getDefenseMultiplier() * g_configManager().getFloat(MONSTER_MITIGATION_MULTIPLIER);
+	// Unchanged: the armour-disabled server folds Defence and Armour back in here.
 	if (g_configManager().getBoolean(DISABLE_MONSTER_ARMOR)) {
 		mitigation += std::ceil(static_cast<float>(getDefense() + getArmor()) / 100.f) * getDefenseMultiplier() * 2.f;
 	}
-	return std::min<float>(mitigation, 30.f);
+	return std::min<float>(mitigation, g_configManager().getFloat(MONSTER_MITIGATION_CAP));
 }
 
 int32_t Monster::getArmor() const {

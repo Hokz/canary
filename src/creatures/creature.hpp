@@ -473,6 +473,10 @@ public:
 	 * @param blockType Reference to the block type, which may be modified to BLOCK_ARMOR if the damage is reduced to 0.
 	 * @param damage Reference to the amount of damage inflicted, which will be reduced by the creature's mitigation factor.
 	 */
+	// The seven common damage types mitigation applies to, and only those. Healing,
+	// the life and mana drains, agony, drowning and the neutral/undefined types are
+	// all out.
+	[[nodiscard]] static bool isMitigatableCombatType(CombatType_t combatType);
 	void mitigateDamage(const CombatType_t &combatType, BlockType_t &blockType, int32_t &damage) const;
 	virtual BlockType_t blockHit(const std::shared_ptr<Creature> &attacker, const CombatType_t &combatType, int32_t &damage, bool checkDefense = false, bool checkArmor = false, bool field = false);
 

@@ -908,8 +908,39 @@ void Creature::drainMana(const std::shared_ptr<Creature> &attacker, int32_t mana
 }
 
 // Wheel of destiny - mitigation system for creature
+// Mitigation is a percentage reduction on the seven common damage types, and on
+// nothing else. A whitelist rather than a list of exceptions: the old code mitigated
+// everything except the two drains and agony, which quietly swept in drowning,
+// neutral and undefined damage as well - broader than what mitigation is defined to
+// cover, and a new combat type would have been added to it by default.
+bool Creature::isMitigatableCombatType(CombatType_t combatType) {
+	switch (combatType) {
+		case COMBAT_PHYSICALDAMAGE:
+		case COMBAT_EARTHDAMAGE:
+		case COMBAT_ICEDAMAGE:
+		case COMBAT_FIREDAMAGE:
+		case COMBAT_ENERGYDAMAGE:
+		case COMBAT_HOLYDAMAGE:
+		case COMBAT_DEATHDAMAGE:
+			return true;
+		// Healing is not damage; the drains, agony and drowning bypass the layer by
+		// definition; neutral, undefined and none are not common damage types.
+		case COMBAT_HEALING:
+		case COMBAT_LIFEDRAIN:
+		case COMBAT_MANADRAIN:
+		case COMBAT_AGONYDAMAGE:
+		case COMBAT_DROWNDAMAGE:
+		case COMBAT_NEUTRALDAMAGE:
+		case COMBAT_UNDEFINEDDAMAGE:
+		case COMBAT_COUNT:
+		case COMBAT_NONE:
+			return false;
+	}
+	return false;
+}
+
 void Creature::mitigateDamage(const CombatType_t &combatType, BlockType_t &blockType, int32_t &damage) const {
-	if (combatType != COMBAT_MANADRAIN && combatType != COMBAT_LIFEDRAIN && combatType != COMBAT_AGONYDAMAGE) { // Increase mitigate damage
+	if (isMitigatableCombatType(combatType)) {
 		auto originalDamage = damage;
 		damage -= (damage * getMitigation()) / 100.;
 		g_logger().trace("[mitigation] creature: {}, original damage: {}, mitigation damage: {}", getName(), originalDamage, damage);

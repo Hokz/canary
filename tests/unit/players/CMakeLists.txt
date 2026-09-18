@@ -1,6 +1,7 @@
 target_sources(
     canary_ut
     PRIVATE combat_tactics_test.cpp
+            mitigation_profile_test.cpp
             player_item_batch_test.cpp
             reward_iteration_test.cpp
 )

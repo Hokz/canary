@@ -17,6 +17,7 @@
 #include "creatures/combat/condition.hpp"
 #include "creatures/combat/spells.hpp"
 #include "creatures/players/vocations/vocation.hpp"
+#include "items/item.hpp"
 #include "enums/player_wheel.hpp"
 #include "game/game.hpp"
 #include "io/io_wheel.hpp"
@@ -4091,15 +4092,75 @@ void PlayerWheel::adjustDamageBasedOnResistanceAndSkill(int32_t &damage, CombatT
 }
 
 float PlayerWheel::calculateMitigation() const {
-	const int32_t skill = m_player.getSkillLevel(SKILL_SHIELD);
-	// The off-hand's Defence arrives compensated (shield +30%, spellbook +60%) from
-	// Player::getEffectiveOffhandDefense, so mitigation consumes the effective value
-	// once and never scales it again.
-	double defenseValue = 0;
-	float shieldFactor = 1.0f;
-	float distanceFactor = 1.0f;
-	// The fight mode no longer weights mitigation on the modern model; a legacy
-	// client keeps the pre-15.25 0.8 / 1.0 / 1.2.
+	const auto &profile = m_player.vocation->mitigation;
+
+	// The skill half. Effective Shielding, so a percent stance and the Wheel's own
+	// conditional Shielding are already in it.
+	const double skillContribution = m_player.getSkillLevel(SKILL_SHIELD) * profile.skillFactor;
+
+	// The Defence half. Each source is weighted by its own factor before the sum, and
+	// the Defence it brings already carries the 15.25 compensation (shield +30%,
+	// spellbook +60%) exactly once - Player::getEffectiveOffhandDefense applied it, so
+	// nothing here multiplies by those percentages again.
+	double defenseContribution = 0;
+
+	// One category decides the multiplier that weights the whole result. The off-hand
+	// names it, and a weapon that defines the player's stance - a bow, a crossbow or a
+	// two-hander - overrides it. That is the precedence the pre-refactor formula had.
+	float equipmentMultiplier = 1.0f;
+
+	const auto &offhand = m_player.inventory[CONST_SLOT_RIGHT];
+	if (offhand) {
+		const double offhandDefense = m_player.getEffectiveOffhandDefense(offhand);
+		if (offhand->isSpellBook()) {
+			defenseContribution += offhandDefense * profile.spellbookDefenseFactor;
+			equipmentMultiplier = profile.spellbookEquipmentMultiplier;
+		} else if (offhand->isQuiver()) {
+			defenseContribution += offhandDefense;
+			equipmentMultiplier = profile.quiverEquipmentMultiplier;
+		} else {
+			defenseContribution += offhandDefense * profile.shieldDefenseFactor;
+			equipmentMultiplier = profile.shieldEquipmentMultiplier;
+		}
+
+		// Combat Mastery's conditional Defence rides with a real shield.
+		if (offhand->getDefense() > 0) {
+			defenseContribution += getMajorStatConditional("Combat Mastery", WheelMajor_t::DEFENSE) * profile.shieldDefenseFactor;
+		}
+	}
+
+	const auto &weapon = m_player.inventory[CONST_SLOT_LEFT];
+	if (weapon) {
+		const auto ammoType = weapon->getAmmoType();
+		if (ammoType == AMMO_BOLT) {
+			equipmentMultiplier = profile.crossbowEquipmentMultiplier;
+		} else if (ammoType == AMMO_ARROW) {
+			equipmentMultiplier = profile.bowEquipmentMultiplier;
+		} else if (weapon->getSlotPosition() & SLOTP_TWO_HAND) {
+			// A two-hander replaces the off-hand's contribution: there is no off-hand.
+			defenseContribution = (weapon->getDefense() + weapon->getExtraDefense()) * profile.twoHandedDefenseFactor;
+			equipmentMultiplier = profile.twoHandedEquipmentMultiplier;
+		} else {
+			// COMMUNITY_DERIVED_TUNABLE: a one-handed weapon contributes its FULL
+			// Defence, not only its extraDefense. Its Defence is never touched by the
+			// +20% Attack compensation - that is an Attack rule - and a shield in the
+			// other hand contributes separately, so nothing is counted twice.
+			defenseContribution += (weapon->getDefense() + weapon->getExtraDefense()) * profile.oneHandedDefenseFactor;
+			if (!offhand) {
+				equipmentMultiplier = profile.oneHandedEquipmentMultiplier;
+			}
+		}
+
+		// A weapon carrying an Elemental Bond is its own category. Neutral by default:
+		// no post-15.25 coefficient is published. FIDELITY_PENDING_EVIDENCE.
+		if (Item::items[weapon->getID()].elementalBond != COMBAT_NONE) {
+			equipmentMultiplier *= profile.elementalBondEquipmentMultiplier;
+		}
+	}
+
+	// The fight mode carries no mathematical weight on the modern model. A legacy
+	// client still gets the pre-15.25 0.8 / 1.0 / 1.2, which is what keeps the two
+	// combat models from ever mixing on one player.
 	float fightFactor = 1.0f;
 	if (!m_player.usesModernCombatModel()) {
 		switch (m_player.fightMode) {
@@ -4107,47 +4168,19 @@ float PlayerWheel::calculateMitigation() const {
 				fightFactor = 0.8f;
 				break;
 			}
-			case FIGHTMODE_BALANCED: {
-				fightFactor = 1.0f;
-				break;
-			}
 			case FIGHTMODE_DEFENSE: {
 				fightFactor = 1.2f;
 				break;
 			}
+			case FIGHTMODE_BALANCED:
 			default:
 				break;
 		}
 	}
 
-	const auto &shield = m_player.inventory[CONST_SLOT_RIGHT];
-	if (shield) {
-		if (shield->isSpellBook() || shield->isQuiver()) {
-			distanceFactor = m_player.vocation->mitigationSecondaryShield;
-		} else {
-			shieldFactor = m_player.vocation->mitigationPrimaryShield;
-		}
-		defenseValue = m_player.getEffectiveOffhandDefense(shield);
-		// Wheel of destiny
-		if (shield->getDefense() > 0) {
-			defenseValue += getMajorStatConditional("Combat Mastery", WheelMajor_t::DEFENSE);
-		}
-	}
-
-	const auto &weapon = m_player.inventory[CONST_SLOT_LEFT];
-	if (weapon) {
-		if (weapon->getAmmoType() == AMMO_BOLT || weapon->getAmmoType() == AMMO_ARROW) {
-			distanceFactor = m_player.vocation->mitigationSecondaryShield;
-		} else if (weapon->getSlotPosition() & SLOTP_TWO_HAND) {
-			defenseValue = weapon->getDefense() + weapon->getExtraDefense();
-			shieldFactor = m_player.vocation->mitigationSecondaryShield;
-		} else {
-			defenseValue += weapon->getExtraDefense();
-			shieldFactor = m_player.vocation->mitigationPrimaryShield;
-		}
-	}
-
-	float mitigation = std::ceil(((((skill * m_player.vocation->mitigationFactor) + (shieldFactor * static_cast<float>(defenseValue))) / 100.0f) * fightFactor * distanceFactor) * 100.0f) / 100.0f;
+	// Rounding is deliberately left exactly as it was: two decimals, rounded up, on
+	// the equipment-adjusted value, and the Wheel multiplier applied after it.
+	float mitigation = std::ceil(((skillContribution + defenseContribution) / 100.0) * fightFactor * equipmentMultiplier * 100.0f) / 100.0f;
 	mitigation += (mitigation * static_cast<float>(getMitigationMultiplier())) / 100.f;
 	return mitigation;
 }
