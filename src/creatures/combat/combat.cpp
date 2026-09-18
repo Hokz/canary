@@ -599,6 +599,11 @@ bool Combat::setParam(CombatParam_t param, uint32_t value) {
 			params.noCharm = value != 0;
 			return true;
 		}
+
+		case COMBAT_PARAM_BEAM_MASTERY_FLANK: {
+			params.beamMasteryFlank = value != 0;
+			return true;
+		}
 	}
 	return false;
 }
@@ -1507,7 +1512,9 @@ void Combat::CombatFunc(const std::shared_ptr<Creature> &caster, const Position 
 
 	// Wheel of destiny get beam affected total
 	auto spectators = Spectators().find<Player>(toPos, true, rangeX, rangeX, rangeY, rangeY);
-	uint8_t beamAffectedTotal = casterPlayer ? casterPlayer->wheel().getBeamAffectedTotal(tmpDamage) : 0;
+	// The flank pass is deliberately excluded: only the central beam's targets feed the
+	// per-target damage increase and the per-target cooldown reduction.
+	uint8_t beamAffectedTotal = casterPlayer && !params.beamMasteryFlank ? casterPlayer->wheel().getBeamAffectedTotal(tmpDamage) : 0;
 	uint8_t beamAffectedCurrent = 0;
 
 	tmpDamage.affected = affectedTargets.size();
@@ -1540,7 +1547,7 @@ void Combat::CombatFunc(const std::shared_ptr<Creature> &caster, const Position 
 
 				if (!params.aggressive || (caster != creature && Combat::canDoCombat(caster, creature, params.aggressive) == RETURNVALUE_NOERROR)) {
 					// Wheel of destiny update beam mastery damage
-					if (casterPlayer) {
+					if (casterPlayer && !params.beamMasteryFlank) {
 						casterPlayer->wheel().updateBeamMasteryDamage(tmpDamage, beamAffectedTotal, beamAffectedCurrent);
 					}
 

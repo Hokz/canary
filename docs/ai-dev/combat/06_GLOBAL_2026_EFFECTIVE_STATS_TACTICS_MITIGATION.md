@@ -360,12 +360,86 @@ The central beam also keeps its 1s-per-target cooldown reduction, untouched. A t
 the two scales never collapse into one value, because overwriting the central mechanic with
 25/40/70 is the specific mistake to avoid.
 
-**What is not yet wired:** the adjacent scale exists as a proven, single-homed engine value
-with tests, but no beam script consumes it yet. Doing so needs an adjacent-square *geometry*
-for every beam length and both diagonal orientations, and that geometry is not in any source
-this round cites — only the percentages are. Rather than invent five area shapes and call
-them official, the number is in place behind one accessor and the wiring is named as the
-remaining work: `FIDELITY_BLOCKER — BEAM_ADJACENT_AREA_GEOMETRY`.
+### The adjacent geometry — wired
+
+`FIDELITY_BLOCKER — BEAM_ADJACENT_AREA_GEOMETRY` is **closed**. The adjacent effect is two
+one-tile-wide lines parallel to the central beam, one on each side, each the same length as
+the beam that actually executes.
+
+```
+X . X
+X . X      X = flank damage      . = the central beam, its own Combat
+X . X      0 = nothing           P = caster, no flank damage
+0 P 0
+```
+
+`buildBeamMasteryFlankAreas(length)` in `data/libs/functions/combat.lua` builds both matrices
+— one helper, not three copies. Cardinal: rows 1..N−1 are `{ 1, 0, 1 }`, row N is `{ 0, 2, 0 }`.
+Diagonal: the super-diagonal `(i, i+1)` and the sub-diagonal `(i+1, i)`, both edge-adjacent to
+the central cell `(i, i)`, with the caster in the last cell.
+
+**The caster's tile carries `2`, not `3`.** `AreaCombat::createArea` reads `3` as *centre and
+damage*; `2` is *centre only*. Using `3` would have put a flank hit on the caster's own tile,
+which is the one thing the geometry must not do — so the marker is `2` and a test asserts no
+cell in either matrix is ever `3`.
+
+| Spell | Central (Beam Mastery active) | Flank | Directions |
+|---|---|---|---|
+| Energy Beam | `AREA_BEAM7` / `AREADIAGONAL_BEAM7` | length 7, cardinal + diagonal | cardinal + diagonal, as before |
+| Great Energy Beam | `AREA_BEAM10` | length 10, cardinal | cardinal only, as before |
+| Great Death Beam | `AREA_BEAM6/7/8` by grade | matching 6/7/8, cardinal | cardinal only, as before |
+
+No spell gained a direction it did not already have.
+
+**A pre-existing bug fixed on the way.** `great_death_beam.lua` passed one shared `Combat`
+object through its `createCombat` helper three times, so each call overwrote the previous
+area and all three grades executed the last one — the beam was **always `AREA_BEAM8`**
+regardless of grade. Each grade now owns its `Combat`, which is both the correct behaviour
+and what lets a flank match the length that actually ran. Grades 1 and 2 therefore get the
+`BEAM6` / `BEAM7` lengths the data always specified, which is shorter than what they were
+getting.
+
+### Keeping the flank out of the central accounting
+
+The flank `Combat` carries the **same instant spell name** as the central beam — it has to, so
+that spell augments, the elemental stance and the natural-element rules apply to it. The name
+therefore cannot tell the two passes apart, and `PlayerWheel::getBeamAffectedTotal` keys off
+exactly that name. Without a flag, a flank target would be counted as a central one.
+
+`CombatParams::beamMasteryFlank`, set from Lua through `COMBAT_PARAM_BEAM_MASTERY_FLANK`, is
+that flag. `Combat::CombatFunc` skips both `getBeamAffectedTotal` and
+`updateBeamMasteryDamage` when it is set, so a flank hit takes **no** part in:
+
+  - the central beam's target total;
+  - the 1-second-per-target cooldown reduction;
+  - the central per-target damage increase of 10 / 12 / 14.
+
+It is a flag rather than a cleared spell name on purpose: clearing the name would also
+discard the augments and stance behaviour the flank is supposed to keep.
+
+### Flank damage
+
+```
+flank min, max = the spell's own formula x (getBeamMasteryAdjacentDamage() / 100)
+```
+
+Read per cast from the C++ accessor, so 25 / 40 / 70 is written down in exactly one place and
+no Lua file carries a second table. The flank `Combat` only executes when the percentage is
+above zero, so stage 0 produces no flank pass at all.
+
+### What is proven and what is not
+
+Proven by tests: the geometry (cell counts per length, no cell on the central line, the caster
+marked but never damaged, left/right symmetry, disjointness from the central beam, no
+duplicate diagonal cells), the flag's default and both settings, that it disturbs no other
+combat parameter, and the 0 / 25 / 40 / 70 accessor with the exact factor the datapack derives.
+
+**Not proven by tests:** the damage numbers a live cast produces, and the stance conversion
+applied to a flank hit. Both need a running map with creatures on it, which this repository's
+unit and Lua suites cannot provide — there is no combat-integration harness. The stance and
+augment behaviour follows by construction (the flank goes through the same
+`Combat::getCombatDamage` with the same spell name), but that is an argument, not a test, and
+it is recorded here as such rather than claimed as verified.
 
 ## L. The modern mitigation profile
 
@@ -519,6 +593,6 @@ its own tests for charges and block reporting.
 | One-handed full Defence contribution; monster ×1.5; monster cap 45 (both clamped non-negative, unchanged label); the base/equipment/Wheel model | COMMUNITY_DERIVED_TUNABLE |
 | Exact Elemental Bond multiplier; exact 2H / bow / crossbow coefficients; exact official internal rounding | FIDELITY_PENDING_EVIDENCE |
 | resistance → armor → mitigation ordering | COMMUNITY_EVIDENCE, blocked — see M |
-| Beam adjacent-square geometry | FIDELITY_BLOCKER — BEAM_ADJACENT_AREA_GEOMETRY |
+| Beam adjacent-square geometry (two parallel flank lines) | COMMUNITY_DERIVED_TUNABLE — blocker closed |
 
 **No community-derived number is presented as an exact Global value.**

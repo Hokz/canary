@@ -16,17 +16,35 @@ function onGetFormulaValuesWOD(player, level, maglevel)
 	return formulaFunction(player, level, maglevel)
 end
 
-local function createCombat(area, combatFunc)
+-- Beam Mastery's flank damage is a percentage of the beam's own damage, read from
+-- C++ per cast so 25 / 40 / 70 lives in exactly one place.
+function onGetFormulaValuesBeamMasteryFlank(player, level, maglevel)
+	local min, max = formulaFunction(player, level, maglevel)
+	local factor = player:getBeamMasteryAdjacentDamage() / 100.0
+	return min * factor, max * factor
+end
+
+local function createCombat(area, combatFunc, isFlank)
 	local initCombat = Combat()
 	initCombat:setCallback(CALLBACK_PARAM_LEVELMAGICVALUE, combatFunc)
 	initCombat:setParameter(COMBAT_PARAM_TYPE, COMBAT_ENERGYDAMAGE)
 	initCombat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_ENERGYAREA)
 	initCombat:setArea(createCombatArea(area))
+	if isFlank then
+		-- Keeps the flank out of the central beam's target accounting entirely.
+		initCombat:setParameter(COMBAT_PARAM_BEAM_MASTERY_FLANK, true)
+	end
 	return initCombat
 end
 
 local combat = createCombat(AREA_BEAM8, "onGetFormulaValues")
 local combatWOD = createCombat(AREA_BEAM10, "onGetFormulaValuesWOD")
+
+-- Cardinal only, matching this spell's existing directions: it supplies no diagonal
+-- area today and the flanks must not widen where it can be cast. The length matches
+-- the beam that executes with Beam Mastery active: BEAM10.
+local flankArea = buildBeamMasteryFlankAreas(10)
+local combatFlank = createCombat(flankArea, "onGetFormulaValuesBeamMasteryFlank", true)
 
 local spell = Spell("instant")
 
@@ -35,7 +53,15 @@ function spell.onCastSpell(creature, var)
 	if not creature or not player then
 		return false
 	end
-	return player:instantSkillWOD("Beam Mastery") and combatWOD:execute(creature, var) or combat:execute(creature, var)
+	if not player:instantSkillWOD("Beam Mastery") then
+		return combat:execute(creature, var)
+	end
+
+	local result = combatWOD:execute(creature, var)
+	if player:getBeamMasteryAdjacentDamage() > 0 then
+		combatFlank:execute(creature, var)
+	end
+	return result
 end
 
 spell:group("attack", "greatbeams")

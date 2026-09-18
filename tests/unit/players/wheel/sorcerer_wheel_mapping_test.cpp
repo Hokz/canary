@@ -12,6 +12,7 @@
 #include <gtest/gtest.h>
 
 #include "creatures/players/player.hpp"
+#include "creatures/combat/combat.hpp"
 #include "io/io_wheel.hpp"
 #include "utils/tools.hpp"
 
@@ -232,6 +233,77 @@ namespace {
 			player->wheel().setStage(WheelStage_t::BEAM_MASTERY, stage);
 			EXPECT_NE(player->wheel().checkBeamMasteryDamage(), player->wheel().getBeamMasteryAdjacentDamagePercent())
 				<< "stage " << static_cast<int>(stage) << ": the central and adjacent scales collapsed into one";
+		}
+	}
+
+	// --- The Beam Mastery flank pass -------------------------------------------
+	//
+	// The flank Combat carries the same instant spell name as the central beam - it has
+	// to, so that spell augments, the elemental stance and the natural-element rules all
+	// apply to it. That means the name cannot tell the two passes apart, and without an
+	// explicit flag the flank's targets would be counted as central ones: they would
+	// feed the per-target cooldown reduction and take the central damage increase.
+
+	TEST_F(SorcererWheelMappingTest, ACombatIsNotAFlankPassUnlessItSaysSo) {
+		Combat combat;
+		EXPECT_FALSE(combat.getCombatParams().beamMasteryFlank) << "the default must be the central beam";
+	}
+
+	TEST_F(SorcererWheelMappingTest, TheFlankParameterIsSettableAndClearable) {
+		Combat combat;
+		ASSERT_TRUE(combat.setParam(COMBAT_PARAM_BEAM_MASTERY_FLANK, 1));
+		EXPECT_TRUE(combat.getCombatParams().beamMasteryFlank);
+
+		ASSERT_TRUE(combat.setParam(COMBAT_PARAM_BEAM_MASTERY_FLANK, 0));
+		EXPECT_FALSE(combat.getCombatParams().beamMasteryFlank) << "false must be honoured, not just true";
+	}
+
+	TEST_F(SorcererWheelMappingTest, TheFlankParameterDoesNotDisturbAnyOtherCombatParameter) {
+		// A new parameter that quietly changed another one would be a nasty way to break
+		// an unrelated spell.
+		Combat combat;
+		ASSERT_TRUE(combat.setParam(COMBAT_PARAM_TYPE, COMBAT_DEATHDAMAGE));
+		ASSERT_TRUE(combat.setParam(COMBAT_PARAM_AGGRESSIVE, 1));
+		ASSERT_TRUE(combat.setParam(COMBAT_PARAM_NOCHARM, 1));
+		ASSERT_TRUE(combat.setParam(COMBAT_PARAM_BEAM_MASTERY_FLANK, 1));
+
+		const auto &params = combat.getCombatParams();
+		EXPECT_TRUE(params.beamMasteryFlank);
+		EXPECT_EQ(COMBAT_DEATHDAMAGE, params.combatType);
+		EXPECT_TRUE(params.aggressive);
+		EXPECT_TRUE(params.noCharm);
+	}
+
+	TEST_F(SorcererWheelMappingTest, OnlyABeamSpellGetsTheCentralTargetAccounting) {
+		// getBeamAffectedTotal is what CombatFunc consults for the central pass, and it
+		// answers only for a spell in the Beam Mastery set. CombatFunc skips the call
+		// entirely when params.beamMasteryFlank is set, which is what keeps a flank hit
+		// out of the count; this pins the other half - an unrelated spell was never in
+		// the count to begin with.
+		auto player = std::make_shared<Player>();
+		player->wheel().setStage(WheelStage_t::BEAM_MASTERY, 3);
+		ASSERT_TRUE(player->wheel().getInstant("Beam Mastery"));
+
+		CombatDamage damage;
+		damage.instantSpellName = "Death Echo";
+		EXPECT_EQ(0, player->wheel().getBeamAffectedTotal(damage)) << "a non-beam spell must never be counted";
+
+		damage.instantSpellName.clear();
+		EXPECT_EQ(0, player->wheel().getBeamAffectedTotal(damage)) << "and neither must an unnamed one";
+	}
+
+	TEST_F(SorcererWheelMappingTest, TheAdjacentPercentIsWhatTheDatapackWillRead) {
+		// player:getBeamMasteryAdjacentDamage() returns exactly this, and a beam script
+		// divides it by 100 to get its factor. Zero means the flank does not execute.
+		auto player = std::make_shared<Player>();
+		EXPECT_EQ(0, player->wheel().getBeamMasteryAdjacentDamagePercent());
+
+		const std::array<std::pair<uint8_t, int32_t>, 3> expectations { { { 1, 25 }, { 2, 40 }, { 3, 70 } } };
+		for (const auto &[stage, percent] : expectations) {
+			player->wheel().setStage(WheelStage_t::BEAM_MASTERY, stage);
+			EXPECT_EQ(percent, player->wheel().getBeamMasteryAdjacentDamagePercent()) << "stage " << static_cast<int>(stage);
+			// The factor the datapack computes, stated as the arithmetic it performs.
+			EXPECT_DOUBLE_EQ(percent / 100.0, player->wheel().getBeamMasteryAdjacentDamagePercent() / 100.0);
 		}
 	}
 

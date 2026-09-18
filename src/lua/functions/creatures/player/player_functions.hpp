@@ -308,6 +308,7 @@ class PlayerFunctions {
 	static int luaPlayerOnThinkWheelOfDestiny(lua_State* L);
 	static int luaPlayerAvatarTimer(lua_State* L);
 	static int luaPlayerGetWheelSpellAdditionalArea(lua_State* L);
+	static int luaPlayerGetBeamMasteryAdjacentDamage(lua_State* L);
 	static int luaPlayerGetWheelSpellAdditionalTarget(lua_State* L);
 	static int luaPlayerGetWheelSpellAdditionalDuration(lua_State* L);
 	static int luaPlayerGetWheelSpellAdditionalDamage(lua_State* L);

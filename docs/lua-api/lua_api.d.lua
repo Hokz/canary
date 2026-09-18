@@ -3237,6 +3237,9 @@ function Player:getBackpack() end
 function Player:getBankBalance() end
 
 ---@return number|nil
+function Player:getBeamMasteryAdjacentDamage() end
+
+---@return number|nil
 function Player:getBaseMagicLevel() end
 
 ---@return number|nil

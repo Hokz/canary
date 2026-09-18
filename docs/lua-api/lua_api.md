@@ -4060,6 +4060,11 @@ C++ Lua binding handlers and registration lines can override inferred signatures
 - Returns: `number|nil`
 - Source: `src/lua/functions/creatures/player/player_functions.cpp`
 
+#### `Player:getBeamMasteryAdjacentDamage()`
+
+- Returns: `number|nil`
+- Source: `src/lua/functions/creatures/player/player_functions.cpp`
+
 #### `Player:getBaseMagicLevel()`
 
 - Returns: `number|nil`

@@ -358,6 +358,11 @@ enum CombatParam_t {
 	COMBAT_PARAM_IMPACTSOUND,
 	COMBAT_PARAM_CHAIN_EFFECT,
 	COMBAT_PARAM_NOCHARM,
+	// Marks a Combat as the Beam Mastery flank pass rather than the central beam. The
+	// flank carries the same spell name - it has to, for augments, the elemental stance
+	// and the natural-element rules - so the name cannot tell the two apart, and without
+	// this flag the flank's targets would be counted as central ones.
+	COMBAT_PARAM_BEAM_MASTERY_FLANK,
 };
 
 enum CombatOrigin : uint8_t {
