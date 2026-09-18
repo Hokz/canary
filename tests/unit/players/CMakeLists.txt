@@ -8,6 +8,7 @@ target_sources(
 add_subdirectory(components)
 add_subdirectory(condition)
 add_subdirectory(imbuements)
+add_subdirectory(wheel)
 
 target_sources(
     canary_ut

@@ -3178,6 +3178,10 @@ int32_t PlayerWheel::checkExecutionersThrow(const std::shared_ptr<Creature> &tar
 	return damageBonus;
 }
 
+// The central beam's own bonus: a damage increase per target the beam hits, paid
+// alongside the 1s-per-target cooldown reduction in updateBeamMasteryDamage. This is
+// NOT the adjacent-square scale - see getBeamMasteryAdjacentDamagePercent - and the
+// two must never be conflated.
 int32_t PlayerWheel::checkBeamMasteryDamage() const {
 	int32_t damageBoost = 0;
 	const uint8_t stage = getStage(WheelStage_t::BEAM_MASTERY);
@@ -3190,6 +3194,24 @@ int32_t PlayerWheel::checkBeamMasteryDamage() const {
 	}
 
 	return damageBoost;
+}
+
+// What a square beside the beam takes, as a percentage of the beam's own damage.
+// POST_JULY_VERIFIED: 25 / 40 / 70 by Beam Mastery stage. This is the only place
+// those three numbers live; the datapack reads them through
+// Player:getBeamMasteryAdjacentDamage so a beam script cannot carry its own copy.
+int32_t PlayerWheel::getBeamMasteryAdjacentDamagePercent() const {
+	const uint8_t stage = getStage(WheelStage_t::BEAM_MASTERY);
+	if (stage >= 3) {
+		return 70;
+	}
+	if (stage >= 2) {
+		return 40;
+	}
+	if (stage >= 1) {
+		return 25;
+	}
+	return 0;
 }
 
 int32_t PlayerWheel::checkDrainBodyLeech(const std::shared_ptr<Creature> &target, skills_t skill) const {
@@ -3998,6 +4020,15 @@ uint16_t PlayerWheel::getPointsBySlotType(WheelSlots_t slotType) const {
 		return 0;
 	}
 }
+
+#ifdef BUILD_TESTS
+void PlayerWheel::setTestSlotPoints(WheelSlots_t slotType, uint16_t points) {
+	const auto index = static_cast<std::size_t>(slotType);
+	if (index < m_wheelSlots.size()) {
+		m_wheelSlots[index] = points;
+	}
+}
+#endif
 
 const std::array<uint16_t, 37> &PlayerWheel::getSlots() const {
 	return m_wheelSlots;

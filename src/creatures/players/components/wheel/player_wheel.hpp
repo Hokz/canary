@@ -321,6 +321,9 @@ public:
 	[[nodiscard]] static bool majorStatFeedsEffectiveSkill(WheelMajor_t major);
 	int32_t checkDrainBodyLeech(const std::shared_ptr<Creature> &target, skills_t skill) const;
 	int32_t checkBeamMasteryDamage() const;
+	// The adjacent-square scale, 0 / 25 / 40 / 70 by Beam Mastery stage. Separate from
+	// checkBeamMasteryDamage, which is the central beam's per-target increase.
+	[[nodiscard]] int32_t getBeamMasteryAdjacentDamagePercent() const;
 	int32_t checkBattleHealingAmount() const;
 	int32_t checkBlessingGroveHealingByTarget(const std::shared_ptr<Creature> &target) const;
 	int32_t checkTwinBurstByTarget(const std::shared_ptr<Creature> &target) const;
@@ -444,6 +447,12 @@ public:
 	void sendOpenWheelWindow(uint32_t ownerId) const;
 
 	uint16_t getPointsBySlotType(WheelSlots_t slotType) const;
+
+#ifdef BUILD_TESTS
+	// Puts points on a slot directly, so a test can drive a real slot function without
+	// a database, a client or the whole wheel-saving path.
+	void setTestSlotPoints(WheelSlots_t slotType, uint16_t points);
+#endif
 
 	const std::array<uint16_t, 37> &getSlots() const;
 
