@@ -420,13 +420,18 @@ keeps exactly the numbers it had, and any explicit modern attribute then overrid
 knob. The audited family values are unchanged: Sorcerer/Druid 1.26 / 2.00 / 1.20, Paladin
 1.28 / 2.08 / 1.20, Knight 1.30 / 2.05 / 1.25, Monk 1.28 / 2.08 / 1.20.
 
-### The one combination whose behaviour changes
+### The one combination whose behaviour changes — accepted as baseline
 
-**A spellbook in the off hand together with a one-handed weapon.** The old code let the
-weapon's branch overwrite the shared factor, so the spellbook's Defence was silently weighted
-by `primaryShield` — a number that has nothing to do with a spellbook. Each source now carries
-its own factor. That is the ambiguity the refactor exists to remove, and it is stated here
-rather than buried.
+**A spellbook in the off hand together with a one-handed weapon** (the Mage case). The old code
+let the weapon's branch overwrite the shared factor, so the spellbook's Defence was silently
+weighted by `primaryShield` — a number that has nothing to do with a spellbook. Each source now
+carries its own factor. That is the ambiguity the refactor exists to remove.
+
+**Status: closed by product decision.** The Product Owner accepts the new modern behaviour for
+the Mage as the project baseline. It is not a fidelity blocker, the old ambiguous
+`primaryShield` weighting is not to be reproduced, and the explicit per-source / per-category
+model stands. It stays tunable through `spellbookDefenseFactor` and
+`spellbookEquipmentMultiplier` in `data/XML/vocations.xml`.
 
 ### One-handed weapons
 
@@ -441,7 +446,21 @@ contributes separately through its own factor, so nothing is counted twice.
 read through `ConfigManager::getFloat`. The 15.25 note says monster mitigation went up; it does
 not say by how much or to what ceiling, so neither is a constant in the source. Both fall back
 to these defaults when an existing server's `config.lua` does not carry the keys.
-`DISABLE_MONSTER_ARMOR` behaviour is untouched.
+`DISABLE_MONSTER_ARMOR` behaviour is untouched. Both remain COMMUNITY_DERIVED_TUNABLE.
+
+**Neither value may be negative.** `Creature::mitigateDamage` computes
+`damage -= damage * mitigation / 100`, so a negative mitigation would *add* damage instead of
+removing it — the percentage layer inverted. `ConfigManager::loadNonNegativeFloatConfig`
+corrects a negative or non-finite value to **zero** at the configuration boundary and logs a
+warning naming the identifier, so combat never sees an invalid value. Zero is used rather than
+the default, because a server that deliberately turned the value down should not find it
+silently restored, and zero is the nearest valid value for both keys. No upper bound is
+imposed: there is no technical reason for one, and inventing a ceiling would be a balance
+decision in disguise.
+
+`Monster::getMitigation` keeps one `std::max(0.0f, …)` on the way out. That is not redundant
+with the boundary check: `info.mitigation` comes from a monster's own XML, which nothing
+validates, and it is a second way a negative value could arrive.
 
 ### The damage-type whitelist
 
@@ -497,7 +516,7 @@ its own tests for charges and block reporting.
 |---|---|
 | Death Echo Augment II +12%; Beam adjacent 25/40/70; no modern fight mode; +20% Attack; +30% shield Def; +60% spellbook Def; Dedication 0.075%; Gems 20/22/24/30 | POST_JULY_VERIFIED |
 | Special Spells replaces the Magic Shield pair; Death Echo replaces the Sap Strength pair; the exact three-spell Special Spells set | PROJECT_ACCEPTED_POST_JULY_MAPPING |
-| One-handed full Defence contribution; monster ×1.5; monster cap 45; the base/equipment/Wheel model | COMMUNITY_DERIVED_TUNABLE |
+| One-handed full Defence contribution; monster ×1.5; monster cap 45 (both clamped non-negative, unchanged label); the base/equipment/Wheel model | COMMUNITY_DERIVED_TUNABLE |
 | Exact Elemental Bond multiplier; exact 2H / bow / crossbow coefficients; exact official internal rounding | FIDELITY_PENDING_EVIDENCE |
 | resistance → armor → mitigation ordering | COMMUNITY_EVIDENCE, blocked — see M |
 | Beam adjacent-square geometry | FIDELITY_BLOCKER — BEAM_ADJACENT_AREA_GEOMETRY |

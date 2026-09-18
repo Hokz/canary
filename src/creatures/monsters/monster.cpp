@@ -1396,7 +1396,12 @@ float Monster::getMitigation() const {
 	if (g_configManager().getBoolean(DISABLE_MONSTER_ARMOR)) {
 		mitigation += std::ceil(static_cast<float>(getDefense() + getArmor()) / 100.f) * getDefenseMultiplier() * 2.f;
 	}
-	return std::min<float>(mitigation, g_configManager().getFloat(MONSTER_MITIGATION_CAP));
+	mitigation = std::min<float>(mitigation, g_configManager().getFloat(MONSTER_MITIGATION_CAP));
+	// The configuration cannot be negative - loadNonNegativeFloatConfig sees to that -
+	// but info.mitigation comes from a monster's own XML, which nothing validates, and
+	// a negative mitigation would flip Creature::mitigateDamage from reducing damage to
+	// increasing it. One std::max is cheaper than trusting every monster file.
+	return std::max<float>(0.0f, mitigation);
 }
 
 int32_t Monster::getArmor() const {
