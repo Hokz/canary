@@ -15,7 +15,7 @@ large part of this, and re-implementing it would have been churn.
 | 2 | Explosion Rune affects 9 squares, not 5 | ALREADY CORRECT | `AREA_SQUARE1X1` (`register_spells.lua:488`) is a full 3×3 — eight `1`s plus a centre `3`; changed from the 5-tile plus shape by `db6e327` |
 | 3 | Auto attacks trigger charms on the main target only; spells and runes unaffected | **IMPLEMENTED HERE** | `CharmProc::allows`, `Player`'s auto-attack context, `Weapon`'s `AutoAttackScope` |
 | 4 | Gift of Life additionally restores 20/25/30% maximum mana | **IMPLEMENTED HERE** | `PlayerWheel::getGiftOfLifeManaAmount`, sent by `checkGiftOfLife` |
-| 5 | Group XP: 2 different vocations = 35%, 3 = 70% | **BLOCKED — PRODUCT_DECISION** | see below |
+| 5 | Group XP: 2 different vocations = 35%, 3 = 70% | **PRODUCT_DECISION — deliberate deviation** | party-size bonus stands; see below |
 | 6 | Combat mode / effective item values (audit only) | ALREADY CORRECT, FROZEN | `effective_combat_values.hpp` 120/130/160; no fight-mode weighting on the modern path |
 | 7 | Dedication 0.075% per promotion point; gems 20/22/24/30%; monster mitigation increased | ALREADY CORRECT | `io_wheel.cpp:19` `MITIGATION_INCREASE 0.075`; `wheel_gems.cpp:157` base `2000`; `config.lua.dist:517-518` `1.5` / `45.0` |
 | 8 | Potion management (Superior, both Distilled, Great Mana Potion, kegs/casks) | ALREADY CORRECT | `potions.lua` 53162/53163/53164 at 240–360 mana, level 100; `shops.lua:145-147` prices 254 / 381 / 732 — the Distilled pair is exactly +50% over Superior (254) and Ultimate (488); item 238 has no vocation gate |
@@ -61,9 +61,10 @@ with no attacker so nothing treats it as combat.
 Both amounts are accessors, `getGiftOfLifeHealthAmount` and `getGiftOfLifeManaAmount`, so
 the percentages can be asserted without staging a near-death. One percentage feeds both.
 
-## 5. Group XP — a conflict, not a gap
+## 5. Group XP — a deliberate deviation, decided
 
-**This row is not implemented, and deliberately so.**
+**This row is not implemented, and that is now a recorded decision rather than an open
+question.**
 
 Stage 1 asks for a vocation-diversity bonus: two different vocations 35%, three 70%. The
 repository does the opposite on purpose. Commit `fe96cb1` (16 September) replaced exactly
@@ -80,12 +81,16 @@ knight/druid/paladin/sorcerer now receive exactly the same bonus" — and tabula
 resulting delta, including the diverse-party losses. `db6e327` had installed the
 diversity table `{1: 1.2, 2: 1.35, 3: 1.70, 4: 2.0}`; `fe96cb1` removed it.
 
-Reverting a deliberate product decision because a later roadmap line says otherwise is
-not a call this lane can make. Restoring 35% / 70% means undoing `fe96cb1` and accepting
-its deltas in reverse, which is a balance decision with an owner. Status:
-**PRODUCT_DECISION**, raised, awaiting Danilo.
+Raised during this audit and **decided by the Product Owner: the party-size bonus
+stands.** Global fidelity is knowingly not followed on this row.
 
-Nothing else in Stage 1 depends on it.
+Because it is a deviation rather than an oversight, it is now pinned by
+`tests/lua/test_party_shared_experience.lua`. A later fidelity pass that "corrects" the
+bonus back to the vocation table has to fail that file first and come and ask, instead of
+quietly undoing a decision with an owner. The test also asserts the decisive property —
+nothing about party composition reaches the callback at all.
+
+Carry into the Stage 8 master matrix as `PRODUCT_DECISION`, not as `MISSING`.
 
 ## Tests
 
@@ -93,6 +98,7 @@ Nothing else in Stage 1 depends on it.
 |---|---|---|
 | `tests/unit/game/charm_proc_test.cpp` | 13 | an ordinary spell hit rolls; an area spell still rolls on everything; an auto attack rolls on its main target and never on the splash; `noCharm`, cleave and damage-over-time never roll; the whole 32-row truth table; the context names exactly one main target, treats a tile shot as having none, clears, is replaced by a second shot, and cannot leak into the next spell |
 | `tests/unit/players/wheel/gift_of_life_test.cpp` | 7 | 20/25/30 by stage and 0 without it; mana comes back at every stage; health is unchanged; equal maximums give equal amounts, so both halves read one percentage; a manaless character gets health and no mana; the amounts truncate |
+| `tests/lua/test_party_shared_experience.lua` | 9 | the party-size multipliers (none solo, 1.25 at two and three, 1.50 at four and above), the threshold sitting at four, the rounding up, and that composition is never consulted — the deviation of row 5, pinned |
 
 **Not proven by tests:** that a live thirteen-square arrow procs exactly once. That needs
 a running map with several creatures around a target, and this repository has no
