@@ -1024,7 +1024,7 @@ void Creature::applyAbsorbDamageModifications(const std::shared_ptr<Creature> &a
 	}
 }
 
-BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const CombatType_t &combatType, int32_t &damage, bool checkDefense /* = false */, bool checkArmor /* = false */, bool /* field  = false */) {
+BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const CombatType_t &combatType, int32_t &damage, bool checkDefense /* = false */, bool checkArmor /* = false */, bool field /* = false */) {
 	BlockType_t blockType = BLOCK_NONE;
 
 	// Apply skills 12.72 absorbs damage
@@ -1035,43 +1035,87 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 		checkArmor = false;
 	}
 
+	// Every resistance comes before armor and mitigation. The creature's own went
+	// first, above; the ones it wears go here. Both used to straddle armor and
+	// mitigation - the equipment half ran last of all, in Player::blockHit - which is
+	// the ordering FIDELITY_BLOCKER - DAMAGE_REDUCTION_PIPELINE_ORDER named.
+	//
+	// The difference is not cosmetic: a percentage applied before a flat subtraction is
+	// worth more than the same percentage after it. 100 damage against 20 armor and 10%
+	// resistance was 72 taken and is now 70.
+	std::vector<std::shared_ptr<Item>> resistanceChargedItems;
+	// Whether defense or armor is what stopped the hit. The old code ran the equipment
+	// resistances behind an early return, so a charge was spent exactly when neither of
+	// those had blocked - including when the absorb itself took the damage to zero.
+	// That condition is reproduced here rather than approximated by "damage remains",
+	// which would have quietly stopped charging fully absorbed hits.
+	bool blockedByDefenceOrArmor = false;
+
 	if (isImmune(combatType)) {
 		damage = 0;
 		blockType = BLOCK_IMMUNITY;
-	} else if (checkDefense || checkArmor) {
-		bool hasDefense = false;
-
-		if (blockCount > 0) {
-			--blockCount;
-			hasDefense = true;
-		}
-
-		if (checkDefense && hasDefense && canUseDefense) {
-			int32_t defense = getDefense();
-			damage -= uniform_random(defense / 2, defense);
+	} else {
+		if (damage > 0) {
+			applyEquipmentResistances(combatType, damage, field, resistanceChargedItems);
 			if (damage <= 0) {
-				damage = 0;
-				blockType = BLOCK_DEFENSE;
-				checkArmor = false;
-			}
-		}
-
-		if (checkArmor) {
-			int32_t armor = getArmor();
-			if (armor > 3) {
-				damage -= uniform_random(armor / 2, armor - (armor % 2 + 1));
-			} else if (armor > 0) {
-				--damage;
-			}
-
-			if (damage <= 0) {
+				// The value Player::blockHit reported for a fully absorbed hit before
+				// this moved, kept so callers see no change here.
 				damage = 0;
 				blockType = BLOCK_ARMOR;
 			}
 		}
 
-		if (hasDefense && blockType != BLOCK_NONE) {
-			onBlockHit();
+		if (blockType == BLOCK_NONE && (checkDefense || checkArmor)) {
+			bool hasDefense = false;
+
+			if (blockCount > 0) {
+				--blockCount;
+				hasDefense = true;
+			}
+
+			if (checkDefense && hasDefense && canUseDefense) {
+				int32_t defense = getDefense();
+				damage -= uniform_random(defense / 2, defense);
+				if (damage <= 0) {
+					damage = 0;
+					blockType = BLOCK_DEFENSE;
+					blockedByDefenceOrArmor = true;
+					checkArmor = false;
+				}
+			}
+
+			if (checkArmor) {
+				int32_t armor = getArmor();
+				if (armor > 3) {
+					damage -= uniform_random(armor / 2, armor - (armor % 2 + 1));
+				} else if (armor > 0) {
+					--damage;
+				}
+
+				if (damage <= 0) {
+					damage = 0;
+					blockType = BLOCK_ARMOR;
+					blockedByDefenceOrArmor = true;
+				}
+			}
+
+			if (hasDefense && blockType != BLOCK_NONE) {
+				onBlockHit();
+			}
+		}
+	}
+
+	// Spend the charges the resistances used, under the same condition as before the
+	// move: neither defense nor armor stopped the hit.
+	if (!blockedByDefenceOrArmor) {
+		for (const auto &item : resistanceChargedItems) {
+			if (!item) {
+				continue;
+			}
+			const auto charges = item->getAttribute<uint16_t>(ItemAttribute_t::CHARGES);
+			if (charges != 0) {
+				g_game().transformItem(item, item->getID(), charges - 1);
+			}
 		}
 	}
 

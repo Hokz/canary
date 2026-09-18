@@ -923,6 +923,7 @@ public:
 
 	bool isPzLocked() const;
 	BlockType_t blockHit(const std::shared_ptr<Creature> &attacker, const CombatType_t &combatType, int32_t &damage, bool checkDefense = false, bool checkArmor = false, bool field = false) override;
+	void applyEquipmentResistances(const CombatType_t &combatType, int32_t &damage, bool field, std::vector<std::shared_ptr<Item>> &chargedItems) override;
 	void doAttacking(uint32_t interval) override;
 	bool hasExtraSwing() override;
 

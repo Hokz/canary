@@ -3994,76 +3994,77 @@ bool Player::isPzLocked() const {
 }
 
 BlockType_t Player::blockHit(const std::shared_ptr<Creature> &attacker, const CombatType_t &combatType, int32_t &damage, bool checkDefense, bool checkArmor, bool field) {
-	BlockType_t blockType = Creature::blockHit(attacker, combatType, damage, checkDefense, checkArmor, field);
+	const BlockType_t blockType = Creature::blockHit(attacker, combatType, damage, checkDefense, checkArmor, field);
 	if (attacker) {
 		sendCreatureSquare(attacker, SQ_COLOR_BLACK);
 	}
 
-	if (blockType != BLOCK_NONE) {
-		return blockType;
-	}
-
-	if (damage > 0) {
-		for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
-			if (!isItemAbilityEnabled(static_cast<Slots_t>(slot))) {
-				continue;
-			}
-
-			const auto &item = inventory[slot];
-			if (!item) {
-				continue;
-			}
-
-			for (uint8_t slotid = 0; slotid < item->getImbuementSlot(); slotid++) {
-				ImbuementInfo imbuementInfo;
-				if (!item->getImbuementInfo(slotid, &imbuementInfo)) {
-					continue;
-				}
-
-				const int16_t &imbuementAbsorbPercent = imbuementInfo.imbuement->absorbPercent[combatTypeToIndex(combatType)];
-
-				if (imbuementAbsorbPercent != 0) {
-					damage -= std::ceil(damage * (imbuementAbsorbPercent / 100.));
-				}
-			}
-
-			// Absorb Percent
-			const ItemType &it = Item::items[item->getID()];
-			if (it.abilities) {
-				int totalAbsorbPercent = 0;
-				const int16_t &absorbPercent = it.abilities->absorbPercent[combatTypeToIndex(combatType)];
-				if (absorbPercent != 0) {
-					totalAbsorbPercent += absorbPercent;
-				}
-
-				if (field) {
-					const int16_t &fieldAbsorbPercent = it.abilities->fieldAbsorbPercent[combatTypeToIndex(combatType)];
-					if (fieldAbsorbPercent != 0) {
-						totalAbsorbPercent += fieldAbsorbPercent;
-					}
-				}
-
-				if (totalAbsorbPercent != 0) {
-					damage -= std::round(damage * (totalAbsorbPercent / 100.0));
-
-					const auto charges = item->getAttribute<uint16_t>(ItemAttribute_t::CHARGES);
-					if (charges != 0) {
-						g_game().transformItem(item, item->getID(), charges - 1);
-					}
-				}
-			}
-		}
-
-		// Wheel of destiny - apply resistance
-		wheel().adjustDamageBasedOnResistanceAndSkill(damage, combatType);
-
-		if (damage <= 0) {
-			damage = 0;
-			blockType = BLOCK_ARMOR;
-		}
-	}
-
 	return blockType;
+}
+
+// The resistances a player wears: an item's absorb percentage, the imbuements in it,
+// and the Wheel's own. Creature::blockHit calls this before armor and mitigation.
+//
+// This body used to live at the end of Player::blockHit, after both, and behind an
+// early return that skipped it whenever anything else had already blocked. It is the
+// same arithmetic in a different place.
+//
+// chargedItems collects the items whose absorb applied instead of charging them here.
+// Running last used to mean a charge could only ever be spent on a hit that landed;
+// blockHit spends them at the end for the same reason.
+void Player::applyEquipmentResistances(const CombatType_t &combatType, int32_t &damage, bool field, std::vector<std::shared_ptr<Item>> &chargedItems) {
+	if (damage <= 0) {
+		return;
+	}
+
+	for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
+		if (!isItemAbilityEnabled(static_cast<Slots_t>(slot))) {
+			continue;
+		}
+
+		const auto &item = inventory[slot];
+		if (!item) {
+			continue;
+		}
+
+		for (uint8_t slotid = 0; slotid < item->getImbuementSlot(); slotid++) {
+			ImbuementInfo imbuementInfo;
+			if (!item->getImbuementInfo(slotid, &imbuementInfo)) {
+				continue;
+			}
+
+			const int16_t &imbuementAbsorbPercent = imbuementInfo.imbuement->absorbPercent[combatTypeToIndex(combatType)];
+
+			if (imbuementAbsorbPercent != 0) {
+				damage -= std::ceil(damage * (imbuementAbsorbPercent / 100.));
+			}
+		}
+
+		// Absorb Percent
+		const ItemType &it = Item::items[item->getID()];
+		if (it.abilities) {
+			int totalAbsorbPercent = 0;
+			const int16_t &absorbPercent = it.abilities->absorbPercent[combatTypeToIndex(combatType)];
+			if (absorbPercent != 0) {
+				totalAbsorbPercent += absorbPercent;
+			}
+
+			if (field) {
+				const int16_t &fieldAbsorbPercent = it.abilities->fieldAbsorbPercent[combatTypeToIndex(combatType)];
+				if (fieldAbsorbPercent != 0) {
+					totalAbsorbPercent += fieldAbsorbPercent;
+				}
+			}
+
+			if (totalAbsorbPercent != 0) {
+				damage -= std::round(damage * (totalAbsorbPercent / 100.0));
+				chargedItems.emplace_back(item);
+			}
+		}
+	}
+
+	// Wheel of destiny - apply resistance
+	wheel().adjustDamageBasedOnResistanceAndSkill(damage, combatType);
 }
 
 void Player::doAttacking(uint32_t interval) {

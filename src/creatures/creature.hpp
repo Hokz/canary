@@ -482,6 +482,21 @@ public:
 
 	void applyAbsorbDamageModifications(const std::shared_ptr<Creature> &attacker, int32_t &damage, CombatType_t combatType) const;
 
+	// Resistances a creature carries on its equipment - item absorb percentages,
+	// imbuements and the Wheel. A creature that wears nothing has none; Player
+	// overrides this.
+	//
+	// blockHit calls it before armor and mitigation, which is where the reduction order
+	// puts every resistance. It used to run after both, in Player::blockHit, which is
+	// what FIDELITY_BLOCKER - DAMAGE_REDUCTION_PIPELINE_ORDER named.
+	//
+	// Items whose absorb applied are collected rather than charged on the spot: a
+	// charge is still spent only on a hit that actually lands, which is the semantics
+	// the old position got for free by running last.
+	virtual void applyEquipmentResistances(const CombatType_t &, int32_t &, bool, std::vector<std::shared_ptr<Item>> &) {
+		// Nothing to do: no equipment.
+	}
+
 	bool setMaster(const std::shared_ptr<Creature> &newMaster, bool reloadCreature = false);
 
 	void removeMaster() {
