@@ -3091,14 +3091,34 @@ int32_t PlayerWheel::checkDivineGrenade(const std::shared_ptr<Creature> &target)
 	return damageBonus;
 }
 
+// What Gift of Life gives back. One percentage - 20 / 25 / 30 by stage - applied to
+// the player's maximum health and, since 15.25, to their maximum mana as well.
+int32_t PlayerWheel::getGiftOfLifeHealthAmount() const {
+	return (static_cast<int32_t>(m_player.getMaxHealth()) * getGiftOfLifeValue()) / 100;
+}
+
+int32_t PlayerWheel::getGiftOfLifeManaAmount() const {
+	return (static_cast<int32_t>(m_player.getMaxMana()) * getGiftOfLifeValue()) / 100;
+}
+
 void PlayerWheel::checkGiftOfLife() {
+	// 15.25: the same percentage that comes back as health also comes back as mana -
+	// 20 / 25 / 30 by stage, one value for both. Both amounts are accessors so they
+	// can be asserted without staging a near-death.
 	// Healing
 	CombatDamage giftDamage;
-	giftDamage.primary.value = (m_player.getMaxHealth() * getGiftOfLifeValue()) / 100;
+	giftDamage.primary.value = getGiftOfLifeHealthAmount();
 	giftDamage.primary.type = COMBAT_HEALING;
 	m_player.sendTextMessage(MESSAGE_EVENT_ADVANCE, "That was close! Fortunately, your were saved by the Gift of Life.");
 	g_game().addMagicEffect(m_player.getPosition(), CONST_ME_WATER_DROP);
 	g_game().combatChangeHealth(m_player.getPlayer(), m_player.getPlayer(), giftDamage);
+
+	// Mana. A separate change because health and mana are two different pipelines;
+	// no attacker, so nothing treats this as combat.
+	CombatDamage giftMana;
+	giftMana.primary.value = getGiftOfLifeManaAmount();
+	giftMana.origin = ORIGIN_NONE;
+	g_game().combatChangeMana(nullptr, m_player.getPlayer(), giftMana);
 	// Condition cooldown reduction
 	constexpr uint16_t reductionTimer = 60000;
 	reduceAllSpellsCooldownTimer(reductionTimer);

@@ -12,6 +12,7 @@
 #include "config/configmanager.hpp"
 #include "creatures/appearance/mounts/mounts.hpp"
 #include "creatures/appearance/attached_effects/attached_effects.hpp"
+#include "creatures/combat/charm_proc.hpp"
 #include "creatures/combat/condition.hpp"
 #include "creatures/combat/crippling_aura.hpp"
 #include "creatures/combat/mana_shield_absorption.hpp"
@@ -8813,7 +8814,17 @@ bool Game::combatChangeHealth(const std::shared_ptr<Creature> &attacker, const s
 
 		if (attackerPlayer) {
 			if (!damage.extension && damage.origin != ORIGIN_CONDITION) {
-				if (!damage.noCharm) {
+				// 15.25: one auto attack, one charm roll, on the attacked creature. The
+				// area ammunition the update adds runs a single Combat over thirteen
+				// squares, and every creature it damaged used to roll separately.
+				const CharmProc::Hit charmHit {
+					.noCharm = damage.noCharm,
+					.extension = damage.extension,
+					.conditionDamage = damage.origin == ORIGIN_CONDITION,
+					.autoAttack = attackerPlayer->hasAutoAttackContext(),
+					.mainTarget = target && attackerPlayer->isAutoAttackMainTarget(target->getID()),
+				};
+				if (CharmProc::allows(charmHit)) {
 					applyCharmRune(targetMonster, attackerPlayer, target, realDamage);
 				}
 				applyLifeLeech(attackerPlayer, targetMonster, target, damage, realDamage);

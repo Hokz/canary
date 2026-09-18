@@ -367,6 +367,28 @@ public:
 		return m_beamMasteryCastContext;
 	}
 
+	// 15.25: an auto attack rolls its charms on the creature being attacked and on
+	// nothing else. Area ammunition is one auto attack over many squares, so the hits
+	// have to be told apart; this marks the shot that is resolving and which creature
+	// it was aimed at. Runtime only, never saved, and scoped to the one weapon script
+	// call by Weapon's AutoAttackScope.
+	void setAutoAttackContext(uint32_t mainTargetId) {
+		m_autoAttackMainTargetId = mainTargetId;
+		m_autoAttackInProgress = true;
+	}
+	void clearAutoAttackContext() {
+		m_autoAttackMainTargetId = 0;
+		m_autoAttackInProgress = false;
+	}
+	[[nodiscard]] bool hasAutoAttackContext() const {
+		return m_autoAttackInProgress;
+	}
+	// A shot aimed at a tile rather than a creature has no main target, so nothing it
+	// hits is one.
+	[[nodiscard]] bool isAutoAttackMainTarget(uint32_t creatureId) const {
+		return m_autoAttackInProgress && m_autoAttackMainTargetId != 0 && m_autoAttackMainTargetId == creatureId;
+	}
+
 	// Mana Buffer: the 25%-of-max-mana part may only be charged once every two
 	// seconds. This is when it was last charged.
 	int64_t getLastManaBufferBurst() const {
@@ -1911,6 +1933,9 @@ private:
 	CombatType_t m_pendingElementalConversion = COMBAT_NONE;
 	// See beamMasteryCastContext. Invalid means no Beam Mastery cast in flight.
 	ElementalStance::BeamMasteryCastContext m_beamMasteryCastContext;
+	// See setAutoAttackContext. Runtime only, never saved.
+	uint32_t m_autoAttackMainTargetId = 0;
+	bool m_autoAttackInProgress = false;
 	int64_t m_lastManaBufferBurst = 0;
 	int32_t varStats[STAT_LAST + 1] = {};
 	int32_t shopCallback = -1;
