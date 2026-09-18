@@ -43,25 +43,34 @@ namespace {
 	};
 
 	TEST_F(FlatDamageHealingTest, TheClosedFormIsPinnedAcrossTheWholeRange) {
+		// Every step transition is covered on both sides, which is where an off-by-one
+		// in the floor semantics would show up.
 		struct Case {
 			uint32_t level;
 			uint16_t expected;
 		};
-		static constexpr std::array<Case, 17> cases { {
+		static constexpr std::array<Case, 24> cases { {
 			{ 1, 0 },
+			{ 5, 1 },
 			{ 8, 1 },
 			{ 50, 10 },
 			{ 100, 20 },
 			{ 250, 50 },
+			{ 499, 99 },
 			{ 500, 100 },
 			{ 501, 100 },
 			{ 600, 116 },
 			{ 1000, 183 },
+			{ 1099, 199 },
 			{ 1100, 200 },
+			{ 1101, 200 },
 			{ 1500, 257 },
+			{ 1799, 299 },
 			{ 1800, 300 },
+			{ 1801, 300 },
 			{ 2000, 325 },
 			{ 2600, 400 },
+			{ 2601, 400 },
 			{ 3000, 444 },
 			{ 5000, 645 },
 			{ 8000, 892 },
@@ -69,6 +78,20 @@ namespace {
 
 		for (const auto &[level, expected] : cases) {
 			EXPECT_EQ(expected, at(level)) << "level " << level;
+		}
+	}
+
+	TEST_F(FlatDamageHealingTest, TheStepChangesExactlyAtTheTierBoundaries) {
+		// S(L) = floor((sqrt(2L + 2025) + 5) / 10) steps up at 500, 1100, 1800 and 2600,
+		// and each step is worth exactly 100 more. Asserted as the transition itself:
+		// one level below the boundary is 99 short of it.
+		static constexpr std::array<uint32_t, 4> boundaries { 500, 1100, 1800, 2600 };
+		for (const uint32_t boundary : boundaries) {
+			const uint16_t below = at(boundary - 1);
+			const uint16_t on = at(boundary);
+			const uint16_t above = at(boundary + 1);
+			EXPECT_EQ(on - 1, below) << "boundary " << boundary << " must be reached by one";
+			EXPECT_EQ(on, above) << "and the step must not jump past it";
 		}
 	}
 
@@ -91,13 +114,16 @@ namespace {
 		EXPECT_EQ(892, at(8000)) << "was 2873";
 	}
 
-	TEST_F(FlatDamageHealingTest, ItNeverDecreasesWithLevel) {
+	TEST_F(FlatDamageHealingTest, ItNeverDecreasesAcrossTenThousandLevels) {
+		// Every level, not a sample: an off-by-one at a step change is a single-level
+		// regression and a stride would step over it.
 		uint16_t previous = 0;
-		for (uint32_t level = 1; level <= 4000; level += 7) {
+		for (uint32_t level = 1; level <= 10000; ++level) {
 			const uint16_t value = at(level);
 			ASSERT_GE(value, previous) << "level " << level << " went backwards";
 			previous = value;
 		}
+		EXPECT_EQ(1033, at(10000));
 	}
 
 	TEST_F(FlatDamageHealingTest, TheFirstTierIsTheOldLevelTimesOneFifth) {

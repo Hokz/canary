@@ -134,6 +134,61 @@ test("an unknown spell is refused rather than silently healing nothing", functio
 	end
 end)
 
+test("the Base Power is added exactly once", function()
+	-- Isolate it: no level contribution, no Shielding, no Magic Level. What is left must
+	-- be the Base Power itself and not a multiple of it.
+	for name, spell in pairs(KnightHealing.spells) do
+		local min = select(1, KnightHealing.values(name, stubPlayer(0, 0), 0))
+		assert_equal(spell.basePower, min, name .. " must contribute its Base Power once")
+	end
+end)
+
+test("the level contribution is not applied twice", function()
+	-- Raising only the level contribution must move the heal by exactly levels x delta.
+	-- A second, hidden application would double the step.
+	for name, spell in pairs(KnightHealing.spells) do
+		local low = select(1, KnightHealing.values(name, stubPlayer(0, 0), 0))
+		local high = select(1, KnightHealing.values(name, stubPlayer(37, 0), 0))
+		assert_equal(37 * spell.levels, high - low, name .. " level contribution applied " .. tostring(spell.levels) .. "x")
+	end
+end)
+
+test("the Shielding term is not applied twice", function()
+	for name, spell in pairs(KnightHealing.spells) do
+		local low = select(1, KnightHealing.values(name, stubPlayer(0, 0), 0))
+		local high = select(1, KnightHealing.values(name, stubPlayer(0, 100), 0))
+		assert_equal(100 * spell.shield, high - low, name .. " Shielding applied once")
+	end
+end)
+
+test("the Magic Level coefficient is the only thing separating min from max", function()
+	-- With no Magic Level the two ends collapse onto the common term, except for the one
+	-- spell whose spread is a flat constant. That is the shape, stated as an invariant.
+	for name, spell in pairs(KnightHealing.spells) do
+		local min, max = KnightHealing.values(name, stubPlayer(100, 100), 0)
+		if spell.flatSpread then
+			assert_equal(spell.flatSpread, max - min, name .. " flat spread")
+		else
+			assert_equal(0, max - min, name .. " collapses at ML 0")
+		end
+	end
+end)
+
+test("B(L) is what feeds the formula, not level divided by five", function()
+	-- The distinction the migration is about. At level 8000 the modern contribution is
+	-- 892; level/5 would be 1600. The helper is given the contribution directly here, so
+	-- what this pins is that the spell adds whatever the engine's helper returned and
+	-- does no level arithmetic of its own.
+	local modern = 892
+	local legacy = 8000 / 5
+	local withModern = select(1, KnightHealing.values("Wound Cleansing", stubPlayer(modern, 0), 0))
+	local withLegacy = select(1, KnightHealing.values("Wound Cleansing", stubPlayer(legacy, 0), 0))
+	assert_equal(70 + modern, withModern, "modern contribution passes straight through")
+	if withModern == withLegacy then
+		error("the spell is not reading the contribution it was given")
+	end
+end)
+
 test("the maximum is never below the minimum", function()
 	for name in pairs(KnightHealing.spells) do
 		for _, ml in ipairs({ 0, 1, 50, 200 }) do
