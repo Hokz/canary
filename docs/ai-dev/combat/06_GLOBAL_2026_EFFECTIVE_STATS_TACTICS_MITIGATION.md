@@ -316,3 +316,190 @@ occur.
 
 The Wheel was not rewritten: Dedication stays at 0.075 per point, the Lesser Gem base stays at
 2000, and the Beam Mastery scale blocker from PR #49 stays as it is.
+
+---
+
+# Round 3 — the post-July Sorcerer Wheel and the modern mitigation profile
+
+Two closed deliverables on top of the effective-skill work above. Nothing in rounds 1 and 2
+was undone: the percent-recipe source, the re-derivation hooks and the dynamic Wheel
+invalidation are all as they were.
+
+## K. The Sorcerer Wheel, post-July
+
+Two augment pairs had lost the spell they applied to. Both now carry the post-July one, which
+closes `WHEEL_SORCERER_SLOT_SPELL` — a Sorcerer no longer loses two maxed 100-point slots.
+
+| Slot pair | Was | Is now | Augment I | Augment II |
+|---|---|---|---|---|
+| green-middle 100, purple-top 100 | Magic Shield | **Special Spells** | −4s cooldown | +50% base damage |
+| red-middle 100, blue-middle 100 | Sap Strength (retired) | **Death Echo** | −2s cooldown | +12% base damage |
+
+**Special Spells applies to exactly three spells** — `Lightning`, `Strong Energy Strike`,
+`Strong Flame Strike`. Not the Ultimate strikes, not any other strike, not a generic class.
+
+The set lives in one list behind one alias. `registerWheelSpellTable` expands the alias to
+build the bonus tables and `IOWheel::addSpell` expands it to grant the spells, both through
+`InternalPlayerWheel::expandSpellAlias`, so the slot and the table cannot come to name
+different sets. `Any_Focus_Mage_Spell`, which already worked this way through its own branch,
+now goes through the same expansion.
+
+The Druid keeps `Nature's Embrace` in the red- and blue-middle slots and no other vocation
+moves. `Sap Strength` is not reintroduced as a castable spell anywhere.
+
+### Beam Mastery
+
+Two different numbers, and the point of the change is that they stay different:
+
+| | Stage I | Stage II | Stage III |
+|---|---|---|---|
+| **Adjacent-square** damage (`getBeamMasteryAdjacentDamagePercent`) — new | 25% | 40% | 70% |
+| **Central beam** per-target increase (`checkBeamMasteryDamage`) — unchanged | 10 | 12 | 14 |
+
+The central beam also keeps its 1s-per-target cooldown reduction, untouched. A test asserts
+the two scales never collapse into one value, because overwriting the central mechanic with
+25/40/70 is the specific mistake to avoid.
+
+**What is not yet wired:** the adjacent scale exists as a proven, single-homed engine value
+with tests, but no beam script consumes it yet. Doing so needs an adjacent-square *geometry*
+for every beam length and both diagonal orientations, and that geometry is not in any source
+this round cites — only the percentages are. Rather than invent five area shapes and call
+them official, the number is in place behind one accessor and the wiring is named as the
+remaining work: `FIDELITY_BLOCKER — BEAM_ADJACENT_AREA_GEOMETRY`.
+
+## L. The modern mitigation profile
+
+### Why the legacy three had to go
+
+`<mitigation multiplier primaryShield secondaryShield />` carried three numbers, and the old
+formula used two of them in **two different mathematical positions** depending on equipment —
+sometimes weighting one source of Defence before the sum, sometimes multiplying the whole
+result after it. `primaryShield` therefore meant two different things, and there was no way to
+tune a bow apart from a spellbook because both rode the same `secondaryShield`.
+
+### The pipeline
+
+```
+effective Shielding x skillFactor                  -> skill contribution
+effective Defence   x <source>DefenseFactor        -> Defence contribution   (per source)
+(skill + Defence) / 100                            -> base mitigation
+base x <category>EquipmentMultiplier               -> equipment-adjusted     (one category)
+equipment-adjusted x Wheel mitigation multiplier   -> final mitigation, in %
+```
+
+No fight-mode multiplier on the modern model. A legacy client still gets 0.8 / 1.0 / 1.2, the
+compatibility path round 1 established.
+
+### The thirteen knobs
+
+Every one is a dimensionless multiplier — never a percentage, never a flat addend. A
+`DefenseFactor` weights **one source** of Defence before the sum; an `EquipmentMultiplier`
+weights **the whole result** afterwards, and only the one category the equipment resolves to
+ever applies.
+
+| Field | What it weights | Derived from legacy as | Confidence |
+|---|---|---|---|
+| `skillFactor` | effective Shielding | `multiplier` | project-audited |
+| `shieldDefenseFactor` | a shield's effective Defence | `primaryShield` | project-audited |
+| `spellbookDefenseFactor` | a spellbook's effective Defence | `1.0` | project-audited |
+| `oneHandedDefenseFactor` | a one-hander's full Defence | `primaryShield` | project-audited |
+| `twoHandedDefenseFactor` | a two-hander's full Defence | `secondaryShield` | project-audited |
+| `shieldEquipmentMultiplier` | the result, shield stance | `1.0` | project-audited |
+| `spellbookEquipmentMultiplier` | the result, spellbook stance | `secondaryShield` | project-audited |
+| `oneHandedEquipmentMultiplier` | the result, one-handed, no off-hand | `1.0` | project-audited |
+| `twoHandedEquipmentMultiplier` | the result, two-handed | `1.0` | project-audited |
+| `bowEquipmentMultiplier` | the result, bow | `secondaryShield` | COMMUNITY_DERIVED_TUNABLE |
+| `crossbowEquipmentMultiplier` | the result, crossbow | `secondaryShield` | COMMUNITY_DERIVED_TUNABLE |
+| `quiverEquipmentMultiplier` | the result, quiver off-hand | `secondaryShield` | COMMUNITY_DERIVED_TUNABLE |
+| `elementalBondEquipmentMultiplier` | the result, bonded weapon | `1.0` (neutral) | FIDELITY_PENDING_EVIDENCE |
+
+`data/XML/vocations.xml` stays the single source of truth for per-class tuning; nothing moved
+into `config.lua`. The legacy three fill all thirteen through
+`VocationMitigationProfile::deriveFromLegacy`, so a `vocations.xml` that was never updated
+keeps exactly the numbers it had, and any explicit modern attribute then overrides its own
+knob. The audited family values are unchanged: Sorcerer/Druid 1.26 / 2.00 / 1.20, Paladin
+1.28 / 2.08 / 1.20, Knight 1.30 / 2.05 / 1.25, Monk 1.28 / 2.08 / 1.20.
+
+### The one combination whose behaviour changes
+
+**A spellbook in the off hand together with a one-handed weapon.** The old code let the
+weapon's branch overwrite the shared factor, so the spellbook's Defence was silently weighted
+by `primaryShield` — a number that has nothing to do with a spellbook. Each source now carries
+its own factor. That is the ambiguity the refactor exists to remove, and it is stated here
+rather than buried.
+
+### One-handed weapons
+
+A one-handed weapon now contributes its **full** Defence (`getDefense() + getExtraDefense()`),
+not only `extraDefense`. COMMUNITY_DERIVED_TUNABLE, approved for this round. The +20% Attack
+compensation is never applied to it — that is an Attack rule — and a shield in the other hand
+contributes separately through its own factor, so nothing is counted twice.
+
+### Monster mitigation
+
+`monsterMitigationMultiplier = 1.5` and `monsterMitigationCap = 45.0` in `config.lua.dist`,
+read through `ConfigManager::getFloat`. The 15.25 note says monster mitigation went up; it does
+not say by how much or to what ceiling, so neither is a constant in the source. Both fall back
+to these defaults when an existing server's `config.lua` does not carry the keys.
+`DISABLE_MONSTER_ARMOR` behaviour is untouched.
+
+### The damage-type whitelist
+
+`Creature::isMitigatableCombatType` names the seven common types — physical, earth, ice, fire,
+energy, holy, death. The old code excluded only the two drains and agony, which quietly swept
+in **drowning, neutral and undefined** damage as well, and would have swept in any new combat
+type by default. The switch is exhaustive, so a new type has to be classified rather than
+inherited.
+
+### Rounding — characterised, not changed
+
+`ceil(x * 100) / 100` on the equipment-adjusted value: two decimals, rounded up. The Wheel
+multiplier applies **after** that, multiplicatively — a base of 2.50% with a +20% Wheel bonus
+is 3.00%, never 22.50%. Multiple Wheel sources accumulate into one multiplier before it is
+applied, so 20% and 10% give ×1.30 and not ×1.20 ×1.10.
+
+## M. COMMUNITY_EVIDENCE — DAMAGE_REDUCTION_ORDER
+
+The audit §12 asked for. The actual order today, for a Player taking a hit:
+
+| # | Layer | Where |
+|---|---|---|
+| 1 | creature-level resistance, **Elemental Pierce**, absorb flat, attacker's increase | `Creature::applyAbsorbDamageModifications` |
+| 2 | immunity | `Creature::blockHit` |
+| 3 | **defense / block** | `Creature::blockHit` |
+| 4 | **armor** | `Creature::blockHit` |
+| 5 | **mitigation** | `Creature::mitigateDamage` |
+| 6 | **item + imbuement resistance** | `Player::blockHit`, inventory loop |
+| 7 | **Wheel resistance** | `PlayerWheel::adjustDamageBasedOnResistanceAndSkill` |
+
+Community spike-trap testing indicates **resistance → armor → mitigation**. Layer 1 is already
+in that position. Layers **6 and 7 are late**: they run after armour and after mitigation.
+
+### FIDELITY_BLOCKER — DAMAGE_REDUCTION_PIPELINE_ORDER
+
+Moving 6 and 7 ahead of `Creature::blockHit` is **not** a local correction, for two reasons
+that have nothing to do with reduction order:
+
+1. The inventory loop decrements item **charges** (`transformItem`) and today only does so on
+   a hit that was not blocked. Running it earlier would consume durability on hits that are
+   then fully absorbed by defence or armour.
+2. Both layers sit behind `blockHit`'s early return on `blockType != BLOCK_NONE`. Moving them
+   changes which `BlockType_t` is produced and therefore what `onAttackedCreatureBlockHit`
+   reports — shield-block visuals and shielding skill advances.
+
+Per §12.4 this sub-change is stopped and reported rather than forced in. The order is
+documented above so the decision is explicit, and correcting it belongs in its own lane with
+its own tests for charges and block reporting.
+
+## N. Confidence table
+
+| Value | Label |
+|---|---|
+| Death Echo Augment II +12%; Beam adjacent 25/40/70; no modern fight mode; +20% Attack; +30% shield Def; +60% spellbook Def; Dedication 0.075%; Gems 20/22/24/30 | POST_JULY_VERIFIED |
+| Special Spells replaces the Magic Shield pair; Death Echo replaces the Sap Strength pair; the exact three-spell Special Spells set | PROJECT_ACCEPTED_POST_JULY_MAPPING |
+| One-handed full Defence contribution; monster ×1.5; monster cap 45; the base/equipment/Wheel model | COMMUNITY_DERIVED_TUNABLE |
+| Exact Elemental Bond multiplier; exact 2H / bow / crossbow coefficients; exact official internal rounding | FIDELITY_PENDING_EVIDENCE |
+| resistance → armor → mitigation ordering | COMMUNITY_EVIDENCE, blocked — see M |
+| Beam adjacent-square geometry | FIDELITY_BLOCKER — BEAM_ADJACENT_AREA_GEOMETRY |
+
+**No community-derived number is presented as an exact Global value.**
