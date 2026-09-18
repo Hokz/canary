@@ -8,16 +8,40 @@ local function formulaFunction(player, level, maglevel)
 	return -min, -max
 end
 
+-- Beam Mastery's flank damage is a percentage of the beam's own damage, read from C++
+-- per cast so 25 / 40 / 70 lives in exactly one place.
+local function flankFormula(player, level, maglevel)
+	local min, max = formulaFunction(player, level, maglevel)
+	local factor = player:getBeamMasteryAdjacentDamage() / 100.0
+	return min * factor, max * factor
+end
+
+-- One global per Combat, not one per formula. LuaScriptInterface::getEvent takes the
+-- global and then sets it to nil, so a callback name can be consumed exactly once: two
+-- Combats naming the same function would leave the second with no formula at all. The
+-- six names below are identical in body and deliberately distinct in name.
 function onGetFormulaValues(player, level, maglevel)
 	return formulaFunction(player, level, maglevel)
 end
 
--- Beam Mastery's flank damage is a percentage of the beam's own damage, read from C++
--- per cast so 25 / 40 / 70 lives in exactly one place.
-function onGetFormulaValuesBeamMasteryFlank(player, level, maglevel)
-	local min, max = formulaFunction(player, level, maglevel)
-	local factor = player:getBeamMasteryAdjacentDamage() / 100.0
-	return min * factor, max * factor
+function onGetFormulaValuesGradeTwo(player, level, maglevel)
+	return formulaFunction(player, level, maglevel)
+end
+
+function onGetFormulaValuesGradeThree(player, level, maglevel)
+	return formulaFunction(player, level, maglevel)
+end
+
+function onGetFormulaValuesFlankGradeOne(player, level, maglevel)
+	return flankFormula(player, level, maglevel)
+end
+
+function onGetFormulaValuesFlankGradeTwo(player, level, maglevel)
+	return flankFormula(player, level, maglevel)
+end
+
+function onGetFormulaValuesFlankGradeThree(player, level, maglevel)
+	return flankFormula(player, level, maglevel)
 end
 
 -- One Combat per grade. This used to pass a single shared Combat through
@@ -38,19 +62,19 @@ local function createCombat(area, combatFunc, isFlank)
 	return combat
 end
 
-local beamLengths = { 6, 7, 8 }
 local combat = {
 	createCombat(AREA_BEAM6, "onGetFormulaValues"),
-	createCombat(AREA_BEAM7, "onGetFormulaValues"),
-	createCombat(AREA_BEAM8, "onGetFormulaValues"),
+	createCombat(AREA_BEAM7, "onGetFormulaValuesGradeTwo"),
+	createCombat(AREA_BEAM8, "onGetFormulaValuesGradeThree"),
 }
 
 -- Cardinal only, matching this spell's existing directions. One flank per grade, each
 -- the same length as the central beam of that grade.
-local combatFlank = {}
-for index, length in ipairs(beamLengths) do
-	combatFlank[index] = createCombat(buildBeamMasteryFlankAreas(length), "onGetFormulaValuesBeamMasteryFlank", true)
-end
+local combatFlank = {
+	createCombat(buildBeamMasteryFlankAreas(6), "onGetFormulaValuesFlankGradeOne", true),
+	createCombat(buildBeamMasteryFlankAreas(7), "onGetFormulaValuesFlankGradeTwo", true),
+	createCombat(buildBeamMasteryFlankAreas(8), "onGetFormulaValuesFlankGradeThree", true),
+}
 
 local spell = Spell("instant")
 

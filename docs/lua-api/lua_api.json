@@ -6085,12 +6085,6 @@
         "source": "src/lua/functions/creatures/player/player_functions.cpp"
       },
       {
-        "name": "getBeamMasteryAdjacentDamage",
-        "params": [],
-        "return": "number|nil",
-        "source": "src/lua/functions/creatures/player/player_functions.cpp"
-      },
-      {
         "name": "getBaseMagicLevel",
         "params": [],
         "return": "number|nil",
@@ -6110,6 +6104,12 @@
       },
       {
         "name": "getBaseXpGain",
+        "params": [],
+        "return": "number|nil",
+        "source": "src/lua/functions/creatures/player/player_functions.cpp"
+      },
+      {
+        "name": "getBeamMasteryAdjacentDamage",
         "params": [],
         "return": "number|nil",
         "source": "src/lua/functions/creatures/player/player_functions.cpp"
