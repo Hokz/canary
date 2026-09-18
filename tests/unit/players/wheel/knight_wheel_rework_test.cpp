@@ -104,62 +104,83 @@ namespace {
 
 	// --- Battle Healing -----------------------------------------------------------
 
+	// The assertions below read the Shielding the player actually has rather than
+	// assuming it. Player::getLoyaltySkill takes a different branch depending on
+	// whether a vocation is set (player.cpp:1218), so a fixture's baseline skill is not
+	// something to hard-code. What matters is the coefficient, and that is what these
+	// pin: the amount is twice the Shielding, whatever the Shielding is.
+
 	TEST_F(KnightWheelReworkTest, BattleHealingMultipliesShieldingByTwo) {
 		auto player = knight();
 		player->setVarSkill(SKILL_SHIELD, 100);
-		ASSERT_EQ(100, player->getSkillLevel(SKILL_SHIELD));
+		const int32_t shielding = player->getSkillLevel(SKILL_SHIELD);
+		ASSERT_GT(shielding, 0) << "the fixture must give the player some Shielding";
 		ASSERT_EQ(100, (player->getHealth() * 100) / player->getMaxHealth()) << "at full health, no tier applies";
 
-		EXPECT_EQ(200, player->wheel().checkBattleHealingAmount()) << "100 Shielding x 2";
+		EXPECT_EQ(shielding * 2, player->wheel().checkBattleHealingAmount());
+	}
+
+	TEST_F(KnightWheelReworkTest, TheCoefficientIsTwoAndNotTwoTenths) {
+		// The rework in one assertion: the old multiplier was 0.2, and at any Shielding
+		// worth having the two answers are an order of magnitude apart.
+		auto player = knight();
+		player->setVarSkill(SKILL_SHIELD, 100);
+		const int32_t shielding = player->getSkillLevel(SKILL_SHIELD);
+		const int32_t amount = player->wheel().checkBattleHealingAmount();
+
+		EXPECT_EQ(shielding * 2, amount);
+		EXPECT_NE(static_cast<int32_t>(shielding * 0.2), amount) << "the old coefficient must be gone";
 	}
 
 	TEST_F(KnightWheelReworkTest, BattleHealingScalesLinearlyWithShielding) {
-		struct Case {
-			int32_t shielding;
-			int32_t expected;
-		};
-		for (const auto &[shielding, expected] : { Case { 0, 0 }, Case { 1, 2 }, Case { 50, 100 }, Case { 137, 274 } }) {
+		int32_t previous = -1;
+		for (const int32_t bonus : { 0, 1, 50, 137 }) {
 			auto player = knight();
-			player->setVarSkill(SKILL_SHIELD, shielding);
-			EXPECT_EQ(expected, player->wheel().checkBattleHealingAmount()) << "shielding " << shielding;
+			player->setVarSkill(SKILL_SHIELD, bonus);
+			const int32_t shielding = player->getSkillLevel(SKILL_SHIELD);
+			const int32_t amount = player->wheel().checkBattleHealingAmount();
+
+			EXPECT_EQ(shielding * 2, amount) << "bonus " << bonus;
+			EXPECT_GT(amount, previous) << "more Shielding must heal more; bonus " << bonus;
+			previous = amount;
 		}
 	}
 
 	TEST_F(KnightWheelReworkTest, TheLowHealthTiersAreUnchanged) {
-		// 60% and below doubles, 30% and below triples. Both on top of the new
-		// multiplier, so the tiers compose with it rather than replacing it.
+		// 60% and below doubles, 30% and below triples, both composing on top of the
+		// new multiplier rather than replacing it.
+		auto full = knight();
+		full->setVarSkill(SKILL_SHIELD, 100);
+		const int32_t base = full->wheel().checkBattleHealingAmount();
+		ASSERT_GT(base, 0);
+
 		auto half = knight();
 		half->setVarSkill(SKILL_SHIELD, 100);
 		setHealthPercent(half, 50);
 		ASSERT_EQ(50, (half->getHealth() * 100) / half->getMaxHealth());
-		EXPECT_EQ(400, half->wheel().checkBattleHealingAmount()) << "200 doubled below 60%";
+		EXPECT_EQ(base * 2, half->wheel().checkBattleHealingAmount()) << "doubled below 60%";
 
 		auto quarter = knight();
 		quarter->setVarSkill(SKILL_SHIELD, 100);
 		setHealthPercent(quarter, 25);
 		ASSERT_EQ(25, (quarter->getHealth() * 100) / quarter->getMaxHealth());
-		EXPECT_EQ(600, quarter->wheel().checkBattleHealingAmount()) << "200 tripled below 30%";
+		EXPECT_EQ(base * 3, quarter->wheel().checkBattleHealingAmount()) << "tripled below 30%";
 	}
 
 	TEST_F(KnightWheelReworkTest, TheTierBoundariesAreInclusive) {
+		auto full = knight();
+		full->setVarSkill(SKILL_SHIELD, 100);
+		const int32_t base = full->wheel().checkBattleHealingAmount();
+
 		auto atSixty = knight();
 		atSixty->setVarSkill(SKILL_SHIELD, 100);
 		setHealthPercent(atSixty, 60);
-		EXPECT_EQ(400, atSixty->wheel().checkBattleHealingAmount()) << "exactly 60% already doubles";
+		EXPECT_EQ(base * 2, atSixty->wheel().checkBattleHealingAmount()) << "exactly 60% already doubles";
 
 		auto atThirty = knight();
 		atThirty->setVarSkill(SKILL_SHIELD, 100);
 		setHealthPercent(atThirty, 30);
-		EXPECT_EQ(600, atThirty->wheel().checkBattleHealingAmount()) << "exactly 30% already triples";
-	}
-
-	TEST_F(KnightWheelReworkTest, BattleHealingIsTenTimesWhatItWas) {
-		// The old multiplier was 0.2. Stated as a ratio so the intent of the rework
-		// survives a later edit that changes only one of the two numbers.
-		auto player = knight();
-		player->setVarSkill(SKILL_SHIELD, 100);
-		const int32_t old = static_cast<int32_t>(100 * 0.2);
-		EXPECT_EQ(old * 10, player->wheel().checkBattleHealingAmount());
+		EXPECT_EQ(base * 3, atThirty->wheel().checkBattleHealingAmount()) << "exactly 30% already triples";
 	}
 
 	// --- Combat Mastery -----------------------------------------------------------
