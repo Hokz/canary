@@ -92,9 +92,13 @@ namespace {
 			vocation->armorMultiplier = 1.0f;
 			// Mitigation is the layer after armor; zero it so it cannot perturb the two
 			// layers under test. Its own ordering is covered by the mitigation suite.
-			vocation->mitigationFactor = 0.0f;
-			vocation->mitigationPrimaryShield = 0.0f;
-			vocation->mitigationSecondaryShield = 0.0f;
+			//
+			// It is the PROFILE that has to be zeroed, not the three legacy floats:
+			// PlayerWheel::calculateMitigation reads vocation->mitigation, which is its
+			// own member and is not derived from them. With the profile left alone a
+			// bare player still has a base Shielding, so mitigation came out at about
+			// 0.1% - too small to move the ranges below, but not zero.
+			vocation->mitigation.skillFactor = 0.0f;
 			player->setTestVocation(vocation);
 
 			player->setTestInventoryItem(CONST_SLOT_ARMOR, Item::CreateItem(kArmorId, 1));
