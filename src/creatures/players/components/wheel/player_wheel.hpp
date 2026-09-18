@@ -327,6 +327,10 @@ public:
 	// Whether this instant spell is one Beam Mastery applies to. m_beamMasterySpells is
 	// the one place that set lives; nothing else may keep its own copy of the names.
 	[[nodiscard]] bool isBeamMasterySpell(const std::string &spellName) const;
+	// Gift of Life restores this much health and, since 15.25, this much mana - the
+	// same percentage of each maximum.
+	[[nodiscard]] int32_t getGiftOfLifeHealthAmount() const;
+	[[nodiscard]] int32_t getGiftOfLifeManaAmount() const;
 	int32_t checkBattleHealingAmount() const;
 	int32_t checkBlessingGroveHealingByTarget(const std::shared_ptr<Creature> &target) const;
 	int32_t checkTwinBurstByTarget(const std::shared_ptr<Creature> &target) const;

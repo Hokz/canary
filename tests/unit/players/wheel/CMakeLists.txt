@@ -1,4 +1,4 @@
 target_sources(
     canary_ut
-    PRIVATE sorcerer_wheel_mapping_test.cpp
+    PRIVATE gift_of_life_test.cpp sorcerer_wheel_mapping_test.cpp
 )

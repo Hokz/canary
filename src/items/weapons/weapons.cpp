@@ -257,6 +257,40 @@ bool Weapon::useFist(const std::shared_ptr<Player> &player, const std::shared_pt
 	return true;
 }
 
+namespace {
+	// A weapon auto attack may roll its charms on the attacked creature only. The
+	// built-in path hits exactly one creature, but a scripted weapon runs a Combat of
+	// its own, and the 15.25 area ammunition runs that Combat over thirteen squares -
+	// so the script call is marked, and Game::combatChangeHealth tells the main target
+	// from the splash.
+	//
+	// A guard rather than a flag set and cleared by hand: callFunction can fail or
+	// throw, and the context must not outlive the shot either way.
+	class AutoAttackScope {
+	public:
+		AutoAttackScope(std::shared_ptr<Player> player, uint32_t mainTargetId) :
+			m_player(std::move(player)) {
+			if (m_player) {
+				m_player->setAutoAttackContext(mainTargetId);
+			}
+		}
+
+		~AutoAttackScope() {
+			if (m_player) {
+				m_player->clearAutoAttackContext();
+			}
+		}
+
+		AutoAttackScope(const AutoAttackScope &) = delete;
+		AutoAttackScope &operator=(const AutoAttackScope &) = delete;
+		AutoAttackScope(AutoAttackScope &&) = delete;
+		AutoAttackScope &operator=(AutoAttackScope &&) = delete;
+
+	private:
+		std::shared_ptr<Player> m_player;
+	};
+}
+
 void Weapon::internalUseWeapon(const std::shared_ptr<Player> &player, const std::shared_ptr<Item> &item, const std::shared_ptr<Creature> &target, int32_t damageModifier, int32_t cleavePercent) const {
 	sendWeaponSoundEffect(player, params);
 
@@ -268,6 +302,7 @@ void Weapon::internalUseWeapon(const std::shared_ptr<Player> &player, const std:
 		LuaVariant var;
 		var.type = VARIANT_NUMBER;
 		var.number = target->getID();
+		const AutoAttackScope autoAttack(player, target->getID());
 		executeUseWeapon(player, var);
 	} else {
 		CombatDamage damage;
@@ -328,6 +363,9 @@ void Weapon::internalUseWeapon(const std::shared_ptr<Player> &player, const std:
 		LuaVariant var;
 		var.type = VARIANT_TARGETPOSITION;
 		var.pos = tile->getPosition();
+		// Loosed at a tile, not at a creature: the shot has no main target, so nothing
+		// it happens to catch rolls a charm.
+		const AutoAttackScope autoAttack(player, 0);
 		executeUseWeapon(player, var);
 	} else {
 		Combat::postCombatEffects(player, player->getPosition(), tile->getPosition(), params);
