@@ -11,10 +11,12 @@
 #include <cmath>
 #include <filesystem>
 #include <limits>
+#include <numeric>
 
 // Player.hpp already includes the weapon
 #include "creatures/players/player.hpp"
 #include "creatures/monsters/monster.hpp"
+#include "items/tile.hpp"
 #include "items/weapons/weapons.hpp"
 #include "creatures/monsters/monsters.hpp"
 #include "canary_server.hpp"
@@ -78,6 +80,7 @@ namespace {
 }
 
 std::unordered_map<uint16_t, Proficiency> WeaponProficiency::proficiencies;
+ProficiencyShapingRules WeaponProficiency::shapingRules;
 
 std::vector<uint32_t> WeaponProficiency::crossbowExperience = {
 	600,
@@ -209,6 +212,195 @@ static void registerLevels(const nlohmann::json &levelsJson, Proficiency &profic
 	return proficiencies;
 }
 
+[[nodiscard]] const ProficiencyShapingRules &WeaponProficiency::getShapingRules() {
+	return shapingRules;
+}
+
+// Rebuilds a shaped perk from the shaping rules as they are loaded right now. This
+// is the whole point of storing only (optionId, rank): a balance change to
+// ValuePerRank, SkillId, ElementId or anything else reaches players who already own
+// the perk, on their next read, with no migration.
+ProficiencyPerk WeaponProficiency::buildShapedPerk(const ProficiencyShapingOption &option, uint8_t rank, uint8_t level, uint8_t index) {
+	ProficiencyPerk perk;
+	perk.shaped = true;
+	perk.shapingOptionId = option.id;
+
+	// A rank the option no longer offers is clamped down, never kept. Shrinking a
+	// ValuePerRank table must not leave anyone holding a value that no longer exists.
+	perk.rank = std::min(rank, option.maxRank());
+
+	perk.level = level;
+	perk.index = index;
+
+	perk.type = option.type;
+	perk.value = option.valuePerRank[perk.rank];
+	perk.spellId = option.spellId;
+	perk.range = option.range;
+	perk.bestiaryId = option.bestiaryId;
+	perk.bestiaryName = option.bestiaryName;
+	perk.augmentType = option.augmentType;
+	perk.skillId = option.skillId;
+	perk.element = option.element;
+
+	return perk;
+}
+
+// The bonus types whose effect is addressed by skill. Kept next to the loader so a
+// new skill-addressed bonus is one line away from being validated too.
+static bool skillDependentBonus(WeaponProficiencyBonus_t type) {
+	using enum WeaponProficiencyBonus_t;
+	return type == SKILL_BONUS || type == SKILL_PERCENTAGE_AUTO_ATTACK || type == SKILL_PERCENTAGE_SPELL_DAMAGE || type == SKILL_PERCENTAGE_SPELL_HEALING;
+}
+
+static void registerShapingOption(const nlohmann::json &optionJson, ProficiencyShapingRules &rules) {
+	const auto rawType = optionJson.at("Type").get<uint8_t>();
+	const auto typeOpt = magic_enum::enum_cast<WeaponProficiencyBonus_t>(rawType);
+	if (!typeOpt.has_value()) {
+		throw FailedToInitializeCanary(fmt::format("{} - Unknown perk Type '{}' in shaping options", __FUNCTION__, rawType));
+	}
+
+	ProficiencyShapingOption option;
+	option.type = typeOpt.value();
+
+	// The Id is what a player's shaped perk stores. Without it the only handle on an
+	// option would be its position in the array, and reordering the file would
+	// silently repoint every perk rolled from it.
+	option.id = optionJson.at("Id").get<uint16_t>();
+	if (option.id == 0) {
+		throw FailedToInitializeCanary(fmt::format("{} - Shaping option Id must not be 0 (perk Type '{}')", __FUNCTION__, rawType));
+	}
+	if (rules.findOption(option.id) != nullptr) {
+		throw FailedToInitializeCanary(fmt::format("{} - Duplicate shaping option Id '{}'", __FUNCTION__, option.id));
+	}
+
+	for (const auto &valueJson : optionJson.at("ValuePerRank")) {
+		option.valuePerRank.push_back(valueJson.get<double_t>());
+	}
+	if (option.valuePerRank.empty()) {
+		throw FailedToInitializeCanary(fmt::format("{} - Perk Type '{}' has an empty ValuePerRank", __FUNCTION__, rawType));
+	}
+
+	// Rank is a uint8_t, so maxRank() is size - 1 cast down. Past 256 entries that
+	// cast truncates and the option would report a maximum rank far below its table,
+	// silently stranding every rank above it.
+	if (option.valuePerRank.size() > 256) {
+		throw FailedToInitializeCanary(fmt::format("{} - Perk Type '{}' has {} ValuePerRank entries; the maximum is 256", __FUNCTION__, rawType, option.valuePerRank.size()));
+	}
+
+	// A zero weight can never be drawn, which is a silent way to lose an option; say
+	// so instead of shipping a table with a dead entry in it.
+	option.weight = optionJson.value("Weight", 1U);
+	if (option.weight == 0) {
+		throw FailedToInitializeCanary(fmt::format("{} - Perk Type '{}' has Weight 0 and could never be rolled", __FUNCTION__, rawType));
+	}
+
+	// Optional fields, read the same way registerPerks reads them for a perk that
+	// comes from a proficiency file, so a shaped perk is indistinguishable from a
+	// file-defined one once it is built.
+	option.range = optionJson.value("Range", uint8_t { 0 });
+	option.augmentType = optionJson.value("AugmentType", uint8_t { 0 });
+	option.spellId = optionJson.value("SpellId", uint16_t { 0 });
+	option.bestiaryId = optionJson.value("BestiaryId", uint16_t { 0 });
+	option.bestiaryName = optionJson.value("BestiaryName", std::string {});
+
+	if (optionJson.contains("SkillId")) {
+		const auto skill = optionJson.at("SkillId").get<uint8_t>();
+		const auto skillOpt = magic_enum::enum_cast<CipbiaSkills_t>(skill);
+		if (!skillOpt.has_value()) {
+			throw FailedToInitializeCanary(fmt::format("{} - Invalid SkillId '{}' for perk Type '{}'", __FUNCTION__, skill, rawType));
+		}
+		option.skillId = getSkillsFromCipbiaSkill(skillOpt.value());
+	}
+
+	// SKILL_BONUS and the three SKILL_PERCENTAGE_* types are the only bonuses that
+	// name a skill, and every one of them feeds perk.skillId straight into a lookup.
+	// Left out, skillId stays SKILL_NONE and the perk applies to nothing at all: the
+	// player rolls it, pays for it, and gets silence. Refuse the file instead.
+	if (skillDependentBonus(option.type) && option.skillId == SKILL_NONE) {
+		throw FailedToInitializeCanary(fmt::format("{} - Perk Type '{}' needs a SkillId; without one the perk would have no effect", __FUNCTION__, rawType));
+	}
+
+	if (optionJson.contains("ElementId")) {
+		const auto element = optionJson.at("ElementId").get<uint64_t>();
+		const auto unshifted = undoShift(element);
+		option.element = getCombatFromCipbiaElement(static_cast<Cipbia_Elementals_t>(unshifted));
+		if (option.element == COMBAT_NONE) {
+			throw FailedToInitializeCanary(fmt::format("{} - Invalid ElementId '{}' for perk Type '{}'", __FUNCTION__, element, rawType));
+		}
+	}
+
+	rules.options.push_back(std::move(option));
+}
+
+static ProficiencyShapingRules loadShapingRules(const std::string &folder) {
+	ProficiencyShapingRules rules;
+
+	const auto fileName = fmt::format("{}/shaping/shaping.json", folder);
+	if (!std::filesystem::is_regular_file(fileName)) {
+		// Optional: a server that does not run perk shaping simply has no file, and
+		// every shaping operation reports the feature as unavailable.
+		g_logger().info("Weapon proficiency shaping is not configured ('{}' not found)", fileName);
+		return rules;
+	}
+
+	std::ifstream file(fileName);
+	if (!file.is_open()) {
+		throw FailedToInitializeCanary(fmt::format("{} - Unable to open file '{}'", __FUNCTION__, fileName));
+	}
+
+	nlohmann::json shapingJson;
+	try {
+		file >> shapingJson;
+	} catch (const nlohmann::json::parse_error &e) {
+		throw FailedToInitializeCanary(fmt::format("{} - JSON parsing error in file '{}': {}", __FUNCTION__, fileName, e.what()));
+	}
+
+	try {
+		rules.requiresProtectionZone = shapingJson.value("RequiresProtectionZone", true);
+
+		for (const auto &slotJson : shapingJson.at("Slots")) {
+			ProficiencyShapingSlot slot;
+			slot.slot = slotJson.at("Slot").get<uint8_t>();
+			slot.unlockDustCost = slotJson.value("UnlockDustCost", uint64_t { 0 });
+			slot.requiredProficiencyLevel = slotJson.value("RequiredProficiencyLevel", uint8_t { 0 });
+			slot.requiresMastery = slotJson.value("RequiresMastery", false);
+			rules.slots.push_back(slot);
+		}
+
+		if (shapingJson.contains("Refine")) {
+			for (const auto &costJson : shapingJson.at("Refine").at("DustCostPerRank")) {
+				rules.refineDustCostPerRank.push_back(costJson.get<uint64_t>());
+			}
+		}
+
+		if (shapingJson.contains("Reshape")) {
+			const auto &reshapeJson = shapingJson.at("Reshape");
+			rules.reshapeDustCost = reshapeJson.value("DustCost", uint64_t { 0 });
+			rules.reshapeOptionCount = reshapeJson.value("OptionCount", uint8_t { 3 });
+		}
+
+		if (shapingJson.contains("Clear")) {
+			rules.clearDustCost = shapingJson.at("Clear").value("DustCost", uint64_t { 0 });
+		}
+
+		for (const auto &optionJson : shapingJson.at("Options")) {
+			registerShapingOption(optionJson, rules);
+		}
+	} catch (const nlohmann::json::exception &e) {
+		throw FailedToInitializeCanary(fmt::format("{} - JSON exception in file '{}': {}", __FUNCTION__, fileName, e.what()));
+	}
+
+	// Slots are addressed by their position in this vector everywhere else, so a file
+	// that numbers them out of order or repeats one would silently mis-price a slot.
+	for (size_t i = 0; i < rules.slots.size(); ++i) {
+		if (rules.slots[i].slot != static_cast<uint8_t>(i)) {
+			throw FailedToInitializeCanary(fmt::format("{} - Slot at position {} declares Slot {}; slots must be listed in order starting at 0", __FUNCTION__, i, rules.slots[i].slot));
+		}
+	}
+
+	return rules;
+}
+
 bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 	g_logger().info("{}oading weapon proficiencies...", reload ? "Rel" : "L");
 
@@ -280,9 +472,14 @@ bool WeaponProficiency::loadFromJson(bool reload /* = false */) {
 		}
 	}
 
-	proficiencies = std::move(loaded);
+	// Same atomicity: parsed before anything is published, so a broken shaping file
+	// leaves both the tree and the rules as they were.
+	auto loadedShaping = loadShapingRules(folder);
 
-	g_logger().info("Weapon proficiencies {}! ({} proficiencies from {} files)", reload ? "reloaded" : "loaded", proficiencies.size(), files.size());
+	proficiencies = std::move(loaded);
+	shapingRules = std::move(loadedShaping);
+
+	g_logger().info("Weapon proficiencies {}! ({} proficiencies from {} files, {} shaping options)", reload ? "reloaded" : "loaded", proficiencies.size(), files.size(), shapingRules.options.size());
 
 	return true;
 }
@@ -442,6 +639,30 @@ ProficiencyPerk WeaponProficiency::deserializePerk(const ValueWrapper &val) {
 	perk.skillId = static_cast<skills_t>(getInt("skillId"));
 	perk.spellId = static_cast<uint16_t>(getInt("spellId"));
 
+	perk.rank = static_cast<uint8_t>(getInt("rank"));
+	perk.shapingOptionId = static_cast<uint16_t>(getInt("shapingOptionId"));
+	perk.shapingSlot = static_cast<uint8_t>(getInt("shapingSlot"));
+	perk.reshapeSeed = static_cast<uint32_t>(getInt("reshapeSeed"));
+	if (auto it = map.find("shaped"); it != map.end()) {
+		perk.shaped = it->second->get<BooleanType>();
+	}
+
+	// Everything read above except (level, index, shaped, shapingOptionId, rank) is
+	// carried for diagnostics only. collectValidSelectedPerks rebuilds every perk it
+	// returns - a shaped one from its shaping option, any other from the proficiency
+	// file - so nothing stored here is ever applied as-is, and a stale or tampered
+	// effect cannot reach the player.
+	//
+	// A shaped perk with no option id is the one thing that cannot be rebuilt, so it
+	// is demoted: the slot falls back to whatever the proficiency file defines.
+	if (perk.shaped && perk.shapingOptionId == 0) {
+		g_logger().error("{} - Demoting a shaped perk with no shaping option id (level {}, index {})", __FUNCTION__, perk.level, perk.index);
+		perk.shaped = false;
+		perk.rank = 0;
+		perk.shapingSlot = 0;
+		perk.reshapeSeed = 0;
+	}
+
 	return perk;
 }
 
@@ -456,6 +677,11 @@ ValueWrapper WeaponProficiency::serialize(const WeaponProficiencyData &weaponDat
 ValueWrapper WeaponProficiency::serializePerk(const ProficiencyPerk &perk) const {
 	return {
 		{ "index", static_cast<IntType>(perk.index) },
+		{ "shaped", perk.shaped },
+		{ "shapingOptionId", static_cast<IntType>(perk.shapingOptionId) },
+		{ "rank", static_cast<IntType>(perk.rank) },
+		{ "shapingSlot", static_cast<IntType>(perk.shapingSlot) },
+		{ "reshapeSeed", static_cast<IntType>(perk.reshapeSeed) },
 		{ "type", static_cast<IntType>(perk.type) },
 		{ "value", perk.value },
 		{ "level", static_cast<IntType>(perk.level) },
@@ -617,8 +843,16 @@ void WeaponProficiency::clearSelectedPerks(uint16_t weaponId) {
 		return;
 	}
 
+	// Shaped perks survive this. The client calls it through the 0x02 and 0x03
+	// actions whenever the player rearranges the perk tree, and a shaped slot was
+	// paid for in dust that is never refunded - wiping it here would destroy bought
+	// content on an ordinary UI action. Only Clear removes a shaping, and it goes
+	// through clearShapedPerk.
+	//
+	// The levels left occupied are then skipped by setSelectedPerk, which already
+	// refuses a second selection on a level that has one.
 	if (auto it = proficiency.find(weaponId); it != proficiency.end()) {
-		it->second.perks.clear();
+		std::erase_if(it->second.perks, [](const auto &perk) { return !perk.shaped; });
 	}
 }
 
@@ -677,6 +911,364 @@ void WeaponProficiency::setSelectedPerk(uint8_t level, uint8_t perkIndex, uint16
 	}
 
 	playerProficiencyIt->second.perks.push_back(selectedPerk);
+}
+
+ProficiencyPerk* WeaponProficiency::findStoredPerk(uint16_t weaponId, uint8_t level) {
+	const auto it = proficiency.find(weaponId);
+	if (it == proficiency.end()) {
+		return nullptr;
+	}
+
+	const auto perkIt = std::ranges::find(it->second.perks, level, &ProficiencyPerk::level);
+	return perkIt == it->second.perks.end() ? nullptr : &*perkIt;
+}
+
+const ProficiencyPerk* WeaponProficiency::findStoredPerk(uint16_t weaponId, uint8_t level) const {
+	return const_cast<WeaponProficiency*>(this)->findStoredPerk(weaponId, level);
+}
+
+// The lowest slot index no shaped perk on this weapon is using. Returns slots.size()
+// when they are all taken, which the caller reads as NoSlotsLeft.
+size_t WeaponProficiency::firstFreeShapingSlot(uint16_t weaponId) const {
+	const auto it = proficiency.find(weaponId);
+	if (it == proficiency.end()) {
+		return 0;
+	}
+
+	for (size_t candidate = 0; candidate < shapingRules.slots.size(); ++candidate) {
+		const auto taken = std::ranges::any_of(it->second.perks, [candidate](const auto &perk) {
+			return perk.shaped && perk.shapingSlot == candidate;
+		});
+
+		if (!taken) {
+			return candidate;
+		}
+	}
+
+	return shapingRules.slots.size();
+}
+
+uint8_t WeaponProficiency::countShapedPerks(uint16_t weaponId) const {
+	const auto it = proficiency.find(weaponId);
+	if (it == proficiency.end()) {
+		return 0;
+	}
+
+	return static_cast<uint8_t>(std::ranges::count(it->second.perks, true, &ProficiencyPerk::shaped));
+}
+
+// The checks every operation shares: the feature is configured, the weapon is real
+// and known to this player, the tree level is unlocked, and the player is where the
+// rules allow shaping.
+ProficiencyShapingResult WeaponProficiency::checkShapingPreconditions(uint16_t weaponId, uint8_t level) const {
+	using enum ProficiencyShapingResult;
+
+	if (shapingRules.empty()) {
+		return NotConfigured;
+	}
+
+	if (!isValidWeaponId(weaponId)) {
+		return InvalidWeapon;
+	}
+
+	if (!proficiency.contains(weaponId) || !proficiencies.contains(Item::items[weaponId].proficiencyId)) {
+		return NoProficiencyData;
+	}
+
+	if (level >= getUnlockedLevelCount(weaponId)) {
+		return LevelLocked;
+	}
+
+	if (shapingRules.requiresProtectionZone) {
+		const auto &tile = m_player.getTile();
+		if (!tile || !tile->hasFlag(TILESTATE_PROTECTIONZONE)) {
+			return NotInProtectionZone;
+		}
+	}
+
+	return Success;
+}
+
+// Bring the stored state back in line, persist it, and make the change visible at
+// once if the weapon is the one in hand. Every operation ends here, so none of them
+// can forget a step.
+void WeaponProficiency::commitShapingChange(uint16_t weaponId) {
+	normalizeStoredState(weaponId);
+	save(weaponId);
+
+	if (m_player.getWeaponId(true) == weaponId) {
+		clearAllStats();
+		applyPerks(weaponId, false);
+		m_player.sendStats();
+		m_player.sendSkills();
+	}
+
+	m_player.sendWeaponProficiency(weaponId);
+}
+
+namespace {
+	// Weighted draw over the options a roll may pick from, from a caller-supplied
+	// number so the same walk serves both a random roll and a reproducible one.
+	// `excluded` keeps a reshape from offering the perk the player already has.
+	const ProficiencyShapingOption* pickOption(const ProficiencyShapingRules &rules, const std::vector<uint16_t> &excluded, uint64_t draw) {
+		const auto total = std::accumulate(
+			rules.options.begin(), rules.options.end(), uint64_t { 0 },
+			[&excluded](uint64_t sum, const ProficiencyShapingOption &option) {
+				return std::ranges::find(excluded, option.id) == excluded.end() ? sum + option.weight : sum;
+			}
+		);
+
+		if (total == 0) {
+			return nullptr;
+		}
+
+		auto roll = draw % total;
+		for (const auto &option : rules.options) {
+			if (std::ranges::find(excluded, option.id) != excluded.end()) {
+				continue;
+			}
+
+			if (roll < option.weight) {
+				return &option;
+			}
+
+			roll -= option.weight;
+		}
+
+		return nullptr;
+	}
+
+	const ProficiencyShapingOption* rollOption(const ProficiencyShapingRules &rules, const std::vector<uint16_t> &excluded) {
+		return pickOption(rules, excluded, static_cast<uint64_t>(uniform_random(0, std::numeric_limits<int32_t>::max())));
+	}
+
+	// splitmix64. Small, and - what actually matters here - stable: the reshape offer
+	// has to come back identical when the player answers it, or the server cannot
+	// tell an option it offered from one the client made up.
+	uint64_t nextRandom(uint64_t &state) {
+		state += 0x9E3779B97F4A7C15ULL;
+		uint64_t z = state;
+		z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ULL;
+		z = (z ^ (z >> 27)) * 0x94D049BB133111EBULL;
+		return z ^ (z >> 31);
+	}
+
+	// The alternatives a reshape offers, derived rather than drawn. Nothing about the
+	// offer is stored beyond the seed already on the perk, and calling this twice
+	// gives the same answer - which is what makes the offer enforceable.
+	std::vector<uint16_t> deriveReshapeOptionsImpl(const ProficiencyShapingRules &rules, const ProficiencyPerk &perk) {
+		std::vector<uint16_t> offered;
+		if (rules.empty() || !perk.shaped) {
+			return offered;
+		}
+
+		uint64_t state = (static_cast<uint64_t>(perk.reshapeSeed) << 32) ^ (static_cast<uint64_t>(perk.level) << 16) ^ static_cast<uint64_t>(perk.shapingOptionId);
+
+		// The perk the player already has is never offered back to them, and neither
+		// is an option already drawn for this offer.
+		std::vector<uint16_t> excluded { perk.shapingOptionId };
+		for (uint8_t i = 0; i < rules.reshapeOptionCount; ++i) {
+			const auto* option = pickOption(rules, excluded, nextRandom(state));
+			if (option == nullptr) {
+				break;
+			}
+
+			offered.push_back(option->id);
+			excluded.push_back(option->id);
+		}
+
+		return offered;
+	}
+}
+
+ProficiencyShapingResult WeaponProficiency::shapePerk(uint16_t weaponId, uint8_t level, uint8_t perkIndex) {
+	using enum ProficiencyShapingResult;
+
+	if (const auto precondition = checkShapingPreconditions(weaponId, level); precondition != Success) {
+		return precondition;
+	}
+
+	const auto &proficiencyInfo = proficiencies.at(Item::items[weaponId].proficiencyId);
+	if (level >= proficiencyInfo.level.size() || perkIndex >= proficiencyInfo.level[level].perks.size()) {
+		return InvalidPerkIndex;
+	}
+
+	if (const auto* existing = findStoredPerk(weaponId, level); existing != nullptr && existing->shaped) {
+		return AlreadyShaped;
+	}
+
+	// Slots are bought individually, not counted. Pricing off how many are currently
+	// shaped would make clearing the 250-dust slot and shaping again cost 1000 and
+	// demand mastery, because the expensive slot is still occupied. So take the
+	// lowest slot nobody is standing on and charge for that one.
+	const auto slotIndex = firstFreeShapingSlot(weaponId);
+	if (slotIndex >= shapingRules.slots.size()) {
+		return NoSlotsLeft;
+	}
+
+	const auto &slot = shapingRules.slots[slotIndex];
+	if (getUnlockedLevelCount(weaponId) < slot.requiredProficiencyLevel) {
+		return ProficiencyTooLow;
+	}
+
+	if (slot.requiresMastery && !proficiency.at(weaponId).mastered) {
+		return NotMastered;
+	}
+
+	if (m_player.getForgeDusts() < slot.unlockDustCost) {
+		return NotEnoughDust;
+	}
+
+	// A freshly shaped slot always rolls in at rank 0, its lowest value.
+	const auto* option = rollOption(shapingRules, {});
+	if (option == nullptr) {
+		return UnknownOption;
+	}
+
+	m_player.removeForgeDusts(slot.unlockDustCost);
+
+	auto &perks = proficiency.at(weaponId).perks;
+	std::erase_if(perks, [level](const auto &perk) { return perk.level == level; });
+	auto shaped = buildShapedPerk(*option, 0, level, perkIndex);
+	shaped.shapingSlot = static_cast<uint8_t>(slotIndex);
+	shaped.reshapeSeed = static_cast<uint32_t>(uniform_random(1, std::numeric_limits<int32_t>::max()));
+	perks.push_back(std::move(shaped));
+
+	commitShapingChange(weaponId);
+	return Success;
+}
+
+ProficiencyShapingResult WeaponProficiency::refinePerk(uint16_t weaponId, uint8_t level) {
+	using enum ProficiencyShapingResult;
+
+	if (const auto precondition = checkShapingPreconditions(weaponId, level); precondition != Success) {
+		return precondition;
+	}
+
+	auto* stored = findStoredPerk(weaponId, level);
+	if (stored == nullptr || !stored->shaped) {
+		return NotShaped;
+	}
+
+	const auto* option = shapingRules.findOption(stored->shapingOptionId);
+	if (option == nullptr) {
+		return UnknownOption;
+	}
+
+	// Widened on purpose: stored->rank is a uint8_t, and narrowing rank + 1 back to
+	// one would turn rank 255 into 0 - which passes every check below and refines for
+	// refineDustCostPerRank[0]. The loader caps ValuePerRank so rank 255 is not
+	// reachable today; this makes the arithmetic safe regardless.
+	const uint16_t nextRank = static_cast<uint16_t>(stored->rank) + 1;
+	if (nextRank > option->maxRank()) {
+		return AtMaximumRank;
+	}
+
+	if (nextRank >= shapingRules.refineDustCostPerRank.size()) {
+		return RefineDisabled;
+	}
+
+	const auto cost = shapingRules.refineDustCostPerRank[nextRank];
+	if (m_player.getForgeDusts() < cost) {
+		return NotEnoughDust;
+	}
+
+	m_player.removeForgeDusts(cost);
+	stored->rank = static_cast<uint8_t>(nextRank);
+
+	commitShapingChange(weaponId);
+	return Success;
+}
+
+std::vector<uint16_t> WeaponProficiency::reshapeOptionsFor(const ProficiencyShapingRules &rules, const ProficiencyPerk &perk) {
+	return deriveReshapeOptionsImpl(rules, perk);
+}
+
+std::vector<uint16_t> WeaponProficiency::rollReshapeOptions(uint16_t weaponId, uint8_t level) const {
+	std::vector<uint16_t> offered;
+
+	const auto* stored = findStoredPerk(weaponId, level);
+	if (stored == nullptr || !stored->shaped) {
+		return offered;
+	}
+
+	return reshapeOptionsFor(shapingRules, *stored);
+}
+
+ProficiencyShapingResult WeaponProficiency::reshapePerk(uint16_t weaponId, uint8_t level, uint16_t optionId) {
+	using enum ProficiencyShapingResult;
+
+	if (const auto precondition = checkShapingPreconditions(weaponId, level); precondition != Success) {
+		return precondition;
+	}
+
+	auto* stored = findStoredPerk(weaponId, level);
+	if (stored == nullptr || !stored->shaped) {
+		return NotShaped;
+	}
+
+	const auto* option = shapingRules.findOption(optionId);
+	if (option == nullptr) {
+		return UnknownOption;
+	}
+
+	// The offer is three options, so it has to be three. Without this the client
+	// could name any option in the file and the draw would be decoration - reshape
+	// would become "pick whatever you want" at a flat price.
+	const auto offered = reshapeOptionsFor(shapingRules, *stored);
+	if (std::ranges::find(offered, optionId) == offered.end()) {
+		return NotOffered;
+	}
+
+	if (m_player.getForgeDusts() < shapingRules.reshapeDustCost) {
+		return NotEnoughDust;
+	}
+
+	m_player.removeForgeDusts(shapingRules.reshapeDustCost);
+
+	// Reshaping keeps the rank: the player swaps the effect, not the progress paid
+	// for. A rank the new option cannot reach is clamped by buildShapedPerk.
+	const auto perkIndex = stored->index;
+	const auto rank = stored->rank;
+	const auto slot = stored->shapingSlot;
+	*stored = buildShapedPerk(*option, rank, level, perkIndex);
+	stored->shapingSlot = slot;
+	// A fresh seed, so the next reshape offers a different three.
+	stored->reshapeSeed = static_cast<uint32_t>(uniform_random(1, std::numeric_limits<int32_t>::max()));
+
+	commitShapingChange(weaponId);
+	return Success;
+}
+
+ProficiencyShapingResult WeaponProficiency::clearShapedPerk(uint16_t weaponId, uint8_t level) {
+	using enum ProficiencyShapingResult;
+
+	if (const auto precondition = checkShapingPreconditions(weaponId, level); precondition != Success) {
+		return precondition;
+	}
+
+	auto* stored = findStoredPerk(weaponId, level);
+	if (stored == nullptr || !stored->shaped) {
+		return NotShaped;
+	}
+
+	if (m_player.getForgeDusts() < shapingRules.clearDustCost) {
+		return NotEnoughDust;
+	}
+
+	m_player.removeForgeDusts(shapingRules.clearDustCost);
+
+	// Clearing restores the slot to the perk the proficiency file defines there: the
+	// selection stays, it simply stops being shaped. The dust spent on the shaping is
+	// not refunded.
+	stored->shaped = false;
+	stored->shapingOptionId = 0;
+	stored->rank = 0;
+	stored->shapingSlot = 0;
+	stored->reshapeSeed = 0;
+
+	commitShapingChange(weaponId);
+	return Success;
 }
 
 void WeaponProficiency::onDataReloaded() {
@@ -995,7 +1587,26 @@ std::vector<ProficiencyPerk> WeaponProficiency::collectValidSelectedPerks(uint16
 			continue;
 		}
 
-		validPerks.push_back(levelPerks[index]);
+		// Every perk returned from here is rebuilt, never replayed from storage. A
+		// normal selection comes from the proficiency file; a shaped one is rebuilt
+		// from its shaping option at its stored rank. That is what keeps the data
+		// authoritative: edit shaping.json and the next read of an existing perk
+		// already reflects it.
+		if (storedPerk.shaped) {
+			const auto* option = shapingRules.findOption(storedPerk.shapingOptionId);
+			if (option == nullptr) {
+				// The option was removed from shaping.json. The slot falls back to the
+				// perk the proficiency file defines there, which is exactly what Clear
+				// produces. The dust spent on the shaping is not refunded.
+				g_logger().debug("{} - Shaping option {} no longer exists; slot (level {}, index {}) falls back to the proficiency file", __FUNCTION__, storedPerk.shapingOptionId, level, index);
+				validPerks.push_back(levelPerks[index]);
+			} else {
+				validPerks.push_back(buildShapedPerk(*option, storedPerk.rank, storedPerk.level, storedPerk.index));
+			}
+		} else {
+			validPerks.push_back(levelPerks[index]);
+		}
+
 		usedLevels[level] = true;
 	}
 
@@ -1029,7 +1640,51 @@ void WeaponProficiency::normalizeStoredState(uint16_t weaponId) {
 		playerProficiencyIt->second.mastered = playerProficiencyIt->second.experience >= maxExperience;
 	}
 
-	playerProficiencyIt->second.perks = collectValidSelectedPerks(weaponId);
+	pruneStoredPerks(weaponId);
+}
+
+// What normalizeStoredState persists, as opposed to what collectValidSelectedPerks
+// returns. The difference matters: collectValidSelectedPerks rebuilds every perk for
+// applying and displaying, and a shaped perk whose option is missing falls back to
+// the proficiency file there. Writing that rebuilt list back to storage would make
+// the fallback permanent - a shaping.json that failed to deploy, or an option pulled
+// for one reload, would silently erase the optionId and rank of every player who had
+// one, with no refund and no way back.
+//
+// So this prunes and nothing else: entries pointing at a level or index the
+// proficiency file no longer has, and duplicate selections on one level, go. The
+// shaping identity - shaped, shapingOptionId, rank - is never touched.
+void WeaponProficiency::pruneStoredPerks(uint16_t weaponId) {
+	if (!isValidWeaponId(weaponId)) {
+		return;
+	}
+
+	const auto playerProficiencyIt = proficiency.find(weaponId);
+	if (playerProficiencyIt == proficiency.end()) {
+		return;
+	}
+
+	const auto profIt = proficiencies.find(Item::items[weaponId].proficiencyId);
+	if (profIt == proficiencies.end()) {
+		return;
+	}
+
+	const auto &proficiencyInfo = profIt->second;
+	std::vector<bool> usedLevels(proficiencyInfo.level.size(), false);
+
+	std::erase_if(playerProficiencyIt->second.perks, [&](const auto &perk) {
+		const auto level = static_cast<size_t>(perk.level);
+		if (level >= proficiencyInfo.level.size() || usedLevels[level]) {
+			return true;
+		}
+
+		if (static_cast<size_t>(perk.index) >= proficiencyInfo.level[level].perks.size()) {
+			return true;
+		}
+
+		usedLevels[level] = true;
+		return false;
+	});
 }
 
 void WeaponProficiency::addStat(WeaponProficiencyBonus_t type, double_t value) {

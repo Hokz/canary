@@ -161,6 +161,110 @@ recomputed, and a stored selection pointing at a level or a perk index your edit
 removed is dropped. Nothing faults, and nothing stale is written back by the
 next save.
 
+## 5.1 Perk shaping — `data/items/proficiencies/shaping/`
+
+The Summer Update 2026 (15.30) lets a player replace the perk in up to two slots of
+a weapon's proficiency tree, then refine, reshape or clear it. All of it is driven by
+`shaping.json`: costs, requirements, which effects may be rolled and what each is
+worth at every rank. Changing any of that is a data edit followed by
+`/reload proficiencies` — never a rebuild.
+
+If the file is absent the feature is simply off, and the server logs
+`Weapon proficiency shaping is not configured`. It is loaded and published in the
+same step as the proficiency tree, so a broken `shaping.json` leaves *both* the tree
+and the previous rules untouched.
+
+### The four operations
+
+| Operation | What it does |
+|---|---|
+| **Shape** | Replaces the slot's perk with a rolled effect, at rank 0 (its lowest value) |
+| **Refine** | Raises that perk's rank one step, up to the option's maximum |
+| **Reshape** | Offers `Reshape.OptionCount` alternatives at the current rank; keeping the current one is always allowed. The offer is **derived from the perk's `reshapeSeed`**, not drawn fresh, so the server can re-derive the same alternatives when the player answers and refuse (`NotOffered`) an option it never showed |
+| **Clear** | Restores the slot to the perk the proficiency file defines |
+
+`Slots` is listed in order from `Slot: 0` and the engine addresses slots by position,
+so the order is part of the contract — the loader refuses a file that numbers them
+any other way. Per the official behaviour, the first slot needs a proficiency level
+and the second needs the weapon mastered.
+
+`Refine.DustCostPerRank` is indexed by the rank being *bought*: entry 3 is the cost
+of going from rank 2 to rank 3, and entry 0 is unused. It must be at least as long
+as the longest `ValuePerRank`, or the top ranks could never be bought — the validator
+fails on that.
+
+`Options[].ValuePerRank` is indexed by rank, entry 0 being what a freshly shaped slot
+rolls. Tables may differ in length, so each option carries its own maximum rank.
+Values must never decrease as the rank rises. `Weight` is the relative draw chance
+and must be above 0.
+
+> The numeric values shipped today are **placeholders** for everything the update
+> notes do not state outright. Sourced: two slots, 250 dust at proficiency level 3,
+> 1000 dust at mastery, rank 0 on a fresh shape, three reshape options, a rising
+> refine curve, protection zone only. Everything else — the refine curve itself, the
+> reshape and clear costs, the option list and every value — is waiting on the
+> official Perk Shaping Options table.
+
+### How a shaped perk is stored
+
+What is stored for a shaped perk is its **identity**, never its effect:
+
+| Stored | Meaning |
+|---|---|
+| `level`, `index` | which slot of the proficiency tree it replaces |
+| `shaped` | that this slot was shaped at all |
+| `shapingOptionId` | which option was rolled — the `Id` from `shaping.json` |
+| `rank` | how far it has been refined |
+| `shapingSlot` | which shaping slot was bought, so clearing and re-shaping re-buys *that* slot rather than whichever is next by count |
+| `reshapeSeed` | seeds the reshape offer, so the same three alternatives come back when the player answers |
+
+Everything the perk actually *does* — its value, type, element, skill, spell, range,
+augment — is rebuilt from the current shaping option on **every read**, through
+`WeaponProficiency::buildShapedPerk`. The perk is never replayed from storage.
+
+That is what keeps the data authoritative. Edit a `ValuePerRank` and the next read of
+a perk a player already owns reflects it; there is no migration and nothing to
+back-fill. The alternative — storing the computed effect — would freeze it at the
+moment it was rolled, and a balance change would only ever reach new perks.
+
+The reconciliation runs on login, on `/reload proficiencies`, and on every read:
+
+- **Option removed from the file** → the slot falls back to the perk the proficiency
+  file defines there, which is exactly what Clear produces. The player loses the
+  shaping. **Dust is not refunded.**
+- **Rank above the option's new maximum** → clamped down to the new maximum. A
+  shorter `ValuePerRank` can never leave anyone holding a value that no longer exists.
+- **Any other field changed** → rebuilt from the option, so it takes effect at once.
+- **`shaped` with no option id** → the one thing that cannot be rebuilt, so the perk
+  is demoted to a normal selection and the slot falls back to the file.
+
+Reconciliation decides what a perk **does**; it never decides what is **stored**. What
+gets written back is only ever pruned — entries pointing at a level or index the
+proficiency file no longer has. `shaped`, `shapingOptionId` and `rank` are never
+rewritten by it. The distinction is load-bearing: a `shaping.json` that failed to
+deploy makes every option lookup miss, and persisting that fallback would erase the
+identity of every shaped perk on the server, with no refund and no way back. A missing
+file switches the feature off; it does not delete anything.
+
+Rearranging the perk tree does not touch shaping either. The `0x02` and `0x03` actions
+clear the player's **selections**, and `clearSelectedPerks` leaves shaped perks where
+they are — only Clear removes a shaping, and only through `clearShapedPerk`.
+
+A shaped perk still has to occupy a slot the file still has. If a balance pass deletes
+the level or the perk it was shaped over, the shaped perk goes with it, exactly like
+any other selection.
+
+### Why options carry an `Id`
+
+`shapingOptionId` stores the option's `Id`, **never its position in the array**. If
+identity depended on position, reordering `shaping.json` — a harmless-looking edit —
+would silently convert every perk players had rolled from one option into another.
+
+So `Id` is required, must be unique and non-zero, and is rejected at load otherwise.
+The one rule the tooling cannot enforce: **never reuse an `Id`**. Deleting an option
+and giving its number to a different one converts every perk rolled from the old one,
+silently and irreversibly.
+
 ### Before committing a balance change
 
 ```

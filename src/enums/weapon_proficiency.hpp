@@ -96,6 +96,32 @@ struct ProficiencyPerk {
 	uint8_t level = 0;
 	uint8_t index = 0;
 
+	// A shaped perk replaced the one the proficiency file defines at (level, index).
+	// What is stored for it is its IDENTITY, not its effect: which shaping option was
+	// rolled and at what rank. Everything else below - value, type, element, skill,
+	// spell, range, augment - is rebuilt from the current shaping rules on every read,
+	// exactly like a normal selection is rebuilt from the proficiency file. Storing
+	// the computed effect instead would freeze it: a balance change to ValuePerRank
+	// would never reach a player who already owns the perk.
+	//
+	// shapingOptionId is the option's stable Id from shaping.json, never its position
+	// in the array, so reordering the file cannot silently repoint a player's perk.
+	// 0 means the perk is not shaped.
+	bool shaped = false;
+	uint16_t shapingOptionId = 0;
+	uint8_t rank = 0;
+
+	// Which shaping slot this perk bought. Slots differ in price and requirement, so
+	// clearing the cheap one and shaping again has to re-buy that same slot rather
+	// than whichever is next by count.
+	uint8_t shapingSlot = 0;
+
+	// Seeds the reshape offer. The three alternatives a reshape shows are derived
+	// from this rather than drawn fresh on every call, so the server can re-derive
+	// the same three when the player answers and reject an option that was never
+	// offered. Bumped after each completed reshape so the next offer differs.
+	uint32_t reshapeSeed = 0;
+
 	double_t value = 0.0;
 
 	uint16_t spellId = 0;
@@ -106,6 +132,105 @@ struct ProficiencyPerk {
 	skills_t skillId = SKILL_NONE;
 	CombatType_t element = COMBAT_NONE;
 	WeaponProficiencyBonus_t type = WeaponProficiencyBonus_t::ATTACK_DAMAGE;
+};
+
+// Everything the perk shaping systems (Shape, Refine, Reshape, Clear) need is data,
+// not code: which effects may be rolled, what each is worth at every rank, what each
+// operation costs, and what each slot requires. It lives in
+// data/items/proficiencies/shaping.json so balancing never needs a rebuild.
+// Why a shaping operation was refused. Everything the player could have done wrong
+// gets its own value so the caller can say which rule stopped them, rather than a
+// bare failure.
+enum class ProficiencyShapingResult : uint8_t {
+	Success,
+	NotConfigured, // the server ships no shaping.json
+	InvalidWeapon,
+	NoProficiencyData, // the player has never used this weapon
+	LevelLocked, // that tree level is not unlocked yet
+	InvalidPerkIndex,
+	AlreadyShaped, // use refine or reshape on a slot that is already shaped
+	NotShaped, // refine, reshape and clear need a shaped slot
+	NoSlotsLeft, // every shaping slot the rules define is already in use
+	ProficiencyTooLow,
+	NotMastered,
+	NotInProtectionZone,
+	NotEnoughDust,
+	AtMaximumRank,
+	RefineDisabled, // the rules define no cost for the next rank
+	NotOffered, // the option named was not one of the three the reshape offered
+	UnknownOption,
+};
+
+struct ProficiencyShapingOption {
+	// Stable identity, assigned by hand in shaping.json and never reused. A player's
+	// shaped perk stores this, so an option keeps its meaning however the file is
+	// reordered, and removing an option is detectable rather than silent.
+	uint16_t id = 0;
+
+	WeaponProficiencyBonus_t type = WeaponProficiencyBonus_t::ATTACK_DAMAGE;
+
+	// Relative draw weight. A roll picks among the options whose requirements the
+	// weapon meets, proportionally to this.
+	uint32_t weight = 1;
+
+	// Index 0 is rank 0, the value a freshly shaped slot rolls in at. The table's
+	// size is that option's maximum rank, which may be lower than the global one.
+	std::vector<double_t> valuePerRank = {};
+
+	// Only meaningful for the perk types that carry them; left at the neutral value
+	// otherwise, exactly as a perk read from a proficiency file would be.
+	uint16_t spellId = 0;
+	uint8_t range = 0;
+	uint16_t bestiaryId = 0;
+	std::string bestiaryName = "";
+	uint8_t augmentType = 0;
+	skills_t skillId = SKILL_NONE;
+	CombatType_t element = COMBAT_NONE;
+
+	[[nodiscard]] uint8_t maxRank() const {
+		return valuePerRank.empty() ? 0 : static_cast<uint8_t>(valuePerRank.size() - 1);
+	}
+};
+
+struct ProficiencyShapingSlot {
+	uint8_t slot = 0;
+	uint64_t unlockDustCost = 0;
+	uint8_t requiredProficiencyLevel = 0;
+	bool requiresMastery = false;
+};
+
+struct ProficiencyShapingRules {
+	// Index is the rank being bought, so entry 0 is unused and entry 3 is what it
+	// costs to go from rank 2 to rank 3. An empty table disables refining.
+	std::vector<uint64_t> refineDustCostPerRank = {};
+
+	uint64_t reshapeDustCost = 0;
+	uint8_t reshapeOptionCount = 3;
+	uint64_t clearDustCost = 0;
+
+	// Shaping is only allowed inside a protection zone, as on the official servers.
+	bool requiresProtectionZone = true;
+
+	std::vector<ProficiencyShapingSlot> slots = {};
+	std::vector<ProficiencyShapingOption> options = {};
+
+	[[nodiscard]] bool empty() const {
+		return options.empty() || slots.empty();
+	}
+
+	[[nodiscard]] const ProficiencyShapingOption* findOption(uint16_t optionId) const {
+		if (optionId == 0) {
+			return nullptr;
+		}
+
+		for (const auto &option : options) {
+			if (option.id == optionId) {
+				return &option;
+			}
+		}
+
+		return nullptr;
+	}
 };
 
 struct ProficiencyLevel {

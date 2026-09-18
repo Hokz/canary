@@ -3113,9 +3113,18 @@ void ProtocolGame::parseWeaponProficiency(NetworkMessage &msg) {
 		case 0x02:
 			if (isEquippedWeapon) {
 				player->weaponProficiency().clearAllStats();
+			}
+
+			player->weaponProficiency().clearSelectedPerks(weaponId);
+
+			// clearSelectedPerks keeps shaped perks - they were paid for in dust and
+			// this action is just the player emptying the perk tree. Their stats went
+			// out with clearAllStats above, so they have to be put back, exactly as
+			// the 0x03 action does after rebuilding its selection.
+			if (isEquippedWeapon) {
+				player->weaponProficiency().applyPerks(weaponId);
 				player->sendSkills();
 			}
-			player->weaponProficiency().clearSelectedPerks(weaponId);
 			break;
 		case 0x03: {
 			if (isEquippedWeapon) {

@@ -21,6 +21,9 @@ class ValueWrapper;
 
 struct WeaponProficiencyData;
 struct Proficiency;
+struct ProficiencyShapingRules;
+struct ProficiencyShapingOption;
+enum class ProficiencyShapingResult : uint8_t;
 
 class WeaponProficiency {
 public:
@@ -29,6 +32,23 @@ public:
 	[[nodiscard]] static bool loadFromJson(bool reload = false);
 
 	[[nodiscard]] static std::unordered_map<uint16_t, Proficiency> &getProficiencies();
+
+	// Shaping rules are loaded from data/items/proficiencies/shaping/shaping.json by
+	// the same call that loads the proficiency tree, so `/reload proficiencies`
+	// refreshes both. Empty rules mean the feature is not configured on this server.
+	[[nodiscard]] static const ProficiencyShapingRules &getShapingRules();
+
+	// The alternatives a reshape offers for a given shaped perk. Derived from the
+	// perk's stored seed rather than drawn fresh, so calling it twice gives the same
+	// answer - which is what lets reshapePerk reject an option it never offered.
+	// Public and static for the same reason buildShapedPerk is: it is the one
+	// definition of the rule, and a test can reach it without a loaded item list.
+	[[nodiscard]] static std::vector<uint16_t> reshapeOptionsFor(const ProficiencyShapingRules &rules, const ProficiencyPerk &perk);
+
+	// The one way a shaped perk is ever built. Every read rebuilds through this, so a
+	// change to shaping.json reaches perks players already own; the shaping operations
+	// will build through it too, so a rolled perk and a reloaded one cannot diverge.
+	[[nodiscard]] static ProficiencyPerk buildShapedPerk(const ProficiencyShapingOption &option, uint8_t rank, uint8_t level, uint8_t index);
 
 	void load();
 	void save(uint16_t weaponId) const;
@@ -44,6 +64,27 @@ public:
 
 	void applyPerks(uint16_t weaponId, bool sendSkillUpdate = true);
 	void onDataReloaded();
+
+	// The four perk shaping operations. All of them read their costs and requirements
+	// from shaping.json, charge dust on success, persist, and re-apply if the weapon
+	// is in hand. They are the whole of the feature's rules; the protocol layer only
+	// has to call them and report what came back.
+	//
+	// A slot is addressed by (weaponId, level): the tree allows one selected perk per
+	// level, so that pair names it. Which shaping slot is being bought - and therefore
+	// what it costs and requires - follows from how many perks on the weapon are
+	// already shaped.
+	ProficiencyShapingResult shapePerk(uint16_t weaponId, uint8_t level, uint8_t perkIndex);
+	ProficiencyShapingResult refinePerk(uint16_t weaponId, uint8_t level);
+	ProficiencyShapingResult reshapePerk(uint16_t weaponId, uint8_t level, uint16_t optionId);
+	ProficiencyShapingResult clearShapedPerk(uint16_t weaponId, uint8_t level);
+
+	// The alternatives a reshape offers, at the perk's current rank. Keeping the
+	// current perk is always allowed, so it is never among them.
+	[[nodiscard]] std::vector<uint16_t> rollReshapeOptions(uint16_t weaponId, uint8_t level) const;
+
+	[[nodiscard]] uint8_t countShapedPerks(uint16_t weaponId) const;
+	[[nodiscard]] size_t firstFreeShapingSlot(uint16_t weaponId) const;
 	std::vector<ProficiencyPerk> getSelectedPerks(uint16_t itemId) const;
 	void clearSelectedPerks(uint16_t weaponId);
 	void setSelectedPerk(uint8_t level, uint8_t perkIndex, uint16_t weaponId = 0);
@@ -130,12 +171,19 @@ private:
 	[[nodiscard]] size_t getUnlockedLevelCount(uint16_t weaponId) const;
 	[[nodiscard]] std::vector<ProficiencyPerk> collectValidSelectedPerks(uint16_t weaponId) const;
 	void normalizeStoredState(uint16_t weaponId);
+	void pruneStoredPerks(uint16_t weaponId);
+
+	[[nodiscard]] ProficiencyPerk* findStoredPerk(uint16_t weaponId, uint8_t level);
+	[[nodiscard]] const ProficiencyPerk* findStoredPerk(uint16_t weaponId, uint8_t level) const;
+	[[nodiscard]] ProficiencyShapingResult checkShapingPreconditions(uint16_t weaponId, uint8_t level) const;
+	void commitShapingChange(uint16_t weaponId);
 
 	Player &m_player;
 
 	std::unordered_map<uint16_t, WeaponProficiencyData> proficiency;
 
 	static std::unordered_map<uint16_t, Proficiency> proficiencies;
+	static ProficiencyShapingRules shapingRules;
 
 	static std::vector<uint32_t> crossbowExperience;
 	static std::vector<uint32_t> standardExperience;

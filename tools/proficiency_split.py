@@ -37,6 +37,7 @@ OUT_DIR = REPO_ROOT / "data" / "items" / "proficiencies"
 PROTO_FILE = REPO_ROOT / "src" / "protobuf" / "appearances.proto"
 
 SCHEMA_NAME = "proficiencies.schema.json"
+SHAPING_JSON = OUT_DIR / "shaping" / "shaping.json"
 
 # WeaponProficiencyBonus_t - src/enums/weapon_proficiency.hpp
 BONUS_TYPES = {
@@ -374,6 +375,137 @@ def _iter_generated() -> Iterable[tuple[Path, dict]]:
         yield path, json.loads(path.read_text(encoding="utf-8"))
 
 
+# The bonus types whose effect is addressed by a skill, mirroring skillDependentBonus
+# in src/creatures/players/components/weapon_proficiency.cpp.
+SKILL_ADDRESSED_TYPES = frozenset({3, 25, 26, 27})
+
+
+def validate_shaping(errors: list[str], warnings: list[str]) -> int:
+    """Check the perk shaping rules the same way the proficiency files are checked.
+
+    The engine rejects what would crash or silently do nothing; this catches what
+    would merely be wrong - a mislabelled Type, a Unit that contradicts the Value,
+    a rank table that gets worse as it goes up, a refine curve too short to reach
+    an option's maximum rank. Returns how many options were checked.
+    """
+    if not SHAPING_JSON.exists():
+        return 0
+
+    rel = SHAPING_JSON.relative_to(REPO_ROOT)
+    payload = json.loads(SHAPING_JSON.read_text(encoding="utf-8"))
+
+    for position, slot in enumerate(payload.get("Slots", [])):
+        if slot.get("Slot") != position:
+            errors.append(
+                f"{rel}: slot at position {position} declares Slot {slot.get('Slot')}. "
+                "Slots must be listed in order starting at 0; the engine addresses them by position."
+            )
+
+    refine_costs = payload.get("Refine", {}).get("DustCostPerRank", [])
+    options = payload.get("Options", [])
+    seen_types: dict[int, int] = {}
+
+    seen_ids: dict[int, int] = {}
+
+    for position, option in enumerate(options):
+        option_id = option.get("Id")
+        if not isinstance(option_id, int) or option_id < 1:
+            errors.append(
+                f"{rel}: option at position {position} has Id {option_id!r}. Every option needs a "
+                "unique, non-zero Id: it is what a player's shaped perk stores, so without it the "
+                "only handle would be the array position and reordering the file would repoint perks."
+            )
+        elif option_id in seen_ids:
+            errors.append(
+                f"{rel}: Id {option_id} is used by the options at positions {seen_ids[option_id]} "
+                f"and {position}. Ids must be unique."
+            )
+        else:
+            seen_ids[option_id] = position
+
+        bonus_type = option.get("Type")
+        expected_name = BONUS_TYPES.get(bonus_type)
+        if expected_name is None:
+            errors.append(f"{rel}: unknown perk Type {bonus_type}")
+            continue
+
+        seen_types[bonus_type] = seen_types.get(bonus_type, 0) + 1
+
+        if option.get("TypeName") != expected_name:
+            errors.append(
+                f"{rel}: Type {bonus_type} is {expected_name}, but TypeName says {option.get('TypeName')!r}"
+            )
+
+        # Types 3, 25, 26 and 27 are addressed by skill. The engine now refuses one
+        # without a SkillId, because the perk would apply to nothing and a player who
+        # rolled it would pay for silence. Catch it here too, before it ships.
+        if bonus_type in SKILL_ADDRESSED_TYPES and not isinstance(option.get("SkillId"), int):
+            errors.append(
+                f"{rel}: Type {bonus_type} ({expected_name}) needs a SkillId. Without one the "
+                "bonus is filed under SKILL_NONE and never read, so the option would roll a "
+                "perk that does nothing."
+            )
+
+        values = option.get("ValuePerRank", [])
+        if len(values) > 256:
+            errors.append(
+                f"{rel}: option Id {option_id} has {len(values)} ValuePerRank entries; the "
+                "maximum is 256, because rank is a uint8_t and the cast would truncate."
+            )
+
+        expected_unit = unit_for(option)
+        if option.get("Unit") != expected_unit:
+            errors.append(
+                f"{rel}: Type {bonus_type} takes a {expected_unit} Value, "
+                f"but Unit says {option.get('Unit')!r}"
+            )
+
+        if not option.get("Weight", 1):
+            errors.append(f"{rel}: Type {bonus_type} has Weight 0 and could never be rolled")
+
+        values = option.get("ValuePerRank", [])
+        if not values:
+            errors.append(f"{rel}: Type {bonus_type} has an empty ValuePerRank")
+            continue
+
+        for rank in range(1, len(values)):
+            if values[rank] < values[rank - 1]:
+                errors.append(
+                    f"{rel}: Type {bonus_type} ValuePerRank drops from {values[rank - 1]} at rank "
+                    f"{rank - 1} to {values[rank]} at rank {rank}. Refining must not make a perk worse."
+                )
+
+        max_rank = len(values) - 1
+        if max_rank and len(refine_costs) <= max_rank:
+            errors.append(
+                f"{rel}: Type {bonus_type} goes up to rank {max_rank}, but Refine.DustCostPerRank "
+                f"only has {len(refine_costs)} entries, so that rank can never be bought."
+            )
+
+        ceiling = VALUE_CEILINGS.get(bonus_type)
+        if ceiling is not None and values[-1] > ceiling:
+            warnings.append(
+                f"{rel}: Type {bonus_type} ({expected_name}) tops out at {values[-1]}, above the current "
+                f"ceiling {ceiling}. Intentional, or a misplaced decimal? Raise VALUE_CEILINGS if intentional."
+            )
+
+    for bonus_type, count in seen_types.items():
+        if count > 1:
+            warnings.append(
+                f"{rel}: Type {bonus_type} ({BONUS_TYPES.get(bonus_type)}) is listed {count} times. "
+                "Fine if the entries differ by SpellId, ElementId or SkillId; otherwise they compete for the same roll."
+            )
+
+    for rank in range(1, len(refine_costs)):
+        if refine_costs[rank] < refine_costs[rank - 1]:
+            warnings.append(
+                f"{rel}: Refine.DustCostPerRank falls from {refine_costs[rank - 1]} at rank {rank - 1} "
+                f"to {refine_costs[rank]} at rank {rank}. Each step is meant to cost more than the last."
+            )
+
+    return len(options)
+
+
 def validate() -> int:
     errors: list[str] = []
     warnings: list[str] = []
@@ -459,11 +591,16 @@ def validate() -> int:
         if missing:
             errors.append(f"ProficiencyIds lost during the split: {sorted(missing)}")
 
+    shaping_options = validate_shaping(errors, warnings)
+
     for warning in warnings:
         print(f"WARN  {warning}")
     for error in errors:
         print(f"ERROR {error}")
-    print(f"\n{len(seen)} distinct proficiencies checked, {len(errors)} errors, {len(warnings)} warnings")
+    print(
+        f"\n{len(seen)} distinct proficiencies and {shaping_options} shaping options checked, "
+        f"{len(errors)} errors, {len(warnings)} warnings"
+    )
     return 1 if errors else 0
 
 

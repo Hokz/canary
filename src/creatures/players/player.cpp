@@ -11778,7 +11778,17 @@ void Player::addForgeDusts(uint64_t amount) {
 }
 
 void Player::removeForgeDusts(uint64_t amount) {
-	forgeDusts = std::max<uint64_t>(0, forgeDusts - amount);
+	// forgeDusts is unsigned: subtracting more than the player holds wraps around to
+	// a near-maximum value instead of going negative, and clamping afterwards cannot
+	// tell that apart from a legitimate balance. Every caller is expected to check
+	// the balance first, so reaching here short is a bug - log it and zero out rather
+	// than hand the player ~1.8e19 dust.
+	if (amount > forgeDusts) {
+		g_logger().error("{} - Tried to remove {} dust from player '{}' who only has {}", __FUNCTION__, amount, getName(), forgeDusts);
+		forgeDusts = 0;
+	} else {
+		forgeDusts -= amount;
+	}
 	if (client) {
 		client->sendResourcesBalance(getMoney(), getBankBalance(), getPreyCards(), getTaskHuntingPoints(), getForgeDusts());
 	}
@@ -11796,7 +11806,13 @@ void Player::addForgeDustLevel(uint64_t amount) {
 }
 
 void Player::removeForgeDustLevel(uint64_t amount) {
-	forgeDustLevel = std::max<uint64_t>(0, forgeDustLevel - amount);
+	// Same unsigned wrap-around as removeForgeDusts.
+	if (amount > forgeDustLevel) {
+		g_logger().error("{} - Tried to remove {} dust levels from player '{}' who only has {}", __FUNCTION__, amount, getName(), forgeDustLevel);
+		forgeDustLevel = 0;
+	} else {
+		forgeDustLevel -= amount;
+	}
 	if (client) {
 		client->sendResourcesBalance(getMoney(), getBankBalance(), getPreyCards(), getTaskHuntingPoints(), getForgeDusts());
 	}

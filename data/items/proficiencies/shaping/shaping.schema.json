@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Weapon proficiency perk shaping rules",
+  "description": "Costs, requirements and rollable effects for Shape, Refine, Reshape and Clear. Semantics are enforced by 'python -m tools.proficiency_split validate', which the Repository Audit job runs on every change; this schema is for editor autocomplete.",
+  "type": "object",
+  "required": ["Slots", "Options"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "_comment": {
+      "description": "Free-form notes. Ignored by the engine and by the validator.",
+      "type": ["array", "string"],
+      "items": { "type": "string" }
+    },
+    "RequiresProtectionZone": {
+      "description": "Whether shaping operations are restricted to protection zones, as on the official servers. Defaults to true.",
+      "type": "boolean"
+    },
+    "Slots": {
+      "description": "The shapeable slots on every weapon, listed in order starting at Slot 0. The engine addresses them by position, so the order is part of the contract.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["Slot"],
+        "additionalProperties": false,
+        "properties": {
+          "Slot": { "type": "integer", "minimum": 0, "maximum": 255 },
+          "UnlockDustCost": { "type": "integer", "minimum": 0 },
+          "RequiredProficiencyLevel": {
+            "description": "Minimum proficiency level on the weapon before this slot can be shaped.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "RequiresMastery": {
+            "description": "Whether the weapon must be mastered before this slot can be shaped.",
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "Refine": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "DustCostPerRank": {
+          "description": "Indexed by the rank being bought, so entry 3 is the cost of going from rank 2 to rank 3. Entry 0 is unused. Must be at least as long as the longest ValuePerRank, or the top ranks can never be bought. An empty list disables refining.",
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "Reshape": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "DustCost": { "type": "integer", "minimum": 0 },
+        "OptionCount": {
+          "description": "How many alternatives a reshape offers. The player may always keep the current perk instead.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 255
+        }
+      }
+    },
+    "Clear": {
+      "description": "Restoring the slot to the perk the proficiency file defines.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "DustCost": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "Options": {
+      "description": "The effects a shape or reshape may roll.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["Id", "Type", "ValuePerRank"],
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "description": "Stable identity. A player's shaped perk stores this, never the array position, so the file can be reordered freely. Must be unique and non-zero, and must NEVER be reused for a different option: that would silently convert every perk players rolled from the old one.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "Type": {
+            "description": "A WeaponProficiencyBonus_t (src/enums/weapon_proficiency.hpp).",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31
+          },
+          "TypeName": {
+            "description": "Documentation only. The validator checks it against Type.",
+            "type": "string"
+          },
+          "Unit": {
+            "description": "Documentation only, checked against Type. Percent values are FRACTIONS: 0.10 is 10%.",
+            "type": "string",
+            "enum": ["flat", "percent", "milliseconds"]
+          },
+          "Weight": {
+            "description": "Relative draw chance among the options a roll may pick from. Must be above 0, or the option could never be rolled.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "ValuePerRank": {
+            "description": "Indexed by rank. Entry 0 is what a freshly shaped slot rolls; the last entry is this option's maximum rank. Must never decrease as the rank goes up.",
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "number" }
+          },
+          "SpellId": { "type": "integer", "minimum": 0, "maximum": 65535 },
+          "AugmentName": { "type": "string" },
+          "AugmentType": { "type": "integer", "minimum": 0, "maximum": 255 },
+          "Range": { "type": "integer", "minimum": 0, "maximum": 255 },
+          "BestiaryId": { "type": "integer", "minimum": 0, "maximum": 65535 },
+          "BestiaryName": { "type": "string" },
+          "SkillId": {
+            "description": "A CipbiaSkills_t, NOT the server's skills_t. REQUIRED for Type 3, 25, 26 and 27: those bonuses are addressed by skill, and without one the perk applies to nothing and is rejected at load. An id outside the Cipbia set is rejected too.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "SkillName": { "type": "string" },
+          "ElementId": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}
