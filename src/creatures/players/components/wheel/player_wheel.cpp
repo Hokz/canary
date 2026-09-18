@@ -3001,13 +3001,15 @@ bool PlayerWheel::checkCombatMastery() {
 
 	const auto &item = m_player.getWeapon();
 	if (item && item->getSlotPosition() & SLOTP_TWO_HAND) {
+		// Post-July 15.25: 10 / 12 / 14 percent by stage, in basis points. Was
+		// 4 / 8 / 12, so stage 1 gains the most and the spread between stages narrows.
 		int32_t criticalSkill = 0;
 		if (stage >= 3) {
-			criticalSkill = 1200;
+			criticalSkill = 1400;
 		} else if (stage >= 2) {
-			criticalSkill = 800;
+			criticalSkill = 1200;
 		} else if (stage >= 1) {
-			criticalSkill = 400;
+			criticalSkill = 1000;
 		}
 
 		updateClient |= applyConditionalMajorStat(WheelMajor_t::CRITICAL_DMG_2, criticalSkill);
@@ -3274,8 +3276,11 @@ int32_t PlayerWheel::checkDrainBodyLeech(const std::shared_ptr<Creature> &target
 	return 0;
 }
 
+// Battle Healing (post-July 15.25): the Shielding multiplier is 2. It was 0.2, which
+// made the perk worth a handful of hit points a tick at any realistic Shielding.
+// The two low-health tiers below are unchanged.
 int32_t PlayerWheel::checkBattleHealingAmount() const {
-	double amount = static_cast<double>(m_player.getSkillLevel(SKILL_SHIELD)) * 0.2;
+	double amount = static_cast<double>(m_player.getSkillLevel(SKILL_SHIELD)) * 2;
 	const uint8_t healthPercent = (m_player.getHealth() * 100) / m_player.getMaxHealth();
 	if (healthPercent <= 30) {
 		amount *= 3;

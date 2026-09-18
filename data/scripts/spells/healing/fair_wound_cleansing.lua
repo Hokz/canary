@@ -28,7 +28,7 @@ spell:mana(135) -- GLOBAL 2026
 spell:isPremium(true)
 spell:isSelfTarget(true)
 spell:cooldown(1000)
-spell:groupCooldown(1000)
+spell:groupCooldown(2 * 1000) -- GLOBAL 2026: Knight healing group cooldown raised to 2s
 spell:isAggressive(false)
 spell:vocation("knight;true", "elite knight;true")
 

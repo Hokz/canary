@@ -25,7 +25,7 @@ spell:vocation("knight;true", "elite knight;true")
 spell:castSound(SOUND_EFFECT_TYPE_SPELL_INTENSE_WOUND_CLEANSING)
 spell:id(158)
 spell:cooldown(600000) -- 600 sec
-spell:groupCooldown(1000)
+spell:groupCooldown(2 * 1000) -- GLOBAL 2026: Knight healing group cooldown raised to 2s
 spell:level(80)
 spell:mana(300) -- GLOBAL 2026
 spell:isSelfTarget(true)
