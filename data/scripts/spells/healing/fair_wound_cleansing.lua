@@ -4,10 +4,11 @@ combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_MAGIC_BLUE)
 combat:setParameter(COMBAT_PARAM_AGGRESSIVE, false)
 combat:setParameter(COMBAT_PARAM_DISPEL, CONDITION_PARALYZE)
 
-function onGetFormulaValues(_player, level, magicLevel) -- already compared to the official tibia | compared date: 05/07/19(m/d/y)
-	local min = (level * 0.2 + magicLevel * 4 + 25) * 2
-	local max = (level * 0.2 + magicLevel * 7.95 + 51) * 2
-	return min, max
+-- 15.25: Base Power, the level contribution, Shielding and Magic Level.
+-- Every coefficient lives in KnightHealing.spells; see
+-- data/libs/functions/knight_healing.lua for what each one is worth as evidence.
+function onGetFormulaValues(player, _level, magicLevel)
+	return KnightHealing.values("Fair Wound Cleansing", player, magicLevel)
 end
 
 combat:setCallback(CALLBACK_PARAM_LEVELMAGICVALUE, "onGetFormulaValues")
