@@ -60,6 +60,10 @@ private:
 	int32_t loadIntConfig(lua_State* L, const ConfigKey_t &key, const char* identifier, const int32_t &defaultValue);
 	bool loadBoolConfig(lua_State* L, const ConfigKey_t &key, const char* identifier, const bool &defaultValue);
 	float loadFloatConfig(lua_State* L, const ConfigKey_t &key, const char* identifier, const float &defaultValue);
+	// loadFloatConfig for a value that has no meaning below zero. A negative one is
+	// corrected to zero and a non-finite one rejected, both with a warning naming the
+	// identifier, so nothing downstream has to defend against an impossible value.
+	float loadNonNegativeFloatConfig(lua_State* L, const ConfigKey_t &key, const char* identifier, const float &defaultValue);
 
 	std::string configFileLua = { "config.lua" };
 	std::atomic_bool loaded = false;

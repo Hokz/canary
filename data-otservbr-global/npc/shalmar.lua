@@ -64,12 +64,6 @@ node3:addChildKeyword({ "yes" }, StdModule.learnSpell, { npcHandler = npcHandler
 local node4 = keywordHandler:addKeyword({ "restoration" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "Would you like to learn {restoration} magic spell for 500000 gold?" })
 node4:addChildKeyword({ "yes" }, StdModule.learnSpell, { npcHandler = npcHandler, premium = false, spellName = "restoration", vocation = { 1, 2, 5, 6 }, price = 500000, level = 300 })
 
-local node5 = keywordHandler:addKeyword({ "expose weakness" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "Would you like to learn {expose weakness} magic spell for 400000 gold?" })
-node5:addChildKeyword({ "yes" }, StdModule.learnSpell, { npcHandler = npcHandler, premium = false, spellName = "expose weakness", vocation = { 1, 5 }, price = 400000, level = 275 })
-
-local node6 = keywordHandler:addKeyword({ "sap strength" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "Would you like to learn {sap strength} magic spell for 200000 gold?" })
-node6:addChildKeyword({ "yes" }, StdModule.learnSpell, { npcHandler = npcHandler, premium = false, spellName = "sap strength", vocation = { 1, 5 }, price = 200000, level = 175 })
-
 local node7 = keywordHandler:addKeyword({ "strong energy strike" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "Would you like to learn {strong energy strike} magic spell for 7500 gold?" })
 node7:addChildKeyword({ "yes" }, StdModule.learnSpell, { npcHandler = npcHandler, premium = false, spellName = "strong energy strike", vocation = { 1, 5 }, price = 7500, level = 80 })
 
@@ -330,7 +324,7 @@ keywordHandler:addKeyword({ "spells" }, StdModule.say, {
 keywordHandler:addKeyword({ "attack" }, StdModule.say, {
 	npcHandler = npcHandler,
 	onlyFocus = true,
-	text = "My attack spells are: {Apprentice's Strike}, {Buzz}, {Chill Out}, {Creature Illusion}, {Curse}, {Death Strike}, {Electrify}, {Energy Beam}, {Energy Strike}, {Energy Wave}, {Envenom}, {Expose Weakness}, {Fire Wave}, {Flame Strike}, {Great Energy Beam}, {Great Fire Wave}, {Ice Strike}, {Ice Wave}, {Lightning}, {Mud Attack}, {Physical Strike}, {Sap Strength}, {Scorch}, {Strong Energy Strike}, {Strong Flame Strike}, {Strong Ice Strike}, {Strong Ice Wave}, {Strong Terra Strike}, {Terra Strike} and {Terra Wave}.",
+	text = "My attack spells are: {Apprentice's Strike}, {Buzz}, {Chill Out}, {Creature Illusion}, {Curse}, {Death Strike}, {Electrify}, {Energy Beam}, {Energy Strike}, {Energy Wave}, {Envenom}, {Fire Wave}, {Flame Strike}, {Great Energy Beam}, {Great Fire Wave}, {Ice Strike}, {Ice Wave}, {Lightning}, {Mud Attack}, {Physical Strike}, {Scorch}, {Strong Energy Strike}, {Strong Flame Strike}, {Strong Ice Strike}, {Strong Ice Wave}, {Strong Terra Strike}, {Terra Strike} and {Terra Wave}.",
 })
 
 keywordHandler:addKeyword({ "healing" }, StdModule.say, {
@@ -354,13 +348,11 @@ keywordHandler:addKeyword({ "runes" }, StdModule.say, {
 local nodeLevels = keywordHandler:addKeyword({ "level" }, StdModule.say, {
 	npcHandler = npcHandler,
 	onlyFocus = true,
-	text = "I have spells for level {1}, {8}, {9}, {10}, {12}, {13}, {14}, {15}, {16}, {17}, {18}, {20}, {21}, {22}, {23}, {24}, {25}, {26}, {27}, {28}, {29}, {30}, {31}, {32}, {33}, {34}, {35}, {36}, {37}, {38}, {40}, {41}, {45}, {50}, {54}, {55}, {70}, {75}, {80}, {175}, {200}, {275} and {300}.",
+	text = "I have spells for level {1}, {8}, {9}, {10}, {12}, {13}, {14}, {15}, {16}, {17}, {18}, {20}, {21}, {22}, {23}, {24}, {25}, {26}, {27}, {28}, {29}, {30}, {31}, {32}, {33}, {34}, {35}, {36}, {37}, {38}, {40}, {41}, {45}, {50}, {54}, {55}, {70}, {75}, {80}, {200} and {300}.",
 })
 
 nodeLevels:addChildKeyword({ "300" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "For level 300 I have {Nature's Embrace} for 500000 gold and {Restoration} for 500000 gold." })
-nodeLevels:addChildKeyword({ "275" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "For level 275 I have {Expose Weakness} for 400000 gold." })
 nodeLevels:addChildKeyword({ "200" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "For level 200 I have {Summon Druid Familiar} for 50000 gold and {Summon Sorcerer Familiar} for 50000 gold." })
-nodeLevels:addChildKeyword({ "175" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "For level 175 I have {Sap Strength} for 200000 gold." })
 nodeLevels:addChildKeyword({ "80" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "For level 80 I have {Strong Energy Strike} for 7500 gold and {Strong Ice Strike} for 6000 gold." })
 nodeLevels:addChildKeyword({ "75" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "For level 75 I have {Curse} for 6000 gold." })
 nodeLevels:addChildKeyword({ "70" }, StdModule.say, { npcHandler = npcHandler, onlyFocus = true, text = "For level 70 I have {Strong Flame Strike} for 6000 gold and {Strong Terra Strike} for 6000 gold." })

@@ -3248,6 +3248,9 @@ function Player:getBaseMaxMana() end
 ---@return number|nil
 function Player:getBaseXpGain() end
 
+---@return number|nil
+function Player:getBeamMasteryAdjacentDamage() end
+
 ---@param index number
 ---@param storeCount? boolean
 ---@return number|nil
@@ -3306,6 +3309,9 @@ function Player:getDepotChest(depotId, autoCreate) end
 ---@param depotId number
 ---@return boolean|nil|Item
 function Player:getDepotLocker(depotId) end
+
+---@return number|nil
+function Player:getEffectiveShieldDefense() end
 
 ---@param skillType any
 ---@return number|nil

@@ -9,8 +9,9 @@
 -- the debuff and never stacks it. Its duration (10s) is not proven and is stated
 -- as such there.
 --
--- Replaces the targeted Sap Strength spell of earlier versions; that script is left in
--- place untouched, since removing a spell players may have is a separate decision.
+-- Replaces the targeted Sap Strength spell of earlier versions, which is retired: its
+-- script and every NPC that taught it are gone, and the Sorcerer Wheel slot that used
+-- to grant it grants this stance instead.
 local function build()
 	return Stance.condition(AttrSubId_StanceSappedStrength, function(condition) end)
 end

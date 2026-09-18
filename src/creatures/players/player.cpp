@@ -16,6 +16,7 @@
 #include "creatures/appearance/attached_effects/attached_effects.hpp"
 #include "creatures/combat/combat.hpp"
 #include "creatures/combat/condition.hpp"
+#include "creatures/combat/effective_combat_values.hpp"
 #include "creatures/interactions/chat.hpp"
 #include "creatures/monsters/monster.hpp"
 #include "creatures/monsters/monsters.hpp"
@@ -333,6 +334,44 @@ void Player::setItemAbility(Slots_t slot, bool enabled) {
 
 void Player::setVarSkill(skills_t skill, int32_t modifier) {
 	varSkills[skill] += modifier;
+	refreshPercentSkillRecipes();
+}
+
+void Player::addPercentDerivedSkill(skills_t skill, int32_t modifier) {
+	varSkills[skill] += modifier;
+	varSkillsFromPercent[skill] += modifier;
+}
+
+void Player::refreshPercentSkillRecipes() {
+	if (rederivePercentSkillRecipes()) {
+		sendSkills();
+	}
+}
+
+bool Player::rederivePercentSkillRecipes() {
+	// A recipe being re-derived writes through addPercentDerivedSkill, never through
+	// setVarSkill, so this cannot recurse; the guard is for a flat recipe on the
+	// same condition being applied while its neighbours are re-derived.
+	if (refreshingPercentSkillRecipes) {
+		return false;
+	}
+
+	const auto attributeConditions = getConditionsByType(CONDITION_ATTRIBUTES);
+	if (attributeConditions.empty()) {
+		return false;
+	}
+
+	refreshingPercentSkillRecipes = true;
+	bool changed = false;
+	for (const auto &condition : attributeConditions) {
+		const auto attributes = std::dynamic_pointer_cast<ConditionAttributes>(condition);
+		if (attributes && attributes->reapplyPercentSkills(static_self_cast<Player>())) {
+			changed = true;
+		}
+	}
+	refreshingPercentSkillRecipes = false;
+
+	return changed;
 }
 
 uint16_t Player::getRangedDodgeChance() const {
@@ -354,6 +393,21 @@ void Player::setVarElementCritical(CombatType_t combat, int32_t chanceModifier, 
 
 bool Player::hasStance(AttrSubId_t stance) const {
 	return getCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, magic_enum::enum_integer(stance)) != nullptr;
+}
+
+CombatType_t Player::getElementalStanceElement() const {
+	static constexpr std::array<std::pair<AttrSubId_t, CombatType_t>, 3> elementalStances = { {
+		{ AttrSubId_t::StanceMasterOfFlames, COMBAT_FIREDAMAGE },
+		{ AttrSubId_t::StanceMasterOfThunder, COMBAT_ENERGYDAMAGE },
+		{ AttrSubId_t::StanceMasterOfDecay, COMBAT_DEATHDAMAGE },
+	} };
+
+	for (const auto &[subId, element] : elementalStances) {
+		if (hasStance(subId)) {
+			return element;
+		}
+	}
+	return COMBAT_NONE;
 }
 
 bool Player::applySharedConservationSelfHeal(const std::shared_ptr<Creature> &target, CombatDamage &damage) const {
@@ -651,26 +705,30 @@ uint16_t Player::calculateFlatDamageHealing() const {
 }
 
 uint16_t Player::attackTotal(uint16_t flatBonus, uint16_t equipment, uint16_t skill) const {
-	double fightFactor = 0;
-	switch (fightMode) {
-		case FIGHTMODE_ATTACK: {
-			fightFactor = 1.2f * equipment;
-			break;
-		}
+	// On the modern model the equipment counts as it is; the fight mode weighting
+	// below belongs to the pre-15.25 client only.
+	double fightFactor = 1.0f * equipment;
+	if (!usesModernCombatModel()) {
+		switch (fightMode) {
+			case FIGHTMODE_ATTACK: {
+				fightFactor = 1.2f * equipment;
+				break;
+			}
 
-		case FIGHTMODE_BALANCED: {
-			fightFactor = 1.0f * equipment;
-			break;
-		}
+			case FIGHTMODE_BALANCED: {
+				fightFactor = 1.0f * equipment;
+				break;
+			}
 
-		case FIGHTMODE_DEFENSE: {
-			fightFactor = 0.6f * equipment;
-			break;
-		}
+			case FIGHTMODE_DEFENSE: {
+				fightFactor = 0.6f * equipment;
+				break;
+			}
 
-		default: {
-			fightFactor = 1.0f * equipment;
-			break;
+			default: {
+				fightFactor = 1.0f * equipment;
+				break;
+			}
 		}
 	}
 
@@ -764,7 +822,7 @@ void Player::getShieldAndWeapon(std::shared_ptr<Item> &shield, std::shared_ptr<I
 				break;
 
 			case WEAPON_SHIELD: {
-				if (!shield || (shield && item->getDefense() > shield->getDefense())) {
+				if (!shield || getEffectiveOffhandDefense(item) > getEffectiveOffhandDefense(shield)) {
 					shield = item;
 				}
 				break;
@@ -782,31 +840,13 @@ float Player::getMitigation() const {
 	return wheel().calculateMitigation();
 }
 
-double Player::getCombatTacticsMitigation() const {
-	double fightFactor = 0.0;
-	switch (fightMode) {
-		case FIGHTMODE_ATTACK: {
-			fightFactor = 0.8f;
-			break;
-		}
-		case FIGHTMODE_BALANCED: {
-			fightFactor = 1.0f;
-			break;
-		}
-		case FIGHTMODE_DEFENSE: {
-			fightFactor = 1.2f;
-			break;
-		}
-		default:
-			break;
-	}
-
-	return fightFactor;
-}
-
 int32_t Player::getDefense(bool sendToClient /* = false*/) const {
 	int32_t defenseSkill = getSkillLevel(SKILL_FIST);
-	int32_t defenseValue = 7;
+	// The off-hand's Defence comes in compensated (shield +30%, spellbook +60%) and
+	// keeps its fraction until the one truncation this function always had at its
+	// return. The Wheel and proficiency layers are flat and land on top of it, the
+	// proficiency ones truncated to whole points as before.
+	double defenseValue = 7;
 	std::shared_ptr<Item> weapon;
 	std::shared_ptr<Item> shield;
 	getShieldAndWeapon(shield, weapon);
@@ -817,9 +857,7 @@ int32_t Player::getDefense(bool sendToClient /* = false*/) const {
 	}
 
 	if (shield) {
-		defenseValue = (weapon != nullptr)
-			? shield->getDefense() + weapon->getExtraDefense()
-			: shield->getDefense();
+		defenseValue = getEffectiveOffhandDefense(shield) + (weapon != nullptr ? weapon->getExtraDefense() : 0);
 		// Wheel of destiny - Combat Mastery
 		if (shield->getDefense() > 0) {
 			defenseValue += wheel().getMajorStatConditional("Combat Mastery", WheelMajor_t::DEFENSE);
@@ -827,10 +865,13 @@ int32_t Player::getDefense(bool sendToClient /* = false*/) const {
 		defenseSkill = getSkillLevel(SKILL_SHIELD);
 	}
 
-	defenseValue += weaponProficiency().getStat(WeaponProficiencyBonus_t::DEFENSE_BONUS);
-	defenseValue += weaponProficiency().getStat(WeaponProficiencyBonus_t::WEAPON_SHIELD_MODIFIER);
+	defenseValue += static_cast<int32_t>(weaponProficiency().getStat(WeaponProficiencyBonus_t::DEFENSE_BONUS));
+	defenseValue += static_cast<int32_t>(weaponProficiency().getStat(WeaponProficiencyBonus_t::WEAPON_SHIELD_MODIFIER));
 
 	if (defenseSkill == 0) {
+		if (usesModernCombatModel()) {
+			return 1;
+		}
 		switch (fightMode) {
 			case FIGHTMODE_ATTACK:
 			case FIGHTMODE_BALANCED:
@@ -846,7 +887,7 @@ int32_t Player::getDefense(bool sendToClient /* = false*/) const {
 }
 
 uint16_t Player::getDefenseEquipment() const {
-	uint16_t defenseValue = 6;
+	double defenseValue = 6;
 	std::shared_ptr<Item> weapon;
 	std::shared_ptr<Item> shield;
 	getShieldAndWeapon(shield, weapon);
@@ -856,19 +897,23 @@ uint16_t Player::getDefenseEquipment() const {
 	}
 
 	if (shield) {
-		defenseValue = weapon != nullptr ? shield->getDefense() + weapon->getExtraDefense() : shield->getDefense();
+		defenseValue = getEffectiveOffhandDefense(shield) + (weapon != nullptr ? weapon->getExtraDefense() : 0);
 		if (shield->getDefense() > 0) {
 			defenseValue += wheel().getMajorStatConditional("Combat Mastery", WheelMajor_t::DEFENSE);
 		}
 	}
 
-	defenseValue += weaponProficiency().getStat(WeaponProficiencyBonus_t::DEFENSE_BONUS);
-	defenseValue += weaponProficiency().getStat(WeaponProficiencyBonus_t::WEAPON_SHIELD_MODIFIER);
+	defenseValue += static_cast<int32_t>(weaponProficiency().getStat(WeaponProficiencyBonus_t::DEFENSE_BONUS));
+	defenseValue += static_cast<int32_t>(weaponProficiency().getStat(WeaponProficiencyBonus_t::WEAPON_SHIELD_MODIFIER));
 
-	return defenseValue;
+	// A whole number goes to the client; this is the one rounding of the compensated value.
+	return static_cast<uint16_t>(std::clamp<int32_t>(EffectiveCombatValues::toInteger(defenseValue), 0, std::numeric_limits<uint16_t>::max()));
 }
 
 float Player::getAttackFactor() const {
+	if (usesModernCombatModel()) {
+		return 1.0f;
+	}
 	switch (fightMode) {
 		case FIGHTMODE_ATTACK:
 			return 1.0f;
@@ -882,6 +927,9 @@ float Player::getAttackFactor() const {
 }
 
 float Player::getDefenseFactor(bool sendToClient /* = false*/) const {
+	if (usesModernCombatModel()) {
+		return 1.0f;
+	}
 	switch (fightMode) {
 		case FIGHTMODE_ATTACK:
 			if (sendToClient) {
@@ -900,6 +948,45 @@ float Player::getDefenseFactor(bool sendToClient /* = false*/) const {
 		default:
 			return 1.0f;
 	}
+}
+
+bool Player::usesModernCombatModel() const {
+	if (testLegacyCombatModel) {
+		return false;
+	}
+	if (!client) {
+		return true;
+	}
+	const auto* protocolProfile = client->getProtocolProfile();
+	return protocolProfile == nullptr || protocolProfile->hasFeature(ProtocolFeature::TacticsWithoutFightMode);
+}
+
+double Player::getEffectiveWeaponAttackValue(int32_t rawAttackValue) const {
+	if (!usesModernCombatModel()) {
+		return rawAttackValue;
+	}
+	return EffectiveCombatValues::weaponAttack(rawAttackValue);
+}
+
+double Player::getEffectiveOffhandDefense(const std::shared_ptr<Item> &item) const {
+	if (!item) {
+		return 0;
+	}
+	const int32_t rawDefense = item->getDefense();
+	if (!usesModernCombatModel()) {
+		return rawDefense;
+	}
+	return EffectiveCombatValues::offhandDefense(EffectiveCombatValues::classify(Item::items[item->getID()]), rawDefense);
+}
+
+int32_t Player::getEffectiveShieldDefense() const {
+	for (const auto slot : { CONST_SLOT_LEFT, CONST_SLOT_RIGHT }) {
+		const auto &item = inventory[slot];
+		if (item && item->getWeaponType() == WEAPON_SHIELD && !item->isSpellBook()) {
+			return EffectiveCombatValues::toInteger(getEffectiveOffhandDefense(item));
+		}
+	}
+	return 0;
 }
 
 std::vector<double> Player::getDamageAccuracy(const ItemType &it) const {
@@ -1251,6 +1338,8 @@ void Player::addSkillAdvance(skills_t skill, uint64_t count) {
 		}
 
 		g_creatureEvents().playerAdvance(static_self_cast<Player>(), skill, (skills[skill].level - 1), skills[skill].level);
+		// A percent stance scales the trained skill too; it follows the advance.
+		refreshPercentSkillRecipes();
 
 		sendUpdateSkills = true;
 		currReqTries = nextReqTries;
@@ -7394,8 +7483,26 @@ uint16_t Player::getSkillLevel(skills_t skill) const {
 		return 0;
 	}
 
+	return computeSkillLevel(skill, varSkills[skill]);
+}
+
+uint16_t Player::getSkillLevelForPercentScaling(skills_t skill) const {
+	if (skill == SKILL_MAGLEVEL) {
+		return getSkillLevel(skill);
+	}
+
+	const auto skillIndex = static_cast<int32_t>(skill);
+	if (skillIndex < SKILL_FIRST || skillIndex > SKILL_LAST) {
+		g_logger().error("[{}] Invalid skill type {}.", __FUNCTION__, skillIndex);
+		return 0;
+	}
+
+	return computeSkillLevel(skill, varSkills[skill] - varSkillsFromPercent[skill]);
+}
+
+uint16_t Player::computeSkillLevel(skills_t skill, int32_t varSkillContribution) const {
 	auto skillLevel = getLoyaltySkill(skill);
-	skillLevel = std::max<int32_t>(0, skillLevel + varSkills[skill]);
+	skillLevel = std::max<int32_t>(0, skillLevel + varSkillContribution);
 
 	const auto &maxValuePerSkill = getMaxValuePerSkill();
 	if (const auto it = maxValuePerSkill.find(skill);

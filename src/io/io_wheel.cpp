@@ -36,6 +36,30 @@ namespace InternalPlayerWheel {
 		"Wrath of Nature"
 	};
 
+	// The Sorcerer's post-July "Special Spells" augments apply to exactly these three
+	// spells - not to the Ultimate strikes, not to any other strike, and not to a
+	// generic class. PROJECT_ACCEPTED_POST_JULY_MAPPING; see
+	// docs/ai-dev/combat/06_GLOBAL_2026_EFFECTIVE_STATS_TACTICS_MITIGATION.md.
+	const std::string SPECIAL_SPELLS_ALIAS = "Special_Spells";
+	std::vector<std::string> m_specialSpells {
+		"Lightning",
+		"Strong Energy Strike",
+		"Strong Flame Strike"
+	};
+
+	// An alias is one wheel entry that stands for several real spells: the slot and
+	// the bonus table both name the alias, and both expand it through here, so the
+	// set can never drift between the two.
+	const std::vector<std::string>* expandSpellAlias(const std::string &name) {
+		if (name == "Any_Focus_Mage_Spell") {
+			return &m_focusSpells;
+		}
+		if (name == SPECIAL_SPELLS_ALIAS) {
+			return &m_specialSpells;
+		}
+		return nullptr;
+	}
+
 	/**
 	 * @brief Registers spell data in the Wheel of Destiny for a given spell name and grade type.
 	 *
@@ -50,10 +74,16 @@ namespace InternalPlayerWheel {
 	 */
 	template <typename T>
 	void registerWheelSpellTable(const T &spellData, const std::string &name, WheelSpellGrade_t gradeType) {
-		if (name == "Any_Focus_Mage_Spell") {
-			for (const std::string &focusSpellName : m_focusSpells) {
-				g_logger().trace("[{}] registered any spell: {}", __FUNCTION__, focusSpellName);
-				registerWheelSpellTable(spellData, focusSpellName, gradeType);
+		// A slot with no spell name is a slot that grants no spell - not a spell that
+		// could not be found, so it registers nothing rather than warning.
+		if (name.empty()) {
+			return;
+		}
+
+		if (const auto* aliasedSpells = expandSpellAlias(name)) {
+			for (const std::string &aliasedName : *aliasedSpells) {
+				g_logger().trace("[{}] registered {} through alias {}", __FUNCTION__, aliasedName, name);
+				registerWheelSpellTable(spellData, aliasedName, gradeType);
 			}
 			return;
 		}
@@ -184,6 +214,14 @@ const std::vector<std::string> &IOWheel::getFocusSpells() const {
 	return InternalPlayerWheel::m_focusSpells;
 }
 
+const std::vector<std::string> &IOWheel::getSpecialSpells() const {
+	return InternalPlayerWheel::m_specialSpells;
+}
+
+const std::string &IOWheel::getSpecialSpellsAlias() {
+	return InternalPlayerWheel::SPECIAL_SPELLS_ALIAS;
+}
+
 using VocationBonusFunction = std::function<void(const std::shared_ptr<Player> &, uint16_t, uint8_t, PlayerWheelMethodsBonusData &)>;
 using VocationBonusMap = std::map<WheelSlots_t, VocationBonusFunction>;
 const VocationBonusMap &IOWheel::getWheelMapFunctions() const {
@@ -299,12 +337,20 @@ void IOWheel::initializePaladinSpells() {
 }
 
 void IOWheel::initializeSorcererSpells() {
-	m_wheelBonusData.spells.sorcerer[0].name = "Magic Shield";
-	m_wheelBonusData.spells.sorcerer[0].grade[2].decrease.cooldown = 6;
+	// Slot 0 used to be "Magic Shield". Post-July it carries the Special Spells
+	// augments, which apply to the three spells InternalPlayerWheel::m_specialSpells
+	// names and to nothing else. PROJECT_ACCEPTED_POST_JULY_MAPPING.
+	m_wheelBonusData.spells.sorcerer[0].name = InternalPlayerWheel::SPECIAL_SPELLS_ALIAS;
+	m_wheelBonusData.spells.sorcerer[0].grade[1].decrease.cooldown = 4; // Augment I: -4s
+	m_wheelBonusData.spells.sorcerer[0].grade[2].increase.damage = 50; // Augment II: +50% base damage
 
-	m_wheelBonusData.spells.sorcerer[1].name = "Sap Strength";
-	m_wheelBonusData.spells.sorcerer[1].grade[1].increase.area = true;
-	m_wheelBonusData.spells.sorcerer[1].grade[2].increase.damageReduction = 1;
+	// Slot 1 used to be "Sap Strength", the spell this lane retired. Post-July the
+	// pair carries Death Echo instead. PROJECT_ACCEPTED_POST_JULY_MAPPING for the
+	// mapping; the +12% is POST_JULY_VERIFIED - CipSoft moved Augment II from +8% to
+	// +12% on 7 July.
+	m_wheelBonusData.spells.sorcerer[1].name = "Death Echo";
+	m_wheelBonusData.spells.sorcerer[1].grade[1].decrease.cooldown = 2; // Augment I: -2s
+	m_wheelBonusData.spells.sorcerer[1].grade[2].increase.damage = 12; // Augment II: +12% base damage
 
 	m_wheelBonusData.spells.sorcerer[2].name = "Energy Wave";
 	m_wheelBonusData.spells.sorcerer[2].grade[1].increase.damage = 5;
@@ -374,9 +420,20 @@ bool IOWheel::isMonk(uint8_t vocationId) const {
 }
 
 void IOWheel::addSpell(const std::shared_ptr<Player> &player, PlayerWheelMethodsBonusData &bonusData, WheelSlots_t slotType, uint16_t points, const std::string &spellName) const {
-	if (isMaxPointAddedToSlot(player, points, slotType)) {
-		bonusData.spells.push_back(spellName);
+	if (!isMaxPointAddedToSlot(player, points, slotType)) {
+		return;
 	}
+
+	// An alias grants every spell it stands for, so a slot taken twice grades all of
+	// them together - the same progression a single-spell slot gets.
+	if (const auto* aliasedSpells = InternalPlayerWheel::expandSpellAlias(spellName)) {
+		for (const auto &aliasedName : *aliasedSpells) {
+			bonusData.spells.push_back(aliasedName);
+		}
+		return;
+	}
+
+	bonusData.spells.push_back(spellName);
 }
 
 void IOWheel::addVesselResonance(const std::shared_ptr<Player> &player, PlayerWheelMethodsBonusData &bonusData, WheelSlots_t slotType, WheelGemAffinity_t affinity, uint16_t points) const {
@@ -567,7 +624,7 @@ void IOWheel::slotGreenMiddle100(const std::shared_ptr<Player> &player, uint16_t
 		bonusData.stats.health += 2 * points;
 	} else {
 		if (isSorcerer(vocationCipId)) {
-			addSpell(player, bonusData, WheelSlots_t::SLOT_GREEN_MIDDLE_100, points, "Magic Shield");
+			addSpell(player, bonusData, WheelSlots_t::SLOT_GREEN_MIDDLE_100, points, InternalPlayerWheel::SPECIAL_SPELLS_ALIAS);
 		} else {
 			addSpell(player, bonusData, WheelSlots_t::SLOT_GREEN_MIDDLE_100, points, "Mass Healing");
 		}
@@ -612,10 +669,10 @@ void IOWheel::slotRedMiddle100(const std::shared_ptr<Player> &player, uint16_t p
 		addSpell(player, bonusData, WheelSlots_t::SLOT_RED_MIDDLE_100, points, "Divine Dazzle");
 		bonusData.stats.mana += 3 * points;
 	} else if (isSorcerer(vocationCipId) || isDruid(vocationCipId)) {
-		if (isSorcerer(vocationCipId)) {
-			addSpell(player, bonusData, WheelSlots_t::SLOT_RED_MIDDLE_100, points, "Sap Strength");
-		} else {
+		if (isDruid(vocationCipId)) {
 			addSpell(player, bonusData, WheelSlots_t::SLOT_RED_MIDDLE_100, points, "Nature's Embrace");
+		} else {
+			addSpell(player, bonusData, WheelSlots_t::SLOT_RED_MIDDLE_100, points, "Death Echo");
 		}
 		bonusData.stats.mana += 6 * points;
 	} else {
@@ -834,7 +891,7 @@ void IOWheel::slotPurpleTop100(const std::shared_ptr<Player> &player, uint16_t p
 		bonusData.stats.capacity += 4 * points;
 	} else {
 		if (isSorcerer(vocationCipId)) {
-			addSpell(player, bonusData, WheelSlots_t::SLOT_PURPLE_TOP_100, points, "Magic Shield");
+			addSpell(player, bonusData, WheelSlots_t::SLOT_PURPLE_TOP_100, points, InternalPlayerWheel::SPECIAL_SPELLS_ALIAS);
 		} else {
 			addSpell(player, bonusData, WheelSlots_t::SLOT_PURPLE_TOP_100, points, "Mass Healing");
 		}
@@ -864,10 +921,10 @@ void IOWheel::slotBlueMiddle100(const std::shared_ptr<Player> &player, uint16_t 
 	} else if (isPaladin(vocationCipId)) {
 		addSpell(player, bonusData, WheelSlots_t::SLOT_BLUE_MIDDLE_100, points, "Divine Dazzle");
 	} else if (isSorcerer(vocationCipId) || isDruid(vocationCipId)) {
-		if (isSorcerer(vocationCipId)) {
-			addSpell(player, bonusData, WheelSlots_t::SLOT_BLUE_MIDDLE_100, points, "Sap Strength");
-		} else {
+		if (isDruid(vocationCipId)) {
 			addSpell(player, bonusData, WheelSlots_t::SLOT_BLUE_MIDDLE_100, points, "Nature's Embrace");
+		} else {
+			addSpell(player, bonusData, WheelSlots_t::SLOT_BLUE_MIDDLE_100, points, "Death Echo");
 		}
 	} else {
 		addSpell(player, bonusData, WheelSlots_t::SLOT_BLUE_MIDDLE_100, points, "Mystic Repulse");

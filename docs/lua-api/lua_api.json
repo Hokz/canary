@@ -6109,6 +6109,12 @@
         "source": "src/lua/functions/creatures/player/player_functions.cpp"
       },
       {
+        "name": "getBeamMasteryAdjacentDamage",
+        "params": [],
+        "return": "number|nil",
+        "source": "src/lua/functions/creatures/player/player_functions.cpp"
+      },
+      {
         "name": "getBlessingCount",
         "params": [
           "index: number",
@@ -6222,6 +6228,12 @@
           "depotId: number"
         ],
         "return": "boolean|nil|Item",
+        "source": "src/lua/functions/creatures/player/player_functions.cpp"
+      },
+      {
+        "name": "getEffectiveShieldDefense",
+        "params": [],
+        "return": "number|nil",
         "source": "src/lua/functions/creatures/player/player_functions.cpp"
       },
       {

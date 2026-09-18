@@ -119,6 +119,11 @@ enum ConditionAttr_t {
 	CONDITIONATTR_ELEMENT_CRITICAL_CHANCE,
 	CONDITIONATTR_ELEMENT_CRITICAL_DAMAGE,
 	CONDITIONATTR_ELEMENTAL_PIERCE_RECEIVED,
+	// Written by a build whose ConditionAttributes keeps the flat values a percent
+	// recipe produced OUT of the skills[] it saves. A blob without it was written by
+	// a build that saved them inside, so a skill with a percentage there carries a
+	// stale derived value, not a flat bonus. No payload.
+	CONDITIONATTR_PERCENT_RECIPES_SEPARATE,
 
 	// reserved for serialization
 	CONDITIONATTR_END = 254,
@@ -353,6 +358,11 @@ enum CombatParam_t {
 	COMBAT_PARAM_IMPACTSOUND,
 	COMBAT_PARAM_CHAIN_EFFECT,
 	COMBAT_PARAM_NOCHARM,
+	// Marks a Combat as the Beam Mastery flank pass rather than the central beam. The
+	// flank carries the same spell name - it has to, for augments, the elemental stance
+	// and the natural-element rules - so the name cannot tell the two apart, and without
+	// this flag the flank's targets would be counted as central ones.
+	COMBAT_PARAM_BEAM_MASTERY_FLANK,
 };
 
 enum CombatOrigin : uint8_t {

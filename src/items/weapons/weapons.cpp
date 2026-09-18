@@ -85,13 +85,13 @@ bool Weapons::registerLuaEvent(const WeaponShared_ptr &event, bool fromXML /*= f
 }
 
 // Monsters
-int32_t Weapons::getMaxMeleeDamage(int32_t attackSkill, int32_t attackValue) {
+int32_t Weapons::getMaxMeleeDamage(int32_t attackSkill, double attackValue) {
 	// Returns maximum melee attack damage, rounding up
 	return static_cast<int32_t>(std::ceil((attackSkill * (attackValue * 0.05)) + (attackValue * 0.5)));
 }
 
 // Players
-int32_t Weapons::getMaxWeaponDamage(uint32_t level, int32_t attackSkill, int32_t attackValue, float attackFactor, bool isMelee) {
+int32_t Weapons::getMaxWeaponDamage(uint32_t level, int32_t attackSkill, double attackValue, float attackFactor, bool isMelee) {
 	if (isMelee) {
 		return attackValue > 0 ? static_cast<int32_t>(std::round((0.085 * attackFactor * attackValue * attackSkill) + (level / 5))) : 0;
 	} else {
@@ -204,12 +204,14 @@ CombatDamage Weapon::getCombatDamage(CombatDamage combat, const std::shared_ptr<
 	const int32_t playerSkill = player->getWeaponSkill(item);
 	const float attackFactor = player->getAttackFactor(); // full atk, balanced or full defense
 
-	// Getting values factores
+	// Getting values factores. The proportion is a ratio of two attack values, so the
+	// 15.25 compensation cancels out of it and it is taken from the raw pair.
 	const int32_t totalAttack = elementalAttack + weaponAttack;
+	const double effectiveTotalAttack = player->getEffectiveWeaponAttackValue(totalAttack);
 	const double weaponAttackProportion = static_cast<double>(weaponAttack) / static_cast<double>(totalAttack);
 
 	// Calculating damage
-	const int32_t maxDamage = static_cast<int32_t>(Weapons::getMaxWeaponDamage(level, playerSkill, totalAttack, attackFactor, true) * player->getVocation()->meleeDamageMultiplier * damageModifier / 100);
+	const int32_t maxDamage = static_cast<int32_t>(Weapons::getMaxWeaponDamage(level, playerSkill, effectiveTotalAttack, attackFactor, true) * player->getVocation()->meleeDamageMultiplier * damageModifier / 100);
 	const int32_t minDamage = level / 5;
 	const int32_t realDamage = normal_random(minDamage, maxDamage);
 
@@ -226,6 +228,7 @@ bool Weapon::useFist(const std::shared_ptr<Player> &player, const std::shared_pt
 
 	const float attackFactor = player->getAttackFactor();
 	const int32_t attackSkill = player->getSkillLevel(SKILL_FIST);
+	// Not a weapon's Attack value: no item, so no 15.25 equipment compensation.
 	constexpr int32_t attackValue = 7;
 
 	const int32_t maxDamage = Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor, true);
@@ -462,18 +465,18 @@ void Weapon::decrementItemCount(const std::shared_ptr<Item> &item) {
 	}
 }
 
-bool Weapon::calculateSkillFormula(const std::shared_ptr<Player> &player, int32_t &attackSkill, int32_t &attackValue, float &attackFactor, int16_t &elementAttack, CombatDamage &damage, bool useCharges /* = false*/) const {
+bool Weapon::calculateSkillFormula(const std::shared_ptr<Player> &player, int32_t &attackSkill, double &attackValue, float &attackFactor, int16_t &elementAttack, CombatDamage &damage, bool useCharges /* = false*/) const {
 	const auto &tool = player->getWeapon();
 	if (!tool) {
 		return false;
 	}
 
 	std::shared_ptr<Item> item = nullptr;
-	attackValue = tool->getAttack();
+	int32_t rawAttackValue = tool->getAttack();
 	if (tool->getWeaponType() == WEAPON_AMMO) {
 		item = player->getWeapon(true);
 		if (item) {
-			attackValue += item->getAttack();
+			rawAttackValue += item->getAttack();
 		}
 	}
 
@@ -484,8 +487,10 @@ bool Weapon::calculateSkillFormula(const std::shared_ptr<Player> &player, int32_
 	if (elementType != COMBAT_NONE) {
 		elementAttack = getElementDamageValue();
 		shouldCalculateSecondaryDamage = true;
-		attackValue += elementAttack;
+		rawAttackValue += elementAttack;
 	}
+
+	attackValue = player->getEffectiveWeaponAttackValue(rawAttackValue);
 
 	if (useCharges) {
 		const auto charges = tool->getAttribute<uint16_t>(ItemAttribute_t::CHARGES);
@@ -643,7 +648,7 @@ int32_t WeaponMelee::getElementDamage(const std::shared_ptr<Player> &player, con
 	}
 
 	const int32_t attackSkill = player->getWeaponSkill(item);
-	const int32_t attackValue = elementDamage;
+	const double attackValue = player->getEffectiveWeaponAttackValue(elementDamage);
 	const float attackFactor = player->getAttackFactor();
 	const uint32_t level = player->getLevel();
 
@@ -662,7 +667,9 @@ int32_t WeaponMelee::getWeaponDamage(const std::shared_ptr<Player> &player, cons
 	const int32_t attackSkill = player->getWeaponSkill(item);
 	const int32_t physicalAttack = std::max<int32_t>(0, item->getAttack());
 	const int32_t elementalAttack = getElementDamageValue();
-	const int32_t combinedAttack = physicalAttack + elementalAttack + proficiencyAttack;
+	// The weapon's own attack is compensated; the proficiency's flat bonus is a
+	// separate layer and is added after, uncompensated.
+	const double combinedAttack = player->getEffectiveWeaponAttackValue(physicalAttack + elementalAttack) + proficiencyAttack;
 
 	const float attackFactor = player->getAttackFactor();
 	const uint32_t level = player->getLevel();
@@ -881,15 +888,16 @@ int32_t WeaponDistance::getElementDamage(const std::shared_ptr<Player> &player, 
 		return 0;
 	}
 
-	int32_t attackValue = elementDamage;
+	int32_t rawAttackValue = elementDamage;
 	if (item && player && item->getWeaponType() == WEAPON_AMMO) {
 		const auto &weapon = player->getWeapon(true);
 		if (weapon) {
-			attackValue += item->getAttack();
-			attackValue += weapon->getAttack();
+			rawAttackValue += item->getAttack();
+			rawAttackValue += weapon->getAttack();
 		}
 	}
 
+	const double attackValue = player->getEffectiveWeaponAttackValue(rawAttackValue);
 	const int32_t attackSkill = player->getSkillLevel(SKILL_DISTANCE);
 	const float attackFactor = player->getAttackFactor();
 
@@ -912,8 +920,8 @@ int16_t WeaponDistance::getElementDamageValue() const {
 }
 
 int32_t WeaponDistance::getWeaponDamage(const std::shared_ptr<Player> &player, const std::shared_ptr<Creature> &target, const std::shared_ptr<Item> &item, bool maxDamage /*= false*/) const {
-	int32_t attackValue = item->getAttack();
-	attackValue += player->weaponProficiency().getStat(WeaponProficiencyBonus_t::ATTACK_DAMAGE);
+	int32_t rawAttackValue = item->getAttack();
+	const auto proficiencyAttack = player->weaponProficiency().getStat(WeaponProficiencyBonus_t::ATTACK_DAMAGE);
 	bool hasElement = false;
 
 	if (player && item && item->getWeaponType() == WEAPON_AMMO) {
@@ -921,14 +929,17 @@ int32_t WeaponDistance::getWeaponDamage(const std::shared_ptr<Player> &player, c
 		if (weapon) {
 			const ItemType &it = Item::items[item->getID()];
 			if (it.abilities && it.abilities->elementDamage != 0) {
-				attackValue += it.abilities->elementDamage;
+				rawAttackValue += it.abilities->elementDamage;
 				hasElement = true;
 			}
 
-			attackValue += weapon->getAttack();
+			rawAttackValue += weapon->getAttack();
 		}
 	}
 
+	// Ammunition and bow are weapon attack values and are compensated; the
+	// proficiency's flat bonus is its own layer and is not.
+	const double attackValue = player->getEffectiveWeaponAttackValue(rawAttackValue) + proficiencyAttack;
 	const int32_t attackSkill = player->getSkillLevel(SKILL_DISTANCE);
 	const float attackFactor = player->getAttackFactor();
 

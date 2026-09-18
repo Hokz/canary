@@ -208,6 +208,7 @@ void PlayerFunctions::init(lua_State* L) {
 
 	Lua::registerMethod(L, "Player", "getSkillLevel", PlayerFunctions::luaPlayerGetSkillLevel);
 	Lua::registerMethod(L, "Player", "getEffectiveSkillLevel", PlayerFunctions::luaPlayerGetEffectiveSkillLevel);
+	Lua::registerMethod(L, "Player", "getEffectiveShieldDefense", PlayerFunctions::luaPlayerGetEffectiveShieldDefense);
 	Lua::registerMethod(L, "Player", "getSkillPercent", PlayerFunctions::luaPlayerGetSkillPercent);
 	Lua::registerMethod(L, "Player", "getSkillTries", PlayerFunctions::luaPlayerGetSkillTries);
 	Lua::registerMethod(L, "Player", "addSkillTries", PlayerFunctions::luaPlayerAddSkillTries);
@@ -400,6 +401,7 @@ void PlayerFunctions::init(lua_State* L) {
 	Lua::registerMethod(L, "Player", "onThinkWheelOfDestiny", PlayerFunctions::luaPlayerOnThinkWheelOfDestiny);
 	Lua::registerMethod(L, "Player", "avatarTimer", PlayerFunctions::luaPlayerAvatarTimer);
 	Lua::registerMethod(L, "Player", "getWheelSpellAdditionalArea", PlayerFunctions::luaPlayerGetWheelSpellAdditionalArea);
+	Lua::registerMethod(L, "Player", "getBeamMasteryAdjacentDamage", PlayerFunctions::luaPlayerGetBeamMasteryAdjacentDamage);
 	Lua::registerMethod(L, "Player", "getWheelSpellAdditionalTarget", PlayerFunctions::luaPlayerGetWheelSpellAdditionalTarget);
 	Lua::registerMethod(L, "Player", "getWheelSpellAdditionalDuration", PlayerFunctions::luaPlayerGetWheelSpellAdditionalDuration);
 	Lua::registerMethod(L, "Player", "wheelUnlockScroll", PlayerFunctions::luaPlayerWheelUnlockScroll);
@@ -1624,6 +1626,17 @@ int PlayerFunctions::luaPlayerGetSkillLevel(lua_State* L) {
 	const auto &player = Lua::getUserdataShared<Player>(L, 1, "Player");
 	if (player && skillType <= SKILL_LAST) {
 		lua_pushnumber(L, player->skills[skillType].level);
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int PlayerFunctions::luaPlayerGetEffectiveShieldDefense(lua_State* L) {
+	// player:getEffectiveShieldDefense()
+	const auto &player = Lua::getUserdataShared<Player>(L, 1, "Player");
+	if (player) {
+		lua_pushnumber(L, player->getEffectiveShieldDefense());
 	} else {
 		lua_pushnil(L);
 	}
@@ -4768,6 +4781,20 @@ int PlayerFunctions::luaPlayerAvatarTimer(lua_State* L) {
 	} else {
 		player->wheel().setOnThinkTimer(WheelOnThink_t::AVATAR_SPELL, Lua::getNumber<int64_t>(L, 2));
 		Lua::pushBoolean(L, true);
+	}
+	return 1;
+}
+
+int PlayerFunctions::luaPlayerGetBeamMasteryAdjacentDamage(lua_State* L) {
+	// player:getBeamMasteryAdjacentDamage()
+	// The percentage of the beam's own damage a square beside it takes: 0 without Beam
+	// Mastery, then 25 / 40 / 70 by stage. PlayerWheel is the only place those numbers
+	// live, so a beam script reads them from here rather than carrying its own copy.
+	const auto &player = Lua::getUserdataShared<Player>(L, 1, "Player");
+	if (player) {
+		lua_pushnumber(L, player->wheel().getBeamMasteryAdjacentDamagePercent());
+	} else {
+		lua_pushnil(L);
 	}
 	return 1;
 }

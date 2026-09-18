@@ -506,6 +506,17 @@ experienceDisplayRates = true
 disableLegacyRaids = false
 disableMonsterArmor = false
 
+-- Monster mitigation
+-- NOTE: monsterMitigationMultiplier scales every monster's mitigation. The 15.25
+-- NOTE: update raised monster mitigation but CipSoft did not publish by how much,
+-- NOTE: so 1.5 is the project's accepted value and not an official one.
+-- NOTE: monsterMitigationCap is the ceiling, in percent, mitigation stops at.
+-- NOTE: neither value may be negative - a negative mitigation would increase damage
+-- NOTE: taken instead of reducing it. A negative or non-finite value is corrected to 0
+-- NOTE: on load, with a warning. Zero is a valid setting for both.
+monsterMitigationMultiplier = 1.5
+monsterMitigationCap = 45.0
+
 -- Dispatcher fairness budgets. Changes apply after config reload.
 creatureWalkTasksPerPass = 128
 walkParallelTasksPerPass = 8

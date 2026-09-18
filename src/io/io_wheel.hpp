@@ -136,6 +136,18 @@ public:
 	 */
 	const std::vector<std::string> &getFocusSpells() const;
 
+	/**
+	 * @brief The spells the Sorcerer's post-July "Special Spells" augments apply to.
+	 * @return A const reference to the exact set: Lightning, Strong Energy Strike and
+	 * Strong Flame Strike. PROJECT_ACCEPTED_POST_JULY_MAPPING.
+	 */
+	const std::vector<std::string> &getSpecialSpells() const;
+
+	/**
+	 * @brief The wheel entry name that stands for the Special Spells set.
+	 */
+	static const std::string &getSpecialSpellsAlias();
+
 	using VocationBonusFunction = std::function<void(const std::shared_ptr<Player> &, uint16_t, uint8_t, PlayerWheelMethodsBonusData &)>;
 	using VocationBonusMap = std::map<WheelSlots_t, VocationBonusFunction>;
 	/**

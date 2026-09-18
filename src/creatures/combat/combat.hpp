@@ -108,6 +108,11 @@ struct CombatParams {
 
 	uint16_t chainEffect = CONST_ME_NONE;
 	bool noCharm = false;
+
+	// True only for Beam Mastery's two flank lines. A flank hit is damage and nothing
+	// else: its targets do not count towards the central beam's target total, do not
+	// reduce any cooldown, and do not receive the central per-target damage increase.
+	bool beamMasteryFlank = false;
 };
 
 using CombatFunction = std::function<void(std::shared_ptr<Creature>, std::shared_ptr<Creature>, const CombatParams &, CombatDamage*)>;
@@ -221,6 +226,11 @@ public:
 	CallBack* getCallback(CallBackParam_t key) const;
 
 	bool setParam(CombatParam_t param, uint32_t value);
+	// Read-only view of the configured parameters, so a test can assert what a
+	// setParam call actually did rather than inferring it from combat behaviour.
+	[[nodiscard]] const CombatParams &getCombatParams() const {
+		return params;
+	}
 	void setArea(std::unique_ptr<AreaCombat> &newArea);
 	bool hasArea() const;
 	void addCondition(const std::shared_ptr<Condition> &condition);

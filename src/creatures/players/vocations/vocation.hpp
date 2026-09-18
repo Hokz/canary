@@ -10,6 +10,7 @@
 #pragma once
 
 #include "creatures/creatures_definitions.hpp"
+#include "creatures/players/vocations/mitigation_profile.hpp"
 
 enum class WheelGemQuality_t : uint8_t;
 enum class WheelGemSupremeModifier_t : uint8_t;
@@ -66,9 +67,15 @@ public:
 	float defenseMultiplier = 1.0f;
 	float armorMultiplier = 1.0f;
 
+	// The legacy three. Kept as the backward-compatible input: a vocations.xml that
+	// only carries these still tunes the modern profile through deriveFromLegacy.
 	float mitigationFactor = 1.0f;
 	float mitigationPrimaryShield = 1.0f;
 	float mitigationSecondaryShield = 1.0f;
+
+	// The modern profile the mitigation formula actually reads. Derived from the
+	// three above, then overridden by any explicit modern attribute.
+	VocationMitigationProfile mitigation;
 
 	float pvpDamageReceivedMultiplier = 1.0f;
 	float pvpDamageDealtMultiplier = 1.0f;

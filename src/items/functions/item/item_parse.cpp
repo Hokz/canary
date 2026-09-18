@@ -275,7 +275,10 @@ void ItemParse::parseWeaponType(const std::string &stringValue, pugi::xml_attrib
 		auto lowerString = asLowerCaseString(valueAttribute.as_string());
 		const auto &itemMap = WeaponTypesMap.find(lowerString);
 		if (itemMap != WeaponTypesMap.end()) {
-			if (stringValue == "spellbook") {
+			// The attribute's VALUE says whether this is a spellbook; stringValue is
+			// the attribute's key ("weapontype") and never matched, so no item was ever
+			// flagged and every spellbook counted as a plain shield.
+			if (lowerString == "spellbook") {
 				itemType.spellbook = true;
 			}
 			itemType.weaponType = itemMap->second;

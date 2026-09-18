@@ -71,6 +71,18 @@ Condition = recorder
 createCombatArea = function(area)
 	return area
 end
+-- data/libs loads before data/scripts (core.lua -> libs/libs.lua -> functions/load.lua),
+-- so a spell file may call a library helper at load time. The real one is loaded here
+-- rather than faked, so a change to its signature shows up in this suite too.
+do
+	local root = arg[0]:match("^(.*)/tests/lua/[^/]+$") or "."
+	-- combat.lua hangs methods off Combat, which is a recorder factory here, so it is
+	-- swapped for a plain table while the library loads and put back afterwards.
+	local savedCombat = Combat
+	Combat = {}
+	assert(loadfile(root .. "/data/libs/functions/combat.lua"))()
+	Combat = savedCombat
+end
 Stance = { sharedConservationTarget = function() end, castSharedConservation = function() end }
 
 -- Loads a spell file and returns its formula callback(s) as globals were left.

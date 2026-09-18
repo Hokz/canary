@@ -4080,6 +4080,11 @@ C++ Lua binding handlers and registration lines can override inferred signatures
 - Returns: `number|nil`
 - Source: `src/lua/functions/creatures/player/player_functions.cpp`
 
+#### `Player:getBeamMasteryAdjacentDamage()`
+
+- Returns: `number|nil`
+- Source: `src/lua/functions/creatures/player/player_functions.cpp`
+
 #### `Player:getBlessingCount(index: number, storeCount?: boolean)`
 
 - Returns: `number|nil`
@@ -4153,6 +4158,11 @@ C++ Lua binding handlers and registration lines can override inferred signatures
 #### `Player:getDepotLocker(depotId: number)`
 
 - Returns: `boolean|nil|Item`
+- Source: `src/lua/functions/creatures/player/player_functions.cpp`
+
+#### `Player:getEffectiveShieldDefense()`
+
+- Returns: `number|nil`
 - Source: `src/lua/functions/creatures/player/player_functions.cpp`
 
 #### `Player:getEffectiveSkillLevel(skillType: any)`

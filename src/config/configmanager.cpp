@@ -179,6 +179,11 @@ bool ConfigManager::load() {
 	loadFloatConfig(L, COMBAT_CHAIN_SKILL_FORMULA_SWORD, "combatChainSkillFormulaSword", 1.1);
 	loadFloatConfig(L, COMBAT_CHAIN_SKILL_FORMULA_FIST, "combatChainSkillFormulaFist", 1.1);
 	loadFloatConfig(L, FORGE_AMOUNT_MULTIPLIER, "forgeAmountMultiplier", 3.0);
+	// Monster mitigation. COMMUNITY_DERIVED_TUNABLE: the post-15.25 note says monster
+	// mitigation went up, but not by how much and not to what ceiling, so both are
+	// knobs with the project's accepted defaults rather than hidden constants.
+	loadNonNegativeFloatConfig(L, MONSTER_MITIGATION_MULTIPLIER, "monsterMitigationMultiplier", 1.5);
+	loadNonNegativeFloatConfig(L, MONSTER_MITIGATION_CAP, "monsterMitigationCap", 45.0);
 	loadFloatConfig(L, HAZARD_EXP_BONUS_MULTIPLIER, "hazardExpBonusMultiplier", 2.0);
 	loadFloatConfig(L, LOYALTY_BONUS_PERCENTAGE_MULTIPLIER, "loyaltyBonusPercentageMultiplier", 1.0);
 	loadFloatConfig(L, MOMENTUM_CHANCE_FORMULA_A, "momentumChanceFormulaA", 0.05);
@@ -513,6 +518,26 @@ float ConfigManager::loadFloatConfig(lua_State* L, const ConfigKey_t &key, const
 	configs[key] = value;
 	lua_pop(L, 1);
 	return value;
+}
+
+float ConfigManager::loadNonNegativeFloatConfig(lua_State* L, const ConfigKey_t &key, const char* identifier, const float &defaultValue) {
+	const float configured = loadFloatConfig(L, key, identifier, defaultValue);
+	if (std::isfinite(configured) && configured >= 0.0f) {
+		return configured;
+	}
+
+	// Zero, not the default: a server that deliberately turned the value down should
+	// not find it silently restored, and zero is the nearest valid value in every case
+	// these keys are used for. No upper bound is imposed - there is no technical reason
+	// for one, and inventing a ceiling would be a balance decision in disguise.
+	g_logger().warn(
+		"[{}] '{}' cannot be negative or non-finite. Got {}, using 0 instead. "
+		"A negative value here would invert the percentage it feeds and increase damage taken.",
+		__FUNCTION__, identifier, configured
+	);
+	configs[key] = 0.0f;
+	m_configFloat[key] = 0.0f;
+	return 0.0f;
 }
 
 const std::string &ConfigManager::getString(const ConfigKey_t &key, const std::source_location &location /*= std::source_location::current()*/) const {

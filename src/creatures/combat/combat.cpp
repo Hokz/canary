@@ -11,6 +11,7 @@
 
 #include "config/configmanager.hpp"
 #include "creatures/combat/condition.hpp"
+#include "creatures/combat/elemental_stance.hpp"
 #include "creatures/combat/spells.hpp"
 #include "creatures/monsters/monster.hpp"
 #include "creatures/monsters/monsters.hpp"
@@ -82,32 +83,33 @@ CombatDamage Combat::getCombatDamage(const std::shared_ptr<Creature> &creature, 
 	// naturalType is the element the spell has before any conversion. The stance's
 	// own bonus (below) is decided on that, so a converted spell is not treated as a
 	// fire spell just because it now deals fire.
+	//
+	// A Beam Mastery cast runs two independent Combat executions: the central beam and
+	// the flank lines. Both reach this function, so the state machine has to run for
+	// exactly one of them - otherwise the flank arms or consumes the conversion a
+	// second time and the two halves of one cast can resolve to different elements.
+	// The central pass resolves it and publishes the result; the flank pass only
+	// inherits that result and leaves the armed conversion untouched. The flank still
+	// reads which stance is held, because the Master of Flames bonus below is decided
+	// per execution and applies to the flank damage too.
 	const CombatType_t naturalType = damage.primary.type;
 	CombatType_t elementalStanceOf = COMBAT_NONE;
 	if (casterPlayer && !instantSpellName.empty() && damage.primary.type != COMBAT_HEALING) {
-		static constexpr std::array<std::pair<AttrSubId_t, CombatType_t>, 3> elementalStances = { {
-			{ AttrSubId_t::StanceMasterOfFlames, COMBAT_FIREDAMAGE },
-			{ AttrSubId_t::StanceMasterOfThunder, COMBAT_ENERGYDAMAGE },
-			{ AttrSubId_t::StanceMasterOfDecay, COMBAT_DEATHDAMAGE },
-		} };
-
-		CombatType_t stanceElement = COMBAT_NONE;
-		for (const auto &[subId, element] : elementalStances) {
-			if (casterPlayer->getCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, magic_enum::enum_integer(subId))) {
-				stanceElement = element;
-				break;
-			}
-		}
-
+		const CombatType_t stanceElement = casterPlayer->getElementalStanceElement();
 		elementalStanceOf = stanceElement;
-		if (stanceElement == COMBAT_NONE) {
-			casterPlayer->setPendingElementalConversion(COMBAT_NONE);
-		} else if (damage.primary.type == stanceElement) {
-			casterPlayer->setPendingElementalConversion(stanceElement);
-		} else if (casterPlayer->getPendingElementalConversion() == stanceElement) {
-			damage.primary.type = stanceElement;
-			casterPlayer->setPendingElementalConversion(COMBAT_NONE);
-		}
+
+		const ElementalStance::Pass pass {
+			.naturalType = naturalType,
+			.stanceElement = stanceElement,
+			.instantSpellName = instantSpellName,
+			.isFlank = params.beamMasteryFlank,
+			.beamMasterySpell = casterPlayer->wheel().isBeamMasterySpell(instantSpellName),
+			.beamMasteryFlankActive = casterPlayer->wheel().getBeamMasteryAdjacentDamagePercent() > 0,
+		};
+
+		CombatType_t pending = casterPlayer->getPendingElementalConversion();
+		damage.primary.type = ElementalStance::resolvePass(pass, pending, casterPlayer->beamMasteryCastContext());
+		casterPlayer->setPendingElementalConversion(pending);
 	}
 
 	damage.naturalPrimaryType = naturalType;
@@ -597,6 +599,11 @@ bool Combat::setParam(CombatParam_t param, uint32_t value) {
 
 		case COMBAT_PARAM_NOCHARM: {
 			params.noCharm = value != 0;
+			return true;
+		}
+
+		case COMBAT_PARAM_BEAM_MASTERY_FLANK: {
+			params.beamMasteryFlank = value != 0;
 			return true;
 		}
 	}
@@ -1507,7 +1514,9 @@ void Combat::CombatFunc(const std::shared_ptr<Creature> &caster, const Position 
 
 	// Wheel of destiny get beam affected total
 	auto spectators = Spectators().find<Player>(toPos, true, rangeX, rangeX, rangeY, rangeY);
-	uint8_t beamAffectedTotal = casterPlayer ? casterPlayer->wheel().getBeamAffectedTotal(tmpDamage) : 0;
+	// The flank pass is deliberately excluded: only the central beam's targets feed the
+	// per-target damage increase and the per-target cooldown reduction.
+	uint8_t beamAffectedTotal = casterPlayer && !params.beamMasteryFlank ? casterPlayer->wheel().getBeamAffectedTotal(tmpDamage) : 0;
 	uint8_t beamAffectedCurrent = 0;
 
 	tmpDamage.affected = affectedTargets.size();
@@ -1540,7 +1549,7 @@ void Combat::CombatFunc(const std::shared_ptr<Creature> &caster, const Position 
 
 				if (!params.aggressive || (caster != creature && Combat::canDoCombat(caster, creature, params.aggressive) == RETURNVALUE_NOERROR)) {
 					// Wheel of destiny update beam mastery damage
-					if (casterPlayer) {
+					if (casterPlayer && !params.beamMasteryFlank) {
 						casterPlayer->wheel().updateBeamMasteryDamage(tmpDamage, beamAffectedTotal, beamAffectedCurrent);
 					}
 
@@ -1910,7 +1919,7 @@ void ValueCallback::getMinMaxValues(const std::shared_ptr<Player> &player, Comba
 	LuaScriptInterface::setMetatable(L, -1, "Player");
 
 	int16_t elementAttack = 0; // To calculate elemental damage after executing spell script and get real damage.
-	int32_t attackValue = 7; // default start attack value
+	double attackValue = 7; // default start attack value, effective (15.25 compensated) once a weapon fills it
 	int parameters = 1;
 	bool shouldCalculateSecondaryDamage = false;
 

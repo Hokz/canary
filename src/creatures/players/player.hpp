@@ -16,6 +16,7 @@
 #include "items/cylinder.hpp"
 #include "game/movement/position.hpp"
 #include "creatures/creatures_definitions.hpp"
+#include "creatures/combat/elemental_stance.hpp"
 #include "creatures/players/stash_definitions.hpp"
 
 // Player components are decoupled to reduce complexity. Keeping includes here aids in clarity and maintainability, but avoid including player.hpp in headers to prevent circular dependencies.
@@ -327,6 +328,11 @@ public:
 	// CONDITION_ATTRIBUTES on CONDITIONID_COMBAT carrying that stance's subId.
 	bool hasStance(AttrSubId_t stance) const;
 
+	// The element of the Elemental stance this player holds - Master of Flames, of
+	// Thunder or of Decay - or COMBAT_NONE when none is held. Only one is ever held at
+	// a time: data/libs/systems/stance.lua clears the family before adding the new one.
+	[[nodiscard]] CombatType_t getElementalStanceElement() const;
+
 	// Shared Conservation: +10% on healing SPELLS the holder casts on themselves.
 	// Decided where healer and target are both known (Game::combatChangeHealth):
 	// the healer is this player, the target is this player, and the heal came from
@@ -343,6 +349,22 @@ public:
 	}
 	void setPendingElementalConversion(CombatType_t combat) {
 		m_pendingElementalConversion = combat;
+	}
+
+	// A Beam Mastery cast is two Combat executions - the central beam and its flanks -
+	// and they are one spell cast. The elemental stance state machine must therefore
+	// run once, on the central pass, and the flank must use whatever element that
+	// resolved to. Without this the two passes resolved independently: a consumed
+	// conversion left the centre fire and the flanks energy.
+	//
+	// The context is runtime only, never saved, and scoped to one spell. Combat owns
+	// every transition on it through ElementalStance::resolvePass; the player only
+	// holds it.
+	[[nodiscard]] ElementalStance::BeamMasteryCastContext &beamMasteryCastContext() {
+		return m_beamMasteryCastContext;
+	}
+	[[nodiscard]] const ElementalStance::BeamMasteryCastContext &beamMasteryCastContext() const {
+		return m_beamMasteryCastContext;
 	}
 
 	// Mana Buffer: the 25%-of-max-mana part may only be charged once every two
@@ -537,6 +559,21 @@ public:
 	void setTestIdleTime(int32_t testIdleTimeInMs) {
 		idleTime = testIdleTimeInMs;
 	}
+
+	void setTestVocation(std::shared_ptr<Vocation> testVocation) {
+		vocation = std::move(testVocation);
+	}
+
+	// Puts an item straight into a slot. The real paths (addThing, the move events)
+	// are private and pull in the whole game; combat only reads the inventory.
+	void setTestInventoryItem(Slots_t slot, std::shared_ptr<Item> item) {
+		inventory[slot] = std::move(item);
+	}
+
+	// Puts the player on the pre-15.25 fight-mode math, as a Tibia 11.00 client would.
+	void setTestLegacyCombatModel(bool legacy) {
+		testLegacyCombatModel = legacy;
+	}
 #endif
 
 	void addContainer(uint8_t cid, const std::shared_ptr<Container> &container);
@@ -719,7 +756,21 @@ public:
 	[[nodiscard]] bool isItemAbilityEnabled(Slots_t slot) const;
 	void setItemAbility(Slots_t slot, bool enabled);
 
+	// A flat skill bonus from equipment, an imbuement or a condition's flat recipe.
+	// Every change here re-derives the percent recipes, so a +25% stance always
+	// scales the skill the player has now, equipment included.
 	void setVarSkill(skills_t skill, int32_t modifier);
+	// The flat value a percent recipe produced. Kept apart from the rest of
+	// varSkills so the next recipe never scales what an earlier recipe added.
+	void addPercentDerivedSkill(skills_t skill, int32_t modifier);
+	// Re-derives every attribute condition's percent skills from the current
+	// non-percent sources. Idempotent: the same state always yields the same skills.
+	void refreshPercentSkillRecipes();
+	// The same re-derivation without the client update, answering whether any derived
+	// skill actually moved. For a caller that is going to send the skills itself once
+	// its own work is finished - PlayerWheel's conditional abilities - so the player
+	// is not sent two skill payloads for one event.
+	bool rederivePercentSkillRecipes();
 
 	void setVarStats(stats_t stat, int32_t modifier);
 	int32_t getDefaultStats(stats_t stat) const;
@@ -854,6 +905,10 @@ public:
 	bool hasExtraSwing() override;
 
 	uint16_t getSkillLevel(skills_t skill) const;
+	// The skill a percent recipe scales from: everything getSkillLevel counts -
+	// trained skill, loyalty, equipment, imbuements, flat condition bonuses, Wheel
+	// and proficiency additions - minus what percent recipes themselves added.
+	uint16_t getSkillLevelForPercentScaling(skills_t skill) const;
 	uint16_t getLoyaltySkill(skills_t skill) const;
 	uint16_t getBaseSkill(uint8_t skill) const;
 	double_t getSkillPercent(skills_t skill) const;
@@ -902,7 +957,6 @@ public:
 	uint16_t getAttackSkill(const std::shared_ptr<Item> &item) const;
 	uint8_t getWeaponSkillId(const std::shared_ptr<Item> &item) const;
 	uint16_t getDefenseEquipment() const;
-	double getCombatTacticsMitigation() const;
 	std::vector<double> getDamageAccuracy(const ItemType &it) const;
 
 	void drainHealth(const std::shared_ptr<Creature> &attacker, int32_t damage) override;
@@ -915,6 +969,25 @@ public:
 	float getAttackFactor() const override;
 	float getDefenseFactor(bool sendToClient) const override;
 	float getMitigation() const override;
+
+	// The 15.25 combat model: Attack / Balanced / Defense carry no mathematical
+	// weight, and weapon Attack, shield Defence and spellbook Defence are read
+	// through EffectiveCombatValues. A client whose protocol profile still sends a
+	// fight mode (Tibia 11.00, 8.60) keeps the pre-15.25 math on every one of those
+	// paths; the two models never mix on one player. A player with no client (a
+	// unit test, a not yet connected login) is on the modern model.
+	bool usesModernCombatModel() const;
+	// A weapon attack quantity - the item's attack, its elemental attack, the
+	// ammunition's attack - as combat reads it: compensated on the modern model,
+	// raw on the legacy one. Not for the proficiency's flat ATTACK_DAMAGE or the
+	// bare-fist constant; those are not weapon attack values.
+	double getEffectiveWeaponAttackValue(int32_t rawAttackValue) const;
+	// The Defence an off-hand item contributes: a shield's compensated by 30%, a
+	// spellbook's by 60%, anything else raw; raw for every kind on the legacy model.
+	double getEffectiveOffhandDefense(const std::shared_ptr<Item> &item) const;
+	// The compensated Defence of the equipped shield (a spellbook is not one), or
+	// 0 without one. Shield Bash and Shield Slam read this.
+	int32_t getEffectiveShieldDefense() const;
 
 	/**
 	 * @brief Calculates the total mantra value from equipped items.
@@ -1614,6 +1687,10 @@ private:
 	friend class PlayerLock;
 	std::mutex mutex;
 
+	// getSkillLevel and getSkillLevelForPercentScaling are this one pipeline with
+	// a different varSkills contribution.
+	uint16_t computeSkillLevel(skills_t skill, int32_t varSkillContribution) const;
+
 	static uint32_t playerFirstID;
 	static uint32_t playerLastID;
 
@@ -1824,10 +1901,16 @@ private:
 	uint32_t editListId = 0;
 	uint32_t manaMax = 0;
 	int32_t varSkills[SKILL_LAST + 1] = {};
+	// The part of varSkills that percent recipes produced; see addPercentDerivedSkill.
+	int32_t varSkillsFromPercent[SKILL_LAST + 1] = {};
+	bool refreshingPercentSkillRecipes = false;
+	bool testLegacyCombatModel = false;
 	int32_t varRangedDodge = 0;
 	std::array<int32_t, COMBAT_COUNT> varElementCriticalChance = {};
 	std::array<int32_t, COMBAT_COUNT> varElementCriticalDamage = {};
 	CombatType_t m_pendingElementalConversion = COMBAT_NONE;
+	// See beamMasteryCastContext. Invalid means no Beam Mastery cast in flight.
+	ElementalStance::BeamMasteryCastContext m_beamMasteryCastContext;
 	int64_t m_lastManaBufferBurst = 0;
 	int32_t varStats[STAT_LAST + 1] = {};
 	int32_t shopCallback = -1;

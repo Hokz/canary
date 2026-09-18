@@ -113,6 +113,7 @@ class PlayerFunctions {
 
 	static int luaPlayerGetSkillLevel(lua_State* L);
 	static int luaPlayerGetEffectiveSkillLevel(lua_State* L);
+	static int luaPlayerGetEffectiveShieldDefense(lua_State* L);
 	static int luaPlayerGetSkillPercent(lua_State* L);
 	static int luaPlayerGetSkillTries(lua_State* L);
 	static int luaPlayerAddSkillTries(lua_State* L);
@@ -307,6 +308,7 @@ class PlayerFunctions {
 	static int luaPlayerOnThinkWheelOfDestiny(lua_State* L);
 	static int luaPlayerAvatarTimer(lua_State* L);
 	static int luaPlayerGetWheelSpellAdditionalArea(lua_State* L);
+	static int luaPlayerGetBeamMasteryAdjacentDamage(lua_State* L);
 	static int luaPlayerGetWheelSpellAdditionalTarget(lua_State* L);
 	static int luaPlayerGetWheelSpellAdditionalDuration(lua_State* L);
 	static int luaPlayerGetWheelSpellAdditionalDamage(lua_State* L);

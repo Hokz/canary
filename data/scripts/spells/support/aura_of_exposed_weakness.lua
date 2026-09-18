@@ -8,8 +8,8 @@
 -- after the hit has resolved and taken health. A dodged, blocked or cancelled hit
 -- applies nothing; a landed hit refreshes the debuff and never stacks it.
 --
--- Replaces the targeted Expose Weakness spell of earlier versions; that script is left in
--- place untouched, since removing a spell players may have is a separate decision.
+-- Replaces the targeted Expose Weakness spell of earlier versions, which is retired:
+-- its script and every NPC that taught it are gone.
 local function build()
 	return Stance.condition(AttrSubId_StanceExposedWeakness, function(condition) end)
 end
