@@ -395,6 +395,21 @@ bool Player::hasStance(AttrSubId_t stance) const {
 	return getCondition(CONDITION_ATTRIBUTES, CONDITIONID_COMBAT, magic_enum::enum_integer(stance)) != nullptr;
 }
 
+CombatType_t Player::getElementalStanceElement() const {
+	static constexpr std::array<std::pair<AttrSubId_t, CombatType_t>, 3> elementalStances = { {
+		{ AttrSubId_t::StanceMasterOfFlames, COMBAT_FIREDAMAGE },
+		{ AttrSubId_t::StanceMasterOfThunder, COMBAT_ENERGYDAMAGE },
+		{ AttrSubId_t::StanceMasterOfDecay, COMBAT_DEATHDAMAGE },
+	} };
+
+	for (const auto &[subId, element] : elementalStances) {
+		if (hasStance(subId)) {
+			return element;
+		}
+	}
+	return COMBAT_NONE;
+}
+
 bool Player::applySharedConservationSelfHeal(const std::shared_ptr<Creature> &target, CombatDamage &damage) const {
 	if (!target || target.get() != this || damage.primary.type != COMBAT_HEALING || damage.primary.value <= 0) {
 		return false;

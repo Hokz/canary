@@ -1,6 +1,7 @@
 target_sources(
     canary_ut
-    PRIVATE condition_attributes_serialize_test.cpp
+    PRIVATE beam_mastery_flank_stance_test.cpp
+            condition_attributes_serialize_test.cpp
             crippling_aura_test.cpp
             effective_skill_percent_test.cpp
             element_critical_natural_spell_test.cpp

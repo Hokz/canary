@@ -324,6 +324,9 @@ public:
 	// The adjacent-square scale, 0 / 25 / 40 / 70 by Beam Mastery stage. Separate from
 	// checkBeamMasteryDamage, which is the central beam's per-target increase.
 	[[nodiscard]] int32_t getBeamMasteryAdjacentDamagePercent() const;
+	// Whether this instant spell is one Beam Mastery applies to. m_beamMasterySpells is
+	// the one place that set lives; nothing else may keep its own copy of the names.
+	[[nodiscard]] bool isBeamMasterySpell(const std::string &spellName) const;
 	int32_t checkBattleHealingAmount() const;
 	int32_t checkBlessingGroveHealingByTarget(const std::shared_ptr<Creature> &target) const;
 	int32_t checkTwinBurstByTarget(const std::shared_ptr<Creature> &target) const;

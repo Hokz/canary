@@ -3197,6 +3197,12 @@ int32_t PlayerWheel::checkBeamMasteryDamage() const {
 	return damageBoost;
 }
 
+// The set is filled while the Beam Mastery stage is owned and cleared with the wheel,
+// so it is the one authority on which spells the mechanic touches.
+bool PlayerWheel::isBeamMasterySpell(const std::string &spellName) const {
+	return m_beamMasterySpells.contains(spellName);
+}
+
 // What a square beside the beam takes, as a percentage of the beam's own damage.
 // POST_JULY_VERIFIED: 25 / 40 / 70 by Beam Mastery stage. This is the only place
 // those three numbers live; the datapack reads them through

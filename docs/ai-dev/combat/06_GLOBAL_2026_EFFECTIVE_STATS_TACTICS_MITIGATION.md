@@ -249,11 +249,19 @@ retiring a spell and is the Technical Director's call, not a side effect this la
 
 | File | Cases | What it proves |
 |---|---|---|
-| `tests/unit/items/effective_combat_values_test.cpp` | 9 | the three percentages, that they differ, fractions kept, nothing ≤ 0 scaled, shield vs spellbook vs other classification, a double application is visibly wrong, the rounding point |
+| `tests/unit/items/effective_combat_values_test.cpp` | 10 | the three percentages, that they differ, fractions kept, nothing ≤ 0 scaled, shield vs spellbook vs other classification, a double application is visibly wrong, the rounding point |
 | `tests/unit/players/condition/effective_skill_percent_test.cpp` | 24 | 100 +30% = 130; equipment counts and follows up and down; five refreshes do not compound; recast applies once and removal restores exactly; two recipes add and are order-independent; a relog restores once; the blob carries the recipe not the value; flat and percent coexist; a proficiency skill bonus counts as source; a proficiency bonus, a Wheel stat and both together gained **while the stance is already on** re-derive at once and unwind exactly; a condition's own flat recipe feeds its own percentage; `getBaseSkill` stays raw; a pre-separation blob drops the stale value; **Positional Tactics' Distance and Battle Instinct's Shielding move an already-active stance at once, unwind exactly and do not compound over five enter/leave cycles**; a conditional bonus is worth nothing while its instant is not held; a non-skill major stat asks for no re-derivation; one evaluation that moves two stats costs one pass; the leave-combat reset takes both stances down with it |
-| `tests/unit/players/combat_tactics_test.cpp` | 9 | attack factor, defence factor, defence, mitigation, attack total and defence equipment identical in all three fight modes; a legacy client still gets the old weighting and those numbers really differ; weapon +20% modern only; shield +30% and spellbook +60%; an ordinary off-hand gets neither; raw item data untouched; Shield Bash reads the same compensated value; no percentage applied twice along the defence chain |
+| `tests/unit/players/combat_tactics_test.cpp` | 10 | attack factor, defence factor, defence, mitigation, attack total and defence equipment identical in all three fight modes; a legacy client still gets the old weighting and those numbers really differ; weapon +20% modern only; shield +30% and spellbook +60%; an ordinary off-hand gets neither; raw item data untouched; Shield Bash reads the same compensated value; no percentage applied twice along the defence chain |
 
-Existing suites kept green locally: `test_stance_library.lua` (15), `test_vocation_balance_formulas.lua` (18), `stylua`, `luac`, `clang-format`, `cmake-format`, the Lua API quality and binding-doc checks.
+| `tests/unit/players/wheel/sorcerer_wheel_mapping_test.cpp` | 20 | the post-July Sorcerer slot mapping, the Beam Mastery scales (0/25/40/70 adjacent and 10/12/14 central, never the same number), the flank `Combat`'s parameters, and that only a beam spell reaches the central accounting |
+| `tests/unit/players/mitigation_profile_test.cpp` | 23 | the thirteen knobs, the legacy derivation and that a profile is never silently partial |
+| `tests/unit/game/monster_mitigation_config_test.cpp` | 16 | the 1.5 / 45.0 defaults, and that neither can be configured negative |
+| `tests/unit/players/condition/beam_mastery_flank_stance_test.cpp` | 17 | one Beam Mastery cast resolves one element: the machine's four transitions, the three consuming and two arming cases, context isolation between beams, stale-context invalidation, stage 0, and the natural element staying native |
+
+Lua suites: `test_beam_mastery_flank_geometry.lua` (13), `test_npc_messaging.lua` (11),
+`test_stance_library.lua` (15), `test_vocation_balance_formulas.lua` (18) — **57 Lua tests**.
+Also kept green locally: `stylua`, `luac`, `clang-format`, `cmake-format`, the Lua API quality
+and binding-doc checks.
 
 ## H. Before / after
 
@@ -434,12 +442,63 @@ marked but never damaged, left/right symmetry, disjointness from the central bea
 duplicate diagonal cells), the flag's default and both settings, that it disturbs no other
 combat parameter, and the 0 / 25 / 40 / 70 accessor with the exact factor the datapack derives.
 
-**Not proven by tests:** the damage numbers a live cast produces, and the stance conversion
-applied to a flank hit. Both need a running map with creatures on it, which this repository's
-unit and Lua suites cannot provide — there is no combat-integration harness. The stance and
-augment behaviour follows by construction (the flank goes through the same
-`Combat::getCombatDamage` with the same spell name), but that is an argument, not a test, and
-it is recorded here as such rather than claimed as verified.
+**Not proven by tests:** the damage numbers a live cast produces, and the augment lookup on a
+flank hit. Both need a running map with creatures on it, which this repository's unit and Lua
+suites cannot provide — there is no combat-integration harness. The augment behaviour follows
+by construction (the flank goes through the same `Combat::getCombatDamage` with the same spell
+name), and that is an argument, not a test; it is recorded here as such rather than claimed as
+verified.
+
+The same argument was made for the elemental stance and **it was wrong** — see the next
+section. Going through the same function with the same name is exactly what made both passes
+run the same *stateful* machine. The stance conversion is now proven by tests rather than
+argued for.
+
+### The flank inherits one resolved element per cast
+
+A Beam Mastery cast is two `Combat` executions, so `Combat::getCombatDamage` runs twice. The
+elemental stance conversion (Master of Flames / Thunder / Decay) is a state machine on
+`Player::m_pendingElementalConversion`, and running it twice meant one cast could resolve two
+elements:
+
+| | natural | armed before | resolved | armed after |
+|---|---|---|---|---|
+| central | ENERGY | FIRE | **FIRE** | NONE |
+| flank | ENERGY | NONE | **ENERGY** | NONE |
+
+Centre fire, flanks energy, from one press of one spell.
+
+`ElementalStance::resolvePass` (`src/creatures/combat/elemental_stance.hpp`) is now the whole
+per-execution decision and the only place either the armed conversion or the cast context
+changes. `getCombatDamage` reads the held stance and the armed element off the player, calls
+it once, and writes the armed element back.
+
+  - **Central pass.** Clears any stale Beam Mastery cast context, runs the state machine
+    exactly as before (arm, consume, or neither), and — only when the spell is in the wheel's
+    own Beam Mastery set and the adjacent percentage is above zero — publishes the resolved
+    element under that spell's name.
+  - **Flank pass** (`params.beamMasteryFlank`). Reads that context and nothing else. A match
+    consumes it and the flank deals the inherited element; a missing or mismatched context
+    falls back to the spell's own element. The flank never arms and never consumes the
+    conversion, so the element and the armed state are both decided once per cast.
+
+The context lives on `Player` as `ElementalStance::BeamMasteryCastContext` — a spell name, a
+resolved element and a valid flag. It is runtime only, never written to the database, and
+cannot leak: every other non-flank instant cast clears it, a matching flank consumes it, a
+different spell name never matches it, and Beam Mastery stage 0 produces none at all.
+
+`damage.naturalPrimaryType` stays the spell's **native** element on both passes. The
+inheritance replaces `damage.primary.type` only, which is what keeps natural-element critical
+and bonus rules judging ENERGY while the hit lands as FIRE.
+
+**FIDELITY: BEAM_MASTERY_FLANK_ELEMENTAL_STANCE_STATE — CLOSED.** Proven by
+`tests/unit/players/condition/beam_mastery_flank_stance_test.cpp` (17 tests): the four
+transitions of the machine on its own, the three consuming cases across the three beams, the
+two arming cases plus the next spell consuming the armed element exactly once, no stance and a
+held-but-unarmed stance, one beam's flank refusing another beam's context, an unrelated spell
+invalidating a stale context, stage 0 publishing nothing, the beam set coming from the wheel, a
+flank never touching the armed conversion under any stance/armed combination, and the natural
+element staying native on both passes.
 
 ## L. The modern mitigation profile
 

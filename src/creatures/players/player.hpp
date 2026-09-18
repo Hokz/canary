@@ -16,6 +16,7 @@
 #include "items/cylinder.hpp"
 #include "game/movement/position.hpp"
 #include "creatures/creatures_definitions.hpp"
+#include "creatures/combat/elemental_stance.hpp"
 #include "creatures/players/stash_definitions.hpp"
 
 // Player components are decoupled to reduce complexity. Keeping includes here aids in clarity and maintainability, but avoid including player.hpp in headers to prevent circular dependencies.
@@ -327,6 +328,11 @@ public:
 	// CONDITION_ATTRIBUTES on CONDITIONID_COMBAT carrying that stance's subId.
 	bool hasStance(AttrSubId_t stance) const;
 
+	// The element of the Elemental stance this player holds - Master of Flames, of
+	// Thunder or of Decay - or COMBAT_NONE when none is held. Only one is ever held at
+	// a time: data/libs/systems/stance.lua clears the family before adding the new one.
+	[[nodiscard]] CombatType_t getElementalStanceElement() const;
+
 	// Shared Conservation: +10% on healing SPELLS the holder casts on themselves.
 	// Decided where healer and target are both known (Game::combatChangeHealth):
 	// the healer is this player, the target is this player, and the heal came from
@@ -343,6 +349,22 @@ public:
 	}
 	void setPendingElementalConversion(CombatType_t combat) {
 		m_pendingElementalConversion = combat;
+	}
+
+	// A Beam Mastery cast is two Combat executions - the central beam and its flanks -
+	// and they are one spell cast. The elemental stance state machine must therefore
+	// run once, on the central pass, and the flank must use whatever element that
+	// resolved to. Without this the two passes resolved independently: a consumed
+	// conversion left the centre fire and the flanks energy.
+	//
+	// The context is runtime only, never saved, and scoped to one spell. Combat owns
+	// every transition on it through ElementalStance::resolvePass; the player only
+	// holds it.
+	[[nodiscard]] ElementalStance::BeamMasteryCastContext &beamMasteryCastContext() {
+		return m_beamMasteryCastContext;
+	}
+	[[nodiscard]] const ElementalStance::BeamMasteryCastContext &beamMasteryCastContext() const {
+		return m_beamMasteryCastContext;
 	}
 
 	// Mana Buffer: the 25%-of-max-mana part may only be charged once every two
@@ -1887,6 +1909,8 @@ private:
 	std::array<int32_t, COMBAT_COUNT> varElementCriticalChance = {};
 	std::array<int32_t, COMBAT_COUNT> varElementCriticalDamage = {};
 	CombatType_t m_pendingElementalConversion = COMBAT_NONE;
+	// See beamMasteryCastContext. Invalid means no Beam Mastery cast in flight.
+	ElementalStance::BeamMasteryCastContext m_beamMasteryCastContext;
 	int64_t m_lastManaBufferBurst = 0;
 	int32_t varStats[STAT_LAST + 1] = {};
 	int32_t shopCallback = -1;
