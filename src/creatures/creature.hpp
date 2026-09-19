@@ -490,9 +490,12 @@ public:
 	// puts every resistance. It used to run after both, in Player::blockHit, which is
 	// what FIDELITY_BLOCKER - DAMAGE_REDUCTION_PIPELINE_ORDER named.
 	//
-	// Items whose absorb applied are collected rather than charged on the spot: a
-	// charge is still spent only on a hit that actually lands, which is the semantics
-	// the old position got for free by running last.
+	// Items whose absorb applied are collected rather than charged on the spot, so
+	// blockHit can spend the charges at the end, after mitigation. That reproduces the
+	// conditions the old position got for free by running last: a hit that defense or
+	// armor stopped, or that mitigation alone finished, spends no charge, because the
+	// absorb loop never ran. A resistance that absorbs the WHOLE hit does spend it -
+	// the charge came out inside the loop, and the loop had already run by then.
 	virtual void applyEquipmentResistances(const CombatType_t &, int32_t &, bool, std::vector<std::shared_ptr<Item>> &) {
 		// Nothing to do: no equipment.
 	}

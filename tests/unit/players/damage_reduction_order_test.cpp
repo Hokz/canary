@@ -229,16 +229,22 @@ namespace {
 	}
 
 	TEST_F(DamageReductionOrderTest, AResistanceSwallowingTheHitIsNotABlock) {
-		// The defender-side delta this reorder accepts, pinned so it is a decision rather
-		// than a surprise.
+		// The input side of the defender-side delta this reorder accepts.
 		//
-		// Armor and defense now see the damage the resistances already reduced. A hit a
-		// resistance swallows outright never reaches them, so it reports no block by
-		// defense or armor - where before the reorder that same small hit arrived at full
-		// strength, armor stopped it, and the defender's Shielding advanced.
+		// Armor and defense now see the damage the resistances already reduced, so a hit a
+		// resistance swallows outright never reaches them - where before the reorder that
+		// same small hit arrived at full strength, armor stopped it, and the defender's
+		// Shielding advanced. The caller is still told BLOCK_ARMOR, because the hit was
+		// stopped; what changed is which layer stopped it.
 		//
-		// The caller is still told BLOCK_ARMOR, because the hit was stopped; what changed
-		// is which layer stopped it, and onBlockHit is gated on the real one.
+		// What this test does NOT prove: that onBlockHit() did not run. It asserts the
+		// absorb took everything and the reported block type, which is what the gate reads,
+		// not what the gate does. The gate itself - if (hasDefense && blockedByDefenceOrArmor)
+		// in Creature::blockHit - is structurally enforced and uncovered, because Player is
+		// final so nothing can override onBlockHit(), and blockCount is zero throughout this
+		// fixture (it only accrues in Creature::onThink), which makes hasDefense false for
+		// every call here. See 09_GLOBAL_2026_DAMAGE_REDUCTION_ORDER.md for what a test that
+		// did cover it would need.
 		auto player = defender(true);
 		int32_t damage = 1; // 70% of 1 rounds to 1, so the absorb takes all of it
 		const BlockType_t blockType = player->blockHit(nullptr, COMBAT_FIREDAMAGE, damage, false, true, false);
@@ -270,10 +276,13 @@ namespace {
 	}
 
 	TEST_F(DamageReductionOrderTest, AFullyAbsorbedHitReportsABlock) {
-		// A resistance that takes the whole hit reports BLOCK_ARMOR, which is the value
-		// Player::blockHit already returned for this case before the move. The
-		// difference is that the attacker's onAttackedCreatureBlockHit now sees it too;
-		// it used to be told BLOCK_NONE while the caller was told BLOCK_ARMOR.
+		// A resistance that takes the whole hit reports BLOCK_ARMOR to the caller, which is
+		// the value Player::blockHit already returned for this case before the move.
+		//
+		// The attacker is NOT told the same thing, and deliberately so: its
+		// onAttackedCreatureBlockHit still receives BLOCK_NONE, exactly as before the move,
+		// which is what AFullyAbsorbedHitDoesNotCostTheAttackerItsSkillPoint asserts. The
+		// two answers differ on purpose.
 		auto player = defender(true);
 		int32_t damage = 1; // 70% of 1 rounds to 1, so the absorb takes all of it
 		const BlockType_t blockType = player->blockHit(nullptr, COMBAT_FIREDAMAGE, damage, false, true, false);

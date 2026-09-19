@@ -109,8 +109,9 @@ The same reasoning covers the defender:
     which now run ahead of defense and armor. A resistance swallowing the hit does not
     hand the defender its block back.
   - **`onBlockHit()`**, which advances Shielding, is gated on `blockedByDefenceOrArmor`. A
-    block by defense or armor advances it, as before; a resistance absorbing everything is
-    not a block and did not advance it before either.
+    block by defense or armor advances it, exactly as before. A resistance absorbing
+    everything is not a block by either layer, so it does not advance it. That one is a
+    change rather than a preservation, and the next section states and accepts it.
 
 ### The one defender-side delta, accepted
 
@@ -128,7 +129,23 @@ twice, or on a number the defender never took. And semantically, a resistance ab
 damage is the armour's elemental protection working, not the shield, which is what
 Shielding measures.
 
-Pinned by `AResistanceSwallowingTheHitIsNotABlock`.
+**Structurally enforced, not directly covered.** The gate is the two-line
+`if (hasDefense && blockedByDefenceOrArmor)` in `Creature::blockHit`, and nothing in the
+unit suite observes `onBlockHit()` itself. `AResistanceSwallowingTheHitIsNotABlock` proves
+only what its assertions say - the absorb takes the whole hit and the caller is told
+`BLOCK_ARMOR` - which is the input side of the gate, not its effect.
+
+Observing the effect is out of reach of this fixture, for two concrete reasons worth
+recording so the next attempt does not rediscover them. `Player` is `final`
+(`player.hpp:129`), so no test-double can override `onBlockHit()`. And `Creature::blockCount`
+starts at zero and only accrues in `Creature::onThink` (`creature.cpp:144`), so `hasDefense`
+is false for every call this fixture makes and `onBlockHit()` never fires here at all -
+including on a hit that armor does stop, which means even a positive control would prove
+nothing. A test that genuinely covered this would have to drive `blockCount` through
+`onThink`, prime `shieldBlockCount` via `onAttackedCreatureBlockHit(BLOCK_NONE)`, equip a
+shield so `hasShield()` holds, and read the advance back through
+`getSkillPercent(SKILL_SHIELD)`. That is integration-shaped work, and it is deliberately not
+claimed here.
 
 ### The fixture crash this lane cost a day to
 
@@ -147,13 +164,19 @@ guarding `hasFlag` would hide the next fixture that forgets.
 
 | File | Cases | What it proves |
 |---|---|---|
-| `tests/unit/players/damage_reduction_order_test.cpp` | 11 | a minimal Player survives the whole chain; the fixture's premises; the no-resistance control lands in [901, 950]; **the resistance applies before the armor**, at or below 250 where the old order could never go below 270; sixty-four rolls never reach the old order's range; the resistance is worth more than it used to be; a reduced hit that still lands reports no block; a resistance swallowing the hit is not a block by defense or armor, so the defender's Shielding does not advance on it; a fully absorbed hit reports `BLOCK_ARMOR` to the caller and `BLOCK_NONE` to the attacker, so no skill point is lost; a damage type the item does not absorb is untouched |
+| `tests/unit/players/damage_reduction_order_test.cpp` | 11 | a minimal Player survives the whole chain; the fixture's premises; the no-resistance control lands in [901, 950]; **the resistance applies before the armor**, at or below 250 where the old order could never go below 270; sixty-four rolls never reach the old order's range; the resistance is worth more than it used to be; a reduced hit that still lands reports no block; a resistance swallowing the hit still reports `BLOCK_ARMOR` to the caller (the input side of the Shielding gate - the gate's effect is structurally enforced, not covered, see above); a fully absorbed hit reports `BLOCK_ARMOR` to the caller and `BLOCK_NONE` to the attacker, so no skill point is lost; a damage type the item does not absorb is untouched |
 
 The armor roll is random, which would normally make an ordering assertion impossible. The
 fixture is chosen so the two orders land in **disjoint** ranges, which makes an upper bound
 of 250 a deterministic proof that the resistance ran first, whatever the roll.
 
-**Not proven by tests:** the interaction with imbuements specifically (the imbuement branch
-needs an imbued item, which needs the imbuement registry), and charge consumption, which
-needs `g_game().transformItem` and therefore a running game. The charge *condition* is the
-part that was at risk, and it is stated in one flag in one place.
+**Not proven by tests**, stated here rather than left to be discovered:
+
+  - **The imbuement branch specifically.** It needs an imbued item, which needs the
+    imbuement registry.
+  - **Charge consumption.** It needs `g_game().transformItem`, and therefore a running
+    game. The charge *condition* is the part that was at risk, and it is two flags read in
+    one place — `!blockedByDefenceOrArmor && !mitigationFinishedTheHit` — rather than a
+    rule spread across the function.
+  - **The Shielding gate's effect.** `onBlockHit()` is never reached from this fixture at
+    all, for the reasons given above; only the value it is gated on is asserted.
