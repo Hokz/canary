@@ -1052,12 +1052,10 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 	// consequence of that separable and stated, instead of riding on an overloaded
 	// BLOCK_ARMOR. See docs/ai-dev/combat/09_GLOBAL_2026_DAMAGE_REDUCTION_ORDER.md.
 	std::vector<std::shared_ptr<Item>> resistanceChargedItems;
-	// Defense or armor stopped the hit that actually arrived - the one the resistances had
-	// already reduced. This is what Shielding reads.
-	bool blockedByDefenceOrArmor = false;
 	// Defense or armor would have stopped the hit as it stood BEFORE the equipment
 	// resistances, which is the hit they were handed until this change. Only the item
-	// charge rule reads this, because that rule is preserved rather than reordered.
+	// charge rule reads this, because that rule is preserved rather than reordered, which
+	// is why this one outlives the block below and blockedByDefenceOrArmor does not.
 	bool defenceOrArmorWouldHaveStoppedTheUnreducedHit = false;
 	testChargeSpendDecision = false;
 
@@ -1068,6 +1066,11 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 		// A hit that reaches the defender consumes a block, whether or not a resistance
 		// goes on to absorb it. This ran at this point before the resistances moved ahead
 		// of it and it still runs here, so blockCount is untouched by the reordering.
+		// Defense or armor stopped the hit that actually arrived - the one the resistances
+		// had already reduced. This is what Shielding reads, and nothing outside this
+		// block does.
+		bool blockedByDefenceOrArmor = false;
+
 		bool hasDefense = false;
 		if (checkDefense || checkArmor) {
 			if (blockCount > 0) {
