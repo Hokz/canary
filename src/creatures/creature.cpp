@@ -1024,7 +1024,7 @@ void Creature::applyAbsorbDamageModifications(const std::shared_ptr<Creature> &a
 	}
 }
 
-BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const CombatType_t &combatType, int32_t &damage, bool checkDefense /* = false */, bool checkArmor /* = false */, bool /* field  = false */) {
+BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const CombatType_t &combatType, int32_t &damage, bool checkDefense /* = false */, bool checkArmor /* = false */, bool field /* = false */) {
 	BlockType_t blockType = BLOCK_NONE;
 
 	// Apply skills 12.72 absorbs damage
@@ -1035,53 +1035,184 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 		checkArmor = false;
 	}
 
+	// Every resistance comes before armor and mitigation. The creature's own went first,
+	// above; the ones it wears go here. Both used to straddle armor and mitigation - the
+	// equipment half ran last of all, in Player::blockHit - which is the ordering
+	// FIDELITY_BLOCKER - DAMAGE_REDUCTION_PIPELINE_ORDER named.
+	//
+	// The difference is not cosmetic: a percentage applied before a flat subtraction is
+	// worth more than the same percentage after it. 100 damage against 20 armor and 10%
+	// resistance was 72 taken and is now 70.
+	//
+	// Immunity stays first of all: it zeroes the damage outright, so nothing after it can
+	// matter, and that was its place before this change too.
+	//
+	// Reordering the reduction also reclassifies some hits, because defense and armor now
+	// decide against a smaller number than they used to. The three flags below keep each
+	// consequence of that separable and stated, instead of riding on an overloaded
+	// BLOCK_ARMOR. See docs/ai-dev/combat/09_GLOBAL_2026_DAMAGE_REDUCTION_ORDER.md.
+	std::vector<std::shared_ptr<Item>> resistanceChargedItems;
+	// Defense or armor would have stopped the hit as it stood BEFORE the equipment
+	// resistances, which is the hit they were handed until this change. Only the item
+	// charge rule reads this, because that rule is preserved rather than reordered, which
+	// is why this one outlives the block below and blockedByDefenceOrArmor does not.
+	bool defenceOrArmorWouldHaveStoppedTheUnreducedHit = false;
+	testChargeSpendDecision = false;
+
 	if (isImmune(combatType)) {
 		damage = 0;
 		blockType = BLOCK_IMMUNITY;
-	} else if (checkDefense || checkArmor) {
+	} else {
+		// A hit that reaches the defender consumes a block, whether or not a resistance
+		// goes on to absorb it. This ran at this point before the resistances moved ahead
+		// of it and it still runs here, so blockCount is untouched by the reordering.
+		// Defense or armor stopped the hit that actually arrived - the one the resistances
+		// had already reduced. This is what Shielding reads, and nothing outside this
+		// block does.
+		bool blockedByDefenceOrArmor = false;
+
 		bool hasDefense = false;
-
-		if (blockCount > 0) {
-			--blockCount;
-			hasDefense = true;
-		}
-
-		if (checkDefense && hasDefense && canUseDefense) {
-			int32_t defense = getDefense();
-			damage -= uniform_random(defense / 2, defense);
-			if (damage <= 0) {
-				damage = 0;
-				blockType = BLOCK_DEFENSE;
-				checkArmor = false;
+		if (checkDefense || checkArmor) {
+			if (blockCount > 0) {
+				--blockCount;
+				hasDefense = true;
 			}
 		}
 
-		if (checkArmor) {
-			int32_t armor = getArmor();
-			if (armor > 3) {
-				damage -= uniform_random(armor / 2, armor - (armor % 2 + 1));
-			} else if (armor > 0) {
-				--damage;
-			}
+		// The hit as defense and armor used to receive it. Kept only for the charge rule.
+		const int32_t unreducedDamage = damage;
 
+		if (damage > 0) {
+			applyEquipmentResistances(combatType, damage, field, resistanceChargedItems);
 			if (damage <= 0) {
+				// The value Player::blockHit returned for a fully absorbed hit before this
+				// moved, kept so callers see no change. blockedByDefenceOrArmor stays
+				// false: the elemental absorb stopped this, not the shield or the armour.
 				damage = 0;
 				blockType = BLOCK_ARMOR;
 			}
 		}
 
-		if (hasDefense && blockType != BLOCK_NONE) {
+		// Each layer is rolled EXACTLY ONCE, here, and the same number is then spent both
+		// on the hit that really happened and on classifying the hit as it stood before
+		// the resistances. Rolling a second time to answer the hypothetical would let the
+		// two disagree at random, which would make the charge rule below a coin flip.
+		const bool defenceApplies = checkDefense && hasDefense && canUseDefense;
+		int32_t defenceRoll = 0;
+		if (defenceApplies) {
+			const int32_t defense = getDefense();
+			defenceRoll = uniform_random(defense / 2, defense);
+		}
+		int32_t armorRoll = 0;
+		if (checkArmor) {
+			const int32_t armor = getArmor();
+			if (armor > 3) {
+				armorRoll = uniform_random(armor / 2, armor - (armor % 2 + 1));
+			} else if (armor > 0) {
+				armorRoll = 1;
+			}
+		}
+
+		// Defense then armor, with the rolls already fixed, exactly as they were sequenced
+		// before this change. Returns where the hit lands and which layer stopped it.
+		struct DefenceOutcome {
+			int32_t damage;
+			BlockType_t stoppedBy;
+		};
+		const auto runDefenceAndArmor = [&](int32_t value) {
+			DefenceOutcome outcome { value, BLOCK_NONE };
+			bool armorApplies = checkArmor;
+			if (defenceApplies) {
+				outcome.damage -= defenceRoll;
+				if (outcome.damage <= 0) {
+					outcome.damage = 0;
+					outcome.stoppedBy = BLOCK_DEFENSE;
+					armorApplies = false;
+				}
+			}
+			if (armorApplies) {
+				outcome.damage -= armorRoll;
+				if (outcome.damage <= 0) {
+					outcome.damage = 0;
+					outcome.stoppedBy = BLOCK_ARMOR;
+				}
+			}
+			return outcome;
+		};
+
+		if (blockType == BLOCK_NONE) {
+			const auto outcome = runDefenceAndArmor(damage);
+			damage = outcome.damage;
+			if (outcome.stoppedBy != BLOCK_NONE) {
+				blockType = outcome.stoppedBy;
+				blockedByDefenceOrArmor = true;
+			}
+		}
+
+		// Classification only. Nothing here can touch the damage the defender takes: the
+		// result feeds one boolean, read by the charge rule at the end of this function.
+		defenceOrArmorWouldHaveStoppedTheUnreducedHit = runDefenceAndArmor(unreducedDamage).stoppedBy != BLOCK_NONE;
+
+		// Shielding advances when the shield or the armour stopped the hit, as before. It
+		// is gated on what really happened rather than on the hypothetical, and that is a
+		// deliberate change in both directions:
+		//
+		//   - a small hit a resistance swallows outright no longer reaches armor, so it no
+		//     longer advances Shielding, where before the reorder armor stopped it and it
+		//     did;
+		//   - a hit a resistance merely weakens enough for armor to finish now DOES
+		//     advance Shielding, where before the reorder it landed and did not.
+		//
+		// Accepted rather than papered over, because Shielding is meant to measure the
+		// shield and the armour doing the blocking, and under the corrected order those
+		// layers really are the ones that stopped the hit - or really are not. The item
+		// charge rule below goes the other way, and says why.
+		if (hasDefense && blockedByDefenceOrArmor) {
 			onBlockHit();
 		}
 	}
 
 	if (attacker) {
 		attacker->onAttackedCreature(static_self_cast<Creature>());
+		// The attacker is told what the defender's chain concluded, with no special case.
+		// Its advance keys on drawing blood - BLOCK_NONE resets the thirty-hit window,
+		// a block spends one of it - so reporting BLOCK_NONE for a hit that dealt zero
+		// damage would bank a blood hit that never happened. Under the corrected order a
+		// hit whose resistances and armor together reach zero drew no blood, and that is
+		// what the attacker now hears. FIDELITY_PENDING_EVIDENCE on Global's own answer.
 		attacker->onAttackedCreatureBlockHit(blockType);
 	}
 
+	// Mitigation is the last reduction, as it was.
+	bool mitigationFinishedTheHit = false;
 	if (damage != 0) {
 		mitigateDamage(combatType, blockType, damage);
+		mitigationFinishedTheHit = damage == 0;
+	}
+
+	// The item charge rule, held exactly where it was. The absorb loop used to sit behind
+	// an early return, so a charge came out precisely when nothing had already stopped the
+	// hit: not under immunity, where the list is never filled; not when defense or armor
+	// stopped THE HIT THEY SAW, which was the unreduced one; and not when mitigation
+	// finished it before the loop was reached.
+	//
+	// Reading the hypothetical here rather than blockedByDefenceOrArmor is the whole point.
+	// A resistance-assisted block - the resistance weakens the hit, then armor finishes it -
+	// is a block that did not exist before the reorder. Gating on what really happened
+	// would silently stop charging those hits, which is most melee against a defender with
+	// physical absorb, and would make that gear quietly cheaper to run. Charges are an item
+	// economy rather than a combat outcome, so the reorder leaves them alone.
+	if (!defenceOrArmorWouldHaveStoppedTheUnreducedHit && !mitigationFinishedTheHit) {
+		testChargeSpendDecision = !resistanceChargedItems.empty();
+		for (const auto &item : resistanceChargedItems) {
+			if (!item) {
+				continue;
+			}
+			const auto charges = item->getAttribute<uint16_t>(ItemAttribute_t::CHARGES);
+			if (charges != 0) {
+				g_game().transformItem(item, item->getID(), charges - 1);
+			}
+		}
 	}
 
 	if (damage != 0) {

@@ -482,6 +482,39 @@ public:
 
 	void applyAbsorbDamageModifications(const std::shared_ptr<Creature> &attacker, int32_t &damage, CombatType_t combatType) const;
 
+	// Resistances a creature carries on its equipment - item absorb percentages,
+	// imbuements and the Wheel. A creature that wears nothing has none; Player
+	// overrides this.
+	//
+	// blockHit calls it before armor and mitigation, which is where the reduction order
+	// puts every resistance. It used to run after both, in Player::blockHit, which is
+	// what FIDELITY_BLOCKER - DAMAGE_REDUCTION_PIPELINE_ORDER named.
+	//
+	// Items whose absorb applied are collected rather than charged on the spot, so
+	// blockHit can spend the charges at the end, once it knows enough to apply the rule
+	// the old position got for free by running last. That rule is stated in full at the
+	// charge loop in Creature::blockHit; the short version is that it asks whether
+	// defense or armor would have stopped the hit as it stood BEFORE these resistances,
+	// not whether they stopped the reduced hit that actually arrived.
+	virtual void applyEquipmentResistances(const CombatType_t &, int32_t &, bool, std::vector<std::shared_ptr<Item>> &) {
+		// Nothing to do: no equipment.
+	}
+
+	// Test hooks, in the setTest/getTest convention this repository already uses on
+	// Player. Two decisions in blockHit are unreachable from a unit test without them:
+	// blockCount only ever accrues in onThink, so hasDefense is false for any creature a
+	// fixture builds and onBlockHit can never fire; and spending a charge goes through
+	// Game::transformItem, which needs a running game. Production reads neither.
+	void setTestBlockCount(uint32_t count) {
+		blockCount = count;
+	}
+
+	// True when the last blockHit decided the resistances' charges were spent. It is the
+	// decision, not the transform: an item with no charges left still decides yes.
+	bool didTestSpendResistanceCharges() const {
+		return testChargeSpendDecision;
+	}
+
 	bool setMaster(const std::shared_ptr<Creature> &newMaster, bool reloadCreature = false);
 
 	void removeMaster() {
@@ -921,6 +954,8 @@ protected:
 	uint32_t walkUpdateTicks = 0;
 	uint32_t lastHitCreatureId = 0;
 	uint32_t blockCount = 0;
+	// See didTestSpendResistanceCharges. Written by blockHit, read only by tests.
+	bool testChargeSpendDecision = false;
 	uint32_t blockTicks = 0;
 	uint32_t lastStepCost = 1;
 	uint16_t baseSpeed = 110;
