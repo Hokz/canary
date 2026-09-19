@@ -4010,11 +4010,11 @@ BlockType_t Player::blockHit(const std::shared_ptr<Creature> &attacker, const Co
 // same arithmetic in a different place.
 //
 // chargedItems collects the items whose absorb applied instead of charging them here;
-// Creature::blockHit spends them at the end, once mitigation has run. Running last used
-// to mean the early return skipped this loop whenever defense, armor or mitigation had
-// already stopped the hit, so those cases spent nothing - but an absorb that took the
-// whole hit itself reached the charge inside the loop, so that case does spend one.
-// blockHit gates on exactly those conditions to keep the table identical.
+// Creature::blockHit spends them at the end, and the rule it applies there is the one
+// this loop used to get for free by running last. The subtle part is that the condition
+// is about the hit defense and armor USED to see - the one before these resistances -
+// rather than the reduced hit they see now, because otherwise a resistance that merely
+// weakened a hit enough for armor to finish it would stop paying for its charge.
 void Player::applyEquipmentResistances(const CombatType_t &combatType, int32_t &damage, bool field, std::vector<std::shared_ptr<Item>> &chargedItems) {
 	if (damage <= 0) {
 		return;
