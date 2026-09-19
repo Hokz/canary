@@ -687,11 +687,16 @@ uint8_t Player::getWeaponSkillId(const std::shared_ptr<Item> &item) const {
 //   S = floor((sqrt(2L + 2025) + 5) / 10)
 //   B = floor((L + 1000) / S) + 50 * S - 450
 //
-// The loop that was here accumulated each tier's FULL threshold instead of its width,
-// so it agreed with its own comment only while no tier had completed. From level 1100
-// it ran away: level 1100 gave 284 where the progression gives 200, and level 8000 gave
-// 2873 where it gives 893. Every high-level character's flat bonus was inflated, and so
-// were Shield Bash and Shield Slam, which read this.
+// The loop that was here had two separate faults.
+//
+// First, it rounded the partial tier UP where the progression floors it, so it was one
+// too high across most of the first tier: level 8 gave 2 against 1, level 18 gave 4
+// against 3, level 499 gave 100 against 99.
+//
+// Second, and far worse, it accumulated each tier's FULL threshold instead of its width,
+// so above the first tier it ran away: level 1100 gave 284 against 200, level 2000 gave
+// 566 against 325, level 8000 gave 2873 against 892. Every high-level character's flat
+// bonus was inflated, and with it Shield Bash and Shield Slam, which read this.
 //
 // Two independent lines of evidence for the closed form: it reproduces the tiered
 // progression this function documents, exactly, at every level; and a public 15.25

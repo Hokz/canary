@@ -135,10 +135,33 @@ namespace {
 		}
 	}
 
-	TEST_F(FlatDamageHealingTest, ALevelOneCharacterGetsNothingAndNothingOverflows) {
+	TEST_F(FlatDamageHealingTest, ALevelOneCharacterGetsNothing) {
 		EXPECT_EQ(0, at(1));
-		// The engine caps the result at a uint16_t; an absurd level must not wrap.
-		EXPECT_GT(at(100000), 0);
-		EXPECT_LE(at(100000), std::numeric_limits<uint16_t>::max());
+	}
+
+	TEST_F(FlatDamageHealingTest, TheClampHoldsAtTheExactOverflowThreshold) {
+		// The return type is uint16_t, so the value has to be clamped rather than
+		// allowed to wrap. Unclamped, B(L) first exceeds 65535 at level 21769760:
+		//
+		//   B(21769759) = 65535   (exactly the maximum)
+		//   B(21769760) = 65536   (the first value that would wrap to 0)
+		//
+		// A level 100000 test proves nothing about this - B(100000) is only 4044.
+		static constexpr uint32_t kLastExactLevel = 21769759;
+		static constexpr uint16_t kMax = std::numeric_limits<uint16_t>::max();
+
+		EXPECT_EQ(kMax, at(kLastExactLevel)) << "the last level that fits must fit exactly";
+		EXPECT_EQ(kMax, at(kLastExactLevel + 1)) << "the first overflowing level must clamp, not wrap to 0";
+		EXPECT_EQ(kMax, at(std::numeric_limits<uint32_t>::max())) << "and so must the largest level representable";
+
+		// The failure mode being excluded is a large input becoming a small output.
+		EXPECT_GT(at(std::numeric_limits<uint32_t>::max()), 1000);
+	}
+
+	TEST_F(FlatDamageHealingTest, TheClampIsTheOnlyThingBoundingIt) {
+		// Below the threshold the value is the formula's, not the cap's - otherwise the
+		// clamp could be hiding an arithmetic overflow further down.
+		EXPECT_EQ(4044, at(100000));
+		EXPECT_LT(at(100000), std::numeric_limits<uint16_t>::max());
 	}
 }

@@ -25,19 +25,30 @@ B = floor((L + 1000) / S) + 50 * S - 450
 is the **closed form of exactly that progression** — it reproduces it at every level, with
 zero mismatches across the whole range.
 
-The loop, however, accumulated each tier's **full threshold** instead of its **width**, so
-it agreed with the progression its own comment described only while no tier had completed:
+The loop, however, had **two separate faults**.
 
-| level | the documented progression | the loop returned |
+**Fault A — the partial tier was rounded up.** The progression floors it; the loop used
+`ceil`. That made it one too high across most of the first tier:
+
+| level | progression | the loop returned |
 |---|---|---|
-| 500 | 100 | 100 |
-| 1000 | 184 | 184 |
+| 8 | 1 | 2 |
+| 18 | 3 | 4 |
+| 499 | 99 | 100 |
+
+**Fault B — completed tiers were accumulated by threshold, not by width.** Above the
+first tier this ran away:
+
+| level | progression | the loop returned |
+|---|---|---|
+| 1000 | 183 | 184 |
 | **1100** | **200** | **284** |
 | **2000** | **325** | **566** |
-| **8000** | **893** | **2873** |
+| **8000** | **892** | **2873** |
 
-Every character above level 1100 had an inflated flat damage and healing bonus, and so did
-Shield Bash and Shield Slam, which read this value. The closed form replaces the loop.
+Every character above level 1100 had an inflated flat damage and healing bonus, and so
+did Shield Bash and Shield Slam, which read this value. Fault A is a one-point difference;
+fault B reaches more than three times the correct value.
 
 **This makes `B(L)` far better evidenced than the research expected.** It rests on two
 independent legs: a public 15.25 implementation arrived at it, and it is the exact closed
@@ -100,11 +111,46 @@ the tests that pin them are in one file too.
 
 | File | Cases | What it proves |
 |---|---|---|
-| `tests/unit/players/flat_damage_healing_test.cpp` | 6 | the closed form at seventeen levels; every completed tier worth exactly 100 at the tier boundaries; the high-level runaway named (200 not 284, 325 not 566, 892 not 2873); never decreasing across 4000 levels; the first tier equals the old `level / 5`; level 1 gives nothing and an absurd level does not wrap |
-| `tests/lua/test_knight_healing_formulas.lua` | 19 | twelve exact min/max pairs across three (level contribution, Shielding, Magic Level) points for all four spells; all four have coefficients; the official Base Powers; the two corroborated ML pairs; Shielding raises the heal through its own coefficient only; the two bigger spells count the level contribution twice; an unknown spell is refused rather than healing nothing; max is never below min |
+| `tests/unit/players/flat_damage_healing_test.cpp` | 9 | the closed form at twenty-four levels, covering every step transition on both sides (499/500/501, 1099/1100/1101, 1799/1800/1801, 2600/2601) and level 5; the step changing exactly at each boundary; every completed tier worth exactly 100; the high-level runaway named (200 not 284, 325 not 566, 892 not 2873); never decreasing across **every** level from 1 to 10000; the first tier equals the old `level / 5`; level 1 gives nothing; and the clamp holding at the exact overflow threshold |
+| `tests/lua/test_knight_healing_formulas.lua` | 24 | twelve exact min/max pairs across three (level contribution, Shielding, Magic Level) points for all four spells; all four have coefficients; the official Base Powers; the two corroborated ML pairs; Shielding raises the heal through its own coefficient only; the two bigger spells count the level contribution twice; an unknown spell is refused rather than healing nothing; max is never below min |
 
 The expected numbers are hand-computed from the documented shape, not recomputed from the
 table — a test that re-derives the formula it checks proves only that Lua multiplies.
+
+## The clamp
+
+The return type is `uint16_t`, so the value is clamped rather than allowed to wrap.
+Unclamped, `B(L)` first exceeds 65535 at **level 21,769,760**:
+
+| level | unclamped | returned |
+|---|---|---|
+| 21,769,759 | 65535 | 65535 |
+| 21,769,760 | 65536 | 65535 (clamped) |
+| 4,294,967,295 (`UINT32_MAX`) | 926369 | 65535 (clamped) |
+
+The intermediate arithmetic is `int64_t`, and the largest intermediate at `UINT32_MAX` is
+about 4.29e9 — nowhere near overflow. **No production bug here**; the clamp and the widths
+are correct, and the test now proves it at the threshold rather than at level 100000, where
+`B(L)` is only 4044 and nothing is near the cap.
+
+## Every consumer of the level contribution
+
+Twenty spells, one heal mechanic and the client's own stat display read it. All of them are
+15.25 formulas that should carry the corrected value, so **every impact below is intended**
+and no caller needed changing:
+
+| Consumer | Kind | Impact |
+|---|---|---|
+| 16 attack spells — the whole Monk kit (`double_jab`, `swift_jab`, `tiger_clash`, `greater_tiger_clash`, `flurry_of_blows`, `greater_flurry_of_blows`, `forceful_uppercut`, `devastating_knockout`, `sweeping_takedown`, `thousand_fist_blows`, `chained_penance`, `spiritual_outburst`, `mystic_repulse`), plus `shield_bash`, `shield_slam`, `ethereal_barrage` | DAMAGE_FORMULA | EXPECTED_TO_CHANGE_WITH_B_L |
+| the four Knight heals, via `knight_healing.lua` | HEALING_FORMULA | EXPECTED_TO_CHANGE_WITH_B_L |
+| `Combat::harmonyHeal` — the Monk Harmony heal | HEALING_FORMULA | EXPECTED_TO_CHANGE_WITH_B_L |
+| `protocolgame.cpp` (two sites) | DISPLAY_ONLY | the client now shows the corrected bonus |
+| `player_functions.cpp` | OTHER | the Lua binding itself |
+
+Worth stating because it was checked rather than assumed: `Combat::harmonyHeal` is the
+**only** engine-side consumer that feeds damage or healing. There is no blanket flat bonus
+added to every spell, so a spell script that adds the contribution itself is not applying
+it twice.
 
 **Not proven by tests:** that these are the numbers Global produces. That needs measurements
 at known level, magic level and Shielding, which is the remaining evidence task. The
