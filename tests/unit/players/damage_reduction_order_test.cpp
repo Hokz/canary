@@ -12,6 +12,7 @@
 #include <gtest/gtest.h>
 
 #include "creatures/players/player.hpp"
+#include "creatures/players/grouping/groups.hpp"
 #include "creatures/players/vocations/vocation.hpp"
 #include "items/item.hpp"
 #include "lib/logging/in_memory_logger.hpp"
@@ -88,6 +89,16 @@ namespace {
 
 		static std::shared_ptr<Player> defender(bool withAbsorb) {
 			auto player = std::make_shared<Player>();
+
+			// blockHit's first branch is isImmune, which reaches Player::hasFlag, which
+			// dereferences `group` unconditionally (player.cpp:7882). Player::group
+			// defaults to nullptr, so a Player that has not been through IOLoginData
+			// segfaults the moment anything asks it for a flag. Production always
+			// assigns a group, so this is a fixture requirement rather than a missing
+			// null check - a null group is an invariant violation, not a state to
+			// tolerate. An empty Group is every flag false, which is what a plain
+			// character has.
+			player->setGroup(std::make_shared<Group>());
 			auto vocation = std::make_shared<Vocation>(0);
 			vocation->armorMultiplier = 1.0f;
 			// Mitigation is the layer after armor; zero it so it cannot perturb the two
@@ -127,6 +138,22 @@ namespace {
 	};
 
 	// --- The premises this test rests on -------------------------------------------
+
+	TEST_F(DamageReductionOrderTest, AMinimalPlayerSurvivesTheWholeChain) {
+		// The regression this file was written through. blockHit asks isImmune first,
+		// isImmune asks hasFlag, and hasFlag dereferences the player's group. Six tests
+		// here segfaulted on that until the fixture assigned one.
+		//
+		// Kept as its own test so the requirement is named: anything that drives
+		// blockHit needs a Player complete enough to answer a flag.
+		auto player = defender(true);
+		ASSERT_NE(nullptr, player->getGroup()) << "blockHit needs a player that can answer a flag";
+		EXPECT_FALSE(player->isImmune(COMBAT_FIREDAMAGE)) << "and an empty group is immune to nothing";
+
+		int32_t damage = kIncomingDamage;
+		EXPECT_NO_FATAL_FAILURE(player->blockHit(nullptr, COMBAT_FIREDAMAGE, damage, false, true, false));
+		EXPECT_GT(damage, 0) << "a thousand damage does not vanish";
+	}
 
 	TEST_F(DamageReductionOrderTest, TheFixtureGivesTheArmorAndNothingElse) {
 		auto player = defender(false);
