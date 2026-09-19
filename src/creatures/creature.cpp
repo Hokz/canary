@@ -1043,36 +1043,50 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 	// The difference is not cosmetic: a percentage applied before a flat subtraction is
 	// worth more than the same percentage after it. 100 damage against 20 armor and 10%
 	// resistance was 72 taken and is now 70.
+	//
+	// Immunity stays first of all: it zeroes the damage outright, so nothing after it
+	// can matter, and that was its place before this change too.
+	//
+	// Only the order damage is REDUCED in changes here. Every progression side effect -
+	// which block is consumed, whether the defender's Shielding advances, what the
+	// attacker is told - is deliberately held where it already was, because this is a
+	// damage-order correction and progression is not its business. The two flags below
+	// keep those decisions separable from the ordering instead of riding on an
+	// overloaded BLOCK_ARMOR.
 	std::vector<std::shared_ptr<Item>> resistanceChargedItems;
-	// Whether defense or armor is what stopped the hit. The old code ran the equipment
-	// resistances behind an early return, so a charge was spent exactly when neither of
-	// those had blocked - including when the absorb itself took the damage to zero.
-	// That condition is reproduced here rather than approximated by "damage remains",
-	// which would have quietly stopped charging fully absorbed hits.
+	// Defense or armor is what stopped the hit.
 	bool blockedByDefenceOrArmor = false;
+	// The equipment resistances alone took the whole hit.
+	bool resistanceAbsorbedAll = false;
 
 	if (isImmune(combatType)) {
 		damage = 0;
 		blockType = BLOCK_IMMUNITY;
 	} else {
-		if (damage > 0) {
-			applyEquipmentResistances(combatType, damage, field, resistanceChargedItems);
-			if (damage <= 0) {
-				// The value Player::blockHit reported for a fully absorbed hit before
-				// this moved, kept so callers see no change here.
-				damage = 0;
-				blockType = BLOCK_ARMOR;
-			}
-		}
-
-		if (blockType == BLOCK_NONE && (checkDefense || checkArmor)) {
-			bool hasDefense = false;
-
+		// A hit that reaches the defender consumes a block, whether or not a resistance
+		// goes on to absorb all of it. This ran at this point before the resistances
+		// moved ahead of it and it still runs here, so blockCount and the Shielding
+		// advance behind it are untouched by the reordering.
+		bool hasDefense = false;
+		if (checkDefense || checkArmor) {
 			if (blockCount > 0) {
 				--blockCount;
 				hasDefense = true;
 			}
+		}
 
+		if (damage > 0) {
+			applyEquipmentResistances(combatType, damage, field, resistanceChargedItems);
+			if (damage <= 0) {
+				// The value Player::blockHit returned for a fully absorbed hit before
+				// this moved, kept so callers see no change.
+				damage = 0;
+				resistanceAbsorbedAll = true;
+				blockType = BLOCK_ARMOR;
+			}
+		}
+
+		if (blockType == BLOCK_NONE) {
 			if (checkDefense && hasDefense && canUseDefense) {
 				int32_t defense = getDefense();
 				damage -= uniform_random(defense / 2, defense);
@@ -1098,15 +1112,26 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 					blockedByDefenceOrArmor = true;
 				}
 			}
+		}
 
-			if (hasDefense && blockType != BLOCK_NONE) {
-				onBlockHit();
-			}
+		// The defender's Shielding advances on a block by defense or armor, which is
+		// what it did before. A resistance swallowing the hit is not a block and did not
+		// advance it then either.
+		if (hasDefense && blockedByDefenceOrArmor) {
+			onBlockHit();
 		}
 	}
 
-	// Spend the charges the resistances used, under the same condition as before the
-	// move: neither defense nor armor stopped the hit.
+	// Spend the charges the resistances used, under the condition the old position got
+	// for free: nothing had already stopped the hit when the absorb ran. Immunity leaves
+	// the list empty, so only defense and armor need naming here. Whether the absorb
+	// then took the whole hit is irrelevant - the charge came out inside the loop before
+	// this moved, and it still does.
+	//
+	// One divergence is inherent to the reorder and is accepted: mitigation used to run
+	// before the loop, so a hit mitigation alone reduced to nothing cost no charge. It
+	// now runs after, and such a hit does. Mitigation is a percentage and can only reach
+	// zero on a hit that was already almost nothing.
 	if (!blockedByDefenceOrArmor) {
 		for (const auto &item : resistanceChargedItems) {
 			if (!item) {
@@ -1121,7 +1146,12 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 
 	if (attacker) {
 		attacker->onAttackedCreature(static_self_cast<Creature>());
-		attacker->onAttackedCreatureBlockHit(blockType);
+		// What the attacker is told drives its own attack-skill advance, so it is held at
+		// the pre-move answer: a hit swallowed entirely by the defender's equipment
+		// resistance reported BLOCK_NONE before, because the resistances ran after this
+		// call, and it still does. Reordering damage must not quietly change who banks a
+		// skill point. FIDELITY_PENDING_EVIDENCE on what Global does here.
+		attacker->onAttackedCreatureBlockHit(resistanceAbsorbedAll ? BLOCK_NONE : blockType);
 	}
 
 	if (damage != 0) {

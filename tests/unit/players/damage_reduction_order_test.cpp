@@ -204,7 +204,50 @@ namespace {
 		EXPECT_LE(bestWithResistance, 250);
 	}
 
+	// --- Progression held where it was ----------------------------------------------
+
+	// NOT COVERED, stated rather than faked: blockCount starts at zero on a Player that
+	// has not been through IOLoginData, and Creature exposes no getter for it, so the
+	// block-consumption path - decrement, hasDefense, onBlockHit, the Shielding advance -
+	// is unreachable from this fixture. What the change guarantees is structural: the
+	// decrement sits at the same point in blockHit it sat at before the resistances moved
+	// ahead of it, and onBlockHit is gated on blockedByDefenceOrArmor so a resistance
+	// swallowing the hit cannot trigger it. Proving it needs a Player with a real block
+	// count, which is integration territory.
+
+	TEST_F(DamageReductionOrderTest, PartialResistanceThenArmorStillBlocks) {
+		// 1000 damage, 70% absorbed to 300, then an armor roll of [50, 99] leaves it
+		// standing - so this is the ordinary "resistance reduced it, armor did not stop
+		// it" path and nothing reports a block.
+		auto player = defender(true);
+		BlockType_t blockType = BLOCK_NONE;
+		const int32_t taken = takeFireHit(player, &blockType);
+
+		EXPECT_GT(taken, 0);
+		EXPECT_EQ(BLOCK_NONE, blockType) << "a reduced hit that still lands is not a block";
+	}
+
 	// --- What the attacker is told ---------------------------------------------------
+
+	TEST_F(DamageReductionOrderTest, AFullyAbsorbedHitDoesNotCostTheAttackerItsSkillPoint) {
+		// The progression rule this PR deliberately does NOT change. The attacker's
+		// callback drives addAttackSkillPoint, and before the resistances moved it was
+		// told BLOCK_NONE for a hit the defender's equipment absorbed entirely, because
+		// the resistances ran after that call. It is still told BLOCK_NONE.
+		//
+		// The caller still receives BLOCK_ARMOR - the two answers differ on purpose, and
+		// that difference is what keeps a damage-order fix out of skill advancement.
+		auto attacker = std::make_shared<Player>();
+		attacker->setGroup(std::make_shared<Group>());
+
+		auto player = defender(true);
+		int32_t damage = 1;
+		const BlockType_t reported = player->blockHit(attacker, COMBAT_FIREDAMAGE, damage, false, true, false);
+
+		EXPECT_EQ(0, damage);
+		EXPECT_EQ(BLOCK_ARMOR, reported) << "the caller is told the hit was stopped";
+		EXPECT_EQ(BLOCK_NONE, attacker->getLastAttackBlockType()) << "the attacker is told what it was told before";
+	}
 
 	TEST_F(DamageReductionOrderTest, AFullyAbsorbedHitReportsABlock) {
 		// A resistance that takes the whole hit reports BLOCK_ARMOR, which is the value
