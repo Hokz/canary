@@ -4,10 +4,11 @@ combat:setParameter(COMBAT_PARAM_EFFECT, CONST_ME_MAGIC_BLUE)
 combat:setParameter(COMBAT_PARAM_DISPEL, CONDITION_PARALYZE)
 combat:setParameter(COMBAT_PARAM_AGGRESSIVE, false)
 
-function onGetFormulaValues(player, level, magicLevel)
-	local min = (level * 0.2 + magicLevel * 70) + 438
-	local max = (level * 0.2 + magicLevel * 92) + 544
-	return min, max
+-- 15.25: Base Power, the level contribution, Shielding and Magic Level.
+-- Every coefficient lives in KnightHealing.spells; see
+-- data/libs/functions/knight_healing.lua for what each one is worth as evidence.
+function onGetFormulaValues(player, _level, magicLevel)
+	return KnightHealing.values("Intense Wound Cleansing", player, magicLevel)
 end
 
 combat:setCallback(CALLBACK_PARAM_LEVELMAGICVALUE, "onGetFormulaValues")

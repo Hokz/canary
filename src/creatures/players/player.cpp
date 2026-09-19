@@ -678,30 +678,38 @@ uint8_t Player::getWeaponSkillId(const std::shared_ptr<Item> &item) const {
 	return skillId;
 }
 
+// The 15.25 level contribution to flat damage and healing.
+//
+// The tiered progression this used to walk - levels 0..500 at 1/5, the next 600 at
+// 1/6, the next 700 at 1/7, and so on - has a closed form, because every completed
+// tier is exactly 100 wide in value:
+//
+//   S = floor((sqrt(2L + 2025) + 5) / 10)
+//   B = floor((L + 1000) / S) + 50 * S - 450
+//
+// The loop that was here had two separate faults.
+//
+// First, it rounded the partial tier UP where the progression floors it, so it was one
+// too high across most of the first tier: level 8 gave 2 against 1, level 18 gave 4
+// against 3, level 499 gave 100 against 99.
+//
+// Second, and far worse, it accumulated each tier's FULL threshold instead of its width,
+// so above the first tier it ran away: level 1100 gave 284 against 200, level 2000 gave
+// 566 against 325, level 8000 gave 2873 against 892. Every high-level character's flat
+// bonus was inflated, and with it Shield Bash and Shield Slam, which read this.
+//
+// Two independent lines of evidence for the closed form: it reproduces the tiered
+// progression this function documents, exactly, at every level; and a public 15.25
+// implementation arrived at the same expression. The old level*0.2 that the datapack's
+// healing formulas used is its first tier.
 uint16_t Player::calculateFlatDamageHealing() const {
-	double previousLevelsAggregatedBaseline = 0.0;
-	uint32_t currentLevelBaseline = 0;
-	double currentLevelFactor = 1.0 / 5.0;
-
-	// Starting threshold and increment steps
-	uint32_t threshold = 500;
-	uint32_t thresholdStep = 600;
-	uint32_t tierIndex = 1;
-
-	// Progressively reduce the scaling factor as the level increases
-	while (level >= threshold) {
-		currentLevelBaseline = threshold;
-		currentLevelFactor = 1.0 / (5.0 + tierIndex);
-		previousLevelsAggregatedBaseline += threshold * (1.0 / (5.0 + tierIndex - 1));
-
-		++tierIndex;
-		threshold += thresholdStep;
-		thresholdStep += 100;
+	const auto step = static_cast<int64_t>(std::floor((std::sqrt(2.0 * static_cast<double>(level) + 2025.0) + 5.0) / 10.0));
+	if (step <= 0) {
+		return 0;
 	}
 
-	// Final value includes all completed tiers plus partial progression into the next
-	uint32_t computed = std::ceil(previousLevelsAggregatedBaseline + (level - currentLevelBaseline) * currentLevelFactor);
-	return std::min<uint32_t>(computed, std::numeric_limits<uint16_t>::max());
+	const int64_t computed = (static_cast<int64_t>(level) + 1000) / step + 50 * step - 450;
+	return static_cast<uint16_t>(std::clamp<int64_t>(computed, 0, std::numeric_limits<uint16_t>::max()));
 }
 
 uint16_t Player::attackTotal(uint16_t flatBonus, uint16_t equipment, uint16_t skill) const {
