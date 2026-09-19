@@ -215,16 +215,36 @@ namespace {
 	// swallowing the hit cannot trigger it. Proving it needs a Player with a real block
 	// count, which is integration territory.
 
-	TEST_F(DamageReductionOrderTest, PartialResistanceThenArmorStillBlocks) {
-		// 1000 damage, 70% absorbed to 300, then an armor roll of [50, 99] leaves it
-		// standing - so this is the ordinary "resistance reduced it, armor did not stop
-		// it" path and nothing reports a block.
+	TEST_F(DamageReductionOrderTest, AReducedHitThatStillLandsReportsNoBlock) {
+		// Renamed from "...ThenArmorStillBlocks", which said the opposite of what it
+		// asserts. 1000 damage, 70% absorbed to 300, then an armor roll of [50, 99]
+		// leaves it standing - resistance reduced it, armor did NOT stop it, and nothing
+		// reports a block.
 		auto player = defender(true);
 		BlockType_t blockType = BLOCK_NONE;
 		const int32_t taken = takeFireHit(player, &blockType);
 
 		EXPECT_GT(taken, 0);
 		EXPECT_EQ(BLOCK_NONE, blockType) << "a reduced hit that still lands is not a block";
+	}
+
+	TEST_F(DamageReductionOrderTest, AResistanceSwallowingTheHitIsNotABlock) {
+		// The defender-side delta this reorder accepts, pinned so it is a decision rather
+		// than a surprise.
+		//
+		// Armor and defense now see the damage the resistances already reduced. A hit a
+		// resistance swallows outright never reaches them, so it reports no block by
+		// defense or armor - where before the reorder that same small hit arrived at full
+		// strength, armor stopped it, and the defender's Shielding advanced.
+		//
+		// The caller is still told BLOCK_ARMOR, because the hit was stopped; what changed
+		// is which layer stopped it, and onBlockHit is gated on the real one.
+		auto player = defender(true);
+		int32_t damage = 1; // 70% of 1 rounds to 1, so the absorb takes all of it
+		const BlockType_t blockType = player->blockHit(nullptr, COMBAT_FIREDAMAGE, damage, false, true, false);
+
+		EXPECT_EQ(0, damage) << "the resistance took the whole hit";
+		EXPECT_EQ(BLOCK_ARMOR, blockType) << "and the caller is told it was stopped";
 	}
 
 	// --- What the attacker is told ---------------------------------------------------

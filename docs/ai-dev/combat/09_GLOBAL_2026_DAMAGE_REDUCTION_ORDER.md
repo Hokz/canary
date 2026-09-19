@@ -60,21 +60,26 @@ was armor.
 ### Item charges
 
 The old code spent a charge inside the absorb loop, and the loop sat behind an early
-return — so a charge was spent **exactly when neither defense nor armor had blocked the
-hit**, including when the absorb itself took the damage to zero.
+return — so a charge was spent **exactly when nothing had already stopped the hit**:
+immunity, defense, armor and mitigation all skipped it, because all four ran before it.
 
-Running the resistances earlier means defense and armor have not happened yet, so that
-condition cannot be read at the point the absorb applies. The items whose absorb applied
-are therefore collected, and the charges are spent at the end under a
-`blockedByDefenceOrArmor` flag that reproduces the original condition exactly.
+Running the resistances earlier means none of those have happened yet when the absorb
+applies. The items are therefore collected and charged at the end, after mitigation, under
+the same three conditions:
 
-The tempting shortcut — spend the charge if damage remains — is **wrong**, and was in the
-first draft of this change: it would have quietly stopped charging fully absorbed hits,
-which the old code did charge.
+| Outcome | Charge spent? | Why |
+|---|---|---|
+| immunity | no | the list is never populated |
+| defense or armor stopped it | no | `blockedByDefenceOrArmor` |
+| mitigation alone finished it | no | `mitigationFinishedTheHit` |
+| the resistance itself took the whole hit | **yes** | the charge came out inside the loop before this moved, and the loop had run |
+| the hit landed | **yes** | unchanged |
 
-One divergence remains and is accepted: a hit that **mitigation** alone takes to zero now
-spends a charge, where before mitigation ran first and the loop was skipped. Mitigation is
-a percentage and can only reach zero on a hit that was already almost nothing.
+An earlier draft of this change got the last two rows wrong in both directions. It first
+gated on "damage remains", which would have **stopped charging fully absorbed hits** — the
+one case the old code definitely did charge. It then dropped the mitigation condition, which
+**started charging hits mitigation alone finished** — a case the old code definitely did
+not. Both are now explicit flags rather than inferences from an overloaded `BLOCK_ARMOR`.
 
 ### What the attacker is told, and what the defender advances
 
@@ -107,6 +112,24 @@ The same reasoning covers the defender:
     block by defense or armor advances it, as before; a resistance absorbing everything is
     not a block and did not advance it before either.
 
+### The one defender-side delta, accepted
+
+Armor and defense now see the damage the resistances already reduced. That has a
+consequence worth stating rather than discovering:
+
+**A small hit that a resistance swallows outright no longer advances the defender's
+Shielding.** Before the reorder it reached armor at full strength, armor stopped it, and
+`onBlockHit()` fired. Now it never reaches armor. Against an element the defender resists
+heavily, Shielding trains a little more slowly.
+
+This is accepted rather than preserved. The block determination inherently sees the reduced
+damage once the resistances come first — preserving the old answer would mean running armor
+twice, or on a number the defender never took. And semantically, a resistance absorbing
+damage is the armour's elemental protection working, not the shield, which is what
+Shielding measures.
+
+Pinned by `AResistanceSwallowingTheHitIsNotABlock`.
+
 ### The fixture crash this lane cost a day to
 
 Six tests in this file segfaulted, and the cause was neither the ordering nor production
@@ -124,7 +147,7 @@ guarding `hasFlag` would hide the next fixture that forgets.
 
 | File | Cases | What it proves |
 |---|---|---|
-| `tests/unit/players/damage_reduction_order_test.cpp` | 10 | a minimal Player survives the whole chain; the fixture's premises; the no-resistance control lands in [901, 950]; **the resistance applies before the armor**, at or below 250 where the old order could never go below 270; sixty-four rolls never reach the old order's range; the resistance is worth more than it used to be; a reduced hit that still lands reports no block; a fully absorbed hit reports `BLOCK_ARMOR` to the caller and `BLOCK_NONE` to the attacker, so no skill point is lost; a damage type the item does not absorb is untouched |
+| `tests/unit/players/damage_reduction_order_test.cpp` | 11 | a minimal Player survives the whole chain; the fixture's premises; the no-resistance control lands in [901, 950]; **the resistance applies before the armor**, at or below 250 where the old order could never go below 270; sixty-four rolls never reach the old order's range; the resistance is worth more than it used to be; a reduced hit that still lands reports no block; a resistance swallowing the hit is not a block by defense or armor, so the defender's Shielding does not advance on it; a fully absorbed hit reports `BLOCK_ARMOR` to the caller and `BLOCK_NONE` to the attacker, so no skill point is lost; a damage type the item does not absorb is untouched |
 
 The armor roll is random, which would normally make an ordering assertion impossible. The
 fixture is chosen so the two orders land in **disjoint** ranges, which makes an upper bound

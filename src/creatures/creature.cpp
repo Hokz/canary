@@ -1114,33 +1114,23 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 			}
 		}
 
-		// The defender's Shielding advances on a block by defense or armor, which is
-		// what it did before. A resistance swallowing the hit is not a block and did not
-		// advance it then either.
+		// The defender's Shielding advances on a block by defense or armor. That rule is
+		// unchanged, but WHAT REACHES IT IS NOT, and the difference is real rather than
+		// cosmetic:
+		//
+		// Armor and defense now see the damage the resistances already reduced. A small
+		// hit that a resistance swallows outright never reaches them, where before the
+		// reorder it arrived at full strength and armor stopped it - so that hit used to
+		// advance Shielding and no longer does. Against an element the defender resists
+		// heavily, Shielding therefore trains a little more slowly.
+		//
+		// Accepted rather than papered over. The block determination inherently sees the
+		// reduced damage once the resistances come first, so preserving the old answer
+		// would mean running armor twice or on a number the defender never took; and a
+		// resistance absorbing damage is the armour's elemental protection working, not
+		// the shield, which is what Shielding is meant to measure.
 		if (hasDefense && blockedByDefenceOrArmor) {
 			onBlockHit();
-		}
-	}
-
-	// Spend the charges the resistances used, under the condition the old position got
-	// for free: nothing had already stopped the hit when the absorb ran. Immunity leaves
-	// the list empty, so only defense and armor need naming here. Whether the absorb
-	// then took the whole hit is irrelevant - the charge came out inside the loop before
-	// this moved, and it still does.
-	//
-	// One divergence is inherent to the reorder and is accepted: mitigation used to run
-	// before the loop, so a hit mitigation alone reduced to nothing cost no charge. It
-	// now runs after, and such a hit does. Mitigation is a percentage and can only reach
-	// zero on a hit that was already almost nothing.
-	if (!blockedByDefenceOrArmor) {
-		for (const auto &item : resistanceChargedItems) {
-			if (!item) {
-				continue;
-			}
-			const auto charges = item->getAttribute<uint16_t>(ItemAttribute_t::CHARGES);
-			if (charges != 0) {
-				g_game().transformItem(item, item->getID(), charges - 1);
-			}
 		}
 	}
 
@@ -1154,8 +1144,33 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 		attacker->onAttackedCreatureBlockHit(resistanceAbsorbedAll ? BLOCK_NONE : blockType);
 	}
 
+	// Mitigation is the last reduction, as it was.
+	bool mitigationFinishedTheHit = false;
 	if (damage != 0) {
 		mitigateDamage(combatType, blockType, damage);
+		mitigationFinishedTheHit = damage == 0;
+	}
+
+	// Spend the charges the resistances used, under the three conditions the old
+	// position got for free by running last:
+	//
+	//   - immunity leaves the list empty, so it needs no naming here;
+	//   - defense or armor stopping the hit skipped the absorb loop entirely;
+	//   - mitigation stopping the hit did too, because it ran before the loop and its
+	//     early return skipped it.
+	//
+	// A resistance that takes the whole hit itself still spends the charge, because the
+	// charge came out inside the loop before this moved and the loop had already run.
+	if (!blockedByDefenceOrArmor && !mitigationFinishedTheHit) {
+		for (const auto &item : resistanceChargedItems) {
+			if (!item) {
+				continue;
+			}
+			const auto charges = item->getAttribute<uint16_t>(ItemAttribute_t::CHARGES);
+			if (charges != 0) {
+				g_game().transformItem(item, item->getID(), charges - 1);
+			}
+		}
 	}
 
 	if (damage != 0) {
