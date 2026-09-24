@@ -43,9 +43,11 @@ namespace {
 		static constexpr uint16_t kArmorId = 64920;
 		static constexpr uint16_t kAbsorbId = 64921;
 		static constexpr uint16_t kShieldId = 64922;
+		static constexpr uint16_t kHalfAbsorbId = 64923;
 
 		static constexpr int32_t kArmor = 100;
 		static constexpr int16_t kFireAbsorbPercent = 70;
+		static constexpr int16_t kHalfFireAbsorbPercent = 50;
 		static constexpr int32_t kIncomingDamage = 1000;
 
 		// The resistance-assisted hit. 100 damage is small enough that the armor roll
@@ -66,8 +68,8 @@ namespace {
 
 			auto &items = Item::items.getItems();
 			originalItemsSize = items.size();
-			if (items.size() <= kShieldId) {
-				items.resize(kShieldId + 1);
+			if (items.size() <= kHalfAbsorbId) {
+				items.resize(kHalfAbsorbId + 1);
 			}
 
 			auto &armor = items[kArmorId];
@@ -95,6 +97,15 @@ namespace {
 			shield.id = kShieldId;
 			shield.name = "test test shield";
 			shield.weaponType = WEAPON_SHIELD;
+
+			// A weaker absorb, for the charge-timeline cases. At 50% a hit of 2 comes down
+			// to 1 rather than to 0, which is what lets the two pipelines mitigate
+			// different numbers and disagree.
+			auto &halfAbsorb = items[kHalfAbsorbId];
+			halfAbsorb = ItemType {};
+			halfAbsorb.id = kHalfAbsorbId;
+			halfAbsorb.name = "test lesser warding charm";
+			halfAbsorb.getAbilities().absorbPercent[combatTypeToIndex(COMBAT_FIREDAMAGE)] = kHalfFireAbsorbPercent;
 		}
 
 		static void TearDownTestSuite() {
@@ -167,23 +178,27 @@ namespace {
 			return player;
 		}
 
-		// A defender whose mitigation alone finishes any hit that reaches it.
+		// A defender with a chosen absorb and an exact mitigation percentage: the shape the
+		// charge-timeline cases need, because those turn on mitigation reducing two
+		// different numbers in the two pipelines.
 		//
 		// With nothing in either hand, PlayerWheel::calculateMitigation reduces to
-		// ceil(effectiveShielding * skillFactor) / 100: there is no off-hand and no weapon,
-		// so the equipment multiplier is 1.0, and fightFactor is 1.0 because a Player with
-		// no client uses the modern combat model. A factor of 10000 / shielding would put
-		// mitigation at exactly 100%; this uses twice that, because the test needs
-		// mitigation to FINISH the hit and not to sit on a float knife edge at the boundary.
+		// ceil(effectiveShielding * skillFactor) / 100 - there is no off-hand and no weapon,
+		// so the equipment multiplier is 1.0, and fightFactor is 1.0 because a Player with no
+		// client uses the modern combat model. So a factor of percent * 100 / shielding puts
+		// mitigation at exactly percent.
 		//
 		// The factor is derived from the Shielding the fixture actually has rather than
 		// assumed to be the base 10, because getSkillLevel folds in loyalty and var
 		// contributions - a lesson from the Battle Healing suite.
-		static std::shared_ptr<Player> fullyMitigatedDefender() {
-			auto player = defender(true);
+		static std::shared_ptr<Player> chargeTimelineDefender(uint16_t absorbId, float mitigationPercent) {
+			auto player = defender(false);
+			player->setTestInventoryItem(CONST_SLOT_BACKPACK, Item::CreateItem(absorbId, 1));
+			player->setItemAbility(CONST_SLOT_BACKPACK, true);
+
 			const auto shielding = player->getSkillLevel(SKILL_SHIELD);
 			EXPECT_GT(shielding, 0) << "the factor below divides by this";
-			player->getVocation()->mitigation.skillFactor = 20000.0f / static_cast<float>(shielding);
+			player->getVocation()->mitigation.skillFactor = (mitigationPercent * 100.0f) / static_cast<float>(shielding);
 			return player;
 		}
 
@@ -454,15 +469,63 @@ namespace {
 
 	// --- Mitigation, the last reduction -----------------------------------------------
 
-	TEST_F(DamageReductionOrderTest, AHitMitigationFinishesSpendsNoCharge) {
-		// Mitigation ran before the absorb loop was reached and its early return skipped
-		// it, so a hit mitigation finished never cost a charge. Unchanged here.
-		auto player = fullyMitigatedDefender();
+	// The charge decision belongs to ONE timeline. Legacy ran defense, armor and mitigation
+	// and only then the absorb loop, so all three could stop a hit before a charge was ever
+	// reached. The two cases below are where a gate that mixed a legacy defense/armor answer
+	// with the real pipeline's mitigation answer gets it wrong - once in each direction.
+
+	TEST_F(DamageReductionOrderTest, LegacyMitigationLeavingTheHitStandingStillOwesTheCharge) {
+		// 2 damage, 50% absorb, 10% mitigation, no armor.
+		//
+		// Legacy mitigated first, on 2: 2 - 0.2 = 1.8, truncated to 1. Still standing, so the
+		// absorb loop ran and a charge came out. The real path resists to 1 and then mitigates
+		// THAT to 0 - so a gate reading real mitigation refuses a charge legacy paid. The
+		// truncation is the whole mechanism, which is why both pipelines have to run the same
+		// arithmetic through Creature::calculateMitigatedDamage.
+		auto player = chargeTimelineDefender(kHalfAbsorbId, 10.0f);
+		int32_t damage = 2;
+		hitFor(player, damage, false);
+
+		EXPECT_EQ(0, damage) << "the real pipeline does finish this hit";
+		EXPECT_TRUE(player->didTestSpendResistanceCharges()) << "but legacy mitigation left 1 standing, so the loop was reached";
+	}
+
+	TEST_F(DamageReductionOrderTest, LegacyMitigationFinishingTheHitOwesNoCharge) {
+		// 100 damage, 70% absorb, armor 100, 100% mitigation.
+		//
+		// Legacy armor left 1..50 standing, then mitigation zeroed it, so the absorb loop was
+		// never reached and nothing was charged. The real path has armor finish the hit, so
+		// real mitigation never runs at all - and a gate reading it would charge for a hit
+		// legacy never charged.
+		auto player = chargeTimelineDefender(kAbsorbId, 100.0f);
+		int32_t damage = kAssistedDamage;
+		ASSERT_EQ(BLOCK_ARMOR, hitFor(player, damage));
+
+		EXPECT_EQ(0, damage);
+		EXPECT_FALSE(player->didTestSpendResistanceCharges()) << "legacy mitigation finished it before the loop was reached";
+	}
+
+	TEST_F(DamageReductionOrderTest, ModestMitigationOwesTheChargeInBothModels) {
+		// The control where the two timelines agree: 1000 damage, 70% absorb, 10% mitigation,
+		// no armor. Legacy mitigates 1000 to 900 and reaches the loop; the real path lands
+		// for 270. Both say charge.
+		auto player = chargeTimelineDefender(kAbsorbId, 10.0f);
+		int32_t damage = kIncomingDamage;
+		hitFor(player, damage, false);
+
+		EXPECT_EQ(270, damage) << "70% off 1000 is 300, then 10% mitigation";
+		EXPECT_TRUE(player->didTestSpendResistanceCharges());
+	}
+
+	TEST_F(DamageReductionOrderTest, MitigationFinishingTheHitInBothModelsOwesNoCharge) {
+		// The other control: mitigation well past 100%, so it finishes the hit in either
+		// order. Legacy never reached the absorb loop, so no charge - unchanged by this lane.
+		auto player = chargeTimelineDefender(kAbsorbId, 200.0f);
 		int32_t damage = kIncomingDamage;
 		hitFor(player, damage, false);
 
 		ASSERT_EQ(0, damage) << "mitigation finished the hit";
-		EXPECT_FALSE(player->didTestSpendResistanceCharges()) << "a hit mitigation finished never cost a charge";
+		EXPECT_FALSE(player->didTestSpendResistanceCharges()) << "a hit legacy mitigation finished never cost a charge";
 	}
 
 	TEST_F(DamageReductionOrderTest, AHitThatLandsSpendsTheCharge) {

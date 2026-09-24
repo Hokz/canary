@@ -478,6 +478,17 @@ public:
 	// all out.
 	[[nodiscard]] static bool isMitigatableCombatType(CombatType_t combatType);
 	void mitigateDamage(const CombatType_t &combatType, BlockType_t &blockType, int32_t &damage) const;
+
+	// The NUMERIC half of mitigation, with none of the side effects. Shared by the real
+	// reduction and by the legacy charge hypothetical in blockHit, so the two can never
+	// drift apart.
+	//
+	// The int32_t truncation in here is load-bearing, not incidental. A hit of 2 against
+	// 10% mitigation lands on 1.8 and truncates to 1, which is why the legacy hypothetical
+	// has to run this exact arithmetic on its own damage value rather than infer anything
+	// from the real pipeline's result. Do not reimplement it with round, floor, ceil or a
+	// double-only formula that is mathematically equivalent.
+	[[nodiscard]] int32_t calculateMitigatedDamage(const CombatType_t &combatType, int32_t damage) const;
 	virtual BlockType_t blockHit(const std::shared_ptr<Creature> &attacker, const CombatType_t &combatType, int32_t &damage, bool checkDefense = false, bool checkArmor = false, bool field = false);
 
 	void applyAbsorbDamageModifications(const std::shared_ptr<Creature> &attacker, int32_t &damage, CombatType_t combatType) const;

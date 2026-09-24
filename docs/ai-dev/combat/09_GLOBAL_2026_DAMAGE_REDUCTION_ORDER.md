@@ -112,43 +112,101 @@ preserving pre-move behaviour. That was preserving an artefact: the old answer w
 gone, and `resistanceAbsorbedAll` with it.
 
 **Item charges are preserved, because they are an item economy rather than a combat
-outcome.** The old absorb loop sat behind an early return, so a charge came out exactly
-when nothing had already stopped the hit — and the hit it asked about was the **unreduced**
-one, since the resistances ran last. A resistance-assisted hit therefore *did* cost a
-charge before this change: armor had not stopped it. Gating on what actually happens now
-would silently stop charging that whole class, making physical-absorb gear quietly cheaper
-to run. So the charge rule reads a hypothetical:
+outcome.** Nothing about moving the resistances earlier should make a defender's gear
+cheaper or dearer to run.
 
-```cpp
-if (!defenceOrArmorWouldHaveStoppedTheUnreducedHit && !mitigationFinishedTheHit) {
+Getting that right needs one correction of its own, because the legacy charge rule is not
+"charge if the hit landed". The old absorb loop sat at the end of `Player::blockHit`, behind
+an early return, so the real condition was:
+
+> A charge was spent if execution **reached the absorb loop**, and that item contributed
+> absorb.
+
+Immunity, defense, armor **and mitigation** all ran before the loop, so any of the four
+skipped it. That makes the charge decision a question about the **whole** legacy pipeline,
+not just its defense and armor. Answering it with a legacy defense/armor fact ANDed to the
+*real* pipeline's mitigation fact — which is what an earlier head of this PR did — mixes two
+timelines and gets the answer wrong in **both** directions:
+
+```
+A) 2 damage, 50% resistance, 10% mitigation, no armor
+
+   legacy:  2 → mitigate → 1.8 → int32_t 1 → loop reached      => CHARGE
+   real:    2 → resist → 1 → mitigate → 0.9 → int32_t 0
+            a gate reading real mitigation                      => NO CHARGE   (wrong)
+
+B) 100 damage, 70% resistance, armor 100 (roll 50..99), 100% mitigation
+
+   legacy:  100 → armor → 1..50 → mitigate → 0 → loop never reached  => NO CHARGE
+   real:    100 → resist → 30 → armor → 0, so mitigation never runs
+            a gate reading real mitigation                            => CHARGE  (wrong)
 ```
 
-| Outcome | Charge spent? | Why |
-|---|---|---|
-| immunity | no | the list is never populated |
-| defense or armor would have stopped the **unreduced** hit | no | the old early return skipped the loop |
-| mitigation alone finished it | no | `mitigationFinishedTheHit` |
-| resistance-assisted block | **yes** | armor would not have stopped the unreduced hit |
-| the resistance took the whole hit, armor would not have | **yes** | nothing else was going to stop it |
-| the hit landed | **yes** | unchanged |
+The `int32_t` truncation in case A is the entire mechanism, which is why the two pipelines
+must run **the same arithmetic**, not an equivalent formula.
 
-Two earlier drafts got this table wrong in both directions — first gating on "damage
-remains", which would have stopped charging fully absorbed hits; then dropping the
-mitigation condition, which started charging mitigated ones; and then gating on
-`blockedByDefenceOrArmor`, which stopped charging the entire resistance-assisted class.
+So there are two pipelines, and each owns exactly one thing:
+
+```
+REAL — owns final damage, blockType, the attacker callback and Shielding
+  pre-equipment damage → equipment resistance → defense → armor → mitigation
+
+LEGACY HYPOTHETICAL — owns nothing but the charge question
+  pre-equipment damage → defense (same roll) → armor (same roll) → legacy-position mitigation
+                       → would the old absorb loop have been reached?
+```
+
+The rule reduces to one boolean from one timeline:
+
+```cpp
+if (legacyWouldReachEquipmentResistance) {
+```
+
+| Legacy outcome | Charge spent? |
+|---|---|
+| immunity | no — the loop was never reached, and the list is never populated |
+| defense stopped the unreduced hit | no — `Creature::blockHit` returned before the loop |
+| armor stopped the unreduced hit | no — same |
+| legacy mitigation reduced it to zero | no — the `damage > 0` guard skipped the loop |
+| nothing stopped it | **yes** — the loop ran, and each participating item paid |
+
+A resistance-assisted hit falls in the last row: legacy armor did not stop it and legacy
+mitigation did not finish it, so it cost a charge then and costs one now. Four earlier
+drafts got this table wrong in four different ways — gating on "damage remains" (which would
+have stopped charging fully absorbed hits), dropping the mitigation condition (which started
+charging mitigated ones), gating on `blockedByDefenceOrArmor` (which stopped charging the
+whole resistance-assisted class), and finally ANDing a legacy term with a real-pipeline term
+(cases A and B above).
+
+### One shared mitigation formula
+
+The hypothetical must mitigate with *exactly* the engine's arithmetic, truncation included,
+so the numeric half is factored out and both paths call it:
+
+```cpp
+[[nodiscard]] int32_t Creature::calculateMitigatedDamage(const CombatType_t &, int32_t) const;
+```
+
+`mitigateDamage` keeps the side effects — the `blockType` change and the trace log — and
+delegates the number. There is one copy of `damage -= (damage * getMitigation()) / 100.`,
+so the real path and the hypothetical cannot drift.
+
+One accepted cost: a hit that reaches both evaluates `getMitigation()` twice, which for a
+Player means `PlayerWheel::calculateMitigation()` twice. It is a pure read of player state,
+and threading a cached percentage through both call sites would reintroduce exactly the
+drift risk the shared helper exists to remove.
 
 ### One roll per layer
 
-The hypothetical needs to know whether defense and armor would have stopped the unreduced
-hit, and **armor is a random roll**. Rolling a second time to answer that would make the
-real hit and its classification disagree by luck, which would turn the charge rule into a
-coin flip.
+The hypothetical needs to know what defense and armor would have done to the unreduced hit,
+and **armor is a random roll**. Rolling a second time to answer that would make the real hit
+and its classification disagree by luck, which would turn the charge rule into a coin flip.
 
 So each layer is rolled exactly once, up front, and `runDefenceAndArmor` — a local lambda
 that sequences defense then armor with the rolls already fixed — is run twice over the same
-two numbers: once on the real post-resistance damage, once on the unreduced value for
-classification only. The second run cannot touch the damage the defender takes; its result
-feeds one boolean.
+two numbers: once on the real post-resistance damage, once on the pre-resistance value for
+the hypothetical. The second run cannot touch the damage the defender takes; it feeds the
+legacy mitigation step, and that feeds one boolean.
 
 One deliberate difference in RNG consumption: the armor roll is now drawn whenever
 `checkArmor` holds, where the old sequential flow skipped it if defense had already blocked.
@@ -183,7 +241,7 @@ guarding `hasFlag` would hide the next fixture that forgets.
 
 ## Tests
 
-`tests/unit/players/damage_reduction_order_test.cpp`, **20 cases**.
+`tests/unit/players/damage_reduction_order_test.cpp`, **23 cases**.
 
 **The ordering itself** — a minimal Player survives the whole chain; the fixture's premises
 (the armour slot is the only armour, mitigation is zero); the no-resistance control lands in
@@ -200,9 +258,13 @@ Shielding advances, observed; the charge is still spent.
 `BLOCK_ARMOR`; Shielding does **not** advance, observed; no charge when armor would have
 stopped the hit anyway, and a charge when it would not.
 
+**The charge timeline** — the two cases where a mixed-timeline gate is wrong in opposite
+directions: legacy mitigation leaving 1 standing after truncation still owes the charge
+(2 damage, 50%, 10% mitigation), and legacy mitigation finishing the hit owes none
+(100 damage, 70%, armor 100, 100% mitigation); plus both controls, where the timelines agree.
+
 **No regression** — an ordinary armor block with no resistance involved still blocks,
-still advances Shielding and still charges nothing; a hit mitigation finishes spends no
-charge, with a landing hit as its control.
+still advances Shielding and still charges nothing; a landing hit charges.
 
 The armor roll is random, which would normally make these assertions impossible. Every case
 above is built on a pair of **disjoint** ranges — 1000 damage separates the two orders at
@@ -226,7 +288,8 @@ unobservable, and production reads neither.
     `g_game().transformItem`, which returns early on an item with no parent and therefore
     cannot be observed through the item in a unit test. `blockHit` records the *decision* —
     whether the resistances' charges were spent — and the tests read that. It is the rule
-    that was at risk here, and it was got wrong three times before this.
+    that was at risk here, and it was got wrong four times before this — which is exactly
+    why it has a seam.
 
 **Still not proven by tests:** the imbuement branch specifically, which needs the imbuement
 registry; and the `transformItem` call itself, as opposed to the decision to make it.

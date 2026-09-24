@@ -939,10 +939,21 @@ bool Creature::isMitigatableCombatType(CombatType_t combatType) {
 	return false;
 }
 
+int32_t Creature::calculateMitigatedDamage(const CombatType_t &combatType, int32_t damage) const {
+	if (!isMitigatableCombatType(combatType)) {
+		return damage;
+	}
+
+	// Unchanged arithmetic, moved here so there is one copy of it. The assignment back to
+	// an int32_t truncates, and that truncation is part of the rule - see the header.
+	damage -= (damage * getMitigation()) / 100.;
+	return std::max<int32_t>(damage, 0);
+}
+
 void Creature::mitigateDamage(const CombatType_t &combatType, BlockType_t &blockType, int32_t &damage) const {
 	if (isMitigatableCombatType(combatType)) {
-		auto originalDamage = damage;
-		damage -= (damage * getMitigation()) / 100.;
+		const auto originalDamage = damage;
+		damage = calculateMitigatedDamage(combatType, damage);
 		g_logger().trace("[mitigation] creature: {}, original damage: {}, mitigation damage: {}", getName(), originalDamage, damage);
 
 		if (damage <= 0) {
@@ -1052,11 +1063,11 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 	// consequence of that separable and stated, instead of riding on an overloaded
 	// BLOCK_ARMOR. See docs/ai-dev/combat/09_GLOBAL_2026_DAMAGE_REDUCTION_ORDER.md.
 	std::vector<std::shared_ptr<Item>> resistanceChargedItems;
-	// Defense or armor would have stopped the hit as it stood BEFORE the equipment
-	// resistances, which is the hit they were handed until this change. Only the item
-	// charge rule reads this, because that rule is preserved rather than reordered, which
-	// is why this one outlives the block below and blockedByDefenceOrArmor does not.
-	bool defenceOrArmorWouldHaveStoppedTheUnreducedHit = false;
+	// The one thing the legacy hypothetical is for: would the absorb loop at the end of the
+	// old Player::blockHit have been reached at all? That, and only that, is what a charge
+	// was ever conditioned on. It outlives the block below because the charge loop at the
+	// end of this function is its only reader.
+	bool legacyWouldReachEquipmentResistance = false;
 	testChargeSpendDecision = false;
 
 	if (isImmune(combatType)) {
@@ -1079,8 +1090,10 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 			}
 		}
 
-		// The hit as defense and armor used to receive it. Kept only for the charge rule.
-		const int32_t unreducedDamage = damage;
+		// The hit as defense, armor and mitigation all used to receive it: after the
+		// creature's own absorb and immunity, before anything the defender wears. This is
+		// the value the entire legacy hypothetical is built on.
+		const int32_t preEquipmentResistanceDamage = damage;
 
 		if (damage > 0) {
 			applyEquipmentResistances(combatType, damage, field, resistanceChargedItems);
@@ -1149,9 +1162,33 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 			}
 		}
 
-		// Classification only. Nothing here can touch the damage the defender takes: the
-		// result feeds one boolean, read by the charge rule at the end of this function.
-		defenceOrArmorWouldHaveStoppedTheUnreducedHit = runDefenceAndArmor(unreducedDamage).stoppedBy != BLOCK_NONE;
+		// The legacy hypothetical, in full. Classification only - nothing here can touch the
+		// damage the defender takes, and its entire output is one boolean.
+		//
+		// It has to run the WHOLE old pipeline, not just defense and armor. The old order
+		// was defense, armor, mitigation, and only then the absorb loop, so all three could
+		// stop the hit before a charge was ever reached. Mixing a legacy defense/armor
+		// answer with the real pipeline's mitigation answer - which is what the previous
+		// head did - combines two different timelines and gets the charge wrong in both
+		// directions:
+		//
+		//   2 damage, 50% resistance, 10% mitigation, no armor. Legacy mitigated 2 to 1
+		//   (1.8, truncated), reached the loop and charged. The real path resists to 1
+		//   first, mitigates that to 0, and a gate reading the real mitigation says no
+		//   charge.
+		//
+		//   100 damage, 70% resistance, armor 100, 100% mitigation. Legacy armor left 1..50
+		//   standing, then mitigation zeroed it, so the loop was never reached and nothing
+		//   was charged. The real path has armor finish the hit, so mitigation never runs,
+		//   and a gate reading the real mitigation says charge.
+		//
+		// So the hypothetical runs defense and armor on the legacy value with the SAME
+		// rolls, then legacy mitigation on whatever those leave, through the same helper the
+		// real path uses. Only if all three fail to stop it was the absorb loop reached.
+		const auto legacyOutcome = runDefenceAndArmor(preEquipmentResistanceDamage);
+		if (legacyOutcome.stoppedBy == BLOCK_NONE) {
+			legacyWouldReachEquipmentResistance = calculateMitigatedDamage(combatType, legacyOutcome.damage) > 0;
+		}
 
 		// Shielding advances when the shield or the armour stopped the hit, as before. It
 		// is gated on what really happened rather than on the hypothetical, and that is a
@@ -1183,26 +1220,24 @@ BlockType_t Creature::blockHit(const std::shared_ptr<Creature> &attacker, const 
 		attacker->onAttackedCreatureBlockHit(blockType);
 	}
 
-	// Mitigation is the last reduction, as it was.
-	bool mitigationFinishedTheHit = false;
+	// Mitigation is the last reduction, as it was. Its result is the real one, and the
+	// charge rule below deliberately does not read it - see the hypothetical above.
 	if (damage != 0) {
 		mitigateDamage(combatType, blockType, damage);
-		mitigationFinishedTheHit = damage == 0;
 	}
 
-	// The item charge rule, held exactly where it was. The absorb loop used to sit behind
-	// an early return, so a charge came out precisely when nothing had already stopped the
-	// hit: not under immunity, where the list is never filled; not when defense or armor
-	// stopped THE HIT THEY SAW, which was the unreduced one; and not when mitigation
-	// finished it before the loop was reached.
+	// The item charge rule, on one boolean from one timeline.
 	//
-	// Reading the hypothetical here rather than blockedByDefenceOrArmor is the whole point.
-	// A resistance-assisted block - the resistance weakens the hit, then armor finishes it -
-	// is a block that did not exist before the reorder. Gating on what really happened
-	// would silently stop charging those hits, which is most melee against a defender with
-	// physical absorb, and would make that gear quietly cheaper to run. Charges are an item
-	// economy rather than a combat outcome, so the reorder leaves them alone.
-	if (!defenceOrArmorWouldHaveStoppedTheUnreducedHit && !mitigationFinishedTheHit) {
+	// A charge was never conditioned on the hit landing. It was conditioned on execution
+	// reaching the absorb loop at the end of the old Player::blockHit, which sat behind an
+	// early return - so immunity, defense, armor and mitigation each skipped it, because
+	// each ran before it. legacyWouldReachEquipmentResistance is exactly that question,
+	// answered on the legacy pipeline in full.
+	//
+	// Charges are an item economy rather than a combat outcome, which is why they are the
+	// one thing this reorder deliberately does not touch: nothing about moving the
+	// resistances earlier should make a defender's gear cheaper or dearer to run.
+	if (legacyWouldReachEquipmentResistance) {
 		testChargeSpendDecision = !resistanceChargedItems.empty();
 		for (const auto &item : resistanceChargedItems) {
 			if (!item) {
